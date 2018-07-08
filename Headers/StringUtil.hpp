@@ -21,13 +21,24 @@ private:
 
     ///
     //
+    //  Intended to be used in std::enable_if_t<..> template args, to help 
+    //  ensure correct data types are used with StringUtil functions.
+    //
+    ///
+    template <class T>
+    static bool constexpr IsStringTypeValue( )
+    {
+        return std::is_same<T, char>::value || std::is_same<T, wchar_t>::value;
+    }
+
+    ///
+    //
     //  Define macro, used as default template argument for GetNTStringLength function.
     //  - Helps ensure correct data-type is used with the function.
     //
     ///
 #define _GET_NT_STRING_LENGTH_ENABLE_CONDITIONS_ \
-    typename = std::enable_if_t<\
-    std::is_same<T_Src, char>::value || std::is_same<T_Src, wchar_t>::value> /* T_Src must be char or wchar_t */
+    typename = std::enable_if_t<IsStringTypeValue<T_Src>( )>
 
     ///
     //
@@ -61,10 +72,7 @@ public:
     //
     ///
 #define _CONVERT_AND_COPY_ENABLE_CONDITIONS_ \
-    typename = std::enable_if_t< \
-    (std::is_same<T_Src, char>::value || std::is_same<T_Src, wchar_t>::value) && /* T_Src must be char or wchar_t */ \
-    (std::is_same<T_Dst, char>::value || std::is_same<T_Dst, wchar_t>::value) && /* T_Dst must be char or wchar_t */ \
-    (!std::is_same<T_Src, T_Dst>::value)>                                        /* T_Src cannot be same as T_Dst */
+    typename = std::enable_if_t<IsStringTypeValue<T_Src>( ) && IsStringTypeValue<T_Dst>( ) && !std::is_same<T_Src, T_Dst>::value>
 
     ///
     //
@@ -74,7 +82,8 @@ public:
     //  memory leaks in the event the caller forgets to free the returned pointer.
     //
     //  Length argument is expected to be the number of characters (i.e., elements) 
-    //  that the string contains, as opposed to total byte-count.
+    //  that the string contains, as opposed to total byte-count.  If string is null
+    //  terminated, the length should include the null.
     //
     //  - NOTE: FUNCTION ASSUMES CALLER-PROVIDED LENGTH ARGUMENT IS CORRECT.
     //  - - If length is too large, you will overrun the source-string boundaries.
@@ -133,7 +142,6 @@ public:
         }
 
         buf.reserve(src.size( ));
-
         for ( auto c : src )
         {
             buf.push_back(static_cast<T_Dst>(c));
