@@ -7,6 +7,7 @@
 
 class StringUtil
 {
+    /// Static Class - No Ctors/Dtors
     StringUtil( ) = delete;
     StringUtil(const StringUtil&) = delete;
     StringUtil(StringUtil&&) = delete;
@@ -72,7 +73,9 @@ public:
     //
     ///
 #define _CONVERT_AND_COPY_ENABLE_CONDITIONS_ \
-    typename = std::enable_if_t<IsStringTypeValue<T_Src>( ) && IsStringTypeValue<T_Dst>( ) && !std::is_same<T_Src, T_Dst>::value>
+    typename = std::enable_if_t<IsStringTypeValue<T_Src>( ) && \
+                IsStringTypeValue<T_Dst>( ) && \
+                !std::is_same<T_Src, T_Dst>::value>
 
     ///
     //
@@ -92,7 +95,7 @@ public:
     //
     ///
     template <class T_Dst, class T_Src, _CONVERT_AND_COPY_ENABLE_CONDITIONS_>
-        static std::unique_ptr<T_Dst[ ]> ConvertAndCopy(const T_Src* src, size_t len)
+    static std::unique_ptr<T_Dst[ ]> ConvertAndCopy(const T_Src* src, size_t len)
     {
         std::unique_ptr<T_Dst[ ]> buf;
 
