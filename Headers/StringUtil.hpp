@@ -29,7 +29,7 @@ private:
     template <class T>
     static bool constexpr IsStringTypeValue( )
     {
-        return std::is_same<T, char>::value || std::is_same<T, wchar_t>::value;
+        return std::is_same_v<T, char> || std::is_same_v<T, wchar_t>;
     }
 
     ///
@@ -75,7 +75,7 @@ public:
 #define _CONVERT_AND_COPY_ENABLE_CONDITIONS_ \
     typename = std::enable_if_t<IsStringTypeValue<T_Src>( ) && \
                 IsStringTypeValue<T_Dst>( ) && \
-                !std::is_same<T_Src, T_Dst>::value>
+                !std::is_same_v<T_Src, T_Dst>>
 
     ///
     //
