@@ -99,15 +99,13 @@ public:
     {
         std::unique_ptr<T_Dst[ ]> buf;
 
-        if ( !src || len == 0 )
+        if ( src && len > 0 )
         {
-            return buf;
-        }
-
-        buf = std::make_unique<T_Dst[ ]>(len);
-        for ( size_t i = 0; i < len; i++ )
-        {
-            buf[i] = static_cast<T_Dst>(src[i]);
+            buf = std::make_unique<T_Dst[ ]>(len);
+            for ( size_t i = 0; i < len; i++ )
+            {
+                buf[i] = static_cast<T_Dst>(src[i]);
+            }
         }
 
         return buf;
@@ -139,15 +137,13 @@ public:
     {
         std::basic_string<T_Dst> buf;
 
-        if ( src.empty( ) )
+        if ( !src.empty( ) )
         {
-            return buf;
-        }
-
-        buf.reserve(src.size( ));
-        for ( auto c : src )
-        {
-            buf.push_back(static_cast<T_Dst>(c));
+            buf.reserve(src.size( ));
+            for ( auto c : src )
+            {
+                buf.push_back(static_cast<T_Dst>(c));
+            }
         }
 
         return buf;
