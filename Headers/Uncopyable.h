@@ -11,16 +11,16 @@
 ///
 class Uncopyable
 {
+    // Copy Ctor/Assignment Deleted
+    Uncopyable(const Uncopyable&)               = delete;
+    Uncopyable& operator=(const Uncopyable&)    = delete;
+
 protected:
     Uncopyable()                                = default;
     Uncopyable(Uncopyable&&)                    = default;
     ~Uncopyable()                               = default;
 
     Uncopyable& operator=(Uncopyable&&)         = default;
-
-    // Copy Ctor/Assignment Deleted
-    Uncopyable(const Uncopyable&)               = delete;
-    Uncopyable& operator=(const Uncopyable&)    = delete;
 };
 
 #endif // _UNCOPYABLE_H

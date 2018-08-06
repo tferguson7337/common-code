@@ -11,17 +11,16 @@
 ///
 class Unmovable
 {
+    // Move Ctor/Assignment Deleted
+    Unmovable(Unmovable&&)                  = delete;
+    Unmovable& operator=(Unmovable&&)       = delete;
+
 protected:
     Unmovable( )                            = default;
     Unmovable(const Unmovable&)             = default;
     ~Unmovable( )                           = default;
 
     Unmovable& operator=(const Unmovable&)  = default;
-
-    // Move Ctor/Assignment Deleted
-    Unmovable(Unmovable&&)                  = delete;
-    Unmovable& operator=(Unmovable&&)       = delete;
-
 };
 
 #endif // _UNMOVABLE_H

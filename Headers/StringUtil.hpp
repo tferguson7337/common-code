@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Types.h"
+#include "Macros.h"
 
 #include <string>
 #include <memory>
@@ -22,32 +22,44 @@ private:
 
     ///
     //
-    //  Intended to be used in std::enable_if_t<..> template args, to help 
-    //  ensure correct data types are used with StringUtil functions.
+    //  Define macro, used as default template argument for CopyXyz functions.
+    //  - Helps ensure correct data-types are used with the function.
     //
     ///
-    template <class T>
-    static bool constexpr IsStringTypeValue( )
+#define COPY_METHOD_ENABLE_CONDITIONS(T1, T2) \
+    typename = std::enable_if_t<IsStringTypeValue<T1>( ) && IsStringTypeValue<T2>( )>
+
+
+    ///
+    //
+    //  Perform common work to copy source C-string into destination buffer.
+    //  Will perform conversion as necessary if the source/destination types differ.
+    //
+    ///
+    template <class T_Dst, class T_Src, COPY_METHOD_ENABLE_CONDITIONS(T_Dst, T_Src)>
+    static std::unique_ptr<T_Dst[ ]> CopyCStringCommon(const T_Src* src, const size_t len)
     {
-        return std::is_same_v<T, char> || std::is_same_v<T, wchar_t>;
+        std::unique_ptr<T_Dst[ ]> buf;
+
+        if ( src && len > 0 )
+        {
+            buf = std::make_unique<T_Dst[ ]>(len);
+            for ( size_t i = 0; i < len; i++ )
+            {
+                buf[i] = static_cast<T_Dst>(src[i]);
+            }
+        }
+
+        return buf;
     }
 
     ///
     //
-    //  Define macro, used as default template argument for GetNTStringLength function.
-    //  - Helps ensure correct data-type is used with the function.
-    //
-    ///
-#define _GET_NT_STRING_LENGTH_ENABLE_CONDITIONS_ \
-    typename = std::enable_if_t<IsStringTypeValue<T_Src>( )>
-
-    ///
-    //
     //  Helper class for counting characters in a null-terminated string (including the null).
-    //  - Note: Function assumes provided C-string argument is valid (i.e., not nullptr or non-dereferenceable addr).
+    //  - Note: Function assumes provided C-string argument is valid (i.e., valid addr and null-terminated).
     //
     ///
-    template <class T_Src, _GET_NT_STRING_LENGTH_ENABLE_CONDITIONS_>
+    template <class T_Src, STRING_TEMPLATE_ENABLE_IF_SUPPORTED_TYPE(T_Src)>
     static size_t GetNTStringLength(const T_Src* src)
     {
         // Get element count of source buffer.
@@ -72,10 +84,10 @@ public:
     //  - Helps ensure correct data-types are used with the function.
     //
     ///
-#define _CONVERT_AND_COPY_ENABLE_CONDITIONS_ \
-    typename = std::enable_if_t<IsStringTypeValue<T_Src>( ) && \
-                IsStringTypeValue<T_Dst>( ) && \
-                !std::is_same_v<T_Src, T_Dst>>
+#define CONVERT_AND_COPY_ENABLE_CONDITIONS(T1, T2) \
+    typename = std::enable_if_t<IsStringTypeValue<T1>( ) && \
+                IsStringTypeValue<T2>( ) && \
+                !std::is_same_v<T1, T2>>
 
     ///
     //
@@ -94,21 +106,10 @@ public:
     //      string will not be null-terminated.
     //
     ///
-    template <class T_Dst, class T_Src, _CONVERT_AND_COPY_ENABLE_CONDITIONS_>
-    static std::unique_ptr<T_Dst[ ]> ConvertAndCopy(const T_Src* src, size_t len)
+    template <class T_Dst, class T_Src, CONVERT_AND_COPY_ENABLE_CONDITIONS(T_Dst, T_Src)>
+    static std::unique_ptr<T_Dst[ ]> ConvertAndCopy(const T_Src* src, const size_t len)
     {
-        std::unique_ptr<T_Dst[ ]> buf;
-
-        if ( src && len > 0 )
-        {
-            buf = std::make_unique<T_Dst[ ]>(len);
-            for ( size_t i = 0; i < len; i++ )
-            {
-                buf[i] = static_cast<T_Dst>(src[i]);
-            }
-        }
-
-        return buf;
+        return CopyCStringCommon<T_Dst>(src, len);
     }
 
     ///
@@ -121,10 +122,10 @@ public:
     //  - NOTE: SOURCE ARGUMENT MUST BE NULL-TERMINATED.
     //
     ///
-    template <class T_Dst, class T_Src, _CONVERT_AND_COPY_ENABLE_CONDITIONS_>
+    template <class T_Dst, class T_Src, CONVERT_AND_COPY_ENABLE_CONDITIONS(T_Dst, T_Src)>
     static std::unique_ptr<T_Dst[ ]> ConvertAndCopy(const T_Src* src)
     {
-        return (src) ? ConvertAndCopy<T_Dst>(src, GetNTStringLength(src)) : nullptr;
+        return (src) ? CopyCStringCommon<T_Dst>(src, GetNTStringLength(src)) : nullptr;
     }
 
     ///
@@ -132,7 +133,7 @@ public:
     //  Creates and returns a copy of source string object, converting it to the destination type.
     //
     ///
-    template <class T_Dst, class T_Src, _CONVERT_AND_COPY_ENABLE_CONDITIONS_>
+    template <class T_Dst, class T_Src, CONVERT_AND_COPY_ENABLE_CONDITIONS(T_Dst, T_Src)>
     static std::basic_string<T_Dst> ConvertAndCopy(const std::basic_string<T_Src>& src)
     {
         std::basic_string<T_Dst> buf;
@@ -147,5 +148,29 @@ public:
         }
 
         return buf;
+    }
+
+    ///
+    //
+    //  Creates and returns a copy of the source string.
+    //  - Note: Length argument is assumed to be correct.
+    //
+    ///
+    template <class T, STRING_TEMPLATE_ENABLE_IF_SUPPORTED_TYPE(T)>
+    static std::unique_ptr<T[ ]> CopyCString(const T* src, const size_t len)
+    {
+        return CopyCStringCommon<T>(src, len);
+    }
+
+    ///
+    //
+    //  Creates and returns a copy of the source string.
+    //  - Note: String must be null-terminated.
+    //
+    ///
+    template <class T, STRING_TEMPLATE_ENABLE_IF_SUPPORTED_TYPE(T)>
+    static std::unique_ptr<T[ ]> CopyCString(const T* src)
+    {
+        return (src) ? CopyCStringCommon<T>(src, GetNTStringLength(src)) : nullptr;
     }
 };
