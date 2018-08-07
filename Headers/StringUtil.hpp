@@ -86,8 +86,7 @@ public:
     ///
 #define CONVERT_AND_COPY_ENABLE_CONDITIONS(T1, T2) \
     typename = std::enable_if_t<IsStringTypeValue<T1>( ) && \
-                IsStringTypeValue<T2>( ) && \
-                !std::is_same_v<T1, T2>>
+                IsStringTypeValue<T2>( )>
 
     ///
     //
