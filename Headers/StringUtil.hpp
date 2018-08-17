@@ -2,8 +2,11 @@
 
 #include "Macros.h"
 
+#include <iomanip>
+#include <sstream>
 #include <string>
 #include <memory>
+#include <vector>
 
 class StringUtil
 {
@@ -16,19 +19,28 @@ class StringUtil
     StringUtil& operator=(const StringUtil&) = delete;
     StringUtil& operator=(StringUtil&&) = delete;
 
+public:
+    // Enum Class for Specifying Num-To-String Conversion types.
+    enum class ConversionType : size_t
+    {
+        // Binary = 2, - Implementation Pending 
+        Octal = 8,
+        Decimal = 10,
+        Hexidecimal = 16,
+    };
+
 private:
 
     /// Private Helper Methods \\\
 
     ///
     //
-    //  Define macro, used as default template argument for CopyXyz functions.
+    //  Define macro, used as default template argument for ConvertAndCopy functions.
     //  - Helps ensure correct data-types are used with the function.
     //
     ///
-#define COPY_METHOD_ENABLE_CONDITIONS(T1, T2) \
-    typename = std::enable_if_t<IsStringTypeValue<T1>( ) && IsStringTypeValue<T2>( )>
-
+#define ENABLE_IF_STRING_COPY_SUPPORTED(T1, T2) \
+    typename = std::enable_if_t<IsSupportedCharType<T1>( ) && IsSupportedCharType<T2>( )>
 
     ///
     //
@@ -36,7 +48,7 @@ private:
     //  Will perform conversion as necessary if the source/destination types differ.
     //
     ///
-    template <class T_Dst, class T_Src, COPY_METHOD_ENABLE_CONDITIONS(T_Dst, T_Src)>
+    template <class T_Dst, class T_Src, ENABLE_IF_STRING_COPY_SUPPORTED(T_Dst, T_Src)>
     static std::unique_ptr<T_Dst[ ]> CopyCStringCommon(const T_Src* src, const size_t len)
     {
         std::unique_ptr<T_Dst[ ]> buf;
@@ -59,7 +71,7 @@ private:
     //  - Note: Function assumes provided C-string argument is valid (i.e., valid addr and null-terminated).
     //
     ///
-    template <class T_Src, STRING_TEMPLATE_ENABLE_IF_SUPPORTED_TYPE(T_Src)>
+    template <class T_Src, ENABLE_IF_SUPPORTED_CHARACTER_TYPE(T_Src)>
     static size_t GetNTStringLength(const T_Src* src)
     {
         // Get element count of source buffer.
@@ -74,19 +86,117 @@ private:
         return len + 1;
     }
 
+    ///
+    //
+    //  Helper class to get prefix for number conversion string.
+    //
+    ///
+    template <class T>
+    static const std::basic_string<T>& GetConversionPrefixString(const ConversionType&);
+
+    template <>
+    static const std::basic_string<char>& GetConversionPrefixString(const ConversionType& t)
+    {
+        static const std::vector<std::basic_string<char>> prefixes
+        {
+            "0", // octal
+            "", // decimal
+            "0x", // hexadecimal
+        };
+
+        switch ( t )
+        {
+        case ConversionType::Octal:
+            return prefixes[0];
+            break;
+
+        case ConversionType::Decimal:
+            return prefixes[1];
+            break;
+
+        case ConversionType::Hexidecimal:
+            return prefixes[2];
+            break;
+
+        default:
+            throw std::invalid_argument(
+                __FUNCTION__" - Invalid conversion type (" +
+                std::to_string(static_cast<std::underlying_type_t<ConversionType>>(t)) +
+                ")."
+            );
+        }
+    }
+
+    template <>
+    static const std::basic_string<wchar_t>& GetConversionPrefixString(const ConversionType& t)
+    {
+        static const std::vector<std::basic_string<wchar_t>> prefixes
+        {
+            L"0", // octal
+            L"", // decimal
+            L"0x", // hexadecimal
+        };
+
+        switch ( t )
+        {
+        case ConversionType::Octal:
+            return prefixes[0];
+            break;
+
+        case ConversionType::Decimal:
+            return prefixes[1];
+            break;
+
+        case ConversionType::Hexidecimal:
+            return prefixes[2];
+            break;
+
+        default:
+            throw std::invalid_argument(
+                __FUNCTION__" - Invalid conversion type (" +
+                std::to_string(static_cast<std::underlying_type_t<ConversionType>>(t)) +
+                ")."
+            );
+        }
+    }
+
+    template <class T, class I>
+    static std::basic_string<T> GetConvertedNumber(const ConversionType& t, const I& i)
+    {
+        std::basic_stringstream<T> ss;
+
+        ss << GetConversionPrefixString<T>(t);
+        
+        switch ( t )
+        {
+        case ConversionType::Octal:
+            ss << std::oct;
+            break;
+
+        case ConversionType::Decimal:
+            ss << std::dec;
+            break;
+
+        case ConversionType::Hexidecimal:
+            ss << std::hex << std::uppercase;
+            break;
+
+        default:
+            throw std::invalid_argument(
+                __FUNCTION__" - Invalid conversion type (" +
+                std::to_string(static_cast<std::underlying_type_t<ConversionType>>(t)) +
+                ")."
+            );
+        }
+
+        ss << i;
+
+        return ss.str( );
+    }
+
 public:
 
     /// Public Methods \\\
-
-    ///
-    //
-    //  Define macro, used as default template argument for ConvertAndCopy functions.
-    //  - Helps ensure correct data-types are used with the function.
-    //
-    ///
-#define CONVERT_AND_COPY_ENABLE_CONDITIONS(T1, T2) \
-    typename = std::enable_if_t<IsStringTypeValue<T1>( ) && \
-                IsStringTypeValue<T2>( )>
 
     ///
     //
@@ -105,7 +215,7 @@ public:
     //      string will not be null-terminated.
     //
     ///
-    template <class T_Dst, class T_Src, CONVERT_AND_COPY_ENABLE_CONDITIONS(T_Dst, T_Src)>
+    template <class T_Dst, class T_Src, ENABLE_IF_STRING_COPY_SUPPORTED(T_Dst, T_Src)>
     static std::unique_ptr<T_Dst[ ]> ConvertAndCopy(const T_Src* src, const size_t len)
     {
         return CopyCStringCommon<T_Dst>(src, len);
@@ -121,7 +231,7 @@ public:
     //  - NOTE: SOURCE ARGUMENT MUST BE NULL-TERMINATED.
     //
     ///
-    template <class T_Dst, class T_Src, CONVERT_AND_COPY_ENABLE_CONDITIONS(T_Dst, T_Src)>
+    template <class T_Dst, class T_Src, ENABLE_IF_STRING_COPY_SUPPORTED(T_Dst, T_Src)>
     static std::unique_ptr<T_Dst[ ]> ConvertAndCopy(const T_Src* src)
     {
         return (src) ? CopyCStringCommon<T_Dst>(src, GetNTStringLength(src)) : nullptr;
@@ -132,7 +242,7 @@ public:
     //  Creates and returns a copy of source string object, converting it to the destination type.
     //
     ///
-    template <class T_Dst, class T_Src, CONVERT_AND_COPY_ENABLE_CONDITIONS(T_Dst, T_Src)>
+    template <class T_Dst, class T_Src, ENABLE_IF_STRING_COPY_SUPPORTED(T_Dst, T_Src)>
     static std::basic_string<T_Dst> ConvertAndCopy(const std::basic_string<T_Src>& src)
     {
         std::basic_string<T_Dst> buf;
@@ -155,7 +265,7 @@ public:
     //  - Note: Length argument is assumed to be correct.
     //
     ///
-    template <class T, STRING_TEMPLATE_ENABLE_IF_SUPPORTED_TYPE(T)>
+    template <class T, ENABLE_IF_SUPPORTED_CHARACTER_TYPE(T)>
     static std::unique_ptr<T[ ]> CopyCString(const T* src, const size_t len)
     {
         return CopyCStringCommon<T>(src, len);
@@ -167,9 +277,33 @@ public:
     //  - Note: String must be null-terminated.
     //
     ///
-    template <class T, STRING_TEMPLATE_ENABLE_IF_SUPPORTED_TYPE(T)>
+    template <class T, ENABLE_IF_SUPPORTED_CHARACTER_TYPE(T)>
     static std::unique_ptr<T[ ]> CopyCString(const T* src)
     {
         return (src) ? CopyCStringCommon<T>(src, GetNTStringLength(src)) : nullptr;
+    }
+
+    ///
+    //
+    //  Creates and returns a specified C-string representation of the provided integer value. 
+    //
+    ///
+    template <class T, class I, ENABLE_IF_SUPPORTED_CHARACTER_TYPE(T), ENABLE_IF_INTEGER_REPRESENTABLE_TYPE(I)>
+    static std::unique_ptr<T[ ]> UnsignedToCString(const ConversionType& t, const I& i)
+    {
+        // Get prefix and required buffer length.
+        const std::basic_string<T>& str = GetConvertedNumber<T>(t, i);
+        return CopyCString(str.c_str( ), str.length( ) + 1);
+    }
+
+    ///
+    //
+    //  Creates and returns a specified string representation of the provided integer value.
+    //
+    ///
+    template <class T, class I, ENABLE_IF_SUPPORTED_CHARACTER_TYPE(T), ENABLE_IF_INTEGER_REPRESENTABLE_TYPE(I)>
+    static std::basic_string<T> UnsignedToString(const ConversionType& t, const I& i)
+    {
+        return GetConvertedNumber<T>(t, i);
     }
 };
