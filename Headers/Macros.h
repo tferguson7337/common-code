@@ -2,6 +2,11 @@
 
 #include <type_traits>
 
+/// Stringify Macro Helpers \\\
+
+#define STRINGIFY(s) _STRINGIFY(s)
+#define _STRINGIFY(s) #s
+
 /// Enable-If constexpr Helper Functions \\\
 
 // Supported Char type.
