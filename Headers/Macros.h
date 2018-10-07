@@ -1,6 +1,32 @@
 #pragma once
 
+#include <string>
+#include <tuple>
 #include <type_traits>
+#include <Types.h>
+
+/// String Macro Helpers \\\
+
+#define _STRINGIFY(s) #s
+#define STRINGIFY(s) _STRINGIFY(s)
+
+#define _CONCATENATE(l, r) l ## r
+#define CONCATENATE(l, r) _CONCATENATE(l, r)
+
+using SupportedStringTuple = std::tuple<std::basic_string<utf8>, std::basic_string<utf16>>;
+
+#define _UTF8_LITERAL_PREFIX     u8
+
+#ifdef _UTF16_IS_WIDE_CHAR
+#define _UTF16_LITERAL_PREFIX   L
+#else
+#define _UTF16_LITERAL_PREFIX   u
+#endif
+
+#define UTF8_LITERAL(str)   CONCATENATE(_UTF8_LITERAL_PREFIX, str)
+#define UTF16_LITERAL(str)  CONCATENATE(_UTF16_LITERAL_PREFIX, str)
+
+#define MAKE_SUBSTR_TUPLE(str)  SupportedStringTuple(UTF8_LITERAL(str), UTF16_LITERAL(str))
 
 /// Enable-If constexpr Helper Functions \\\
 
@@ -8,7 +34,7 @@
 template <class T>
 bool constexpr IsSupportedCharType( )
 {
-    return std::is_same_v<T, char> || std::is_same_v<T, wchar_t>;
+    return std::is_same_v<T, utf8> || std::is_same_v<T, utf16>;
 }
 
 

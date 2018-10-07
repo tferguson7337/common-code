@@ -92,63 +92,27 @@ private:
     //
     ///
     template <class T>
-    static const std::basic_string<T>& GetConversionPrefixString(const ConversionType&);
-
-    template <>
-    static const std::basic_string<char>& GetConversionPrefixString(const ConversionType& t)
+    static const std::basic_string<T>& GetConversionPrefixString(const ConversionType& t)
     {
-        static const std::vector<std::basic_string<char>> prefixes
+        static const std::vector<SupportedStringTuple> prefixes
         {
-            "0", // octal
-            "", // decimal
-            "0x", // hexadecimal
+            MAKE_SUBSTR_TUPLE("0"),   // octal
+            MAKE_SUBSTR_TUPLE(""),    // decimal
+            MAKE_SUBSTR_TUPLE("0x"),  // hexadecimal
         };
 
         switch ( t )
         {
         case ConversionType::Octal:
-            return prefixes[0];
+            return std::get<std::basic_string<T>>(prefixes[0]);
             break;
 
         case ConversionType::Decimal:
-            return prefixes[1];
+            return std::get<std::basic_string<T>>(prefixes[1]);
             break;
 
         case ConversionType::Hexidecimal:
-            return prefixes[2];
-            break;
-
-        default:
-            throw std::invalid_argument(
-                __FUNCTION__" - Invalid conversion type (" +
-                std::to_string(static_cast<std::underlying_type_t<ConversionType>>(t)) +
-                ")."
-            );
-        }
-    }
-
-    template <>
-    static const std::basic_string<wchar_t>& GetConversionPrefixString(const ConversionType& t)
-    {
-        static const std::vector<std::basic_string<wchar_t>> prefixes
-        {
-            L"0", // octal
-            L"", // decimal
-            L"0x", // hexadecimal
-        };
-
-        switch ( t )
-        {
-        case ConversionType::Octal:
-            return prefixes[0];
-            break;
-
-        case ConversionType::Decimal:
-            return prefixes[1];
-            break;
-
-        case ConversionType::Hexidecimal:
-            return prefixes[2];
+            return std::get<std::basic_string<T>>(prefixes[2]);
             break;
 
         default:
@@ -166,7 +130,7 @@ private:
         std::basic_stringstream<T> ss;
 
         ss << GetConversionPrefixString<T>(t);
-        
+
         switch ( t )
         {
         case ConversionType::Octal:
