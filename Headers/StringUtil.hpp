@@ -95,9 +95,9 @@ private:
     static const std::basic_string<T>& GetConversionPrefixString(const ConversionType&);
 
     template <>
-    static const std::basic_string<char>& GetConversionPrefixString(const ConversionType& t)
+    static const std::basic_string<utf8>& GetConversionPrefixString(const ConversionType& t)
     {
-        static const std::vector<std::basic_string<char>> prefixes
+        static const std::vector<std::basic_string<utf8>> prefixes
         {
             "0", // octal
             "", // decimal
@@ -128,13 +128,13 @@ private:
     }
 
     template <>
-    static const std::basic_string<wchar_t>& GetConversionPrefixString(const ConversionType& t)
+    static const std::basic_string<utf16>& GetConversionPrefixString(const ConversionType& t)
     {
-        static const std::vector<std::basic_string<wchar_t>> prefixes
+        static const std::vector<std::basic_string<utf16>> prefixes
         {
-            L"0", // octal
-            L"", // decimal
-            L"0x", // hexadecimal
+            u"0", // octal
+            u"", // decimal
+            u"0x", // hexadecimal
         };
 
         switch ( t )
