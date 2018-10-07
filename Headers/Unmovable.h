@@ -1,5 +1,4 @@
-#ifndef _UNMOVABLE_H
-#define _UNMOVABLE_H
+#pragma once
 
 ///
 //
@@ -22,5 +21,3 @@ protected:
 
     Unmovable& operator=(const Unmovable&)  = default;
 };
-
-#endif // _UNMOVABLE_H

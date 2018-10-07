@@ -1,11 +1,18 @@
 #pragma once
 
+#include <string>
+#include <tuple>
 #include <type_traits>
+#include <Types.h>
 
-/// Stringify Macro Helpers \\\
+/// String Macro Helpers \\\
 
 #define STRINGIFY(s) _STRINGIFY(s)
 #define _STRINGIFY(s) #s
+
+using SupportedStringTuple = std::tuple<std::basic_string<utf8>, std::basic_string<utf16>>;
+
+#define SUPSTR_MAKE_TUPLE(str)    SupportedStringTuple(u8##str, u##str)
 
 /// Enable-If constexpr Helper Functions \\\
 
@@ -13,7 +20,7 @@
 template <class T>
 bool constexpr IsSupportedCharType( )
 {
-    return std::is_same_v<T, char> || std::is_same_v<T, wchar_t>;
+    return std::is_same_v<T, utf8> || std::is_same_v<T, utf16>;
 }
 
 
