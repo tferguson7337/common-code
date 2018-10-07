@@ -26,7 +26,7 @@ using SupportedStringTuple = std::tuple<std::basic_string<utf8>, std::basic_stri
 #define UTF8_LITERAL(str)   CONCATENATE(_UTF8_LITERAL_PREFIX, str)
 #define UTF16_LITERAL(str)  CONCATENATE(_UTF16_LITERAL_PREFIX, str)
 
-#define MAKE_SUBSTR_TUPLE(str)  SupportedStringTuple(UTF8_LITERAL(str), UTF16_LITERAL(str))
+#define MAKE_SUPSTR_TUPLE(str)  SupportedStringTuple(UTF8_LITERAL(str), UTF16_LITERAL(str))
 
 /// Enable-If constexpr Helper Functions \\\
 
