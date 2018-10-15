@@ -96,9 +96,9 @@ private:
     {
         static const std::vector<SupportedStringTuple> prefixes
         {
-            MAKE_SUPSTR_TUPLE("0"),   // octal
-            MAKE_SUPSTR_TUPLE(""),    // decimal
-            MAKE_SUPSTR_TUPLE("0x"),  // hexadecimal
+            MAKE_STR_TUPLE("0"),   // octal
+            MAKE_STR_TUPLE(""),    // decimal
+            MAKE_STR_TUPLE("0x"),  // hexadecimal
         };
 
         switch ( t )
