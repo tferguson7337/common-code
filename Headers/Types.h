@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 /// Basic Types \\\
 
 // Basic Signed Types
