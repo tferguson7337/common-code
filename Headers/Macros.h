@@ -13,15 +13,19 @@
 #define _CONCATENATE(l, r)  l ## r
 #define CONCATENATE(l, r)   _CONCATENATE(l, r)
 
+using SupportedCharacterTuple = std::tuple<utf8, utf16>;
 using SupportedStringTuple = std::tuple<std::basic_string<utf8>, std::basic_string<utf16>>;
 
 #define _UTF8_LITERAL_PREFIX     u8
 #define _UTF16_LITERAL_PREFIX    L
 
-#define UTF8_LITERAL(str)   CONCATENATE(_UTF8_LITERAL_PREFIX, str)
-#define UTF16_LITERAL(str)  CONCATENATE(_UTF16_LITERAL_PREFIX, str)
+#define UTF8_LITERAL_CHAR(c)    CONCATENATE(_UTF8_LITERAL_PREFIX, c)
+#define UTF16_LITERAL_CHAR(c)   CONCATENATE(_UTF16_LITERAL_PREFIX, c)
+#define UTF8_LITERAL_STR(str)   CONCATENATE(_UTF8_LITERAL_PREFIX, str)
+#define UTF16_LITERAL_STR(str)  CONCATENATE(_UTF16_LITERAL_PREFIX, str)
 
-#define MAKE_STR_TUPLE(str)  SupportedStringTuple(UTF8_LITERAL(str), UTF16_LITERAL(str))
+#define MAKE_CHAR_TUPLE(c)  SupportedCharacterTuple(UTF8_LITERAL_CHAR(c), UTF16_LITERAL_CHAR(c))
+#define MAKE_STR_TUPLE(str) SupportedStringTuple(UTF8_LITERAL_STR(str), UTF16_LITERAL_STR(str))
 
 /// Enable-If constexpr Helper Functions \\\
 

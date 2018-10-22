@@ -1,10 +1,7 @@
 #pragma once
 
-#include "Macros.h"
+#include <Macros.h>
 
-#include <iomanip>
-#include <sstream>
-#include <string>
 #include <memory>
 #include <vector>
 
@@ -19,64 +16,58 @@ class StringUtil
     StringUtil& operator=(const StringUtil&) = delete;
     StringUtil& operator=(StringUtil&&) = delete;
 
-public:
-    // Enum Class for Specifying Num-To-String Conversion types.
-    enum class ConversionType : size_t
-    {
-        // Binary = 2, - Implementation Pending 
-        Octal = 8,
-        Decimal = 10,
-        Hexidecimal = 16,
-    };
-
 private:
 
     /// Private Helper Methods \\\
 
-    ///
-    //
-    //  Define macro, used as default template argument for ConvertAndCopy functions.
-    //  - Helps ensure correct data-types are used with the function.
-    //
-    ///
-#define ENABLE_IF_STRING_COPY_SUPPORTED(T1, T2) \
-    typename = std::enable_if_t<IsSupportedCharType<T1>( ) && IsSupportedCharType<T2>( )>
-
-    ///
-    //
-    //  Perform common work to copy source C-string into destination buffer.
-    //  Will perform conversion as necessary if the source/destination types differ.
-    //
-    ///
-    template <class T_Dst, class T_Src, ENABLE_IF_STRING_COPY_SUPPORTED(T_Dst, T_Src)>
-    static std::unique_ptr<T_Dst[ ]> CopyCStringCommon(const T_Src* src, const size_t len)
+    template <class T>
+    static void ValidateRawPointerArg(const T* p, const std::basic_string<utf8>& f)
     {
-        std::unique_ptr<T_Dst[ ]> buf;
-
-        if ( src && len > 0 )
+        if ( !p )
         {
-            buf = std::make_unique<T_Dst[ ]>(len);
-            for ( size_t i = 0; i < len; i++ )
+            throw std::invalid_argument(f + ": Attempted string copy from nullptr.");
+        }
+    }
+
+    static void ValidateLengthArg(const size_t len, const std::basic_string<utf8>& f)
+    {
+        if ( !len )
+        {
+            throw std::invalid_argument(f + ": Attempted string copy using zero-length buffer.");
+        }
+    }
+
+    template <class T>
+    static bool IsTerminatorMatch(const T* str, const std::basic_string<T>& terminator)
+    {
+        size_t i = 0;
+
+        if ( terminator.empty( ) )
+        {
+            return *str == static_cast<T>('\0');
+        }
+
+        for ( const auto& c : terminator )
+        {
+            if ( str[i++] != c )
             {
-                buf[i] = static_cast<T_Dst>(src[i]);
+                return false;
             }
         }
 
-        return buf;
+        return true;
     }
 
-    ///
-    //
-    //  Helper class for counting characters in a null-terminated string (including the null).
-    //  - Note: Function assumes provided C-string argument is valid (i.e., valid addr and null-terminated).
-    //
-    ///
-    template <class T_Src, ENABLE_IF_SUPPORTED_CHARACTER_TYPE(T_Src)>
-    static size_t GetNTStringLength(const T_Src* src)
+public:
+
+    template <class T>
+    static size_t GetStringLength(const T* src, const std::basic_string<T>& terminator = std::basic_string<T>( ))
     {
-        // Get element count of source buffer.
+        ValidateRawPointerArg(src, __FUNCTION__);
+
+        // Get character count of source buffer.
         size_t len = 0;
-        while ( *src )
+        while ( !IsTerminatorMatch(src, terminator) )
         {
             len++;
             src++;
@@ -86,188 +77,353 @@ private:
         return len + 1;
     }
 
-    ///
-    //
-    //  Helper class to get prefix for number conversion string.
-    //
-    ///
+    // Specialization Utility Classes.
+    class Copy;
+    class UTFConversion;
+    class NumberConversion;
+};
+
+
+///
+//
+//  Class   - StringUtil::Copy
+//
+//  Purpose - Copy source string to a new string.
+//
+///
+class StringUtil::Copy
+{
+    /// Static Class - No Ctors/Dtors
+    Copy( ) = delete;
+    Copy(const Copy&) = delete;
+    Copy(Copy&&) = delete;
+    ~Copy( ) = delete;
+
+    Copy& operator=(const Copy&) = delete;
+    Copy& operator=(Copy&&) = delete;
+
+public:
+
     template <class T>
-    static const std::basic_string<T>& GetConversionPrefixString(const ConversionType& t)
+    static std::basic_string<T> ToString(const std::basic_string<T>& src)
+    {
+        return ToString(src.c_str( ), src.length( ));
+    }
+
+    template <class T>
+    static std::basic_string<T> ToString(const T* src)
+    {
+        return ToString(src, GetStringLength(src));
+    }
+
+    template <class T>
+    static std::basic_string<T> ToString(const T* src, const size_t& len)
+    {
+        ValidateRawPointerArg(src);
+        ValidateLengthArg(len);
+
+        return std::basic_string<T>(src, len);
+    }
+
+    template <class T>
+    static std::unique_ptr<T[ ]> ToCString(const std::basic_string<T>& src)
+    {
+        return ToCString(src.c_str( ), src.length( ));
+    }
+
+    template <class T>
+    static std::unique_ptr<T[ ]> ToCString(const T* src)
+    {
+        return ToCString(src, GetStringLength<T>(src));
+    }
+
+    template <class T>
+    static std::unique_ptr<T[ ]> ToCString(const T* src, const size_t& len)
+    {
+        std::unique_ptr<T[ ]> copy;
+
+        ValidateRawPointerArg(src, __FUNCTION__);
+        ValidateLengthArg(len, __FUNCTION__);
+
+        copy = std::make_unique<T[ ]>(len + 1);
+        memcpy(copy.get( ), src, sizeof(T)*(len + 1));
+
+        return copy;
+    }
+};
+
+
+///
+//
+//  Class   - StringUtil::UTFConversion
+//
+//  Purpose - Copy source string to a new string with differing character types.
+//
+///
+class StringUtil::UTFConversion
+{
+    /// Static Class - No Ctors/Dtors
+    UTFConversion( ) = delete;
+    UTFConversion(const UTFConversion&) = delete;
+    UTFConversion(UTFConversion&&) = delete;
+    ~UTFConversion( ) = delete;
+
+    UTFConversion& operator=(const UTFConversion&) = delete;
+    UTFConversion& operator=(UTFConversion&&) = delete;
+
+private:
+
+    template <class T_Dst>
+    static std::basic_string<T_Dst> BuildPreConversionString(const size_t& len)
+    {
+        return std::basic_string<T_Dst>(len, static_cast<T_Dst>('!'));
+    }
+
+    template <class T_Dst>
+    static std::unique_ptr<T_Dst[ ]> BuildPreConversionCString(const size_t& len)
+    {
+        std::unique_ptr<T_Dst[ ]> ptr(std::make_unique<T_Dst[ ]>(len + 1));
+        memset(ptr.get( ), static_cast<T_Dst>('\0'), sizeof(T_Dst)*(len + 1));
+        return ptr;
+    }
+
+    template <class T_Dst, class T_Src>
+    static void ToStringCommon(T_Dst* dst, const T_Src* src, const size_t& len)
+    {
+        for ( size_t i = 0; i < len; i++ )
+        {
+            dst[i] = static_cast<T_Dst>(src[i]);
+        }
+    }
+
+public:
+
+    template <class T_Dst, class T_Src>
+    static std::basic_string<T_Dst> ToString(const std::basic_string<T_Src>& src)
+    {
+        return ToString<T_Dst, T_Src>(src.c_str( ), src.length( ));
+    }
+
+    template <class T_Dst, class T_Src>
+    static std::basic_string<T_Dst> ToString(const T_Src* src)
+    {
+        return ToString<T_Dst, T_Src>(src, GetStringLength(src));
+    }
+
+    template <class T_Dst, class T_Src>
+    static std::basic_string<T_Dst> ToString(const T_Src* src, const size_t& len)
+    {
+        ValidateRawPointerArg(src, __FUNCTION__);
+        ValidateLengthArg(len, __FUNCTION__);
+
+        if constexpr ( std::is_same<T_Dst, T_Src>::value )
+        {
+            return StringUtil::Copy::ToCString<T_Dst>(src, len);
+        }
+        else
+        {
+            std::basic_string<T_Dst> str(BuildPreConversionString<T_Dst>(len));
+            ToStringCommon<T_Dst, T_Src>(const_cast<T_Dst*>(str.data( )), src, len);
+            return str;
+        }
+    }
+
+    template <class T_Dst, class T_Src>
+    static std::unique_ptr<T_Dst[ ]> ToCString(const std::basic_string<T_Src>& src)
+    {
+        return ToCString<T_Dst, T_Src>(src.c_str( ), src.length( ));
+    }
+
+    template <class T_Dst, class T_Src>
+    static std::unique_ptr<T_Dst[ ]> ToCString(const T_Src* src)
+    {
+        return ToCString<T_Dst, T_Src>(src, GetStringLength(src));
+    }
+
+    template <class T_Dst, class T_Src>
+    static std::unique_ptr<T_Dst[ ]> ToCString(const T_Src* src, const size_t& len)
+    {
+        ValidateRawPointerArg(src, __FUNCTION__);
+        ValidateLengthArg(len, __FUNCTION__);
+
+        if constexpr ( std::is_same<T_Dst, T_Src>::value )
+        {
+            return StringUtil::Copy::ToCString<T_Dst>(src, len);
+        }
+        else
+        {
+            std::unique_ptr<T_Dst[ ]> cstr(BuildPreConversionCString<T_Dst>(len));
+            ToStringCommon<T_Dst, T_Src>(cstr.get( ), src, len);
+            return cstr;
+        }      
+    }
+};
+
+
+///
+//
+//  Class   - StringUtil::NumberConversion
+//
+//  Purpose - Convert numeric values to string representations.
+//
+///
+class StringUtil::NumberConversion
+{
+    /// Static Class - No Ctors/Dtors
+    NumberConversion( ) = delete;
+    NumberConversion(const NumberConversion&) = delete;
+    NumberConversion(NumberConversion&&) = delete;
+    ~NumberConversion( ) = delete;
+
+    NumberConversion& operator=(const NumberConversion&) = delete;
+    NumberConversion& operator=(NumberConversion&&) = delete;
+
+public:
+    // Enum Class for Specifying Number-To-String Conversion types.
+    enum class Base : size_t
+    {
+        Binary = 2,
+        Octal = 8,
+        Decimal = 10,
+        Hexidecimal = 16,
+    };
+
+    using BaseType = std::underlying_type<Base>::type;
+
+private:
+
+    template <class T>
+    static const std::basic_string<T>& GetPrefixString(const Base& b)
     {
         static const std::vector<SupportedStringTuple> prefixes
         {
+            MAKE_STR_TUPLE("0b"),  // binary
             MAKE_STR_TUPLE("0"),   // octal
             MAKE_STR_TUPLE(""),    // decimal
             MAKE_STR_TUPLE("0x"),  // hexadecimal
         };
 
-        switch ( t )
+        switch ( b )
         {
-        case ConversionType::Octal:
+        case Base::Binary:
             return std::get<std::basic_string<T>>(prefixes[0]);
-            break;
 
-        case ConversionType::Decimal:
+        case Base::Octal:
             return std::get<std::basic_string<T>>(prefixes[1]);
-            break;
 
-        case ConversionType::Hexidecimal:
+        case Base::Decimal:
             return std::get<std::basic_string<T>>(prefixes[2]);
-            break;
+
+        case Base::Hexidecimal:
+            return std::get<std::basic_string<T>>(prefixes[3]);
 
         default:
             throw std::invalid_argument(
-                __FUNCTION__" - Invalid conversion type (" +
-                std::to_string(static_cast<std::underlying_type_t<ConversionType>>(t)) +
-                ")."
+                __FUNCTION__" - Invalid Base[" +
+                std::to_string(static_cast<BaseType>(b)) +
+                "]."
             );
         }
     }
 
-    template <class T, class I>
-    static std::basic_string<T> GetConvertedNumber(const ConversionType& t, const I& i)
+    template <class N>
+    static size_t GetRequiredLength(const Base& b, const N& n)
     {
-        std::basic_stringstream<T> ss;
-
-        ss << GetConversionPrefixString<T>(t);
-
-        switch ( t )
+        N num = n;
+        if constexpr ( std::is_signed<N>::value )
         {
-        case ConversionType::Octal:
-            ss << std::oct;
-            break;
-
-        case ConversionType::Decimal:
-            ss << std::dec;
-            break;
-
-        case ConversionType::Hexidecimal:
-            ss << std::hex << std::uppercase;
-            break;
-
-        default:
-            throw std::invalid_argument(
-                __FUNCTION__" - Invalid conversion type (" +
-                std::to_string(static_cast<std::underlying_type_t<ConversionType>>(t)) +
-                ")."
-            );
+            num = (n < 0) ? -n : n;
         }
 
-        ss << i;
+        const double dNum = static_cast<double>(num);
+        const double dBase = static_cast<double>(b);
 
-        return ss.str( );
+        return static_cast<size_t>(std::ceil(std::log(dNum) / std::log(dBase)));
+    }
+
+    template <class T, class N>
+    static T NumberToCharacter(const N& n)
+    {
+        // [0-9A-F]
+        static const std::vector<SupportedCharacterTuple> vChars
+        {
+            MAKE_CHAR_TUPLE('0'), MAKE_CHAR_TUPLE('1'), MAKE_CHAR_TUPLE('2'), MAKE_CHAR_TUPLE('3'),
+            MAKE_CHAR_TUPLE('4'), MAKE_CHAR_TUPLE('5'), MAKE_CHAR_TUPLE('6'), MAKE_CHAR_TUPLE('7'),
+            MAKE_CHAR_TUPLE('8'), MAKE_CHAR_TUPLE('9'), MAKE_CHAR_TUPLE('A'), MAKE_CHAR_TUPLE('B'),
+            MAKE_CHAR_TUPLE('C'), MAKE_CHAR_TUPLE('D'), MAKE_CHAR_TUPLE('E'), MAKE_CHAR_TUPLE('F')
+        };
+
+        const size_t idx = static_cast<size_t>(n);
+        if ( idx >= vChars.size( ) )
+        {
+            throw std::out_of_range(std::string(__FUNCTION__ ": Given value[") + std::to_string(n) + "] is out of range[0-15].");
+        }
+
+        return std::get<T>(vChars.at(idx));
+    }
+
+    template <class T, class N>
+    static std::basic_string<T> BuildPreConversionString(const Base& b, const N& n)
+    {
+        return std::basic_string<T>(GetRequiredLength(b, n) + GetPrefixString<T>(b).size( ), static_cast<T>('!'));
+    }
+
+    template <class T>
+    static std::unique_ptr<T[ ]> BuildPreConversionCString(const size_t& l)
+    {
+        std::unique_ptr<T[ ]> ptr(std::make_unique<T[ ]>(l + 1));
+        memset(ptr.get( ), static_cast<T>('\0'), sizeof(T)*(l + 1));
+        return ptr;
+    }
+
+    template <class T, class N>
+    static void ToStringCommon(const Base& b, N n, T* p, const size_t l)
+    {
+        const std::basic_string<T>& prefix = GetPrefixString<T>(b);
+        const N base = static_cast<N>(b);
+        size_t idx = 0;
+
+        // Sanity check - ensure provided buffer is large enough to contain prefix and at-least one character.
+        if ( prefix.size( ) >= l )
+        {
+            throw std::logic_error(__FUNCTION__ ": Buffer length too small to contain prefix and number conversion.");
+        }
+
+        // Add Base-depedent prefix string.
+        for ( const auto& c : prefix )
+        {
+            p[idx++] = c;
+        }
+
+        // Perform conversion of number to string.
+        idx = l - 1;
+        do
+        {
+            p[idx--] = NumberToCharacter<T>(n % base);
+            n /= base;
+        } while ( n );
     }
 
 public:
 
-    /// Public Methods \\\
+#define _ENABLE_IF_NUMBER_CONVERT_SUPPORTED(TC, TN) \
+    typename = std::enable_if<IsSupportedCharType<TC>( ) && IsIntegerRepresentableType<TN>( )>::type
 
-    ///
-    //
-    //  Creates a copy of source string, converting it to the destination type.
-    //
-    //  Returned string is contained in a std::unique_ptr object to help avoid
-    //  memory leaks in the event the caller forgets to free the returned pointer.
-    //
-    //  Length argument is expected to be the number of characters (i.e., elements) 
-    //  that the string contains, as opposed to total byte-count.  If string is null
-    //  terminated, the length should include the null.
-    //
-    //  - NOTE: FUNCTION ASSUMES CALLER-PROVIDED LENGTH ARGUMENT IS CORRECT.
-    //  - - If length is too large, you will overrun the source-string boundaries.
-    //  - - If source-string is null-terminated, but length is too small, returned
-    //      string will not be null-terminated.
-    //
-    ///
-    template <class T_Dst, class T_Src, ENABLE_IF_STRING_COPY_SUPPORTED(T_Dst, T_Src)>
-    static std::unique_ptr<T_Dst[ ]> ConvertAndCopy(const T_Src* src, const size_t len)
+    // Return string representation of number argument
+    template <class T, class N, _ENABLE_IF_NUMBER_CONVERT_SUPPORTED(T, N)>
+    static std::basic_string<T> ToString(const Base& base, const N& number)
     {
-        return CopyCStringCommon<T_Dst>(src, len);
+        std::basic_string<T> str(BuildPreConversionString<T>(base, number));
+        ToStringCommon(base, number, const_cast<T*>(str.data( )), str.size( ));
+        return str;
     }
 
-    ///
-    //
-    //  Creates and returns a copy of source string, converting it to the destination type.
-    //
-    //  Returned string is contained in a std::unique_ptr object to help avoid
-    //  memory leaks in the event the caller forgets to free the returned pointer.
-    //
-    //  - NOTE: SOURCE ARGUMENT MUST BE NULL-TERMINATED.
-    //
-    ///
-    template <class T_Dst, class T_Src, ENABLE_IF_STRING_COPY_SUPPORTED(T_Dst, T_Src)>
-    static std::unique_ptr<T_Dst[ ]> ConvertAndCopy(const T_Src* src)
+    template <class T, class N, _ENABLE_IF_NUMBER_CONVERT_SUPPORTED(T, N)>
+    static std::unique_ptr<T[ ]> ToCString(const Base& base, const N& number)
     {
-        return (src) ? CopyCStringCommon<T_Dst>(src, GetNTStringLength(src)) : nullptr;
-    }
-
-    ///
-    //
-    //  Creates and returns a copy of source string object, converting it to the destination type.
-    //
-    ///
-    template <class T_Dst, class T_Src, ENABLE_IF_STRING_COPY_SUPPORTED(T_Dst, T_Src)>
-    static std::basic_string<T_Dst> ConvertAndCopy(const std::basic_string<T_Src>& src)
-    {
-        std::basic_string<T_Dst> buf;
-
-        if ( !src.empty( ) )
-        {
-            buf.reserve(src.size( ));
-            for ( auto c : src )
-            {
-                buf.push_back(static_cast<T_Dst>(c));
-            }
-        }
-
-        return buf;
-    }
-
-    ///
-    //
-    //  Creates and returns a copy of the source string.
-    //  - Note: Length argument is assumed to be correct.
-    //
-    ///
-    template <class T, ENABLE_IF_SUPPORTED_CHARACTER_TYPE(T)>
-    static std::unique_ptr<T[ ]> CopyCString(const T* src, const size_t len)
-    {
-        return CopyCStringCommon<T>(src, len);
-    }
-
-    ///
-    //
-    //  Creates and returns a copy of the source string.
-    //  - Note: String must be null-terminated.
-    //
-    ///
-    template <class T, ENABLE_IF_SUPPORTED_CHARACTER_TYPE(T)>
-    static std::unique_ptr<T[ ]> CopyCString(const T* src)
-    {
-        return (src) ? CopyCStringCommon<T>(src, GetNTStringLength(src)) : nullptr;
-    }
-
-    ///
-    //
-    //  Creates and returns a specified C-string representation of the provided integer value. 
-    //
-    ///
-    template <class T, class I, ENABLE_IF_SUPPORTED_CHARACTER_TYPE(T), ENABLE_IF_INTEGER_REPRESENTABLE_TYPE(I)>
-    static std::unique_ptr<T[ ]> UnsignedToCString(const ConversionType& t, const I& i)
-    {
-        // Get prefix and required buffer length.
-        const std::basic_string<T>& str = GetConvertedNumber<T>(t, i);
-        return CopyCString(str.c_str( ), str.length( ) + 1);
-    }
-
-    ///
-    //
-    //  Creates and returns a specified string representation of the provided integer value.
-    //
-    ///
-    template <class T, class I, ENABLE_IF_SUPPORTED_CHARACTER_TYPE(T), ENABLE_IF_INTEGER_REPRESENTABLE_TYPE(I)>
-    static std::basic_string<T> UnsignedToString(const ConversionType& t, const I& i)
-    {
-        return GetConvertedNumber<T>(t, i);
+        const size_t len = GetRequiredLength(base, number) + GetPrefixString<T>(base).size( );
+        std::unique_ptr<T[ ]> cstr = BuildPreConversionCString<T>(len);
+        ToStringCommon(base, number, cstr.get( ), len);
+        return cstr;
     }
 };
