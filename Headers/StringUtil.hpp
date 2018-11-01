@@ -31,7 +31,7 @@ private:
 
     static void ValidateLengthArg(const size_t len, const std::basic_string<utf8>& f)
     {
-        if ( !len )
+        if ( len == 0 )
         {
             throw std::invalid_argument(f + ": Attempted string copy using zero-length buffer.");
         }
