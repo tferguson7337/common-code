@@ -407,7 +407,7 @@ private:
 public:
 
 #define _ENABLE_IF_NUMBER_CONVERT_SUPPORTED(TC, TN) \
-    typename = std::enable_if<IsSupportedCharType<TC>( ) && IsIntegerRepresentableType<TN>( )>::type
+    typename = typename std::enable_if<IsSupportedCharType<TC>( ) && IsIntegerRepresentableType<TN>( )>::type
 
     // Return string representation of number argument
     template <class T, class N, _ENABLE_IF_NUMBER_CONVERT_SUPPORTED(T, N)>

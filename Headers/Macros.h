@@ -80,28 +80,28 @@ bool constexpr IsIntegerRepresentableType( )
 
 // Supported Char Type
 #define ENABLE_IF_SUPPORTED_CHARACTER_TYPE(T) \
-    typename = std::enable_if<IsSupportedCharType<T>( )>::type
+    typename = typename std::enable_if<IsSupportedCharType<T>( )>::type
 
 
 // Signed Integer Type
 #define ENABLE_IF_SIGNED_INTEGER_TYPE(T) \
-    typename = std::enable_if<IsSignedIntegerType<T>( )>::type
+    typename = typename std::enable_if<IsSignedIntegerType<T>( )>::type
 
 
 // Unsigned Integer Type
 #define ENABLE_IF_UNSIGNED_INTEGER_TYPE(T) \
-    typename = std::enable_if<IsUnsignedIntegerType<T>( )>::type
+    typename = typename std::enable_if<IsUnsignedIntegerType<T>( )>::type
 
 
 // Integer Type
 #define ENABLE_IF_INTEGER_TYPE(T) \
-    typename = std::enable_if<IsIntegerType<T>( )>::type
+    typename = typename std::enable_if<IsIntegerType<T>( )>::type
 
 
 // Pointer Type
 #define ENABLE_IF_POINTER_TYPE(T) \
-    typename = std::enable_if<IsPointerType<T>( )>::type
+    typename = typename std::enable_if<IsPointerType<T>( )>::type
 
 // Integer Representable Type
 #define ENABLE_IF_INTEGER_REPRESENTABLE_TYPE(T) \
-    typename = std::enable_if<IsIntegerRepresentableType<T>( )>::type
+    typename = typename std::enable_if<IsIntegerRepresentableType<T>( )>::type
