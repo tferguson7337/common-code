@@ -119,8 +119,8 @@ public:
     template <class T>
     static std::basic_string<T> ToString(const T* src, const size_t& len)
     {
-        ValidateRawPointerArg(src);
-        ValidateLengthArg(len);
+        ValidateRawPointerArg(src, __FUNCTION__);
+        ValidateLengthArg(len, __FUNCTION__);
 
         return std::basic_string<T>(src, len);
     }
@@ -218,7 +218,7 @@ public:
 
         if constexpr ( std::is_same<T_Dst, T_Src>::value )
         {
-            return StringUtil::Copy::ToCString<T_Dst>(src, len);
+            return StringUtil::Copy::ToString<T_Dst>(src, len);
         }
         else
         {
