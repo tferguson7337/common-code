@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _UNCOPYABLE_H_
+#define _UNCOPYABLE_H_
 
 ///
 //
@@ -21,3 +22,5 @@ protected:
 
     Uncopyable& operator=(Uncopyable&&)         = default;
 };
+
+#endif // _UNCOPYABLE_H_

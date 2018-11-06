@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _MACROS_H_
+#define _MACROS_H_
 
 #include <string>
 #include <tuple>
@@ -105,3 +106,5 @@ bool constexpr IsIntegerRepresentableType( )
 // Integer Representable Type
 #define ENABLE_IF_INTEGER_REPRESENTABLE_TYPE(T) \
     typename = typename std::enable_if<IsIntegerRepresentableType<T>( )>::type
+
+#endif // _MACROS_H_

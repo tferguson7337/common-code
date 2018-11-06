@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _TYPES_H_
+#define _TYPES_H_
 
 #include <cstdint>
 
@@ -66,3 +67,5 @@ namespace
     static_assert(sizeof(utf16)     == sizeof(utf8) << 1, _SASSERT_TYPE_SIZE_MISMATCH_STR);
     static_assert(sizeof(utf32)     == sizeof(utf16) << 1, _SASSERT_TYPE_SIZE_MISMATCH_STR);
 }
+
+#endif // _TYPES_H_

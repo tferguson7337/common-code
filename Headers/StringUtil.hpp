@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _STRING_UTIL_HPP_
+#define _STRING_UTIL_HPP_
 
 #include "Macros.h"
 
@@ -427,3 +428,5 @@ public:
         return cstr;
     }
 };
+
+#endif // _STRING_UTIL_HPP_
