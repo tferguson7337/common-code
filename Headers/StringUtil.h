@@ -47,23 +47,90 @@ private:
         }
     }
 
+    template <class T>
+    static bool CaseSensitiveCompare(_In_ const T* lhs, _In_ const size_t& lhsLen, _In_ const T* rhs, _In_ const size_t& rhsLen)
+    {
+        if ( lhsLen != rhsLen )
+        {
+            return false;
+        }
+
+        if constexpr ( std::is_same_v<T, utf8> )
+        {
+            return strncmp(lhs, rhs, lhsLen) == 0;
+        }
+        else
+        {
+            return wcsncmp(lhs, rhs, lhsLen) == 0;
+        }
+    }
+
+    template <class T>
+    static bool CaseInsensitiveCompare(_In_ const T* lhs, _In_ const size_t& lhsLen, _In_ const T* rhs, _In_ const size_t& rhsLen)
+    {
+        if ( lhsLen != rhsLen )
+        {
+            return false;
+        }
+
+        if constexpr ( std::is_same_v<T, utf8> )
+        {
+            return _strnicmp(lhs, rhs, lhsLen) == 0;
+        }
+        else
+        {
+            return _wcsnicmp(lhs, rhs, lhsLen) == 0;
+        }
+    }
+
+    template <class T>
+    static bool CompareCommon(_In_ const T* lhs, _In_ const size_t& lhsLen, _In_ const T* rhs, _In_ const size_t& rhsLen, _In_ const bool& bCaseSensitive)
+    {
+        auto fpCmp = (bCaseSensitive) ? CaseSensitiveCompare<T> : CaseInsensitiveCompare<T>;
+        return fpCmp(lhs, lhsLen, rhs, rhsLen);
+    }
+
 public:
 
     template <class T>
-    static size_t GetStringLength(_In_z_ const T* src)
+    static size_t GetLength(_In_z_ const T* src)
     {
         ValidateRawPointerArg(src, __FUNCTION__);
-
-        size_t len = 0;
-
-        // Get character count of source buffer.
-        while ( src[len] != static_cast<T>('\0') )
+        
+        if constexpr ( std::is_same_v<T, utf8> )
         {
-            len++;
+            return strlen(src);
         }
+        else
+        {
+            return wsclen(src);
+        }
+    }
 
-        // Return character count + null.
-        return len + 1;
+    template <class T>
+    static bool Compare(_In_ const T* lhs, _In_ const size_t& lhsLen, _In_ const T* rhs, _In_ const size_t& rhsLen, _In_ const bool& bCaseSensitive = true)
+    { 
+        ValidateRawPointerArg(lhs, __FUNCTION__);
+        ValidateRawPointerArg(rhs, __FUNCTION__);
+        ValidateLengthArg(lhsLen, __FUNCTION__);
+        ValidateLengthArg(rhsLen, __FUNCTION__);
+
+        return CompareCommon(lhs, lhsLen, rhs, rhsLen, bCaseSensitive);
+    }
+
+    template <class T>
+    static bool Compare(_In_z_ const T* lhs, _In_z_ const T* rhs, const bool& bCaseSensitive = true)
+    {
+        return CompareCommon(lhs, GetLength(lhs), rhs, GetLength(rhs), bCaseSensitive);
+    }
+
+    template <class T>
+    static bool Compare(_In_ const std::basic_string<T>& lhs, _In_ const std::basic_string<T>& rhs, _In_ const bool& bCaseSensitive = true)
+    {
+        ValidateLengthArg(lhs.length( ), __FUNCTION__);
+        ValidateLengthArg(rhs.length( ), __FUNCTION__);
+
+        return CompareCommon(lhs.c_str( ), lhs.size( ), rhs.c_str( ), rhs.size( ), bCaseSensitive);
     }
 
     // Specialization Utility Classes.
@@ -102,7 +169,7 @@ public:
     template <class T>
     static std::basic_string<T> ToString(_In_z_ const T* src)
     {
-        return ToString(src, GetStringLength(src));
+        return ToString(src, GetLength(src));
     }
 
     template <class T>
@@ -123,7 +190,7 @@ public:
     template <class T>
     static std::unique_ptr<T[ ]> ToCString(_In_z_ const T* src)
     {
-        return ToCString(src, GetStringLength<T>(src));
+        return ToCString(src, GetLength<T>(src));
     }
 
     template <class T>
@@ -196,7 +263,7 @@ public:
     template <class T_Dst, class T_Src>
     static std::basic_string<T_Dst> ToString(_In_z_ const T_Src* src)
     {
-        return ToString<T_Dst, T_Src>(src, GetStringLength(src));
+        return ToString<T_Dst, T_Src>(src, GetLength(src));
     }
 
     template <class T_Dst, class T_Src>
@@ -226,7 +293,7 @@ public:
     template <class T_Dst, class T_Src>
     static std::unique_ptr<T_Dst[ ]> ToCString(_In_z_ const T_Src* src)
     {
-        return ToCString<T_Dst, T_Src>(src, GetStringLength(src));
+        return ToCString<T_Dst, T_Src>(src, GetLength(src));
     }
 
     template <class T_Dst, class T_Src>
