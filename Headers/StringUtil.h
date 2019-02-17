@@ -39,20 +39,17 @@ private:
         }
     }
 
-    static void ValidateLengthArg(_In_ const size_t len, _In_ const std::basic_string<utf8>& f)
-    {
-        if ( len == 0 )
-        {
-            throw std::invalid_argument(f + ": Attempted string operation using zero-length buffer.");
-        }
-    }
-
     template <class T>
     static bool CaseSensitiveCompare(_In_ const T* lhs, _In_ const size_t& lhsLen, _In_ const T* rhs, _In_ const size_t& rhsLen)
     {
         if ( lhsLen != rhsLen )
         {
             return false;
+        }
+
+        if ( lhsLen == 0 && rhsLen == 0 )
+        {
+            return true;
         }
 
         if constexpr ( std::is_same_v<T, utf8> )
@@ -71,6 +68,11 @@ private:
         if ( lhsLen != rhsLen )
         {
             return false;
+        }
+
+        if ( lhsLen == 0 && rhsLen == 0 )
+        {
+            return true;
         }
 
         if constexpr ( std::is_same_v<T, utf8> )
@@ -114,8 +116,6 @@ public:
     { 
         ValidateRawPointerArg(lhs, __FUNCTION__);
         ValidateRawPointerArg(rhs, __FUNCTION__);
-        ValidateLengthArg(lhsLen, __FUNCTION__);
-        ValidateLengthArg(rhsLen, __FUNCTION__);
 
         static_assert(IsSupportedCharType<T>( ), __FUNCTION__": Invalid character type.");
 
@@ -132,9 +132,6 @@ public:
     template <class T>
     static bool Compare(_In_ const std::basic_string<T>& lhs, _In_ const std::basic_string<T>& rhs, _In_ const bool& bCaseSensitive = true)
     {
-        ValidateLengthArg(lhs.length( ), __FUNCTION__);
-        ValidateLengthArg(rhs.length( ), __FUNCTION__);
-
         static_assert(IsSupportedCharType<T>( ), __FUNCTION__": Invalid character type.");
 
         return CompareCommon(lhs.c_str( ), lhs.size( ), rhs.c_str( ), rhs.size( ), bCaseSensitive);
@@ -171,6 +168,7 @@ public:
     static std::basic_string<T> ToString(_In_ const std::basic_string<T>& src)
     {
         static_assert(IsSupportedCharType<T>( ), __FUNCTION__": Invalid character type.");
+
         return ToString(src.c_str( ), src.length( ));
     }
 
@@ -178,6 +176,7 @@ public:
     static std::basic_string<T> ToString(_In_z_ const T* src)
     {
         static_assert(IsSupportedCharType<T>( ), __FUNCTION__": Invalid character type.");
+
         return ToString(src, GetLength(src));
     }
 
@@ -185,7 +184,6 @@ public:
     static std::basic_string<T> ToString(_In_reads_(len) const T* src, _In_ const size_t& len)
     {
         ValidateRawPointerArg(src, __FUNCTION__);
-        ValidateLengthArg(len, __FUNCTION__);
 
         static_assert(IsSupportedCharType<T>( ), __FUNCTION__": Invalid character type.");
 
@@ -196,6 +194,7 @@ public:
     static std::unique_ptr<T[ ]> ToCString(_In_ const std::basic_string<T>& src)
     {
         static_assert(IsSupportedCharType<T>( ), __FUNCTION__": Invalid character type.");
+
         return ToCString(src.c_str( ), src.length( ));
     }
 
@@ -203,6 +202,7 @@ public:
     static std::unique_ptr<T[ ]> ToCString(_In_z_ const T* src)
     {
         static_assert(IsSupportedCharType<T>( ), __FUNCTION__": Invalid character type.");
+
         return ToCString(src, GetLength<T>(src));
     }
 
@@ -212,7 +212,6 @@ public:
         std::unique_ptr<T[ ]> copy;
 
         ValidateRawPointerArg(src, __FUNCTION__);
-        ValidateLengthArg(len, __FUNCTION__);
 
         static_assert(IsSupportedCharType<T>( ), __FUNCTION__": Invalid character type.");
 
@@ -289,7 +288,6 @@ public:
     static std::basic_string<T_Dst> ToString(_In_ const T_Src* src, _In_ const size_t& len)
     {
         ValidateRawPointerArg(src, __FUNCTION__);
-        ValidateLengthArg(len, __FUNCTION__);
 
         static_assert(IsSupportedCharType<T_Src>( ), __FUNCTION__": Invalid source character type.");
         static_assert(IsSupportedCharType<T_Dst>( ), __FUNCTION__": Invalid destination character type.");
@@ -311,14 +309,18 @@ public:
     {
         static_assert(IsSupportedCharType<T_Src>( ), __FUNCTION__": Invalid source character type.");
         static_assert(IsSupportedCharType<T_Dst>( ), __FUNCTION__": Invalid destination character type.");
+
         return ToCString<T_Dst, T_Src>(src.c_str( ), src.length( ));
     }
 
     template <class T_Dst, class T_Src>
     static std::unique_ptr<T_Dst[ ]> ToCString(_In_z_ const T_Src* src)
     {
+        ValidateRawPointerArg(src, __FUNCTION__);
+
         static_assert(IsSupportedCharType<T_Src>( ), __FUNCTION__": Invalid source character type.");
         static_assert(IsSupportedCharType<T_Dst>( ), __FUNCTION__": Invalid destination character type.");
+
         return ToCString<T_Dst, T_Src>(src, GetLength(src));
     }
 
@@ -326,7 +328,6 @@ public:
     static std::unique_ptr<T_Dst[ ]> ToCString(_In_reads_(len) const T_Src* src, _In_ const size_t& len)
     {
         ValidateRawPointerArg(src, __FUNCTION__);
-        ValidateLengthArg(len, __FUNCTION__);
 
         static_assert(IsSupportedCharType<T_Src>( ), __FUNCTION__": Invalid source character type.");
         static_assert(IsSupportedCharType<T_Dst>( ), __FUNCTION__": Invalid destination character type.");
