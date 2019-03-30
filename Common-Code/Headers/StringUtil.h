@@ -373,8 +373,31 @@ public:
 
 private:
 
-    static const std::vector<SupportedStringTuple> s_BasePrefixes;
-    static const std::vector<SupportedCharacterTuple> s_NumberChars;
+    static const std::vector<SupportedCharacterTuple>& GetNumberCharsTuple( )
+    {
+        static const std::vector<SupportedCharacterTuple> sNumberChars
+        {
+            MAKE_CHAR_TUPLE('0'), MAKE_CHAR_TUPLE('1'), MAKE_CHAR_TUPLE('2'), MAKE_CHAR_TUPLE('3'),
+            MAKE_CHAR_TUPLE('4'), MAKE_CHAR_TUPLE('5'), MAKE_CHAR_TUPLE('6'), MAKE_CHAR_TUPLE('7'),
+            MAKE_CHAR_TUPLE('8'), MAKE_CHAR_TUPLE('9'), MAKE_CHAR_TUPLE('A'), MAKE_CHAR_TUPLE('B'),
+            MAKE_CHAR_TUPLE('C'), MAKE_CHAR_TUPLE('D'), MAKE_CHAR_TUPLE('E'), MAKE_CHAR_TUPLE('F')
+        };
+
+        return sNumberChars;
+    }
+
+    static const std::vector<SupportedStringTuple>& GetBasePrefixesTuple( )
+    {
+        static const std::vector<SupportedStringTuple> sBasePrefixes
+        {
+            MAKE_STR_TUPLE("0b"),   // binary
+            MAKE_STR_TUPLE("0"),    // octal
+            MAKE_STR_TUPLE("0n"),   // decimal
+            MAKE_STR_TUPLE("0x"),   // hexadecimal
+        };
+
+        return sBasePrefixes;
+    }
 
     // Returns true if Base template argument is one of the explicitly
     // defined Base enum class values.  Returns false otherwise.
@@ -395,21 +418,23 @@ private:
     template <Base B, class T>
     static constexpr const std::basic_string<T>& GetBasePrefixString( ) noexcept
     {
+        const std::vector<SupportedStringTuple>& bases = GetBasePrefixesTuple( )
+
         if constexpr ( B == Base::Binary )
         {
-            return std::get<std::basic_string<T>>(s_BasePrefixes[0]);
+            return std::get<std::basic_string<T>>(bases[0]);
         }
         else if constexpr ( B == Base::Octal )
         {
-            return std::get<std::basic_string<T>>(s_BasePrefixes[1]);
+            return std::get<std::basic_string<T>>(bases[1]);
         }
         else if constexpr ( B == Base::Decimal )
         {
-            return std::get<std::basic_string<T>>(s_BasePrefixes[2]);
+            return std::get<std::basic_string<T>>(bases[2]);
         }
         else if constexpr ( B == Base::Hexadecimal )
         {
-            return std::get<std::basic_string<T>>(s_BasePrefixes[3]);
+            return std::get<std::basic_string<T>>(bases[3]);
         }
     }
 
@@ -418,7 +443,7 @@ private:
     template <class T, class N>
     static const T& NumberToCharacter(_In_range_(0, 15) const N& n) noexcept
     {
-        return std::get<T>(s_NumberChars.at(static_cast<size_t>(n)));
+        return std::get<T>(GetNumberCharsTuple( ).at(static_cast<size_t>(n)));
     }
 
     // Returns the total number of digits of n, depending on Base representation.

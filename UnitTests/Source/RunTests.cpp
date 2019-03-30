@@ -1,6 +1,8 @@
-#include <iostream>
+#include <UnitTestRunner.h>
 
-int main()
+int main( )
 {
-    std::cout << "Hello World!\n"; 
+    UnitTestRunner<char> utr("Common-Code");
+
+    return 0;
 }

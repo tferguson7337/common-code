@@ -4,9 +4,6 @@
     <Filter Include="Common-Code">
       <UniqueIdentifier>{07d214ea-5fb4-4464-ba87-9748924e5c7d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Common-Code\Source">
-      <UniqueIdentifier>{5aa0473a-8e3e-4bea-a414-e555d26e4fb9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Common-Code\Headers">
       <UniqueIdentifier>{f71d5abb-9bfb-49a1-bdf0-fec68d6a054c}</UniqueIdentifier>
     </Filter>
@@ -21,9 +18,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Common-Code\Source\StringUtil.cpp">
-      <Filter>Common-Code\Source</Filter>
-    </ClCompile>
     <ClCompile Include="Source\RunTests.cpp">
       <Filter>Tests\Source</Filter>
     </ClCompile>
