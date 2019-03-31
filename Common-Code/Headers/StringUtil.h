@@ -416,9 +416,9 @@ private:
 
     // Returns a predefined prefix string for a particular Base value.
     template <Base B, class T>
-    static constexpr const std::basic_string<T>& GetBasePrefixString( ) noexcept
+    static const std::basic_string<T>& GetBasePrefixString( ) noexcept
     {
-        const std::vector<SupportedStringTuple>& bases = GetBasePrefixesTuple( )
+        const std::vector<SupportedStringTuple>& bases = GetBasePrefixesTuple( );
 
         if constexpr ( B == Base::Binary )
         {
