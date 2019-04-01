@@ -12,13 +12,9 @@ void GetTests(UnitTestRunner<char>& utr)
 
 int main( )
 {
-    bool bPass = false;
-
     UnitTestRunner<char> utr("Common-Code");
-    
-    GetTests(utr);
-    
-    bPass = utr.RunUnitTests( );
 
-    return bPass ? 0 : 1;
+    GetTests(utr);
+
+    return utr.RunUnitTests( ) ? 0 : 1;
 }

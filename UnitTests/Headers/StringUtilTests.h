@@ -399,7 +399,7 @@ public:
         }
 
         SUTL_TEST_ASSERT(p);
-        SUTL_TEST_ASSERT(memcmp(p, cmpArr, len + 1) == 0);
+        SUTL_TEST_ASSERT(memcmp(p, cmpArr, (len + 1) * sizeof(C)) == 0);
 
         SUTL_TEST_SUCCESS( );
     }
@@ -801,7 +801,7 @@ public:
             SUTL_TEST_ASSERT(copy.empty( ));
         }
 
-        SUTL_TEST_ASSERT(memcmp(ptr, str.c_str( ), str.length( ) + 1) == 0);
+        SUTL_TEST_ASSERT(memcmp(ptr, str.c_str( ), (str.length( ) + 1) * sizeof(C)) == 0);
 
         SUTL_TEST_SUCCESS( );
     }
@@ -821,7 +821,7 @@ public:
             SUTL_TEST_ASSERT(!copy.empty( ));
         }
 
-        SUTL_TEST_ASSERT(memcmp(ptr, str.c_str( ), str.length( ) + 1) == 0);
+        SUTL_TEST_ASSERT(memcmp(ptr, str.c_str( ), (str.length( ) + 1) * sizeof(C)) == 0);
 
         SUTL_TEST_SUCCESS( );
     }
@@ -841,7 +841,7 @@ public:
             SUTL_TEST_ASSERT(!copy.empty( ));
         }
 
-        SUTL_TEST_ASSERT(memcmp(ptr, str.c_str( ), str.length( ) + 1) == 0);
+        SUTL_TEST_ASSERT(memcmp(ptr, str.c_str( ), (str.length( ) + 1) * sizeof(C)) == 0);
 
         SUTL_TEST_SUCCESS( );
     }
@@ -1628,7 +1628,7 @@ private:
 
 public:
 
-    template <BT BT, typename N, typename C>
+    template <RT RT, BT BT, typename N, typename C>
     static UTR NumberType( )
     {
         NCTestArray<N, C> arr = GetTestArray<BT, N, C>( );
@@ -1638,9 +1638,11 @@ public:
             const N& num = arr[i].first;
             const std::basic_string<C>& expected = arr[i].second;
 
-            const std::basic_string<C> str = StringUtil::NumberConversion::ToString<BT, C, N>(num);
+            auto str = StringUtil::NumberConversion::Convert<RT, BT, C, N>(num);
+            const C* ptr = GetStringPointer<RT, C>(&str);
 
-            SUTL_TEST_ASSERT(expected == str);
+            SUTL_TEST_ASSERT(ptr);
+            SUTL_TEST_ASSERT(memcmp(ptr, expected.c_str( ), (expected.length( ) + 1) * sizeof(C)) == 0);
         }
 
         SUTL_TEST_SUCCESS( );
@@ -1805,81 +1807,155 @@ inline std::list<StringUtilTests::UTFunc> StringUtilTests::GetTests( )
         UTFConversionTests::ManyLength<RT::SmartCString, wchar_t, char>,
         UTFConversionTests::ManyLength<RT::SmartCString, wchar_t, wchar_t>,
 
-        NumberConversionTests::NumberType<BT::Binary, int8_t, char>,
-        NumberConversionTests::NumberType<BT::Binary, int8_t, wchar_t>,
-        NumberConversionTests::NumberType<BT::Octal, int8_t, char>,
-        NumberConversionTests::NumberType<BT::Octal, int8_t, wchar_t>,
-        NumberConversionTests::NumberType<BT::Decimal, int8_t, char>,
-        NumberConversionTests::NumberType<BT::Decimal, int8_t, wchar_t>,
-        NumberConversionTests::NumberType<BT::Hexadecimal, int8_t, char>,
-        NumberConversionTests::NumberType<BT::Hexadecimal, int8_t, wchar_t>,
-        NumberConversionTests::NumberType<BT::Binary, uint8_t, char>,
-        NumberConversionTests::NumberType<BT::Binary, uint8_t, wchar_t>,
-        NumberConversionTests::NumberType<BT::Octal, uint8_t, char>,
-        NumberConversionTests::NumberType<BT::Octal, uint8_t, wchar_t>,
-        NumberConversionTests::NumberType<BT::Decimal, uint8_t, char>,
-        NumberConversionTests::NumberType<BT::Decimal, uint8_t, wchar_t>,
-        NumberConversionTests::NumberType<BT::Hexadecimal, uint8_t, char>,
-        NumberConversionTests::NumberType<BT::Hexadecimal, uint8_t, wchar_t>,
-        NumberConversionTests::NumberType<BT::Binary, int16_t, char>,
-        NumberConversionTests::NumberType<BT::Binary, int16_t, wchar_t>,
-        NumberConversionTests::NumberType<BT::Octal, int16_t, char>,
-        NumberConversionTests::NumberType<BT::Octal, int16_t, wchar_t>,
-        NumberConversionTests::NumberType<BT::Decimal, int16_t, char>,
-        NumberConversionTests::NumberType<BT::Decimal, int16_t, wchar_t>,
-        NumberConversionTests::NumberType<BT::Hexadecimal, int16_t, char>,
-        NumberConversionTests::NumberType<BT::Hexadecimal, int16_t, wchar_t>,
-        NumberConversionTests::NumberType<BT::Binary, uint16_t, char>,
-        NumberConversionTests::NumberType<BT::Binary, uint16_t, wchar_t>,
-        NumberConversionTests::NumberType<BT::Octal, uint16_t, char>,
-        NumberConversionTests::NumberType<BT::Octal, uint16_t, wchar_t>,
-        NumberConversionTests::NumberType<BT::Decimal, uint16_t, char>,
-        NumberConversionTests::NumberType<BT::Decimal, uint16_t, wchar_t>,
-        NumberConversionTests::NumberType<BT::Hexadecimal, uint16_t, char>,
-        NumberConversionTests::NumberType<BT::Hexadecimal, uint16_t, wchar_t>,
-        NumberConversionTests::NumberType<BT::Binary, int32_t, char>,
-        NumberConversionTests::NumberType<BT::Binary, int32_t, wchar_t>,
-        NumberConversionTests::NumberType<BT::Octal, int32_t, char>,
-        NumberConversionTests::NumberType<BT::Octal, int32_t, wchar_t>,
-        NumberConversionTests::NumberType<BT::Decimal, int32_t, char>,
-        NumberConversionTests::NumberType<BT::Decimal, int32_t, wchar_t>,
-        NumberConversionTests::NumberType<BT::Hexadecimal, int32_t, char>,
-        NumberConversionTests::NumberType<BT::Hexadecimal, int32_t, wchar_t>,
-        NumberConversionTests::NumberType<BT::Binary, uint32_t, char>,
-        NumberConversionTests::NumberType<BT::Binary, uint32_t, wchar_t>,
-        NumberConversionTests::NumberType<BT::Octal, uint32_t, char>,
-        NumberConversionTests::NumberType<BT::Octal, uint32_t, wchar_t>,
-        NumberConversionTests::NumberType<BT::Decimal, uint32_t, char>,
-        NumberConversionTests::NumberType<BT::Decimal, uint32_t, wchar_t>,
-        NumberConversionTests::NumberType<BT::Hexadecimal, uint32_t, char>,
-        NumberConversionTests::NumberType<BT::Hexadecimal, uint32_t, wchar_t>,
-        NumberConversionTests::NumberType<BT::Binary, int64_t, char>,
-        NumberConversionTests::NumberType<BT::Binary, int64_t, wchar_t>,
-        NumberConversionTests::NumberType<BT::Octal, int64_t, char>,
-        NumberConversionTests::NumberType<BT::Octal, int64_t, wchar_t>,
-        NumberConversionTests::NumberType<BT::Decimal, int64_t, char>,
-        NumberConversionTests::NumberType<BT::Decimal, int64_t, wchar_t>,
-        NumberConversionTests::NumberType<BT::Hexadecimal, int64_t, char>,
-        NumberConversionTests::NumberType<BT::Hexadecimal, int64_t, wchar_t>,
-        NumberConversionTests::NumberType<BT::Binary, uint64_t, char>,
-        NumberConversionTests::NumberType<BT::Binary, uint64_t, wchar_t>,
-        NumberConversionTests::NumberType<BT::Octal, uint64_t, char>,
-        NumberConversionTests::NumberType<BT::Octal, uint64_t, wchar_t>,
-        NumberConversionTests::NumberType<BT::Decimal, uint64_t, char>,
-        NumberConversionTests::NumberType<BT::Decimal, uint64_t, wchar_t>,
-        NumberConversionTests::NumberType<BT::Hexadecimal, uint64_t, char>,
-        NumberConversionTests::NumberType<BT::Hexadecimal, uint64_t, wchar_t>,
-        NumberConversionTests::NumberType<BT::Binary, void*, char>,
-        NumberConversionTests::NumberType<BT::Binary, void*, wchar_t>,
-        NumberConversionTests::NumberType<BT::Octal, void*, char>,
-        NumberConversionTests::NumberType<BT::Octal, void*, wchar_t>,
-        NumberConversionTests::NumberType<BT::Decimal, void*, char>,
-        NumberConversionTests::NumberType<BT::Decimal, void*, wchar_t>,
-        NumberConversionTests::NumberType<BT::Hexadecimal, void*, char>,
-        NumberConversionTests::NumberType<BT::Hexadecimal, void*, wchar_t>  
+        NumberConversionTests::NumberType<RT::StringObj, BT::Binary, int8_t, char>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Binary, int8_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Octal, int8_t, char>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Octal, int8_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Decimal, int8_t, char>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Decimal, int8_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Hexadecimal, int8_t, char>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Hexadecimal, int8_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Binary, uint8_t, char>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Binary, uint8_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Octal, uint8_t, char>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Octal, uint8_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Decimal, uint8_t, char>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Decimal, uint8_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Hexadecimal, uint8_t, char>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Hexadecimal, uint8_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Binary, int16_t, char>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Binary, int16_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Octal, int16_t, char>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Octal, int16_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Decimal, int16_t, char>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Decimal, int16_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Hexadecimal, int16_t, char>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Hexadecimal, int16_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Binary, uint16_t, char>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Binary, uint16_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Octal, uint16_t, char>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Octal, uint16_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Decimal, uint16_t, char>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Decimal, uint16_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Hexadecimal, uint16_t, char>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Hexadecimal, uint16_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Binary, int32_t, char>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Binary, int32_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Octal, int32_t, char>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Octal, int32_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Decimal, int32_t, char>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Decimal, int32_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Hexadecimal, int32_t, char>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Hexadecimal, int32_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Binary, uint32_t, char>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Binary, uint32_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Octal, uint32_t, char>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Octal, uint32_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Decimal, uint32_t, char>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Decimal, uint32_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Hexadecimal, uint32_t, char>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Hexadecimal, uint32_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Binary, int64_t, char>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Binary, int64_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Octal, int64_t, char>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Octal, int64_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Decimal, int64_t, char>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Decimal, int64_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Hexadecimal, int64_t, char>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Hexadecimal, int64_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Binary, uint64_t, char>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Binary, uint64_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Octal, uint64_t, char>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Octal, uint64_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Decimal, uint64_t, char>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Decimal, uint64_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Hexadecimal, uint64_t, char>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Hexadecimal, uint64_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Binary, void*, char>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Binary, void*, wchar_t>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Octal, void*, char>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Octal, void*, wchar_t>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Decimal, void*, char>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Decimal, void*, wchar_t>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Hexadecimal, void*, char>,
+        NumberConversionTests::NumberType<RT::StringObj, BT::Hexadecimal, void*, wchar_t>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Binary, int8_t, char>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Binary, int8_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Octal, int8_t, char>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Octal, int8_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Decimal, int8_t, char>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Decimal, int8_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Hexadecimal, int8_t, char>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Hexadecimal, int8_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Binary, uint8_t, char>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Binary, uint8_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Octal, uint8_t, char>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Octal, uint8_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Decimal, uint8_t, char>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Decimal, uint8_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Hexadecimal, uint8_t, char>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Hexadecimal, uint8_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Binary, int16_t, char>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Binary, int16_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Octal, int16_t, char>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Octal, int16_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Decimal, int16_t, char>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Decimal, int16_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Hexadecimal, int16_t, char>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Hexadecimal, int16_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Binary, uint16_t, char>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Binary, uint16_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Octal, uint16_t, char>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Octal, uint16_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Decimal, uint16_t, char>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Decimal, uint16_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Hexadecimal, uint16_t, char>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Hexadecimal, uint16_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Binary, int32_t, char>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Binary, int32_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Octal, int32_t, char>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Octal, int32_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Decimal, int32_t, char>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Decimal, int32_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Hexadecimal, int32_t, char>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Hexadecimal, int32_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Binary, uint32_t, char>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Binary, uint32_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Octal, uint32_t, char>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Octal, uint32_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Decimal, uint32_t, char>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Decimal, uint32_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Hexadecimal, uint32_t, char>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Hexadecimal, uint32_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Binary, int64_t, char>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Binary, int64_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Octal, int64_t, char>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Octal, int64_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Decimal, int64_t, char>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Decimal, int64_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Hexadecimal, int64_t, char>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Hexadecimal, int64_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Binary, uint64_t, char>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Binary, uint64_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Octal, uint64_t, char>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Octal, uint64_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Decimal, uint64_t, char>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Decimal, uint64_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Hexadecimal, uint64_t, char>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Hexadecimal, uint64_t, wchar_t>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Binary, void*, char>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Binary, void*, wchar_t>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Octal, void*, char>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Octal, void*, wchar_t>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Decimal, void*, char>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Decimal, void*, wchar_t>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Hexadecimal, void*, char>,
+        NumberConversionTests::NumberType<RT::SmartCString, BT::Hexadecimal, void*, wchar_t>
     };
 
     return tests;
 }
 
+#ifdef _ASSIGN_TEST_STR_
 #undef _ASSIGN_TEST_STR_
+#endif

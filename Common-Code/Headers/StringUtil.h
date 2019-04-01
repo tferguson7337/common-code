@@ -659,31 +659,35 @@ private:
         }
     }
 
-    // Returns C++ string of length len.
-    template <class T, class N>
-    static std::basic_string<T> BuildBuffer(_In_ const size_t& len)
+    // Returns ReturnType-specified buffer of length len.
+    template <ReturnType RT, class T>
+    static auto BuildBuffer(_In_ const size_t& len)
     {
-        return std::basic_string<T>(len, static_cast<T>('\0'));
-    }
-
-    // Returns C-string of length len, wrapped in a smart pointer.
-    template <class T, class N>
-    static std::unique_ptr<T[ ]> BuildCBuffer(_In_ const size_t& len)
-    {
-        std::unique_ptr<T[ ]> ptr(std::make_unique<T[ ]>(len + 1));
-        memset(ptr.get( ), static_cast<T>('\0'), sizeof(T)*(len + 1));
-        return ptr;
+        if constexpr ( RT == ReturnType::SmartCString )
+        {
+            std::unique_ptr<T[ ]> ptr(std::make_unique<T[ ]>(len + 1));
+            memset(ptr.get( ), static_cast<T>('\0'), sizeof(T)*(len + 1));
+            return ptr;
+        }
+        else if constexpr ( RT == ReturnType::StringObj )
+        {
+            return std::basic_string<T>(len, static_cast<T>('\0'));
+        }
+        else
+        {
+            throw std::invalid_argument(__FUNCTION__": Unknown ReturnType[" + std::to_string(RT) + "].");
+        }
     }
 
     // Builds base-dependent string representation of number n.
     // The string representation will contain the base-dependent prefix and separators.
     template <Base B, class T, class N>
-    static void BuildString(_In_ const N& n, _Inout_updates_(l) T* p, _In_ const size_t& l)
+    static void BuildNumberString(_In_ const N& n, _Inout_updates_(l) T* p, _In_ const size_t& l)
     {
         if constexpr ( B != Base::Decimal && std::is_signed_v<N> )
         {
             // Single-time re-entry - Build using unsigned type for non-decimal base cases (makes logic easier).
-            BuildString<B, T, std::make_unsigned_t<N>>(static_cast<std::make_unsigned_t<N>>(n), p, l);
+            BuildNumberString<B, T, std::make_unsigned_t<N>>(static_cast<std::make_unsigned_t<N>>(n), p, l);
             return;
         }
         else
@@ -740,49 +744,22 @@ public:
 #define _ENABLE_IF_NUMBER_CONVERT_SUPPORTED(T, N) \
     typename = typename std::enable_if<IsSupportedCharType<T>( ) && IsIntegerRepresentableType<N>( )>::type
 
-    // Return C++ string representation of number argument.
-    template <Base B, class T, class N, _ENABLE_IF_NUMBER_CONVERT_SUPPORTED(T, N)>
-    static std::basic_string<T> ToString(_In_ const N& number)
+    template <ReturnType RT, Base B, class T, class N, _ENABLE_IF_NUMBER_CONVERT_SUPPORTED(T, N)>
+    static auto Convert(_In_ const N& integral)
     {
         static_assert(IsSupportedCharType<T>( ), __FUNCTION__": Invalid character type.");
         static_assert(IsValidBaseType<B>( ), __FUNCTION__": Invalid Base Type");
 
         if constexpr ( std::is_pointer_v<N> )
         {
-            const uintptr_t n = reinterpret_cast<uintptr_t>(number);
-            std::basic_string<T> str(BuildBuffer<T, uintptr_t>(GetRequiredLength<B, T>(n)));
-            BuildString<B, T>(n, const_cast<T*>(str.data( )), str.size( ));
-            return str;
+            return Convert<RT, B, T, uintptr_t>(reinterpret_cast<uintptr_t>(integral));
         }
         else
         {
-            std::basic_string<T> str(BuildBuffer<T, N>(GetRequiredLength<B, T>(number)));
-            BuildString<B, T>(number, const_cast<T*>(str.data( )), str.size( ));
-            return str;
-        }
-    }
-
-    // Return C-string representation of number argument, contained in a smart pointer.
-    template <Base B, class T, class N, _ENABLE_IF_NUMBER_CONVERT_SUPPORTED(T, N)>
-    static std::unique_ptr<T[ ]> ToCString(_In_ const N& number)
-    {
-        static_assert(IsSupportedCharType<T>( ), __FUNCTION__": Invalid character type.");
-        static_assert(IsValidBaseType<B>( ), __FUNCTION__": Invalid Base Type");
-
-        if ( std::is_pointer_v<N> )
-        {
-            const uintptr_t n = reinterpret_cast<uintptr_t>(number);
-            const size_t len = GetRequiredLength<B, T>(n);
-            std::unique_ptr<T[ ]> cstr = BuildCBuffer<T, uintptr_t>(len);
-            BuildString<B, T>(n, cstr.get( ), len);
-            return cstr;
-        }
-        else
-        {
-            const size_t len = GetRequiredLength<B, T>(number);
-            std::unique_ptr<T[ ]> cstr = BuildCBuffer<T, N>(len);
-            BuildString<B, T>(number, cstr.get( ), len);
-            return cstr;
+            const size_t len = GetRequiredLength<B, T, N>(integral);
+            auto buffer = BuildBuffer<RT, T>(len);
+            BuildNumberString<B, T, N>(integral, GetRawDestinationPointer(buffer), len);
+            return buffer;
         }
     }
 };
