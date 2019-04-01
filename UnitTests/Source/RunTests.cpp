@@ -1,8 +1,24 @@
+// SUTL
 #include <UnitTestRunner.h>
+
+// Tests
+#include <StringUtilTests.h>
+
+
+void GetTests(UnitTestRunner<char>& utr)
+{
+    utr.AddUnitTests(StringUtilTests::GetTests( ));
+}
 
 int main( )
 {
-    UnitTestRunner<char> utr("Common-Code");
+    bool bPass = false;
 
-    return 0;
+    UnitTestRunner<char> utr("Common-Code");
+    
+    GetTests(utr);
+    
+    bPass = utr.RunUnitTests( );
+
+    return bPass ? 0 : 1;
 }

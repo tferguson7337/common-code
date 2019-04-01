@@ -8,6 +8,7 @@
 #include <memory>
 #include <vector>
 
+
 ///
 //
 //  Class   - StringUtil [STATIC]
@@ -17,6 +18,9 @@
 ///
 class StringUtil
 {
+    // Friend class for private-method testing.
+    friend class StringUtilTests;
+
     /// Static Class - No Ctors/Dtors
     StringUtil( ) = delete;
     StringUtil(const StringUtil&) = delete;
@@ -28,25 +32,31 @@ class StringUtil
 
 private:
 
-    /// Protected Static Helper Methods \\\
+    /// Private Helper Enums \\\
 
     // Used for indicating target operation type (e.g., copy, conversion, etc).
     enum class OperationType : size_t
     {
-        Comparison,
+        Comparison = 0,
         Copy,
         UTFConversion,
-        NumberConversion
+        NumberConversion,
+
+        End,
+        Begin = 0
     };
 
     // Used for indicating if an early exit condition has been met and what value to return if so.
     enum class EarlyExitResult : size_t
     {
-        NoExit,
+        NoExit = 0,
         True,
         False,
         EmptyString,
-        ZeroedBuffer
+        ZeroedBuffer,
+
+        End,
+        Begin = 0
     };
 
 public:
@@ -54,8 +64,11 @@ public:
     // Used for specifying general string return.
     enum class ReturnType : size_t
     {
-        SmartCString,
-        StringObj
+        SmartCString = 0,
+        StringObj,
+
+        _End,
+        _Begin = 0
     };
 
 private:
@@ -91,6 +104,19 @@ private:
     /// Common Private Helpers \\\
 
     template <ReturnType RT, typename C>
+    static auto BuildEmptyString( )
+    {
+        if constexpr ( RT == ReturnType::SmartCString )
+        {
+            return std::unique_ptr<C[ ]>( );
+        }
+        else if constexpr ( RT == ReturnType::StringObj )
+        {
+            return std::basic_string<C>( );
+        }
+    }
+
+    template <ReturnType RT, typename C>
     static auto BuildString(_In_ const size_t& len)
     {
         if constexpr ( RT == ReturnType::SmartCString )
@@ -99,7 +125,7 @@ private:
             memset(ret.get( ), static_cast<C>('\0'), (len + 1) * sizeof(C));
             return ret;
         }
-        else // RT == ReturnType::StringObj
+        else if constexpr ( RT == ReturnType::StringObj )
         {
             return std::basic_string<C>(len, static_cast<C>('\0'));
         }
@@ -116,11 +142,18 @@ private:
         {
             return EarlyExitResult::False;
         }
-        else if ( (lhsLen == 0) && (rhsLen == 0) )
+        
+        if ( (lhsLen == 0) && (rhsLen == 0) )
         {
             return EarlyExitResult::True;
         }
-        else if ( !lhs || !rhs )
+        
+        if ( lhs == rhs )
+        {
+            return EarlyExitResult::True;
+        }
+        
+        if ( !lhs || !rhs )
         {
             return (!lhs && !rhs) ? EarlyExitResult::True : EarlyExitResult::False;
         }
@@ -226,7 +259,7 @@ public:
         }
         else
         {
-            return wsclen(src);
+            return wcslen(src);
         }
     }
 
@@ -287,9 +320,16 @@ public:
         static_assert(IsValidReturnType<RT>( ), __FUNCTION__": Invalid ReturnType template argument");
         static_assert(IsSupportedCharType<C>( ), __FUNCTION__": Invalid character type template argument");
 
+        const EarlyExitResult eer = CheckForCopyEarlyExit<RT, C>(src, len);
+
+        if ( eer == EarlyExitResult::EmptyString )
+        {
+            return BuildEmptyString<RT, C>( );
+        }
+
         auto copy = BuildString<RT, C>(len);
 
-        if ( CheckForCopyEarlyExit<RT, C>(src, len) == EarlyExitResult::NoExit )
+        if ( eer == EarlyExitResult::NoExit )
         {
             memcpy(GetRawDestinationPointer<C>(copy), src, len * sizeof(C));
         }
@@ -325,11 +365,18 @@ public:
         }
         else
         {
+            const EarlyExitResult eer = CheckForUTFConversionEarlyExit<RT, CSrc>(src, len);
+
+            if ( eer == EarlyExitResult::EmptyString )
+            {
+                return BuildEmptyString<RT, CDst>( );
+            }
+
             auto conv = BuildString<RT, CDst>(len);
 
-            if ( CheckForUTFConversionEarlyExit<RT, CSrc>(src, len) == EarlyExitResult::NoExit )
+            if ( eer == EarlyExitResult::NoExit )
             {
-                PerformConversion(GetRawDestinationPointer(conv), src, len);
+                PerformConversion(GetRawDestinationPointer<CDst>(conv), src, len);
             }
 
             return conv;
@@ -350,6 +397,8 @@ public:
 ///
 class StringUtil::NumberConversion
 {
+    friend class StringUtilTests;
+
     /// Static Class - No Ctors/Dtors
     NumberConversion( ) = delete;
     NumberConversion(const NumberConversion&) = delete;
@@ -363,10 +412,13 @@ public:
     // Enum Class for Specifying Number-To-String Conversion types.
     enum class Base : size_t
     {
-        Binary = 2,
-        Octal = 8,
-        Decimal = 10,
-        Hexadecimal = 16,
+        Binary = 0,
+        Octal,
+        Decimal,
+        Hexadecimal,
+
+        _End,
+        _Begin = 0
     };
 
     using BaseType = std::underlying_type<Base>::type;
@@ -462,9 +514,14 @@ private:
         }
         else if constexpr ( B == Base::Decimal )
         {
-            const bool bNeg = (std::is_signed_v<N> && (n < 0));
-            N absVal = (bNeg && n == std::numeric_limits<N>::min( )) ? std::numeric_limits<N>::max( ) : static_cast<N>(abs(n));
-
+            N absVal = n;
+            
+            if constexpr ( std::is_signed_v<N> )
+            {
+                const bool bNeg = (std::is_signed_v<N> && (n < 0));
+                absVal = (bNeg && n == std::numeric_limits<N>::min( )) ? std::numeric_limits<N>::max( ) : (bNeg ? -n : n);
+            }
+            
             if ( absVal < 10 )
             {
                 return 1;
@@ -525,7 +582,14 @@ private:
         }
         else if constexpr ( B == Base::Decimal )
         {
-            return (n < 0) ? -(n % 10) : n % 10;
+            if constexpr ( std::is_signed_v<N> )
+            {
+                return (n < 0) ? -(n % 10) : n % 10;
+            }
+            else
+            {
+                return n % 10;
+            }
         }
         else if constexpr ( B == Base::Hexadecimal )
         {
@@ -624,19 +688,20 @@ private:
         }
         else
         {
+            const std::basic_string<T>& prefixStr = GetBasePrefixString<B, T>( );
             N tmp = n;
             size_t idx = l - 1;
             size_t count = 0;
 
             // Copy base prefix string to destination string.
-            memcpy_s(p, l, GetBasePrefixString<B, T>( ).c_str( ), GetBasePrefixString<B, T>( ).size( ));
+            memcpy_s(p, l * sizeof(T), prefixStr.c_str( ), prefixStr.length( ) * sizeof(T));
 
             // Copy over the negative sign for negative decimal numbers.
             if constexpr ( B == Base::Decimal )
             {
                 if ( n < 0 )
                 {
-                    p[GetBasePrefixString<B, T>( ).size( )] = static_cast<T>('-');
+                    p[prefixStr.length( )] = static_cast<T>('-');
                 }
             }
 
@@ -656,7 +721,7 @@ private:
             if constexpr ( B != Base::Decimal )
             {
                 // Fill in the rest of the buffer with zeros as needed.
-                while ( idx >= GetBasePrefixString<B, T>( ).size( ) )
+                while ( idx >= prefixStr.length( ) )
                 {
                     if ( count != 0 && ((count % GetSeparatorInterval<B>( )) == 0) )
                     {
@@ -682,9 +747,19 @@ public:
         static_assert(IsSupportedCharType<T>( ), __FUNCTION__": Invalid character type.");
         static_assert(IsValidBaseType<B>( ), __FUNCTION__": Invalid Base Type");
 
-        std::basic_string<T> str(BuildBuffer<T, N>(GetRequiredLength<B, T>(number)));
-        BuildString<B, T>(number, const_cast<T*>(str.data( )), str.size( ));
-        return str;
+        if constexpr ( std::is_pointer_v<N> )
+        {
+            const uintptr_t n = reinterpret_cast<uintptr_t>(number);
+            std::basic_string<T> str(BuildBuffer<T, uintptr_t>(GetRequiredLength<B, T>(n)));
+            BuildString<B, T>(n, const_cast<T*>(str.data( )), str.size( ));
+            return str;
+        }
+        else
+        {
+            std::basic_string<T> str(BuildBuffer<T, N>(GetRequiredLength<B, T>(number)));
+            BuildString<B, T>(number, const_cast<T*>(str.data( )), str.size( ));
+            return str;
+        }
     }
 
     // Return C-string representation of number argument, contained in a smart pointer.
@@ -694,10 +769,21 @@ public:
         static_assert(IsSupportedCharType<T>( ), __FUNCTION__": Invalid character type.");
         static_assert(IsValidBaseType<B>( ), __FUNCTION__": Invalid Base Type");
 
-        const size_t len = GetRequiredLength<B, T>(number);
-        std::unique_ptr<T[ ]> cstr = BuildCBuffer<T, N>(len);
-        BuildString<B, T>(number, cstr.get( ), len);
-        return cstr;
+        if ( std::is_pointer_v<N> )
+        {
+            const uintptr_t n = reinterpret_cast<uintptr_t>(number);
+            const size_t len = GetRequiredLength<B, T>(n);
+            std::unique_ptr<T[ ]> cstr = BuildCBuffer<T, uintptr_t>(len);
+            BuildString<B, T>(n, cstr.get( ), len);
+            return cstr;
+        }
+        else
+        {
+            const size_t len = GetRequiredLength<B, T>(number);
+            std::unique_ptr<T[ ]> cstr = BuildCBuffer<T, N>(len);
+            BuildString<B, T>(number, cstr.get( ), len);
+            return cstr;
+        }
     }
 };
 

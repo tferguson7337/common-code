@@ -18,11 +18,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\RunTests.cpp">
-      <Filter>Tests\Source</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="..\Common-Code\Headers\Macros.h">
       <Filter>Common-Code\Headers</Filter>
     </ClInclude>
@@ -32,5 +27,11 @@
     <ClInclude Include="..\Common-Code\Headers\Types.h">
       <Filter>Common-Code\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="Headers\StringUtilTests.h">
+      <Filter>Tests\Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\RunTests.cpp" />
   </ItemGroup>
 </Project>
