@@ -1,10 +1,10 @@
-#ifndef _MACROS_H_
-#define _MACROS_H_
+#ifndef _CC_MACROS_H_
+#define _CC_MACROS_H_
 
 #include <string>
 #include <tuple>
 #include <type_traits>
-#include "Types.h"
+#include "CCTypes.h"
 
 /// String Macro Helpers \\\
 
@@ -107,4 +107,4 @@ bool constexpr IsIntegerRepresentableType( )
 #define ENABLE_IF_INTEGER_REPRESENTABLE_TYPE(T) \
     typename = typename std::enable_if<IsIntegerRepresentableType<T>( )>::type
 
-#endif // _MACROS_H_
+#endif // _CC_MACROS_H_

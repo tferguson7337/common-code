@@ -1,12 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Common-Code">
-      <UniqueIdentifier>{07d214ea-5fb4-4464-ba87-9748924e5c7d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Common-Code\Headers">
-      <UniqueIdentifier>{f71d5abb-9bfb-49a1-bdf0-fec68d6a054c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Tests">
       <UniqueIdentifier>{14a440ad-c7ff-44d5-a565-dc35f3fd2f11}</UniqueIdentifier>
     </Filter>
@@ -16,22 +10,42 @@
     <Filter Include="Tests\Source">
       <UniqueIdentifier>{c2b0d8a1-3b9f-49ec-a8a5-9038361361a6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="CommonCode">
+      <UniqueIdentifier>{07d214ea-5fb4-4464-ba87-9748924e5c7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CommonCode\Headers">
+      <UniqueIdentifier>{f71d5abb-9bfb-49a1-bdf0-fec68d6a054c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CommonCode\Interfaces">
+      <UniqueIdentifier>{ee1a8c81-7e41-4e43-879f-2eb0d4c71107}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Common-Code\Headers\Macros.h">
-      <Filter>Common-Code\Headers</Filter>
+    <ClInclude Include="..\CommonCode\Headers\CCBuffer.h">
+      <Filter>CommonCode\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\Common-Code\Headers\StringUtil.h">
-      <Filter>Common-Code\Headers</Filter>
+    <ClInclude Include="..\CommonCode\Headers\CCIBuffer.h">
+      <Filter>CommonCode\Interfaces</Filter>
     </ClInclude>
-    <ClInclude Include="..\Common-Code\Headers\Types.h">
-      <Filter>Common-Code\Headers</Filter>
+    <ClInclude Include="..\CommonCode\Headers\CCMacros.h">
+      <Filter>CommonCode\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\StringUtilTests.h">
+    <ClInclude Include="..\CommonCode\Headers\CCStringUtil.h">
+      <Filter>CommonCode\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CommonCode\Headers\CCTypes.h">
+      <Filter>CommonCode\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\CCBufferTests.h">
       <Filter>Tests\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="Headers\CCStringUtilTests.h">
+      <Filter>Tests\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\TestSets.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\RunTests.cpp" />
+    <ClCompile Include="Source\TestSets.cpp" />
   </ItemGroup>
 </Project>

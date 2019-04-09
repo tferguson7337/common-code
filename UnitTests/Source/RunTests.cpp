@@ -2,19 +2,24 @@
 #include <UnitTestRunner.h>
 
 // Tests
-#include <StringUtilTests.h>
+#include <TestSets.h>
 
 
-void GetTests(UnitTestRunner<char>& utr)
+int main(const int argc, const char* argv[ ])
 {
-    utr.AddUnitTests(StringUtilTests::GetTests( ));
-}
+    bool bPass = true;
+    UnitTestRunner<char> utr;
+    std::list<TestSetFunc> testFuncList(GetTestSetFunctions(argc, argv));
 
-int main( )
-{
-    UnitTestRunner<char> utr("Common-Code");
+    if ( testFuncList.empty( ) )
+    {
+        printf("No tests selected.\r\n");
+    }
 
-    GetTests(utr);
+    for ( const TestSetFunc& f : testFuncList )
+    {
+        bPass &= f(utr);
+    }
 
-    return utr.RunUnitTests( ) ? 0 : 1;
+    return bPass ? 0 : 1;
 }
