@@ -136,9 +136,11 @@ namespace CC
             delete[ ] p;
         }
 
+        // Returns function pointer to appropriate cleanup function.
+        // nullptr if len == 0, FreeSingle if len == 1, and FreeArray otherwise.
         static FreeFunc GetFreeFunction(_In_ const size_t& len) noexcept
         {
-            return len == 0 ? nullptr : len == 1 ? FreeSingle : FreeArray;
+            return (len == 0) ? nullptr : (len == 1) ? FreeSingle : FreeArray;
         }
 
         // Allocates pointer to len T elements.
@@ -157,7 +159,10 @@ namespace CC
             if ( ptr )
             {
                 p = Allocate(len);
-                memcpy(p, ptr, sizeof(T) * len);
+                for ( size_t i = 0; i < len; i++ )
+                {
+                    p[i] = ptr[i];
+                }
             }
             
             return p;
@@ -431,7 +436,7 @@ namespace CC
         }
 
         // Insertion overload - writes source buffer content to internal buffer at m_WritePos, then returns reference to this object.
-        // Note: Will only write up to src.WritePosition( ).
+        // Note: Will only copy up to src.WritePosition( ) of source buffer.
         // Note: Will throw std::logic_error if m_pBuf == nullptr.
         // Note: Will throw std::logic_error if src.Ptr( ) == nullptr.
         // Note: Will throw std::out_of_range if write would go beyond end of buffer.
@@ -492,7 +497,7 @@ namespace CC
         /// Public Methods \\\
 
         // Returns pointer to internal buffer, resets data members to default values.
-        // Note: Caller now owns the buffer memory - they must ensure it is freed as some point.
+        // Note: Caller now owns the buffer memory - they must ensure it is freed at some point.
         // Note: Will return nullptr if the buffer doesn't currently manage any resources.
         virtual T* Claim( ) noexcept
         {
@@ -508,12 +513,15 @@ namespace CC
             Reset( );
         }
 
-        // Sets all byte values of the internal buffer to zero.
+        // Initializes all elements of the buffer.
         // Note: This will throw std::logic_error if the internal buffer is nullptr.
         virtual void ZeroBuffer( )
         {
             ValidateDereference(__FUNCSIG__, m_pBuf);
-            memset(m_pBuf, 0, sizeof(T) * m_Len);
+            for ( size_t i = 0; i < m_Len; i++ )
+            {
+                m_pBuf[i] = T( );
+            }
         }
 
         // Returns true if contents of m_pBuf match contents of p (up to len), false otherwise.
@@ -540,7 +548,7 @@ namespace CC
                     return false;
                 }
             }
-
+            
             return true;
         }
 
@@ -566,8 +574,10 @@ namespace CC
         virtual void Write(_In_ const T* const p, _In_ const size_t& len)
         {
             ValidateWriteRequest(__FUNCSIG__, p, len);
-            memcpy(m_pBuf + m_WritePos, p, sizeof(T) * len);
-            m_WritePos += len;
+            for ( size_t i = 0; i < len; i++ )
+            {
+                m_pBuf[m_WritePos++] = p[i];
+            }
         }
 
         // Writes source buffer content to internal buffer at m_WritePos.
