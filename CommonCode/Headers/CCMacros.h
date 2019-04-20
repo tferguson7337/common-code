@@ -34,7 +34,7 @@ using SupportedStringTuple = std::tuple<std::basic_string<utf8>, std::basic_stri
 template <class T>
 bool constexpr IsSupportedCharType( )
 {
-    return std::is_same<T, utf8>::value || std::is_same<T, utf16>::value;
+	return std::is_same<T, utf8>::value || std::is_same<T, utf16>::value;
 }
 
 
@@ -42,7 +42,7 @@ bool constexpr IsSupportedCharType( )
 template <class T>
 bool constexpr IsSignedIntegerType( )
 {
-    return std::is_integral<T>::value && std::is_signed<T>::value;
+	return std::is_integral<T>::value&& std::is_signed<T>::value;
 }
 
 
@@ -50,7 +50,7 @@ bool constexpr IsSignedIntegerType( )
 template <class T>
 bool constexpr IsUnsignedIntegerType( )
 {
-    return std::is_integral<T>::value && std::is_unsigned<T>::value;
+	return std::is_integral<T>::value&& std::is_unsigned<T>::value;
 }
 
 
@@ -58,7 +58,7 @@ bool constexpr IsUnsignedIntegerType( )
 template <class T>
 bool constexpr IsIntegerType( )
 {
-    return IsSignedIntegerType<T>( ) || IsUnsignedIntegerType<T>( );
+	return IsSignedIntegerType<T>( ) || IsUnsignedIntegerType<T>( );
 }
 
 
@@ -66,7 +66,7 @@ bool constexpr IsIntegerType( )
 template <class T>
 bool constexpr IsPointerType( )
 {
-    return std::is_pointer<T>::value;
+	return std::is_pointer<T>::value;
 }
 
 
@@ -74,7 +74,7 @@ bool constexpr IsPointerType( )
 template <class T>
 bool constexpr IsIntegerRepresentableType( )
 {
-    return IsIntegerType<T>( ) || IsPointerType<T>( );
+	return IsIntegerType<T>( ) || IsPointerType<T>( );
 }
 
 /// Enable-If Helper Macros \\\
