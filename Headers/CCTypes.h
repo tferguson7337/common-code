@@ -49,23 +49,23 @@ namespace
 {
 #define _SASSERT_TYPE_SIZE_MISMATCH_STR_     "Unexpected type size mismatch detected."
 
-	// Basic Signed Types
-	static_assert(sizeof(int8)      == 1, _SASSERT_TYPE_SIZE_MISMATCH_STR_);
-	static_assert(sizeof(int16)     == sizeof(int8) << 1, _SASSERT_TYPE_SIZE_MISMATCH_STR_);
-	static_assert(sizeof(int32)     == sizeof(int16) << 1, _SASSERT_TYPE_SIZE_MISMATCH_STR_);
-	static_assert(sizeof(int64)     == sizeof(int32) << 1, _SASSERT_TYPE_SIZE_MISMATCH_STR_);
+    // Basic Signed Types
+    static_assert(sizeof(int8)      == 1, _SASSERT_TYPE_SIZE_MISMATCH_STR_);
+    static_assert(sizeof(int16)     == sizeof(int8) << 1, _SASSERT_TYPE_SIZE_MISMATCH_STR_);
+    static_assert(sizeof(int32)     == sizeof(int16) << 1, _SASSERT_TYPE_SIZE_MISMATCH_STR_);
+    static_assert(sizeof(int64)     == sizeof(int32) << 1, _SASSERT_TYPE_SIZE_MISMATCH_STR_);
 
-	// Basic Unsigned Types
-	static_assert(sizeof(uint8)     == 1, _SASSERT_TYPE_SIZE_MISMATCH_STR_);
-	static_assert(sizeof(uint16)    == sizeof(uint8) << 1, _SASSERT_TYPE_SIZE_MISMATCH_STR_);
-	static_assert(sizeof(uint32)    == sizeof(uint16) << 1, _SASSERT_TYPE_SIZE_MISMATCH_STR_);
-	static_assert(sizeof(uint64)    == sizeof(uint32) << 1, _SASSERT_TYPE_SIZE_MISMATCH_STR_);
+    // Basic Unsigned Types
+    static_assert(sizeof(uint8)     == 1, _SASSERT_TYPE_SIZE_MISMATCH_STR_);
+    static_assert(sizeof(uint16)    == sizeof(uint8) << 1, _SASSERT_TYPE_SIZE_MISMATCH_STR_);
+    static_assert(sizeof(uint32)    == sizeof(uint16) << 1, _SASSERT_TYPE_SIZE_MISMATCH_STR_);
+    static_assert(sizeof(uint64)    == sizeof(uint32) << 1, _SASSERT_TYPE_SIZE_MISMATCH_STR_);
 
-	// String Types
-	static_assert(sizeof(ascii)     == 1, _SASSERT_TYPE_SIZE_MISMATCH_STR_);
-	static_assert(sizeof(utf8)      == sizeof(ascii), _SASSERT_TYPE_SIZE_MISMATCH_STR_);
-	static_assert(sizeof(utf16)     == sizeof(utf8) << 1, _SASSERT_TYPE_SIZE_MISMATCH_STR_);
-	static_assert(sizeof(utf32)     == sizeof(utf16) << 1, _SASSERT_TYPE_SIZE_MISMATCH_STR_);
+    // String Types
+    static_assert(sizeof(ascii)     == 1, _SASSERT_TYPE_SIZE_MISMATCH_STR_);
+    static_assert(sizeof(utf8)      == sizeof(ascii), _SASSERT_TYPE_SIZE_MISMATCH_STR_);
+    static_assert(sizeof(utf16)     == sizeof(utf8) << 1, _SASSERT_TYPE_SIZE_MISMATCH_STR_);
+    static_assert(sizeof(utf32)     == sizeof(utf16) << 1, _SASSERT_TYPE_SIZE_MISMATCH_STR_);
 
 #undef _SASSERT_TYPE_SIZE_MISMATCH_STR_
 }
