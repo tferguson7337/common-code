@@ -23,11 +23,11 @@
     <ClCompile Include="Source\TestSets.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\CommonCode\Headers\CCBuffer.h" />
-    <ClInclude Include="..\CommonCode\Headers\CCIBuffer.h" />
-    <ClInclude Include="..\CommonCode\Headers\CCMacros.h" />
-    <ClInclude Include="..\CommonCode\Headers\CCStringUtil.h" />
-    <ClInclude Include="..\CommonCode\Headers\CCTypes.h" />
+    <ClInclude Include="..\Headers\CCBuffer.h" />
+    <ClInclude Include="..\Headers\CCIBuffer.h" />
+    <ClInclude Include="..\Headers\CCMacros.h" />
+    <ClInclude Include="..\Headers\CCStringUtil.h" />
+    <ClInclude Include="..\Headers\CCTypes.h" />
     <ClInclude Include="Headers\CCBufferTests.h" />
     <ClInclude Include="Headers\CCStringUtilTests.h" />
     <ClInclude Include="Headers\TestSets.h" />
@@ -126,7 +126,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)CommonCode\Headers;$(ProjectDir)Headers;$(ProjectDir)SUTL\SimpleUnitTestLibrary\Headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\Headers;$(ProjectDir)Headers;$(ProjectDir)SUTL\SimpleUnitTestLibrary\Headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -159,7 +159,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)CommonCode\Headers;$(ProjectDir)Headers;$(ProjectDir)SUTL\SimpleUnitTestLibrary\Headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\Headers;$(ProjectDir)Headers;$(ProjectDir)SUTL\SimpleUnitTestLibrary\Headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -194,7 +194,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)CommonCode\Headers;$(ProjectDir)Headers;$(ProjectDir)SUTL\SimpleUnitTestLibrary\Headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\Headers;$(ProjectDir)Headers;$(ProjectDir)SUTL\SimpleUnitTestLibrary\Headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -231,7 +231,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)CommonCode\Headers;$(ProjectDir)Headers;$(ProjectDir)SUTL\SimpleUnitTestLibrary\Headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\Headers;$(ProjectDir)Headers;$(ProjectDir)SUTL\SimpleUnitTestLibrary\Headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <TreatWarningAsError>true</TreatWarningAsError>

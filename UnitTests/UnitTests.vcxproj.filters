@@ -21,21 +21,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\CommonCode\Headers\CCBuffer.h">
-      <Filter>CommonCode\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\CommonCode\Headers\CCIBuffer.h">
-      <Filter>CommonCode\Interfaces</Filter>
-    </ClInclude>
-    <ClInclude Include="..\CommonCode\Headers\CCMacros.h">
-      <Filter>CommonCode\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\CommonCode\Headers\CCStringUtil.h">
-      <Filter>CommonCode\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\CommonCode\Headers\CCTypes.h">
-      <Filter>CommonCode\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="Headers\CCBufferTests.h">
       <Filter>Tests\Headers</Filter>
     </ClInclude>
@@ -43,6 +28,21 @@
       <Filter>Tests\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Headers\TestSets.h" />
+    <ClInclude Include="..\Headers\CCBuffer.h">
+      <Filter>CommonCode\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Headers\CCMacros.h">
+      <Filter>CommonCode\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Headers\CCStringUtil.h">
+      <Filter>CommonCode\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Headers\CCTypes.h">
+      <Filter>CommonCode\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Headers\CCIBuffer.h">
+      <Filter>CommonCode\Interfaces</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\RunTests.cpp" />
