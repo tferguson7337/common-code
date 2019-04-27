@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\CCBufferTests.cpp" />
+    <ClCompile Include="Source\CCStringUtilTests.cpp" />
     <ClCompile Include="Source\RunTests.cpp" />
     <ClCompile Include="Source\TestSets.cpp" />
   </ItemGroup>
@@ -139,7 +141,7 @@
       <AdditionalDependencies>SUTLD$(PlatformArchitecture).lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>$(TargetPath)</Command>
+      <Command>$(TargetPath) All</Command>
     </PostBuildEvent>
     <CustomBuildStep>
       <Command>echo.</Command>
@@ -172,7 +174,7 @@
       <AdditionalDependencies>SUTLD$(PlatformArchitecture).lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>$(TargetPath)</Command>
+      <Command>$(TargetPath) All</Command>
     </PostBuildEvent>
     <CustomBuildStep>
       <Command>echo.</Command>
@@ -209,7 +211,7 @@
       <AdditionalDependencies>SUTL$(PlatformArchitecture).lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>$(TargetPath)</Command>
+      <Command>$(TargetPath) All</Command>
     </PostBuildEvent>
     <CustomBuildStep>
       <Command>echo.</Command>
@@ -246,7 +248,7 @@
       <AdditionalDependencies>SUTL$(PlatformArchitecture).lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>$(TargetPath)</Command>
+      <Command>$(TargetPath) All</Command>
     </PostBuildEvent>
     <CustomBuildStep>
       <Command>echo.</Command>

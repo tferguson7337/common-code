@@ -47,5 +47,11 @@
   <ItemGroup>
     <ClCompile Include="Source\RunTests.cpp" />
     <ClCompile Include="Source\TestSets.cpp" />
+    <ClCompile Include="Source\CCBufferTests.cpp">
+      <Filter>Tests\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\CCStringUtilTests.cpp">
+      <Filter>Tests\Source</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

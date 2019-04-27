@@ -50,6 +50,17 @@ namespace CC
         // Writes specified T object to the internal buffer.
         // Note: This will throw std::logic_error if the internal buffer is nullptr.
         // Note: This will throw std::out_of_range if the write would go beyond the end of the buffer.
+        virtual IBuffer<T>& operator+=(const T&) = 0;
+
+        // Writes contents of IBuffer object to the internal buffer.
+        // Note: This will throw std::logic_error if the internal buffer is nullptr.
+        // Note: This will throw std::logic_error if the source buffer's internal buffer is nullptr.
+        // Note: This will throw std::out_of_range if the write would go beyond the end of the buffer.
+        virtual IBuffer<T>& operator+=(const IBuffer<T>&) = 0;
+
+        // Writes specified T object to the internal buffer.
+        // Note: This will throw std::logic_error if the internal buffer is nullptr.
+        // Note: This will throw std::out_of_range if the write would go beyond the end of the buffer.
         virtual IBuffer<T>& operator<<(const T&) = 0;
 
         // Writes contents of IBuffer object to the internal buffer.

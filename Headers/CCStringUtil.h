@@ -1,16 +1,37 @@
 #ifndef _CC_STRING_UTIL_H_
 #define _CC_STRING_UTIL_H_
 
+#include "CCBuffer.h"
 #include "CCMacros.h"
 
 #include <sal.h>
 
-#include <memory>
 #include <vector>
-
 
 namespace CC
 {
+    // Used for specifying general string return.
+    enum class ReturnType : size_t
+    {
+        CCBuffer = 0,
+        CppString,
+
+        _End,
+        _Begin = 0
+    };
+
+    // Enum Class for Specifying Number-To-String Conversion types.
+    enum class Base : size_t
+    {
+        Binary = 0,
+        Octal,
+        Decimal,
+        Hexadecimal,
+
+        _End,
+        _Begin = 0
+    };
+
     ///
     //
     //  Class   - StringUtil [STATIC]
@@ -61,18 +82,6 @@ namespace CC
             Begin = 0
         };
 
-    public:
-
-        // Used for specifying general string return.
-        enum class ReturnType : size_t
-        {
-            SmartCString = 0,
-            StringObj,
-
-            _End,
-            _Begin = 0
-        };
-
     private:
 
         /// Constexpr Enum Validators \\\
@@ -99,8 +108,8 @@ namespace CC
         template <ReturnType RT>
         static constexpr bool IsValidReturnType( ) noexcept
         {
-            return RT == ReturnType::SmartCString
-                || RT == ReturnType::StringObj;
+            return RT == ReturnType::CCBuffer
+                || RT == ReturnType::CppString;
         }
 
         /// Common Private Helpers \\\
@@ -108,28 +117,35 @@ namespace CC
         template <ReturnType RT, typename C>
         static auto BuildEmptyString( )
         {
-            if constexpr ( RT == ReturnType::SmartCString )
+            if constexpr ( RT == ReturnType::CCBuffer )
             {
-                return std::unique_ptr<C[ ]>( );
+                return Buffer<C>( );
             }
-            else if constexpr ( RT == ReturnType::StringObj )
+            else if constexpr ( RT == ReturnType::CppString )
             {
                 return std::basic_string<C>( );
             }
         }
 
         template <ReturnType RT, typename C>
-        static auto BuildString(_In_ const size_t& len)
+        static auto BuildBuffer(_In_ const size_t& len)
         {
-            if constexpr ( RT == ReturnType::SmartCString )
+            if constexpr ( RT == ReturnType::CCBuffer )
             {
-                std::unique_ptr<C[ ]> ret(std::make_unique<C[ ]>(len + 1));
-                memset(ret.get( ), static_cast<C>('\0'), (len + 1) * sizeof(C));
+                Buffer<C> ret(len + 1);
+                ret.ZeroBuffer( );
                 return ret;
             }
-            else if constexpr ( RT == ReturnType::StringObj )
+            else if constexpr ( RT == ReturnType::CppString )
             {
                 return std::basic_string<C>(len, static_cast<C>('\0'));
+            }
+            else
+            {
+                const std::string msg1 = __FUNCSIG__": Unknown ReturnType[";
+                const std::string data1 = std::to_string(static_cast<std::underlying_type_t<ReturnType>>(RT));
+                const std::string msg2 = "].";
+                throw std::invalid_argument(msg1 + data1 + msg2);
             }
         }
 
@@ -193,7 +209,6 @@ namespace CC
             }
         }
 
-
         /// Copy/UTFConversion Private Helpers \\\
 
         template <ReturnType RT, typename C>
@@ -201,7 +216,7 @@ namespace CC
         {
             if ( !src || len == 0 )
             {
-                if constexpr ( RT == ReturnType::SmartCString )
+                if constexpr ( RT == ReturnType::CCBuffer )
                 {
                     return EarlyExitResult::ZeroedBuffer;
                 }
@@ -221,13 +236,13 @@ namespace CC
         }
 
         template <typename C>
-        static C* GetRawDestinationPointer(std::unique_ptr<C[ ]>& dst) noexcept
+        static C* GetRawDestinationPointer(_In_ Buffer<C>& dst) noexcept
         {
-            return dst.get( );
+            return dst.Ptr( );
         }
 
         template <typename C>
-        static C* GetRawDestinationPointer(std::basic_string<C>& dst) noexcept
+        static C* GetRawDestinationPointer(_In_ std::basic_string<C>& dst) noexcept
         {
             return const_cast<C*>(dst.data( ));
         }
@@ -241,191 +256,7 @@ namespace CC
             }
         }
 
-    public:
-
-        // Returns number of characters in a C-string, not including the null-terminator.
-        // Note: nullptr is treated as an empty string (i.e., returns 0).
-        template <class T>
-        static size_t GetLength(_In_z_ const T* src) noexcept
-        {
-            static_assert(IsSupportedCharType<T>( ), __FUNCTION__": Invalid character type.");
-
-            if ( !src )
-            {
-                return 0;
-            }
-
-            if constexpr ( std::is_same_v<T, utf8> )
-            {
-                return strlen(src);
-            }
-            else
-            {
-                return wcslen(src);
-            }
-        }
-
-        /// Comparison Public Methods \\\
-
-        // Forwards approriate arguments to Compare(const T*, const size_t&, const T*, const size_t&, const bool&)
-        template <class T>
-        static bool Compare(_In_ const std::basic_string<T>& lhs, _In_ const std::basic_string<T>& rhs, _In_ const bool& bCaseSensitive = true) noexcept
-        {
-            return Compare(lhs.c_str( ), lhs.length( ), rhs.c_str( ), rhs.length( ), bCaseSensitive);
-        }
-
-        // Calculates string length and forwards approriate arguments to Compare(const T*, const size_t&, const T*, const size_t&, const bool&)
-        template <class T>
-        static bool Compare(_In_z_ const T* lhs, _In_z_ const T* rhs, const bool& bCaseSensitive = true) noexcept
-        {
-            return Compare(lhs, GetLength(lhs), rhs, GetLength(rhs), bCaseSensitive);
-        }
-
-        // Returns true if both strings are the same size and have the same contents.
-        template <class T>
-        static bool Compare(_In_ const T* lhs, _In_ const size_t& lhsLen, _In_ const T* rhs, _In_ const size_t& rhsLen, _In_ const bool& bCaseSensitive = true) noexcept
-        {
-            static_assert(IsSupportedCharType<T>( ), __FUNCTION__": Invalid character type.");
-
-            auto fpCmp = (bCaseSensitive) ? CaseSensitiveCompare<T> : CaseInsensitiveCompare<T>;
-            switch ( CheckForComparisonEarlyExit(lhs, lhsLen, rhs, rhsLen) )
-            {
-            case EarlyExitResult::NoExit:
-                return fpCmp(lhs, rhs, lhsLen);
-
-            case EarlyExitResult::True:
-                return true;
-
-            case EarlyExitResult::False:
-            default:
-                return false;
-            }
-        }
-
-        /// Copy Public Methods \\\
-
-        template <ReturnType RT, typename C>
-        static auto Copy(_In_ const std::basic_string<C>& src)
-        {
-            return Copy<RT, C>(src.c_str( ), src.length( ));
-        }
-
-        template <ReturnType RT, typename C>
-        static auto Copy(_In_z_ const C* src)
-        {
-            return Copy<RT, C>(src, GetLength(src));
-        }
-
-        template <ReturnType RT, typename C>
-        static auto Copy(_In_ const C* src, const size_t& len)
-        {
-            static_assert(IsValidReturnType<RT>( ), __FUNCTION__": Invalid ReturnType template argument");
-            static_assert(IsSupportedCharType<C>( ), __FUNCTION__": Invalid character type template argument");
-
-            const EarlyExitResult eer = CheckForCopyEarlyExit<RT, C>(src, len);
-
-            if ( eer == EarlyExitResult::EmptyString )
-            {
-                return BuildEmptyString<RT, C>( );
-            }
-
-            auto copy = BuildString<RT, C>(len);
-
-            if ( eer == EarlyExitResult::NoExit )
-            {
-                memcpy(GetRawDestinationPointer<C>(copy), src, len * sizeof(C));
-            }
-
-            return copy;
-        }
-
-
-        /// UTFConversion Public Methods \\\
-
-        template <ReturnType RT, typename CDst, typename CSrc>
-        static auto UTFConversion(_In_ const std::basic_string<CSrc>& src)
-        {
-            return UTFConversion<RT, CDst>(src.c_str( ), src.length( ));
-        }
-
-        template <ReturnType RT, typename CDst, typename CSrc>
-        static auto UTFConversion(_In_z_ const CSrc* src)
-        {
-            return UTFConversion<RT, CDst>(src, GetLength(src));
-        }
-
-        template <ReturnType RT, typename CDst, typename CSrc>
-        static auto UTFConversion(_In_ const CSrc* src, const size_t& len)
-        {
-            static_assert(IsValidReturnType<RT>( ), __FUNCTION__": Invalid ReturnType template argument");
-            static_assert(IsSupportedCharType<CDst>( ), __FUNCTION__": Invalid destination character type.");
-            static_assert(IsSupportedCharType<CSrc>( ), __FUNCTION__": Invalid source character type.");
-
-            if constexpr ( std::is_same<CDst, CSrc>::value )
-            {
-                return Copy<RT, CDst>(src, len);
-            }
-            else
-            {
-                const EarlyExitResult eer = CheckForUTFConversionEarlyExit<RT, CSrc>(src, len);
-
-                if ( eer == EarlyExitResult::EmptyString )
-                {
-                    return BuildEmptyString<RT, CDst>( );
-                }
-
-                auto conv = BuildString<RT, CDst>(len);
-
-                if ( eer == EarlyExitResult::NoExit )
-                {
-                    PerformConversion(GetRawDestinationPointer<CDst>(conv), src, len);
-                }
-
-                return conv;
-            }
-        }
-
-        // Specialization Utility Classes.
-        class NumberConversion;
-    };
-
-
-    ///
-    //
-    //  Class   - StringUtil::NumberConversion [STATIC]
-    //
-    //  Purpose - Convert numeric values to string representations.
-    //
-    ///
-    class StringUtil::NumberConversion
-    {
-        friend class StringUtilTests;
-
-        /// Static Class - No Ctors/Dtors
-        NumberConversion( ) = delete;
-        NumberConversion(const NumberConversion&) = delete;
-        NumberConversion(NumberConversion&&) = delete;
-        ~NumberConversion( ) = delete;
-
-        NumberConversion& operator=(const NumberConversion&) = delete;
-        NumberConversion& operator=(NumberConversion&&) = delete;
-
-    public:
-        // Enum Class for Specifying Number-To-String Conversion types.
-        enum class Base : size_t
-        {
-            Binary = 0,
-            Octal,
-            Decimal,
-            Hexadecimal,
-
-            _End,
-            _Begin = 0
-        };
-
-        using BaseType = std::underlying_type<Base>::type;
-
-    private:
+        /// Number Conversion Private Helpers \\\
 
         static const std::vector<SupportedCharacterTuple>& GetNumberCharsTuple( )
         {
@@ -661,26 +492,6 @@ namespace CC
             }
         }
 
-        // Returns ReturnType-specified buffer of length len.
-        template <ReturnType RT, class T>
-        static auto BuildBuffer(_In_ const size_t& len)
-        {
-            if constexpr ( RT == ReturnType::SmartCString )
-            {
-                std::unique_ptr<T[ ]> ptr(std::make_unique<T[ ]>(len + 1));
-                memset(ptr.get( ), static_cast<T>('\0'), sizeof(T)*(len + 1));
-                return ptr;
-            }
-            else if constexpr ( RT == ReturnType::StringObj )
-            {
-                return std::basic_string<T>(len, static_cast<T>('\0'));
-            }
-            else
-            {
-                throw std::invalid_argument(__FUNCTION__": Unknown ReturnType[" + std::to_string(RT) + "].");
-            }
-        }
-
         // Builds base-dependent string representation of number n.
         // The string representation will contain the base-dependent prefix and separators.
         template <Base B, class T, class N>
@@ -714,14 +525,14 @@ namespace CC
                 // Convert and copy digits while tmp isn't zero.
                 do
                 {
-                    if ( count != 0 && ((count % GetSeparatorInterval<B>( )) == 0) )
+                    if ( count++ == GetSeparatorInterval<B>( ) )
                     {
                         p[idx--] = GetSeparator<B, T>( );
+                        count = 1;
                     }
 
                     p[idx--] = NumberToCharacter<T, N>(GetDigit<B, N>(tmp));
                     AdjustNumber<B, N>(tmp);
-                    count++;
                 } while ( tmp != 0 );
 
                 if constexpr ( B != Base::Decimal )
@@ -729,13 +540,13 @@ namespace CC
                     // Fill in the rest of the buffer with zeros as needed.
                     while ( idx >= prefixStr.length( ) )
                     {
-                        if ( count != 0 && ((count % GetSeparatorInterval<B>( )) == 0) )
+                        if ( count++ == GetSeparatorInterval<B>( ) )
                         {
                             p[idx--] = GetSeparator<B, T>( );
+                            count = 1;
                         }
 
                         p[idx--] = static_cast<T>('0');
-                        count++;
                     }
                 }
             }
@@ -743,18 +554,162 @@ namespace CC
 
     public:
 
+        // Returns number of characters in a C-string, not including the null-terminator.
+        // Note: nullptr is treated as an empty string (i.e., returns 0).
+        template <class T>
+        static size_t GetLength(_In_opt_z_ const T* src) noexcept
+        {
+            static_assert(IsSupportedCharType<T>( ), __FUNCTION__": Invalid character type.");
+
+            if ( !src )
+            {
+                return 0;
+            }
+
+            if constexpr ( std::is_same_v<T, utf8> )
+            {
+                return strlen(src);
+            }
+            else
+            {
+                return wcslen(src);
+            }
+        }
+
+        /// Comparison Public Methods \\\
+
+        // Forwards approriate arguments to Compare(const T*, const size_t&, const T*, const size_t&, const bool&)
+        template <class T>
+        static bool Compare(_In_ const std::basic_string<T>& lhs, _In_ const std::basic_string<T>& rhs, _In_ const bool& bCaseSensitive = true) noexcept
+        {
+            return Compare(lhs.c_str( ), lhs.length( ), rhs.c_str( ), rhs.length( ), bCaseSensitive);
+        }
+
+        // Calculates string length and forwards approriate arguments to Compare(const T*, const size_t&, const T*, const size_t&, const bool&)
+        template <class T>
+        static bool Compare(_In_z_ const T* lhs, _In_z_ const T* rhs, const bool& bCaseSensitive = true) noexcept
+        {
+            return Compare(lhs, GetLength(lhs), rhs, GetLength(rhs), bCaseSensitive);
+        }
+
+        // Returns true if both strings are the same size and have the same contents.
+        template <class T>
+        static bool Compare(_In_ const T* lhs, _In_ const size_t& lhsLen, _In_ const T* rhs, _In_ const size_t& rhsLen, _In_ const bool& bCaseSensitive = true) noexcept
+        {
+            static_assert(IsSupportedCharType<T>( ), __FUNCTION__": Invalid character type.");
+
+            auto fpCmp = (bCaseSensitive) ? CaseSensitiveCompare<T> : CaseInsensitiveCompare<T>;
+            switch ( CheckForComparisonEarlyExit(lhs, lhsLen, rhs, rhsLen) )
+            {
+            case EarlyExitResult::NoExit:
+                return fpCmp(lhs, rhs, lhsLen);
+
+            case EarlyExitResult::True:
+                return true;
+
+            case EarlyExitResult::False:
+            default:
+                return false;
+            }
+        }
+
+        /// Copy Public Methods \\\
+
+        template <ReturnType RT, typename C>
+        static auto Copy(_In_ const std::basic_string<C>& src)
+        {
+            return Copy<RT, C>(src.c_str( ), src.length( ));
+        }
+
+        template <ReturnType RT, typename C>
+        static auto Copy(_In_z_ const C* src)
+        {
+            return Copy<RT, C>(src, GetLength(src));
+        }
+
+        template <ReturnType RT, typename C>
+        static auto Copy(_In_ const C* src, const size_t& len)
+        {
+            static_assert(IsValidReturnType<RT>( ), __FUNCTION__": Invalid ReturnType template argument");
+            static_assert(IsSupportedCharType<C>( ), __FUNCTION__": Invalid character type template argument");
+
+            const EarlyExitResult eer = CheckForCopyEarlyExit<RT, C>(src, len);
+
+            if ( eer == EarlyExitResult::EmptyString )
+            {
+                return BuildEmptyString<RT, C>( );
+            }
+
+            auto copy = BuildBuffer<RT, C>(len);
+
+            if ( eer == EarlyExitResult::NoExit )
+            {
+                memcpy(GetRawDestinationPointer<C>(copy), src, len * sizeof(C));
+            }
+
+            return copy;
+        }
+
+
+        /// UTFConversion Public Methods \\\
+
+        template <ReturnType RT, typename CDst, typename CSrc>
+        static auto UTFConversion(_In_ const std::basic_string<CSrc>& src)
+        {
+            return UTFConversion<RT, CDst>(src.c_str( ), src.length( ));
+        }
+
+        template <ReturnType RT, typename CDst, typename CSrc>
+        static auto UTFConversion(_In_z_ const CSrc* src)
+        {
+            return UTFConversion<RT, CDst>(src, GetLength(src));
+        }
+
+        template <ReturnType RT, typename CDst, typename CSrc>
+        static auto UTFConversion(_In_ const CSrc* src, _In_ const size_t& len)
+        {
+            static_assert(IsValidReturnType<RT>( ), __FUNCTION__": Invalid ReturnType template argument");
+            static_assert(IsSupportedCharType<CDst>( ), __FUNCTION__": Invalid destination character type.");
+            static_assert(IsSupportedCharType<CSrc>( ), __FUNCTION__": Invalid source character type.");
+
+            if constexpr ( std::is_same<CDst, CSrc>::value )
+            {
+                return Copy<RT, CDst>(src, len);
+            }
+            else
+            {
+                const EarlyExitResult eer = CheckForUTFConversionEarlyExit<RT, CSrc>(src, len);
+
+                if ( eer == EarlyExitResult::EmptyString )
+                {
+                    return BuildEmptyString<RT, CDst>( );
+                }
+
+                auto conv = BuildBuffer<RT, CDst>(len);
+
+                if ( eer == EarlyExitResult::NoExit )
+                {
+                    PerformConversion(GetRawDestinationPointer<CDst>(conv), src, len);
+                }
+
+                return conv;
+            }
+        }
+
+        /// NumberConversion Public Methods \\\
+
     #define _ENABLE_IF_NUMBER_CONVERT_SUPPORTED(T, N) \
     typename = typename std::enable_if<IsSupportedCharType<T>( ) && IsIntegerRepresentableType<N>( )>::type
 
         template <ReturnType RT, Base B, class T, class N, _ENABLE_IF_NUMBER_CONVERT_SUPPORTED(T, N)>
-        static auto Convert(_In_ const N& integral)
+        static auto NumberConversion(_In_ const N& integral)
         {
             static_assert(IsSupportedCharType<T>( ), __FUNCTION__": Invalid character type.");
             static_assert(IsValidBaseType<B>( ), __FUNCTION__": Invalid Base Type");
 
             if constexpr ( std::is_pointer_v<N> )
             {
-                return Convert<RT, B, T, uintptr_t>(reinterpret_cast<uintptr_t>(integral));
+                return NumberConversion<RT, B, T, uintptr_t>(reinterpret_cast<uintptr_t>(integral));
             }
             else
             {
@@ -764,8 +719,8 @@ namespace CC
                 return buffer;
             }
         }
-    };
-#undef _ENABLE_IF_NUMBER_CONVERT_SUPPORTED
+    #undef _ENABLE_IF_NUMBER_CONVERT_SUPPORTED
+    };    
 }
 
 #endif // _CC_STRING_UTIL_H_

@@ -4,6 +4,7 @@
 #include <UnitTestResult.h>
 
 // STL
+#include <algorithm>
 #include <functional>
 #include <list>
 #include <memory>
@@ -49,6 +50,16 @@ namespace CC
             }
         };
 
+        template <typename T>
+        static constexpr bool IsValidTestType( )
+        {
+            return std::is_same_v<T, uint8_t>
+                || std::is_same_v<T, uint16_t>
+                || std::is_same_v<T, uint32_t>
+                || std::is_same_v<T, uint64_t>
+                || std::is_same_v<T, Helper>;
+        }
+
         enum class TestQuantity : size_t
         {
             Zero = 0,
@@ -59,15 +70,15 @@ namespace CC
             _Begin = 0
         };
 
-        template <typename T>
-        static constexpr bool IsValidTestType( )
+        enum class InvocationType : size_t
         {
-            return std::is_same_v<T, uint8_t>
-                || std::is_same_v<T, uint16_t>
-                || std::is_same_v<T, uint32_t>
-                || std::is_same_v<T, uint64_t>
-                || std::is_same_v<T, Helper>;
-        }
+            Method = 0,
+            AddAssignOp,
+            InsertionOp,
+
+            _End,
+            _Begin = 0
+        };
 
         template <TestQuantity TQ>
         static constexpr bool IsValidTestQuantity( )
@@ -1405,7 +1416,7 @@ namespace CC
     {
     public:
 
-        template <typename T, TestQuantity TQ>
+        template <typename T, TestQuantity TQ, InvocationType IT>
         static UTR WriteElement( )
         {
             constexpr const size_t len = GetTQNum<TQ>( );
@@ -1419,7 +1430,25 @@ namespace CC
 
             try
             {
-                buffer.Write(testData[0]);
+                if constexpr ( IT == InvocationType::Method )
+                {
+                    buffer.Write(testData[0]);
+                }
+                else if constexpr ( IT == InvocationType::AddAssignOp )
+                {
+                    buffer += testData[0];
+                }
+                else if constexpr ( IT == InvocationType::InsertionOp )
+                {
+                    buffer << testData[0];
+                }
+                else
+                {
+                    std::string msg1 = __FUNCSIG__": Unknown InvocationType template argument[";
+                    std::string data1 = std::to_string(static_cast<std::underlying_type_t<InvocationType>>(IT));
+                    std::string msg2 = "].";
+                    throw std::exception(msg1 + data1 + msg2);
+                }
             }
             catch ( const std::logic_error& e )
             {
@@ -1439,7 +1468,25 @@ namespace CC
 
             try
             {
-                buffer.Write(testData[1]);
+                if constexpr ( IT == InvocationType::Method )
+                {
+                    buffer.Write(testData[1]);
+                }
+                else if constexpr ( IT == InvocationType::AddAssignOp )
+                {
+                    buffer += testData[1];
+                }
+                else if constexpr ( IT == InvocationType::InsertionOp )
+                {
+                    buffer << testData[1];
+                }
+                else
+                {
+                    std::string msg1 = __FUNCSIG__": Unknown InvocationType template argument[";
+                    std::string data1 = std::to_string(static_cast<std::underlying_type_t<InvocationType>>(IT));
+                    std::string msg2 = "].";
+                    throw std::exception(msg1 + data1 + msg2);
+                }
             }
             catch ( const std::out_of_range& e )
             {
@@ -1668,7 +1715,7 @@ namespace CC
             SUTL_TEST_SUCCESS( );
         }
 
-        template <typename T, TestQuantity TQ1, TestQuantity TQ2>
+        template <typename T, TestQuantity TQ1, TestQuantity TQ2, InvocationType IT>
         static UTR WriteToWritePosition( )
         {
             constexpr const size_t len1 = GetTQNum<TQ1>( );
@@ -1709,7 +1756,25 @@ namespace CC
 
             try
             {
-                buffer.Write(src, true);
+                if constexpr ( IT == InvocationType::Method )
+                {
+                    buffer.Write(src, true);
+                }
+                else if constexpr ( IT == InvocationType::AddAssignOp )
+                {
+                    buffer += src;
+                }
+                else if constexpr ( IT == InvocationType::InsertionOp )
+                {
+                    buffer << src;
+                }
+                else
+                {
+                    std::string msg1 = __FUNCSIG__": Unknown InvocationType template argument[";
+                    std::string data1 = std::to_string(static_cast<std::underlying_type_t<InvocationType>>(IT));
+                    std::string msg2 = "].";
+                    throw std::exception(msg1 + data1 + msg2);
+                }
             }
             catch ( const std::out_of_range& e )
             {
@@ -1773,7 +1838,25 @@ namespace CC
 
             try
             {
-                buffer.Write(src, true);
+                if constexpr ( IT == InvocationType::Method )
+                {
+                    buffer.Write(src, true);
+                }
+                else if constexpr ( IT == InvocationType::AddAssignOp )
+                {
+                    buffer += src;
+                }
+                else if constexpr ( IT == InvocationType::InsertionOp )
+                {
+                    buffer << src;
+                }
+                else
+                {
+                    std::string msg1 = __FUNCSIG__": Unknown InvocationType template argument[";
+                    std::string data1 = std::to_string(static_cast<std::underlying_type_t<InvocationType>>(IT));
+                    std::string msg2 = "].";
+                    throw std::exception(msg1 + data1 + msg2);
+                }
             }
             catch ( const std::out_of_range& e )
             {
@@ -2008,818 +2091,4 @@ namespace CC
             SUTL_TEST_SUCCESS( );
         }
     };
-}
-
-CC::BufferTests::UTList CC::BufferTests::GetTests( )
-{
-    static const UTList tests
-    {
-        /// Allocation Tests \\\
-
-        BufferTests::AllocationTests::Allocate<uint8_t, TestQuantity::Zero>,
-        BufferTests::AllocationTests::Allocate<uint16_t, TestQuantity::Zero>,
-        BufferTests::AllocationTests::Allocate<uint32_t, TestQuantity::Zero>,
-        BufferTests::AllocationTests::Allocate<uint64_t, TestQuantity::Zero>,
-        BufferTests::AllocationTests::Allocate<Helper, TestQuantity::Zero>,
-        BufferTests::AllocationTests::Allocate<uint8_t, TestQuantity::One>,
-        BufferTests::AllocationTests::Allocate<uint16_t, TestQuantity::One>,
-        BufferTests::AllocationTests::Allocate<uint32_t, TestQuantity::One>,
-        BufferTests::AllocationTests::Allocate<uint64_t, TestQuantity::One>,
-        BufferTests::AllocationTests::Allocate<Helper, TestQuantity::One>,
-        BufferTests::AllocationTests::Allocate<uint8_t, TestQuantity::Many>,
-        BufferTests::AllocationTests::Allocate<uint16_t, TestQuantity::Many>,
-        BufferTests::AllocationTests::Allocate<uint32_t, TestQuantity::Many>,
-        BufferTests::AllocationTests::Allocate<uint64_t, TestQuantity::Many>,
-        BufferTests::AllocationTests::Allocate<Helper, TestQuantity::Many>,
-
-        BufferTests::AllocationTests::AllocFromPtrNull<uint8_t, TestQuantity::Zero>,
-        BufferTests::AllocationTests::AllocFromPtrNull<uint16_t, TestQuantity::Zero>,
-        BufferTests::AllocationTests::AllocFromPtrNull<uint32_t, TestQuantity::Zero>,
-        BufferTests::AllocationTests::AllocFromPtrNull<uint64_t, TestQuantity::Zero>,
-        BufferTests::AllocationTests::AllocFromPtrNull<Helper, TestQuantity::Zero>,
-        BufferTests::AllocationTests::AllocFromPtrNull<uint8_t, TestQuantity::One>,
-        BufferTests::AllocationTests::AllocFromPtrNull<uint16_t, TestQuantity::One>,
-        BufferTests::AllocationTests::AllocFromPtrNull<uint32_t, TestQuantity::One>,
-        BufferTests::AllocationTests::AllocFromPtrNull<uint64_t, TestQuantity::One>,
-        BufferTests::AllocationTests::AllocFromPtrNull<Helper, TestQuantity::One>,
-        BufferTests::AllocationTests::AllocFromPtrNull<uint8_t, TestQuantity::Many>,
-        BufferTests::AllocationTests::AllocFromPtrNull<uint16_t, TestQuantity::Many>,
-        BufferTests::AllocationTests::AllocFromPtrNull<uint32_t, TestQuantity::Many>,
-        BufferTests::AllocationTests::AllocFromPtrNull<uint64_t, TestQuantity::Many>,
-        BufferTests::AllocationTests::AllocFromPtrNull<Helper, TestQuantity::Many>,
-
-        BufferTests::AllocationTests::AllocFromPtr<uint8_t, TestQuantity::Zero>,
-        BufferTests::AllocationTests::AllocFromPtr<uint16_t, TestQuantity::Zero>,
-        BufferTests::AllocationTests::AllocFromPtr<uint32_t, TestQuantity::Zero>,
-        BufferTests::AllocationTests::AllocFromPtr<uint64_t, TestQuantity::Zero>,
-        BufferTests::AllocationTests::AllocFromPtr<Helper, TestQuantity::Zero>,
-        BufferTests::AllocationTests::AllocFromPtr<uint8_t, TestQuantity::One>,
-        BufferTests::AllocationTests::AllocFromPtr<uint16_t, TestQuantity::One>,
-        BufferTests::AllocationTests::AllocFromPtr<uint32_t, TestQuantity::One>,
-        BufferTests::AllocationTests::AllocFromPtr<uint64_t, TestQuantity::One>,
-        BufferTests::AllocationTests::AllocFromPtr<Helper, TestQuantity::One>,
-        BufferTests::AllocationTests::AllocFromPtr<uint8_t, TestQuantity::Many>,
-        BufferTests::AllocationTests::AllocFromPtr<uint16_t, TestQuantity::Many>,
-        BufferTests::AllocationTests::AllocFromPtr<uint32_t, TestQuantity::Many>,
-        BufferTests::AllocationTests::AllocFromPtr<uint64_t, TestQuantity::Many>,
-        BufferTests::AllocationTests::AllocFromPtr<Helper, TestQuantity::Many>,
-
-        /// Deallocation Tests \\\
-
-        BufferTests::DeallocationTests::CopyBuffer<uint8_t, TestQuantity::Zero>,
-        BufferTests::DeallocationTests::CopyBuffer<uint16_t, TestQuantity::Zero>,
-        BufferTests::DeallocationTests::CopyBuffer<uint32_t, TestQuantity::Zero>,
-        BufferTests::DeallocationTests::CopyBuffer<uint64_t, TestQuantity::Zero>,
-        BufferTests::DeallocationTests::CopyBuffer<Helper, TestQuantity::Zero>,
-        BufferTests::DeallocationTests::CopyBuffer<uint8_t, TestQuantity::One>,
-        BufferTests::DeallocationTests::CopyBuffer<uint16_t, TestQuantity::One>,
-        BufferTests::DeallocationTests::CopyBuffer<uint32_t, TestQuantity::One>,
-        BufferTests::DeallocationTests::CopyBuffer<uint64_t, TestQuantity::One>,
-        BufferTests::DeallocationTests::CopyBuffer<Helper, TestQuantity::One>,
-        BufferTests::DeallocationTests::CopyBuffer<uint8_t, TestQuantity::Many>,
-        BufferTests::DeallocationTests::CopyBuffer<uint16_t, TestQuantity::Many>,
-        BufferTests::DeallocationTests::CopyBuffer<uint32_t, TestQuantity::Many>,
-        BufferTests::DeallocationTests::CopyBuffer<uint64_t, TestQuantity::Many>,
-        BufferTests::DeallocationTests::CopyBuffer<Helper, TestQuantity::Many>,
-
-        BufferTests::DeallocationTests::TransferBuffer<uint8_t, TestQuantity::Zero>,
-        BufferTests::DeallocationTests::TransferBuffer<uint16_t, TestQuantity::Zero>,
-        BufferTests::DeallocationTests::TransferBuffer<uint32_t, TestQuantity::Zero>,
-        BufferTests::DeallocationTests::TransferBuffer<uint64_t, TestQuantity::Zero>,
-        BufferTests::DeallocationTests::TransferBuffer<Helper, TestQuantity::Zero>,
-        BufferTests::DeallocationTests::TransferBuffer<uint8_t, TestQuantity::One>,
-        BufferTests::DeallocationTests::TransferBuffer<uint16_t, TestQuantity::One>,
-        BufferTests::DeallocationTests::TransferBuffer<uint32_t, TestQuantity::One>,
-        BufferTests::DeallocationTests::TransferBuffer<uint64_t, TestQuantity::One>,
-        BufferTests::DeallocationTests::TransferBuffer<Helper, TestQuantity::One>,
-        BufferTests::DeallocationTests::TransferBuffer<uint8_t, TestQuantity::Many>,
-        BufferTests::DeallocationTests::TransferBuffer<uint16_t, TestQuantity::Many>,
-        BufferTests::DeallocationTests::TransferBuffer<uint32_t, TestQuantity::Many>,
-        BufferTests::DeallocationTests::TransferBuffer<uint64_t, TestQuantity::Many>,
-        BufferTests::DeallocationTests::TransferBuffer<Helper, TestQuantity::Many>,
-
-        BufferTests::DeallocationTests::Destructor<uint8_t, TestQuantity::Zero>,
-        BufferTests::DeallocationTests::Destructor<uint16_t, TestQuantity::Zero>,
-        BufferTests::DeallocationTests::Destructor<uint32_t, TestQuantity::Zero>,
-        BufferTests::DeallocationTests::Destructor<uint64_t, TestQuantity::Zero>,
-        BufferTests::DeallocationTests::Destructor<Helper, TestQuantity::Zero>,
-        BufferTests::DeallocationTests::Destructor<uint8_t, TestQuantity::One>,
-        BufferTests::DeallocationTests::Destructor<uint16_t, TestQuantity::One>,
-        BufferTests::DeallocationTests::Destructor<uint32_t, TestQuantity::One>,
-        BufferTests::DeallocationTests::Destructor<uint64_t, TestQuantity::One>,
-        BufferTests::DeallocationTests::Destructor<Helper, TestQuantity::One>,
-        BufferTests::DeallocationTests::Destructor<uint8_t, TestQuantity::Many>,
-        BufferTests::DeallocationTests::Destructor<uint16_t, TestQuantity::Many>,
-        BufferTests::DeallocationTests::Destructor<uint32_t, TestQuantity::Many>,
-        BufferTests::DeallocationTests::Destructor<uint64_t, TestQuantity::Many>,
-        BufferTests::DeallocationTests::Destructor<Helper, TestQuantity::Many>,
-
-        BufferTests::DeallocationTests::Free<uint8_t, TestQuantity::Zero>,
-        BufferTests::DeallocationTests::Free<uint16_t, TestQuantity::Zero>,
-        BufferTests::DeallocationTests::Free<uint32_t, TestQuantity::Zero>,
-        BufferTests::DeallocationTests::Free<uint64_t, TestQuantity::Zero>,
-        BufferTests::DeallocationTests::Free<Helper, TestQuantity::Zero>,
-        BufferTests::DeallocationTests::Free<uint8_t, TestQuantity::One>,
-        BufferTests::DeallocationTests::Free<uint16_t, TestQuantity::One>,
-        BufferTests::DeallocationTests::Free<uint32_t, TestQuantity::One>,
-        BufferTests::DeallocationTests::Free<uint64_t, TestQuantity::One>,
-        BufferTests::DeallocationTests::Free<Helper, TestQuantity::One>,
-        BufferTests::DeallocationTests::Free<uint8_t, TestQuantity::Many>,
-        BufferTests::DeallocationTests::Free<uint16_t, TestQuantity::Many>,
-        BufferTests::DeallocationTests::Free<uint32_t, TestQuantity::Many>,
-        BufferTests::DeallocationTests::Free<uint64_t, TestQuantity::Many>,
-        BufferTests::DeallocationTests::Free<Helper, TestQuantity::Many>,
-
-        /// Constructor Tests \\\
-
-        BufferTests::ConstructorTests::DefaultConstructor<uint8_t, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::DefaultConstructor<uint16_t, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::DefaultConstructor<uint32_t, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::DefaultConstructor<uint64_t, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::DefaultConstructor<Helper, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::DefaultConstructor<uint8_t, TestQuantity::One>,
-        BufferTests::ConstructorTests::DefaultConstructor<uint16_t, TestQuantity::One>,
-        BufferTests::ConstructorTests::DefaultConstructor<uint32_t, TestQuantity::One>,
-        BufferTests::ConstructorTests::DefaultConstructor<uint64_t, TestQuantity::One>,
-        BufferTests::ConstructorTests::DefaultConstructor<Helper, TestQuantity::One>,
-        BufferTests::ConstructorTests::DefaultConstructor<uint8_t, TestQuantity::Many>,
-        BufferTests::ConstructorTests::DefaultConstructor<uint16_t, TestQuantity::Many>,
-        BufferTests::ConstructorTests::DefaultConstructor<uint32_t, TestQuantity::Many>,
-        BufferTests::ConstructorTests::DefaultConstructor<uint64_t, TestQuantity::Many>,
-        BufferTests::ConstructorTests::DefaultConstructor<Helper, TestQuantity::Many>,
-
-        BufferTests::ConstructorTests::LengthConstructor<uint8_t, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::LengthConstructor<uint16_t, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::LengthConstructor<uint32_t, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::LengthConstructor<uint64_t, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::LengthConstructor<Helper, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::LengthConstructor<uint8_t, TestQuantity::One>,
-        BufferTests::ConstructorTests::LengthConstructor<uint16_t, TestQuantity::One>,
-        BufferTests::ConstructorTests::LengthConstructor<uint32_t, TestQuantity::One>,
-        BufferTests::ConstructorTests::LengthConstructor<uint64_t, TestQuantity::One>,
-        BufferTests::ConstructorTests::LengthConstructor<Helper, TestQuantity::One>,
-        BufferTests::ConstructorTests::LengthConstructor<uint8_t, TestQuantity::Many>,
-        BufferTests::ConstructorTests::LengthConstructor<uint16_t, TestQuantity::Many>,
-        BufferTests::ConstructorTests::LengthConstructor<uint32_t, TestQuantity::Many>,
-        BufferTests::ConstructorTests::LengthConstructor<uint64_t, TestQuantity::Many>,
-        BufferTests::ConstructorTests::LengthConstructor<Helper, TestQuantity::Many>,
-
-        BufferTests::ConstructorTests::PointerCopyConstructorNull<uint8_t, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::PointerCopyConstructorNull<uint16_t, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::PointerCopyConstructorNull<uint32_t, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::PointerCopyConstructorNull<uint64_t, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::PointerCopyConstructorNull<Helper, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::PointerCopyConstructorNull<uint8_t, TestQuantity::One>,
-        BufferTests::ConstructorTests::PointerCopyConstructorNull<uint16_t, TestQuantity::One>,
-        BufferTests::ConstructorTests::PointerCopyConstructorNull<uint32_t, TestQuantity::One>,
-        BufferTests::ConstructorTests::PointerCopyConstructorNull<uint64_t, TestQuantity::One>,
-        BufferTests::ConstructorTests::PointerCopyConstructorNull<Helper, TestQuantity::One>,
-        BufferTests::ConstructorTests::PointerCopyConstructorNull<uint8_t, TestQuantity::Many>,
-        BufferTests::ConstructorTests::PointerCopyConstructorNull<uint16_t, TestQuantity::Many>,
-        BufferTests::ConstructorTests::PointerCopyConstructorNull<uint32_t, TestQuantity::Many>,
-        BufferTests::ConstructorTests::PointerCopyConstructorNull<uint64_t, TestQuantity::Many>,
-        BufferTests::ConstructorTests::PointerCopyConstructorNull<Helper, TestQuantity::Many>,
-
-        BufferTests::ConstructorTests::PointerCopyConstructor<uint8_t, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::PointerCopyConstructor<uint16_t, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::PointerCopyConstructor<uint32_t, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::PointerCopyConstructor<uint64_t, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::PointerCopyConstructor<Helper, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::PointerCopyConstructor<uint8_t, TestQuantity::One>,
-        BufferTests::ConstructorTests::PointerCopyConstructor<uint16_t, TestQuantity::One>,
-        BufferTests::ConstructorTests::PointerCopyConstructor<uint32_t, TestQuantity::One>,
-        BufferTests::ConstructorTests::PointerCopyConstructor<uint64_t, TestQuantity::One>,
-        BufferTests::ConstructorTests::PointerCopyConstructor<Helper, TestQuantity::One>,
-        BufferTests::ConstructorTests::PointerCopyConstructor<uint8_t, TestQuantity::Many>,
-        BufferTests::ConstructorTests::PointerCopyConstructor<uint16_t, TestQuantity::Many>,
-        BufferTests::ConstructorTests::PointerCopyConstructor<uint32_t, TestQuantity::Many>,
-        BufferTests::ConstructorTests::PointerCopyConstructor<uint64_t, TestQuantity::Many>,
-        BufferTests::ConstructorTests::PointerCopyConstructor<Helper, TestQuantity::Many>,
-
-        BufferTests::ConstructorTests::PointerMoveConstructorNull<uint8_t, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::PointerMoveConstructorNull<uint16_t, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::PointerMoveConstructorNull<uint32_t, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::PointerMoveConstructorNull<uint64_t, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::PointerMoveConstructorNull<Helper, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::PointerMoveConstructorNull<uint8_t, TestQuantity::One>,
-        BufferTests::ConstructorTests::PointerMoveConstructorNull<uint16_t, TestQuantity::One>,
-        BufferTests::ConstructorTests::PointerMoveConstructorNull<uint32_t, TestQuantity::One>,
-        BufferTests::ConstructorTests::PointerMoveConstructorNull<uint64_t, TestQuantity::One>,
-        BufferTests::ConstructorTests::PointerMoveConstructorNull<Helper, TestQuantity::One>,
-        BufferTests::ConstructorTests::PointerMoveConstructorNull<uint8_t, TestQuantity::Many>,
-        BufferTests::ConstructorTests::PointerMoveConstructorNull<uint16_t, TestQuantity::Many>,
-        BufferTests::ConstructorTests::PointerMoveConstructorNull<uint32_t, TestQuantity::Many>,
-        BufferTests::ConstructorTests::PointerMoveConstructorNull<uint64_t, TestQuantity::Many>,
-        BufferTests::ConstructorTests::PointerMoveConstructorNull<Helper, TestQuantity::Many>,
-
-        BufferTests::ConstructorTests::PointerMoveConstructor<uint8_t, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::PointerMoveConstructor<uint16_t, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::PointerMoveConstructor<uint32_t, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::PointerMoveConstructor<uint64_t, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::PointerMoveConstructor<Helper, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::PointerMoveConstructor<uint8_t, TestQuantity::One>,
-        BufferTests::ConstructorTests::PointerMoveConstructor<uint16_t, TestQuantity::One>,
-        BufferTests::ConstructorTests::PointerMoveConstructor<uint32_t, TestQuantity::One>,
-        BufferTests::ConstructorTests::PointerMoveConstructor<uint64_t, TestQuantity::One>,
-        BufferTests::ConstructorTests::PointerMoveConstructor<Helper, TestQuantity::One>,
-        BufferTests::ConstructorTests::PointerMoveConstructor<uint8_t, TestQuantity::Many>,
-        BufferTests::ConstructorTests::PointerMoveConstructor<uint16_t, TestQuantity::Many>,
-        BufferTests::ConstructorTests::PointerMoveConstructor<uint32_t, TestQuantity::Many>,
-        BufferTests::ConstructorTests::PointerMoveConstructor<uint64_t, TestQuantity::Many>,
-        BufferTests::ConstructorTests::PointerMoveConstructor<Helper, TestQuantity::Many>,
-
-        BufferTests::ConstructorTests::CopyConstructor<uint8_t, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::CopyConstructor<uint16_t, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::CopyConstructor<uint32_t, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::CopyConstructor<uint64_t, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::CopyConstructor<Helper, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::CopyConstructor<uint8_t, TestQuantity::One>,
-        BufferTests::ConstructorTests::CopyConstructor<uint16_t, TestQuantity::One>,
-        BufferTests::ConstructorTests::CopyConstructor<uint32_t, TestQuantity::One>,
-        BufferTests::ConstructorTests::CopyConstructor<uint64_t, TestQuantity::One>,
-        BufferTests::ConstructorTests::CopyConstructor<Helper, TestQuantity::One>,
-        BufferTests::ConstructorTests::CopyConstructor<uint8_t, TestQuantity::Many>,
-        BufferTests::ConstructorTests::CopyConstructor<uint16_t, TestQuantity::Many>,
-        BufferTests::ConstructorTests::CopyConstructor<uint32_t, TestQuantity::Many>,
-        BufferTests::ConstructorTests::CopyConstructor<uint64_t, TestQuantity::Many>,
-        BufferTests::ConstructorTests::CopyConstructor<Helper, TestQuantity::Many>,
-
-        BufferTests::ConstructorTests::MoveConstructor<uint8_t, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::MoveConstructor<uint16_t, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::MoveConstructor<uint32_t, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::MoveConstructor<uint64_t, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::MoveConstructor<Helper, TestQuantity::Zero>,
-        BufferTests::ConstructorTests::MoveConstructor<uint8_t, TestQuantity::One>,
-        BufferTests::ConstructorTests::MoveConstructor<uint16_t, TestQuantity::One>,
-        BufferTests::ConstructorTests::MoveConstructor<uint32_t, TestQuantity::One>,
-        BufferTests::ConstructorTests::MoveConstructor<uint64_t, TestQuantity::One>,
-        BufferTests::ConstructorTests::MoveConstructor<Helper, TestQuantity::One>,
-        BufferTests::ConstructorTests::MoveConstructor<uint8_t, TestQuantity::Many>,
-        BufferTests::ConstructorTests::MoveConstructor<uint16_t, TestQuantity::Many>,
-        BufferTests::ConstructorTests::MoveConstructor<uint32_t, TestQuantity::Many>,
-        BufferTests::ConstructorTests::MoveConstructor<uint64_t, TestQuantity::Many>,
-        BufferTests::ConstructorTests::MoveConstructor<Helper, TestQuantity::Many>,
-
-        /// Copy Tests \\\
-
-        BufferTests::CopyTests::CopyAllBufferDataMembers<uint8_t, TestQuantity::Zero>,
-        BufferTests::CopyTests::CopyAllBufferDataMembers<uint16_t, TestQuantity::Zero>,
-        BufferTests::CopyTests::CopyAllBufferDataMembers<uint32_t, TestQuantity::Zero>,
-        BufferTests::CopyTests::CopyAllBufferDataMembers<uint64_t, TestQuantity::Zero>,
-        BufferTests::CopyTests::CopyAllBufferDataMembers<Helper, TestQuantity::Zero>,
-        BufferTests::CopyTests::CopyAllBufferDataMembers<uint8_t, TestQuantity::One>,
-        BufferTests::CopyTests::CopyAllBufferDataMembers<uint16_t, TestQuantity::One>,
-        BufferTests::CopyTests::CopyAllBufferDataMembers<uint32_t, TestQuantity::One>,
-        BufferTests::CopyTests::CopyAllBufferDataMembers<uint64_t, TestQuantity::One>,
-        BufferTests::CopyTests::CopyAllBufferDataMembers<Helper, TestQuantity::One>,
-        BufferTests::CopyTests::CopyAllBufferDataMembers<uint8_t, TestQuantity::Many>,
-        BufferTests::CopyTests::CopyAllBufferDataMembers<uint16_t, TestQuantity::Many>,
-        BufferTests::CopyTests::CopyAllBufferDataMembers<uint32_t, TestQuantity::Many>,
-        BufferTests::CopyTests::CopyAllBufferDataMembers<uint64_t, TestQuantity::Many>,
-        BufferTests::CopyTests::CopyAllBufferDataMembers<Helper, TestQuantity::Many>,
-
-        BufferTests::CopyTests::CopyNonPointerBufferDataMembers<uint8_t, TestQuantity::Zero>,
-        BufferTests::CopyTests::CopyNonPointerBufferDataMembers<uint16_t, TestQuantity::Zero>,
-        BufferTests::CopyTests::CopyNonPointerBufferDataMembers<uint32_t, TestQuantity::Zero>,
-        BufferTests::CopyTests::CopyNonPointerBufferDataMembers<uint64_t, TestQuantity::Zero>,
-        BufferTests::CopyTests::CopyNonPointerBufferDataMembers<Helper, TestQuantity::Zero>,
-        BufferTests::CopyTests::CopyNonPointerBufferDataMembers<uint8_t, TestQuantity::One>,
-        BufferTests::CopyTests::CopyNonPointerBufferDataMembers<uint16_t, TestQuantity::One>,
-        BufferTests::CopyTests::CopyNonPointerBufferDataMembers<uint32_t, TestQuantity::One>,
-        BufferTests::CopyTests::CopyNonPointerBufferDataMembers<uint64_t, TestQuantity::One>,
-        BufferTests::CopyTests::CopyNonPointerBufferDataMembers<Helper, TestQuantity::One>,
-        BufferTests::CopyTests::CopyNonPointerBufferDataMembers<uint8_t, TestQuantity::Many>,
-        BufferTests::CopyTests::CopyNonPointerBufferDataMembers<uint16_t, TestQuantity::Many>,
-        BufferTests::CopyTests::CopyNonPointerBufferDataMembers<uint32_t, TestQuantity::Many>,
-        BufferTests::CopyTests::CopyNonPointerBufferDataMembers<uint64_t, TestQuantity::Many>,
-        BufferTests::CopyTests::CopyNonPointerBufferDataMembers<Helper, TestQuantity::Many>,
-
-        BufferTests::CopyTests::CopyBuffer<uint8_t, TestQuantity::Zero>,
-        BufferTests::CopyTests::CopyBuffer<uint16_t, TestQuantity::Zero>,
-        BufferTests::CopyTests::CopyBuffer<uint32_t, TestQuantity::Zero>,
-        BufferTests::CopyTests::CopyBuffer<uint64_t, TestQuantity::Zero>,
-        BufferTests::CopyTests::CopyBuffer<Helper, TestQuantity::Zero>,
-        BufferTests::CopyTests::CopyBuffer<uint8_t, TestQuantity::One>,
-        BufferTests::CopyTests::CopyBuffer<uint16_t, TestQuantity::One>,
-        BufferTests::CopyTests::CopyBuffer<uint32_t, TestQuantity::One>,
-        BufferTests::CopyTests::CopyBuffer<uint64_t, TestQuantity::One>,
-        BufferTests::CopyTests::CopyBuffer<Helper, TestQuantity::One>,
-        BufferTests::CopyTests::CopyBuffer<uint8_t, TestQuantity::Many>,
-        BufferTests::CopyTests::CopyBuffer<uint16_t, TestQuantity::Many>,
-        BufferTests::CopyTests::CopyBuffer<uint32_t, TestQuantity::Many>,
-        BufferTests::CopyTests::CopyBuffer<uint64_t, TestQuantity::Many>,
-        BufferTests::CopyTests::CopyBuffer<Helper, TestQuantity::Many>,
-
-        BufferTests::CopyTests::CopyAssignment<uint8_t, TestQuantity::Zero>,
-        BufferTests::CopyTests::CopyAssignment<uint16_t, TestQuantity::Zero>,
-        BufferTests::CopyTests::CopyAssignment<uint32_t, TestQuantity::Zero>,
-        BufferTests::CopyTests::CopyAssignment<uint64_t, TestQuantity::Zero>,
-        BufferTests::CopyTests::CopyAssignment<Helper, TestQuantity::Zero>,
-        BufferTests::CopyTests::CopyAssignment<uint8_t, TestQuantity::One>,
-        BufferTests::CopyTests::CopyAssignment<uint16_t, TestQuantity::One>,
-        BufferTests::CopyTests::CopyAssignment<uint32_t, TestQuantity::One>,
-        BufferTests::CopyTests::CopyAssignment<uint64_t, TestQuantity::One>,
-        BufferTests::CopyTests::CopyAssignment<Helper, TestQuantity::One>,
-        BufferTests::CopyTests::CopyAssignment<uint8_t, TestQuantity::Many>,
-        BufferTests::CopyTests::CopyAssignment<uint16_t, TestQuantity::Many>,
-        BufferTests::CopyTests::CopyAssignment<uint32_t, TestQuantity::Many>,
-        BufferTests::CopyTests::CopyAssignment<uint64_t, TestQuantity::Many>,
-        BufferTests::CopyTests::CopyAssignment<Helper, TestQuantity::Many>,
-
-        /// Move Tests \\\
-
-        BufferTests::MoveTests::TransferBuffer<uint8_t, TestQuantity::Zero>,
-        BufferTests::MoveTests::TransferBuffer<uint16_t, TestQuantity::Zero>,
-        BufferTests::MoveTests::TransferBuffer<uint32_t, TestQuantity::Zero>,
-        BufferTests::MoveTests::TransferBuffer<uint64_t, TestQuantity::Zero>,
-        BufferTests::MoveTests::TransferBuffer<Helper, TestQuantity::Zero>,
-        BufferTests::MoveTests::TransferBuffer<uint8_t, TestQuantity::One>,
-        BufferTests::MoveTests::TransferBuffer<uint16_t, TestQuantity::One>,
-        BufferTests::MoveTests::TransferBuffer<uint32_t, TestQuantity::One>,
-        BufferTests::MoveTests::TransferBuffer<uint64_t, TestQuantity::One>,
-        BufferTests::MoveTests::TransferBuffer<Helper, TestQuantity::One>,
-        BufferTests::MoveTests::TransferBuffer<uint8_t, TestQuantity::Many>,
-        BufferTests::MoveTests::TransferBuffer<uint16_t, TestQuantity::Many>,
-        BufferTests::MoveTests::TransferBuffer<uint32_t, TestQuantity::Many>,
-        BufferTests::MoveTests::TransferBuffer<uint64_t, TestQuantity::Many>,
-        BufferTests::MoveTests::TransferBuffer<Helper, TestQuantity::Many>,
-
-        BufferTests::MoveTests::MoveAssignment<uint8_t, TestQuantity::Zero>,
-        BufferTests::MoveTests::MoveAssignment<uint16_t, TestQuantity::Zero>,
-        BufferTests::MoveTests::MoveAssignment<uint32_t, TestQuantity::Zero>,
-        BufferTests::MoveTests::MoveAssignment<uint64_t, TestQuantity::Zero>,
-        BufferTests::MoveTests::MoveAssignment<Helper, TestQuantity::Zero>,
-        BufferTests::MoveTests::MoveAssignment<uint8_t, TestQuantity::One>,
-        BufferTests::MoveTests::MoveAssignment<uint16_t, TestQuantity::One>,
-        BufferTests::MoveTests::MoveAssignment<uint32_t, TestQuantity::One>,
-        BufferTests::MoveTests::MoveAssignment<uint64_t, TestQuantity::One>,
-        BufferTests::MoveTests::MoveAssignment<Helper, TestQuantity::One>,
-        BufferTests::MoveTests::MoveAssignment<uint8_t, TestQuantity::Many>,
-        BufferTests::MoveTests::MoveAssignment<uint16_t, TestQuantity::Many>,
-        BufferTests::MoveTests::MoveAssignment<uint32_t, TestQuantity::Many>,
-        BufferTests::MoveTests::MoveAssignment<uint64_t, TestQuantity::Many>,
-        BufferTests::MoveTests::MoveAssignment<Helper, TestQuantity::Many>,
-
-        /// Subscript Operator Tests \\\
-
-        BufferTests::SubscriptOperatorTests::SubscriptOperator<uint8_t, TestQuantity::Zero>,
-        BufferTests::SubscriptOperatorTests::SubscriptOperator<uint16_t, TestQuantity::Zero>,
-        BufferTests::SubscriptOperatorTests::SubscriptOperator<uint32_t, TestQuantity::Zero>,
-        BufferTests::SubscriptOperatorTests::SubscriptOperator<uint64_t, TestQuantity::Zero>,
-        BufferTests::SubscriptOperatorTests::SubscriptOperator<Helper, TestQuantity::Zero>,
-        BufferTests::SubscriptOperatorTests::SubscriptOperator<uint8_t, TestQuantity::One>,
-        BufferTests::SubscriptOperatorTests::SubscriptOperator<uint16_t, TestQuantity::One>,
-        BufferTests::SubscriptOperatorTests::SubscriptOperator<uint32_t, TestQuantity::One>,
-        BufferTests::SubscriptOperatorTests::SubscriptOperator<uint64_t, TestQuantity::One>,
-        BufferTests::SubscriptOperatorTests::SubscriptOperator<Helper, TestQuantity::One>,
-        BufferTests::SubscriptOperatorTests::SubscriptOperator<uint8_t, TestQuantity::Many>,
-        BufferTests::SubscriptOperatorTests::SubscriptOperator<uint16_t, TestQuantity::Many>,
-        BufferTests::SubscriptOperatorTests::SubscriptOperator<uint32_t, TestQuantity::Many>,
-        BufferTests::SubscriptOperatorTests::SubscriptOperator<uint64_t, TestQuantity::Many>,
-        BufferTests::SubscriptOperatorTests::SubscriptOperator<Helper, TestQuantity::Many>,
-
-        /// Dereference Operator Tests \\\
-
-        BufferTests::DereferenceOperatorTests::DereferenceOperator<uint8_t, TestQuantity::Zero>,
-        BufferTests::DereferenceOperatorTests::DereferenceOperator<uint16_t, TestQuantity::Zero>,
-        BufferTests::DereferenceOperatorTests::DereferenceOperator<uint32_t, TestQuantity::Zero>,
-        BufferTests::DereferenceOperatorTests::DereferenceOperator<uint64_t, TestQuantity::Zero>,
-        BufferTests::DereferenceOperatorTests::DereferenceOperator<Helper, TestQuantity::Zero>,
-        BufferTests::DereferenceOperatorTests::DereferenceOperator<uint8_t, TestQuantity::One>,
-        BufferTests::DereferenceOperatorTests::DereferenceOperator<uint16_t, TestQuantity::One>,
-        BufferTests::DereferenceOperatorTests::DereferenceOperator<uint32_t, TestQuantity::One>,
-        BufferTests::DereferenceOperatorTests::DereferenceOperator<uint64_t, TestQuantity::One>,
-        BufferTests::DereferenceOperatorTests::DereferenceOperator<Helper, TestQuantity::One>,
-        BufferTests::DereferenceOperatorTests::DereferenceOperator<uint8_t, TestQuantity::Many>,
-        BufferTests::DereferenceOperatorTests::DereferenceOperator<uint16_t, TestQuantity::Many>,
-        BufferTests::DereferenceOperatorTests::DereferenceOperator<uint32_t, TestQuantity::Many>,
-        BufferTests::DereferenceOperatorTests::DereferenceOperator<uint64_t, TestQuantity::Many>,
-        BufferTests::DereferenceOperatorTests::DereferenceOperator<Helper, TestQuantity::Many>,
-
-        /// Zero Buffer Tests \\\
-
-        BufferTests::ZeroBufferTests::ZeroBuffer<uint8_t, TestQuantity::Zero>,
-        BufferTests::ZeroBufferTests::ZeroBuffer<uint16_t, TestQuantity::Zero>,
-        BufferTests::ZeroBufferTests::ZeroBuffer<uint32_t, TestQuantity::Zero>,
-        BufferTests::ZeroBufferTests::ZeroBuffer<uint64_t, TestQuantity::Zero>,
-        BufferTests::ZeroBufferTests::ZeroBuffer<Helper, TestQuantity::Zero>,
-        BufferTests::ZeroBufferTests::ZeroBuffer<uint8_t, TestQuantity::One>,
-        BufferTests::ZeroBufferTests::ZeroBuffer<uint16_t, TestQuantity::One>,
-        BufferTests::ZeroBufferTests::ZeroBuffer<uint32_t, TestQuantity::One>,
-        BufferTests::ZeroBufferTests::ZeroBuffer<uint64_t, TestQuantity::One>,
-        BufferTests::ZeroBufferTests::ZeroBuffer<Helper, TestQuantity::One>,
-        BufferTests::ZeroBufferTests::ZeroBuffer<uint8_t, TestQuantity::Many>,
-        BufferTests::ZeroBufferTests::ZeroBuffer<uint16_t, TestQuantity::Many>,
-        BufferTests::ZeroBufferTests::ZeroBuffer<uint32_t, TestQuantity::Many>,
-        BufferTests::ZeroBufferTests::ZeroBuffer<uint64_t, TestQuantity::Many>,
-        BufferTests::ZeroBufferTests::ZeroBuffer<Helper, TestQuantity::Many>,
-
-        /// Comparison Tests \\\
-
-        BufferTests::ComparisonTests::ComparisonPtrNull<uint8_t, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<uint8_t, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<uint8_t, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<uint8_t, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<uint8_t, TestQuantity::One, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<uint8_t, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<uint8_t, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<uint8_t, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<uint8_t, TestQuantity::Many, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<uint16_t, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<uint16_t, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<uint16_t, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<uint16_t, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<uint16_t, TestQuantity::One, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<uint16_t, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<uint16_t, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<uint16_t, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<uint16_t, TestQuantity::Many, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<uint32_t, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<uint32_t, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<uint32_t, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<uint32_t, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<uint32_t, TestQuantity::One, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<uint32_t, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<uint32_t, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<uint32_t, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<uint32_t, TestQuantity::Many, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<uint64_t, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<uint64_t, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<uint64_t, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<uint64_t, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<uint64_t, TestQuantity::One, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<uint64_t, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<uint64_t, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<uint64_t, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<uint64_t, TestQuantity::Many, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<Helper, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<Helper, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<Helper, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<Helper, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<Helper, TestQuantity::One, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<Helper, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<Helper, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<Helper, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonPtrNull<Helper, TestQuantity::Many, TestQuantity::Many>,
-
-        BufferTests::ComparisonTests::ComparisonPtr<uint8_t, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonPtr<uint8_t, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonPtr<uint8_t, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonPtr<uint8_t, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonPtr<uint8_t, TestQuantity::One, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonPtr<uint8_t, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonPtr<uint8_t, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonPtr<uint8_t, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonPtr<uint8_t, TestQuantity::Many, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonPtr<uint16_t, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonPtr<uint16_t, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonPtr<uint16_t, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonPtr<uint16_t, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonPtr<uint16_t, TestQuantity::One, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonPtr<uint16_t, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonPtr<uint16_t, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonPtr<uint16_t, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonPtr<uint16_t, TestQuantity::Many, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonPtr<uint32_t, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonPtr<uint32_t, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonPtr<uint32_t, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonPtr<uint32_t, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonPtr<uint32_t, TestQuantity::One, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonPtr<uint32_t, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonPtr<uint32_t, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonPtr<uint32_t, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonPtr<uint32_t, TestQuantity::Many, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonPtr<uint64_t, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonPtr<uint64_t, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonPtr<uint64_t, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonPtr<uint64_t, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonPtr<uint64_t, TestQuantity::One, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonPtr<uint64_t, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonPtr<uint64_t, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonPtr<uint64_t, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonPtr<uint64_t, TestQuantity::Many, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonPtr<Helper, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonPtr<Helper, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonPtr<Helper, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonPtr<Helper, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonPtr<Helper, TestQuantity::One, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonPtr<Helper, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonPtr<Helper, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonPtr<Helper, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonPtr<Helper, TestQuantity::Many, TestQuantity::Many>,
-
-        BufferTests::ComparisonTests::Comparison<uint8_t, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::Comparison<uint8_t, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::ComparisonTests::Comparison<uint8_t, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::ComparisonTests::Comparison<uint8_t, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::Comparison<uint8_t, TestQuantity::One, TestQuantity::One>,
-        BufferTests::ComparisonTests::Comparison<uint8_t, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::ComparisonTests::Comparison<uint8_t, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::Comparison<uint8_t, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::ComparisonTests::Comparison<uint8_t, TestQuantity::Many, TestQuantity::Many>,
-        BufferTests::ComparisonTests::Comparison<uint16_t, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::Comparison<uint16_t, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::ComparisonTests::Comparison<uint16_t, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::ComparisonTests::Comparison<uint16_t, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::Comparison<uint16_t, TestQuantity::One, TestQuantity::One>,
-        BufferTests::ComparisonTests::Comparison<uint16_t, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::ComparisonTests::Comparison<uint16_t, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::Comparison<uint16_t, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::ComparisonTests::Comparison<uint16_t, TestQuantity::Many, TestQuantity::Many>,
-        BufferTests::ComparisonTests::Comparison<uint32_t, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::Comparison<uint32_t, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::ComparisonTests::Comparison<uint32_t, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::ComparisonTests::Comparison<uint32_t, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::Comparison<uint32_t, TestQuantity::One, TestQuantity::One>,
-        BufferTests::ComparisonTests::Comparison<uint32_t, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::ComparisonTests::Comparison<uint32_t, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::Comparison<uint32_t, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::ComparisonTests::Comparison<uint32_t, TestQuantity::Many, TestQuantity::Many>,
-        BufferTests::ComparisonTests::Comparison<uint64_t, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::Comparison<uint64_t, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::ComparisonTests::Comparison<uint64_t, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::ComparisonTests::Comparison<uint64_t, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::Comparison<uint64_t, TestQuantity::One, TestQuantity::One>,
-        BufferTests::ComparisonTests::Comparison<uint64_t, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::ComparisonTests::Comparison<uint64_t, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::Comparison<uint64_t, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::ComparisonTests::Comparison<uint64_t, TestQuantity::Many, TestQuantity::Many>,
-        BufferTests::ComparisonTests::Comparison<Helper, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::Comparison<Helper, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::ComparisonTests::Comparison<Helper, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::ComparisonTests::Comparison<Helper, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::Comparison<Helper, TestQuantity::One, TestQuantity::One>,
-        BufferTests::ComparisonTests::Comparison<Helper, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::ComparisonTests::Comparison<Helper, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::Comparison<Helper, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::ComparisonTests::Comparison<Helper, TestQuantity::Many, TestQuantity::Many>,
-
-        BufferTests::ComparisonTests::ComparisonOperator<uint8_t, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonOperator<uint8_t, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonOperator<uint8_t, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonOperator<uint8_t, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonOperator<uint8_t, TestQuantity::One, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonOperator<uint8_t, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonOperator<uint8_t, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonOperator<uint8_t, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonOperator<uint8_t, TestQuantity::Many, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonOperator<uint16_t, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonOperator<uint16_t, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonOperator<uint16_t, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonOperator<uint16_t, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonOperator<uint16_t, TestQuantity::One, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonOperator<uint16_t, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonOperator<uint16_t, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonOperator<uint16_t, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonOperator<uint16_t, TestQuantity::Many, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonOperator<uint32_t, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonOperator<uint32_t, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonOperator<uint32_t, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonOperator<uint32_t, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonOperator<uint32_t, TestQuantity::One, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonOperator<uint32_t, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonOperator<uint32_t, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonOperator<uint32_t, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonOperator<uint32_t, TestQuantity::Many, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonOperator<uint64_t, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonOperator<uint64_t, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonOperator<uint64_t, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonOperator<uint64_t, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonOperator<uint64_t, TestQuantity::One, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonOperator<uint64_t, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonOperator<uint64_t, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonOperator<uint64_t, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonOperator<uint64_t, TestQuantity::Many, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonOperator<Helper, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonOperator<Helper, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonOperator<Helper, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonOperator<Helper, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonOperator<Helper, TestQuantity::One, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonOperator<Helper, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::ComparisonTests::ComparisonOperator<Helper, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::ComparisonTests::ComparisonOperator<Helper, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::ComparisonTests::ComparisonOperator<Helper, TestQuantity::Many, TestQuantity::Many>,
-
-        /// Set Write Position Tests \\\
-
-        BufferTests::SetWritePositionTests::SetWritePosition<uint8_t, TestQuantity::Zero>,
-        BufferTests::SetWritePositionTests::SetWritePosition<uint16_t, TestQuantity::Zero>,
-        BufferTests::SetWritePositionTests::SetWritePosition<uint32_t, TestQuantity::Zero>,
-        BufferTests::SetWritePositionTests::SetWritePosition<uint64_t, TestQuantity::Zero>,
-        BufferTests::SetWritePositionTests::SetWritePosition<Helper, TestQuantity::Zero>,
-        BufferTests::SetWritePositionTests::SetWritePosition<uint8_t, TestQuantity::One>,
-        BufferTests::SetWritePositionTests::SetWritePosition<uint16_t, TestQuantity::One>,
-        BufferTests::SetWritePositionTests::SetWritePosition<uint32_t, TestQuantity::One>,
-        BufferTests::SetWritePositionTests::SetWritePosition<uint64_t, TestQuantity::One>,
-        BufferTests::SetWritePositionTests::SetWritePosition<Helper, TestQuantity::One>,
-        BufferTests::SetWritePositionTests::SetWritePosition<uint8_t, TestQuantity::Many>,
-        BufferTests::SetWritePositionTests::SetWritePosition<uint16_t, TestQuantity::Many>,
-        BufferTests::SetWritePositionTests::SetWritePosition<uint32_t, TestQuantity::Many>,
-        BufferTests::SetWritePositionTests::SetWritePosition<uint64_t, TestQuantity::Many>,
-        BufferTests::SetWritePositionTests::SetWritePosition<Helper, TestQuantity::Many>,
-
-        /// Write Tests \\\
-
-        BufferTests::WriteTests::WriteElement<uint8_t, TestQuantity::Zero>,
-        BufferTests::WriteTests::WriteElement<uint16_t, TestQuantity::Zero>,
-        BufferTests::WriteTests::WriteElement<uint32_t, TestQuantity::Zero>,
-        BufferTests::WriteTests::WriteElement<uint64_t, TestQuantity::Zero>,
-        BufferTests::WriteTests::WriteElement<Helper, TestQuantity::Zero>,
-        BufferTests::WriteTests::WriteElement<uint8_t, TestQuantity::One>,
-        BufferTests::WriteTests::WriteElement<uint16_t, TestQuantity::One>,
-        BufferTests::WriteTests::WriteElement<uint32_t, TestQuantity::One>,
-        BufferTests::WriteTests::WriteElement<uint64_t, TestQuantity::One>,
-        BufferTests::WriteTests::WriteElement<Helper, TestQuantity::One>,
-        BufferTests::WriteTests::WriteElement<uint8_t, TestQuantity::Many>,
-        BufferTests::WriteTests::WriteElement<uint16_t, TestQuantity::Many>,
-        BufferTests::WriteTests::WriteElement<uint32_t, TestQuantity::Many>,
-        BufferTests::WriteTests::WriteElement<uint64_t, TestQuantity::Many>,
-        BufferTests::WriteTests::WriteElement<Helper, TestQuantity::Many>,
-
-        BufferTests::WriteTests::WritePtrNull<uint8_t, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::WriteTests::WritePtrNull<uint8_t, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::WriteTests::WritePtrNull<uint8_t, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::WriteTests::WritePtrNull<uint8_t, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::WriteTests::WritePtrNull<uint8_t, TestQuantity::One, TestQuantity::One>,
-        BufferTests::WriteTests::WritePtrNull<uint8_t, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::WriteTests::WritePtrNull<uint8_t, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::WriteTests::WritePtrNull<uint8_t, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::WriteTests::WritePtrNull<uint8_t, TestQuantity::Many, TestQuantity::Many>,
-        BufferTests::WriteTests::WritePtrNull<uint16_t, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::WriteTests::WritePtrNull<uint16_t, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::WriteTests::WritePtrNull<uint16_t, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::WriteTests::WritePtrNull<uint16_t, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::WriteTests::WritePtrNull<uint16_t, TestQuantity::One, TestQuantity::One>,
-        BufferTests::WriteTests::WritePtrNull<uint16_t, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::WriteTests::WritePtrNull<uint16_t, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::WriteTests::WritePtrNull<uint16_t, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::WriteTests::WritePtrNull<uint16_t, TestQuantity::Many, TestQuantity::Many>,
-        BufferTests::WriteTests::WritePtrNull<uint32_t, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::WriteTests::WritePtrNull<uint32_t, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::WriteTests::WritePtrNull<uint32_t, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::WriteTests::WritePtrNull<uint32_t, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::WriteTests::WritePtrNull<uint32_t, TestQuantity::One, TestQuantity::One>,
-        BufferTests::WriteTests::WritePtrNull<uint32_t, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::WriteTests::WritePtrNull<uint32_t, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::WriteTests::WritePtrNull<uint32_t, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::WriteTests::WritePtrNull<uint32_t, TestQuantity::Many, TestQuantity::Many>,
-        BufferTests::WriteTests::WritePtrNull<uint64_t, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::WriteTests::WritePtrNull<uint64_t, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::WriteTests::WritePtrNull<uint64_t, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::WriteTests::WritePtrNull<uint64_t, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::WriteTests::WritePtrNull<uint64_t, TestQuantity::One, TestQuantity::One>,
-        BufferTests::WriteTests::WritePtrNull<uint64_t, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::WriteTests::WritePtrNull<uint64_t, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::WriteTests::WritePtrNull<uint64_t, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::WriteTests::WritePtrNull<uint64_t, TestQuantity::Many, TestQuantity::Many>,
-        BufferTests::WriteTests::WritePtrNull<Helper, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::WriteTests::WritePtrNull<Helper, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::WriteTests::WritePtrNull<Helper, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::WriteTests::WritePtrNull<Helper, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::WriteTests::WritePtrNull<Helper, TestQuantity::One, TestQuantity::One>,
-        BufferTests::WriteTests::WritePtrNull<Helper, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::WriteTests::WritePtrNull<Helper, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::WriteTests::WritePtrNull<Helper, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::WriteTests::WritePtrNull<Helper, TestQuantity::Many, TestQuantity::Many>,
-
-        BufferTests::WriteTests::WritePtr<uint8_t, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::WriteTests::WritePtr<uint8_t, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::WriteTests::WritePtr<uint8_t, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::WriteTests::WritePtr<uint8_t, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::WriteTests::WritePtr<uint8_t, TestQuantity::One, TestQuantity::One>,
-        BufferTests::WriteTests::WritePtr<uint8_t, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::WriteTests::WritePtr<uint8_t, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::WriteTests::WritePtr<uint8_t, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::WriteTests::WritePtr<uint8_t, TestQuantity::Many, TestQuantity::Many>,
-        BufferTests::WriteTests::WritePtr<uint16_t, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::WriteTests::WritePtr<uint16_t, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::WriteTests::WritePtr<uint16_t, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::WriteTests::WritePtr<uint16_t, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::WriteTests::WritePtr<uint16_t, TestQuantity::One, TestQuantity::One>,
-        BufferTests::WriteTests::WritePtr<uint16_t, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::WriteTests::WritePtr<uint16_t, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::WriteTests::WritePtr<uint16_t, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::WriteTests::WritePtr<uint16_t, TestQuantity::Many, TestQuantity::Many>,
-        BufferTests::WriteTests::WritePtr<uint32_t, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::WriteTests::WritePtr<uint32_t, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::WriteTests::WritePtr<uint32_t, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::WriteTests::WritePtr<uint32_t, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::WriteTests::WritePtr<uint32_t, TestQuantity::One, TestQuantity::One>,
-        BufferTests::WriteTests::WritePtr<uint32_t, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::WriteTests::WritePtr<uint32_t, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::WriteTests::WritePtr<uint32_t, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::WriteTests::WritePtr<uint32_t, TestQuantity::Many, TestQuantity::Many>,
-        BufferTests::WriteTests::WritePtr<uint64_t, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::WriteTests::WritePtr<uint64_t, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::WriteTests::WritePtr<uint64_t, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::WriteTests::WritePtr<uint64_t, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::WriteTests::WritePtr<uint64_t, TestQuantity::One, TestQuantity::One>,
-        BufferTests::WriteTests::WritePtr<uint64_t, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::WriteTests::WritePtr<uint64_t, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::WriteTests::WritePtr<uint64_t, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::WriteTests::WritePtr<uint64_t, TestQuantity::Many, TestQuantity::Many>,
-        BufferTests::WriteTests::WritePtr<Helper, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::WriteTests::WritePtr<Helper, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::WriteTests::WritePtr<Helper, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::WriteTests::WritePtr<Helper, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::WriteTests::WritePtr<Helper, TestQuantity::One, TestQuantity::One>,
-        BufferTests::WriteTests::WritePtr<Helper, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::WriteTests::WritePtr<Helper, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::WriteTests::WritePtr<Helper, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::WriteTests::WritePtr<Helper, TestQuantity::Many, TestQuantity::Many>,
-
-        BufferTests::WriteTests::WriteToWritePosition<uint8_t, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::WriteTests::WriteToWritePosition<uint8_t, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::WriteTests::WriteToWritePosition<uint8_t, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::WriteTests::WriteToWritePosition<uint8_t, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::WriteTests::WriteToWritePosition<uint8_t, TestQuantity::One, TestQuantity::One>,
-        BufferTests::WriteTests::WriteToWritePosition<uint8_t, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::WriteTests::WriteToWritePosition<uint8_t, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::WriteTests::WriteToWritePosition<uint8_t, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::WriteTests::WriteToWritePosition<uint8_t, TestQuantity::Many, TestQuantity::Many>,
-        BufferTests::WriteTests::WriteToWritePosition<uint16_t, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::WriteTests::WriteToWritePosition<uint16_t, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::WriteTests::WriteToWritePosition<uint16_t, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::WriteTests::WriteToWritePosition<uint16_t, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::WriteTests::WriteToWritePosition<uint16_t, TestQuantity::One, TestQuantity::One>,
-        BufferTests::WriteTests::WriteToWritePosition<uint16_t, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::WriteTests::WriteToWritePosition<uint16_t, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::WriteTests::WriteToWritePosition<uint16_t, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::WriteTests::WriteToWritePosition<uint16_t, TestQuantity::Many, TestQuantity::Many>,
-        BufferTests::WriteTests::WriteToWritePosition<uint32_t, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::WriteTests::WriteToWritePosition<uint32_t, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::WriteTests::WriteToWritePosition<uint32_t, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::WriteTests::WriteToWritePosition<uint32_t, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::WriteTests::WriteToWritePosition<uint32_t, TestQuantity::One, TestQuantity::One>,
-        BufferTests::WriteTests::WriteToWritePosition<uint32_t, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::WriteTests::WriteToWritePosition<uint32_t, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::WriteTests::WriteToWritePosition<uint32_t, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::WriteTests::WriteToWritePosition<uint32_t, TestQuantity::Many, TestQuantity::Many>,
-        BufferTests::WriteTests::WriteToWritePosition<uint64_t, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::WriteTests::WriteToWritePosition<uint64_t, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::WriteTests::WriteToWritePosition<uint64_t, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::WriteTests::WriteToWritePosition<uint64_t, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::WriteTests::WriteToWritePosition<uint64_t, TestQuantity::One, TestQuantity::One>,
-        BufferTests::WriteTests::WriteToWritePosition<uint64_t, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::WriteTests::WriteToWritePosition<uint64_t, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::WriteTests::WriteToWritePosition<uint64_t, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::WriteTests::WriteToWritePosition<uint64_t, TestQuantity::Many, TestQuantity::Many>,
-        BufferTests::WriteTests::WriteToWritePosition<Helper, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::WriteTests::WriteToWritePosition<Helper, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::WriteTests::WriteToWritePosition<Helper, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::WriteTests::WriteToWritePosition<Helper, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::WriteTests::WriteToWritePosition<Helper, TestQuantity::One, TestQuantity::One>,
-        BufferTests::WriteTests::WriteToWritePosition<Helper, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::WriteTests::WriteToWritePosition<Helper, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::WriteTests::WriteToWritePosition<Helper, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::WriteTests::WriteToWritePosition<Helper, TestQuantity::Many, TestQuantity::Many>,
-
-        BufferTests::WriteTests::WriteToEnd<uint8_t, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::WriteTests::WriteToEnd<uint8_t, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::WriteTests::WriteToEnd<uint8_t, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::WriteTests::WriteToEnd<uint8_t, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::WriteTests::WriteToEnd<uint8_t, TestQuantity::One, TestQuantity::One>,
-        BufferTests::WriteTests::WriteToEnd<uint8_t, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::WriteTests::WriteToEnd<uint8_t, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::WriteTests::WriteToEnd<uint8_t, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::WriteTests::WriteToEnd<uint8_t, TestQuantity::Many, TestQuantity::Many>,
-        BufferTests::WriteTests::WriteToEnd<uint16_t, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::WriteTests::WriteToEnd<uint16_t, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::WriteTests::WriteToEnd<uint16_t, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::WriteTests::WriteToEnd<uint16_t, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::WriteTests::WriteToEnd<uint16_t, TestQuantity::One, TestQuantity::One>,
-        BufferTests::WriteTests::WriteToEnd<uint16_t, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::WriteTests::WriteToEnd<uint16_t, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::WriteTests::WriteToEnd<uint16_t, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::WriteTests::WriteToEnd<uint16_t, TestQuantity::Many, TestQuantity::Many>,
-        BufferTests::WriteTests::WriteToEnd<uint32_t, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::WriteTests::WriteToEnd<uint32_t, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::WriteTests::WriteToEnd<uint32_t, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::WriteTests::WriteToEnd<uint32_t, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::WriteTests::WriteToEnd<uint32_t, TestQuantity::One, TestQuantity::One>,
-        BufferTests::WriteTests::WriteToEnd<uint32_t, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::WriteTests::WriteToEnd<uint32_t, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::WriteTests::WriteToEnd<uint32_t, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::WriteTests::WriteToEnd<uint32_t, TestQuantity::Many, TestQuantity::Many>,
-        BufferTests::WriteTests::WriteToEnd<uint64_t, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::WriteTests::WriteToEnd<uint64_t, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::WriteTests::WriteToEnd<uint64_t, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::WriteTests::WriteToEnd<uint64_t, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::WriteTests::WriteToEnd<uint64_t, TestQuantity::One, TestQuantity::One>,
-        BufferTests::WriteTests::WriteToEnd<uint64_t, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::WriteTests::WriteToEnd<uint64_t, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::WriteTests::WriteToEnd<uint64_t, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::WriteTests::WriteToEnd<uint64_t, TestQuantity::Many, TestQuantity::Many>,
-        BufferTests::WriteTests::WriteToEnd<Helper, TestQuantity::Zero, TestQuantity::Zero>,
-        BufferTests::WriteTests::WriteToEnd<Helper, TestQuantity::Zero, TestQuantity::One>,
-        BufferTests::WriteTests::WriteToEnd<Helper, TestQuantity::Zero, TestQuantity::Many>,
-        BufferTests::WriteTests::WriteToEnd<Helper, TestQuantity::One, TestQuantity::Zero>,
-        BufferTests::WriteTests::WriteToEnd<Helper, TestQuantity::One, TestQuantity::One>,
-        BufferTests::WriteTests::WriteToEnd<Helper, TestQuantity::One, TestQuantity::Many>,
-        BufferTests::WriteTests::WriteToEnd<Helper, TestQuantity::Many, TestQuantity::Zero>,
-        BufferTests::WriteTests::WriteToEnd<Helper, TestQuantity::Many, TestQuantity::One>,
-        BufferTests::WriteTests::WriteToEnd<Helper, TestQuantity::Many, TestQuantity::Many>
-    };
-
-    return tests;
 }

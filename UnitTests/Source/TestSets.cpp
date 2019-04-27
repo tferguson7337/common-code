@@ -8,7 +8,7 @@
 static bool RunAllTests(UnitTestRunner<char>& utr)
 {
     utr.ClearUnitTests( );
-    utr.GetTestSetData( ).SetTestSetName("Common-Code - All");
+    utr.GetTestSetData( ).SetTestSetName("CommonCode - All");
     utr.AddUnitTests(CC::StringUtilTests::GetTests( ));
     utr.AddUnitTests(CC::BufferTests::GetTests( ));
     return utr.RunUnitTests( );
@@ -17,7 +17,7 @@ static bool RunAllTests(UnitTestRunner<char>& utr)
 static bool RunStringUtilTests(UnitTestRunner<char>& utr)
 {
     utr.ClearUnitTests( );
-    utr.GetTestSetData( ).SetTestSetName("Common-Code - StringUtil");
+    utr.GetTestSetData( ).SetTestSetName("CommonCode - StringUtil");
     utr.AddUnitTests(CC::StringUtilTests::GetTests( ));
     return utr.RunUnitTests( );
 }
@@ -25,7 +25,7 @@ static bool RunStringUtilTests(UnitTestRunner<char>& utr)
 static bool RunBufferTests(UnitTestRunner<char>& utr)
 {
     utr.ClearUnitTests( );
-    utr.GetTestSetData( ).SetTestSetName("Common-Code - Buffer");
+    utr.GetTestSetData( ).SetTestSetName("CommonCode - Buffer");
     utr.AddUnitTests(CC::BufferTests::GetTests( ));
     return utr.RunUnitTests( );
 }
@@ -69,7 +69,7 @@ std::list<TestSetFunc> GetTestSetFunctions(_In_ const int& argc, _In_count_(argc
 
     if ( argc <= 1 )
     {
-        printf("No test sets specified, running all tests.\r\n");
+        printf(__FUNCTION__ ": No test sets specified, running all tests.\r\n");
         testFuncList.push_back(RunAllTests);
     }
     else
@@ -83,7 +83,7 @@ std::list<TestSetFunc> GetTestSetFunctions(_In_ const int& argc, _In_count_(argc
             }
             else
             {
-                printf("Unknown test name[%s], skipping.\r\n", argv[i]);
+                printf(__FUNCTION__": Unknown test name[%s], skipping.\r\n", argv[i]);
             }
         }
     }

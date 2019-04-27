@@ -1,5 +1,4 @@
-#ifndef _CC_BUFFER_H_
-#define _CC_BUFFER_H_
+#pragma once
 
 #include "CCTypes.h"
 
@@ -226,7 +225,7 @@ namespace CC
 
     public:
 
-        /// Protected Constructors \\\
+        /// Public Constructors \\\
 
         // Default constructor
         constexpr Buffer( ) noexcept :
@@ -309,7 +308,7 @@ namespace CC
             src.Reset( );
         }
 
-        /// Protected Destructor \\\
+        /// Public Destructor \\\
 
         // Destructor
         virtual ~Buffer( ) noexcept
@@ -396,7 +395,9 @@ namespace CC
         // Note: Will throw std::out_of_range if i >= m_Len.
         virtual const T& operator[](_In_ const size_t& i) const
         {
-            return this->operator[](i);
+            ValidateDereference(__FUNCSIG__, m_pBuf);
+            ValidateIndex(__FUNCSIG__, i);
+            return m_pBuf[i];
         }
 
         // Dereference overload - returns reference to first element from internal buffer (mutable).
@@ -411,7 +412,8 @@ namespace CC
         // Note: Will throw std::logic_error if m_pBuf == nullptr.
         virtual const T& operator*( ) const
         {
-            return this->operator*( );
+            ValidateDereference(__FUNCSIG__, m_pBuf);
+            return *m_pBuf;
         }
 
         // Comparison Equal-To overload - returns true if contents of specified buffer match m_pBuf, false otherwise.
@@ -424,6 +426,26 @@ namespace CC
         virtual const bool operator!=(_In_ const IBuffer<T>& rhs) const noexcept
         {
             return !Compare(rhs.Ptr( ), rhs.Length( ));
+        }
+
+        // Addition Assignment overload - writes specified T object to internal buffer at m_WritePos, then returns reference to this object.
+        // Note: Will throw std::logic_error if m_pBuf == nullptr.
+        // Note: Will throw std::out_of_range if write would go beyond end of buffer.
+        virtual Buffer<T>& operator+=(_In_ const T& t)
+        {
+            Write(t);
+            return *this;
+        }
+
+        // Addition Assignment overload - writes source buffer content to internal buffer at m_WritePos, then returns reference to this object.
+        // Note: Will only copy up to src.WritePosition( ) of source buffer.
+        // Note: Will throw std::logic_error if m_pBuf == nullptr.
+        // Note: Will throw std::logic_error if src.Ptr( ) == nullptr.
+        // Note: Will throw std::out_of_range if write would go beyond end of buffer.
+        virtual Buffer<T>& operator+=(_In_ const IBuffer<T>& src)
+        {
+            Write(src);
+            return *this;
         }
 
         // Insertion overload - writes specified T object to internal buffer at m_WritePos, then returns reference to this object.
@@ -591,5 +613,3 @@ namespace CC
         }
     };
 }
-
-#endif // _CC_BUFFER_H_
