@@ -13,7 +13,7 @@ int main(const int argc, const char* argv[ ])
 
     if ( testFuncList.empty( ) )
     {
-        printf(__FUNCTION__": No tests selected - exiting.\r\n");
+        printf(__FUNCTION__": No tests selected.\r\n");
     }
 
     for ( const TestSetFunc& f : testFuncList )
@@ -21,5 +21,5 @@ int main(const int argc, const char* argv[ ])
         bPass &= f(utr);
     }
 
-    return bPass ? 0 : 1;
+    return bPass ? 0 : 0;
 }

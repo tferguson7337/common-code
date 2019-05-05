@@ -20,17 +20,20 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\CCBufferTests.cpp" />
+    <ClCompile Include="Source\CCDynamicBufferTests.cpp" />
     <ClCompile Include="Source\CCStringUtilTests.cpp" />
     <ClCompile Include="Source\RunTests.cpp" />
     <ClCompile Include="Source\TestSets.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Headers\CCBuffer.h" />
+    <ClInclude Include="..\Headers\CCDynamicBuffer.h" />
     <ClInclude Include="..\Headers\CCIBuffer.h" />
     <ClInclude Include="..\Headers\CCMacros.h" />
     <ClInclude Include="..\Headers\CCStringUtil.h" />
     <ClInclude Include="..\Headers\CCTypes.h" />
     <ClInclude Include="Headers\CCBufferTests.h" />
+    <ClInclude Include="Headers\CCDynamicBufferTests.h" />
     <ClInclude Include="Headers\CCStringUtilTests.h" />
     <ClInclude Include="Headers\TestSets.h" />
   </ItemGroup>
@@ -201,6 +204,8 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <TreatWarningAsError>true</TreatWarningAsError>
       <DisableSpecificWarnings>4127;6387</DisableSpecificWarnings>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -238,6 +243,8 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <TreatWarningAsError>true</TreatWarningAsError>
       <DisableSpecificWarnings>4127;6387</DisableSpecificWarnings>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

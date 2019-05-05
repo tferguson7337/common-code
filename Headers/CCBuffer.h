@@ -1,21 +1,16 @@
 #pragma once
 
+#include "CCIBuffer.h"
 #include "CCTypes.h"
 
-#include <sal.h>
-
 #include <stdexcept>
-#include <sstream>
-#include <utility>
-
-#include <CCIBuffer.h>
 
 namespace CC
 {
     template <typename T>
     class Buffer : public IBuffer<T>
     {
-        // Testing class.
+        // Testing classes.
         friend class BufferTests;
 
     protected:
@@ -124,13 +119,13 @@ namespace CC
         /// Static Protected Helper Methods \\\
 
         // Cleanup function - used for single-element buffers.
-        static void FreeSingle(_In_opt_ T* p) noexcept
+        static void FreeSingle(_In_opt_ _Post_ptr_invalid_ T* p) noexcept
         {
             delete p;
         }
 
         // Cleanup function - used for multi-element buffers.
-        static void FreeArray(_In_opt_ T* p) noexcept
+        static void FreeArray(_In_opt_ _Post_ptr_invalid_ T* p) noexcept
         {
             delete[ ] p;
         }
@@ -144,39 +139,52 @@ namespace CC
 
         // Allocates pointer to len T elements.
         // Note: Throws std::bad_alloc if allocation fails.
-        static T* Allocate(_In_ const size_t& len)
+        _Ret_maybenull_ static T* Allocate(_In_ const size_t& len)
         {
             return (len == 0) ? nullptr : (len == 1) ? new T : new T[len];
         }
 
-        // Allocates pointer to len T elements, copies contents of ptr to the new memory block.
-        // Note: Throws std::invalid_argument if p is null and len is not zero, or if p is not null and len is zero.
-        static T* AllocateFromPointer(_In_opt_ const T* ptr, _In_ const size_t& len)
+        // Copies len element from src into dst.
+        // Note: Throws std::invalid_argument if dst or src is nullptr.
+        static void CopyToRawBuffer(_Out_writes_opt_(len) T* dst, _In_reads_opt_(len) const T* src, _In_ const size_t& len)
         {
-            ValidateRawPointerArgs(__FUNCSIG__, ptr, len);
-            T* p = nullptr;
-            if ( ptr )
+            if ( dst && src )
             {
-                p = Allocate(len);
                 for ( size_t i = 0; i < len; i++ )
                 {
-                    p[i] = ptr[i];
+                    dst[i] = src[i];
                 }
             }
+        }
 
+        // Allocates pointer to len T elements, copies contents of ptr to the new memory block.
+        // Note: Throws std::invalid_argument if src is null and len is not zero, or if src is not null and len is zero.
+        _Ret_writes_maybenull_(len) static T* AllocateFromPointer(_In_reads_opt_(len) const T* src, _In_ const size_t& len)
+        {
+            ValidateRawPointerArgs(__FUNCSIG__, src, len);
+            T* p = Allocate(len);
+            CopyToRawBuffer(p, src, len);
+            return p;
+        }
+
+        // Allocates pointer to len T elements, copies contents of buffer to the new memory block.
+        _Ret_maybenull_ static T* AllocateFromBuffer(_In_ const IBuffer<T>& src)
+        {
+            T* p = Allocate(src.Length( ));
+            CopyToRawBuffer(p, src.Ptr( ), src.Length( ));
             return p;
         }
 
         // Copies all Buffer data members from source IBuffer object.
         // Note: The pointer data member is shallow copied.
-        static void CopyAllBufferDataMembers(_In_ Buffer<T>& dst, _In_ IBuffer<T>& src) noexcept
+        static void CopyAllBufferDataMembers(_Out_ Buffer<T>& dst, _In_ IBuffer<T>& src) noexcept
         {
             dst.m_pBuf = src.Ptr( );
             CopyNonPointerBufferDataMembers(dst, src);
         }
 
         // Copies all Buffer data members from source IBuffer object, except for the internal buffer pointer.
-        static void CopyNonPointerBufferDataMembers(_In_ Buffer<T>& dst, _In_ const IBuffer<T>& src) noexcept
+        static void CopyNonPointerBufferDataMembers(_Out_ Buffer<T>& dst, _In_ const IBuffer<T>& src) noexcept
         {
             dst.m_Len = src.Length( );
             dst.m_WritePos = src.WritePosition( );
@@ -186,41 +194,32 @@ namespace CC
         // Performs deep copy of src buffer, frees dst buffer, then assigned new buffer to dst.
         // Also copies all other Buffer data members of src to dst.
         // Note: If src buffer is nullptr, then dst will free buffer and replace it with nullptr.
-        static void CopyBuffer(_In_ Buffer<T>& dst, _In_ const IBuffer<T>& src)
+        static void CopyBuffer(_Inout_ Buffer<T>& dst, _In_ const IBuffer<T>& src)
         {
-            T* p = AllocateFromPointer(src.Ptr( ), src.Length( ));
+            T* p = AllocateFromBuffer(src);
             dst.InvokeFreeFunction( );
 
             dst.m_pBuf = p;
             CopyNonPointerBufferDataMembers(dst, src);
         }
 
-        // Performs copy of src Buffer data members to dst, then resets src.
-        static void TransferBuffer(_In_ Buffer<T>& dst, _In_ IBuffer<T>& src) noexcept
+        // Performs shallow copy of src Buffer data members to dst, then resets src.
+        static void TransferBuffer(_Inout_ Buffer<T>& dst, _Inout_ IBuffer<T>& src) noexcept
         {
             dst.InvokeFreeFunction( );
             CopyAllBufferDataMembers(dst, src);
-            src.Claim( );
+            src.Reset( );
         }
 
         /// Protected Helper Methods \\\
 
         // Calls the appropriate cleanup function, if one has been assigned.
-        virtual inline void InvokeFreeFunction( ) noexcept
+        void InvokeFreeFunction( ) noexcept
         {
             if ( m_FreeFunc )
             {
                 m_FreeFunc(m_pBuf);
             }
-        }
-
-        // Resets all data members to default values.
-        virtual inline void Reset( ) noexcept
-        {
-            m_pBuf = nullptr;
-            m_Len = 0;
-            m_WritePos = 0;
-            m_FreeFunc = nullptr;
         }
 
     public:
@@ -244,7 +243,7 @@ namespace CC
         { }
 
         // Raw pointer copy constructor
-        Buffer(_In_opt_ const T* p, _In_ const size_t& len) :
+        Buffer(_In_reads_opt_(len) const T* p, _In_ const size_t& len) :
             m_pBuf(AllocateFromPointer(p, len)),
             m_Len(len),
             m_WritePos(0),
@@ -253,7 +252,7 @@ namespace CC
 
         // Raw pointer move constructor
         // Note: Throws std::invalid_argument if p is null and len is not zero, or if p is not null and len is zero.
-        Buffer(_In_opt_ T*&p, _In_ const size_t& len) :
+        Buffer(_Inout_opt_ T*&p, _In_ const size_t& len) :
             m_pBuf(p),
             m_Len(len),
             m_WritePos(0),
@@ -274,14 +273,14 @@ namespace CC
 
         // Copy constructor
         Buffer(_In_ const Buffer<T>& src) :
-            m_pBuf(AllocateFromPointer(src.Ptr( ), src.Length( ))),
+            m_pBuf(AllocateFromBuffer(src)),
             m_Len(src.Length( )),
             m_WritePos(src.WritePosition( )),
             m_FreeFunc(GetFreeFunction(src.Length( )))
         { }
 
         // Move constructor
-        Buffer(_In_ Buffer<T>&& src) noexcept :
+        Buffer(_Inout_ Buffer<T>&& src) noexcept :
             m_pBuf(src.Ptr( )),
             m_Len(src.Length( )),
             m_WritePos(src.WritePosition( )),
@@ -290,16 +289,16 @@ namespace CC
             src.Reset( );
         }
 
-        // Interface Copy constructor
+        // Interface copy constructor
         Buffer(_In_ const IBuffer<T>& src) :
-            m_pBuf(AllocateFromPointer(src.Ptr( ), src.Length( ))),
+            m_pBuf(AllocateFromBuffer(src)),
             m_Len(src.Length( )),
             m_WritePos(src.WritePosition( )),
             m_FreeFunc(GetFreeFunction(src.Length( )))
         { }
 
-        // Interface Move constructor
-        Buffer(_In_ IBuffer<T>&& src) noexcept :
+        // Interface move constructor
+        Buffer(_Inout_ IBuffer<T>&& src) noexcept :
             m_pBuf(src.Ptr( )),
             m_Len(src.Length( )),
             m_WritePos(src.WritePosition( )),
@@ -330,7 +329,7 @@ namespace CC
         }
 
         // Move assignment
-        Buffer<T>& operator=(_In_ Buffer<T>&& src) noexcept
+        Buffer<T>& operator=(_Inout_ Buffer<T>&& src) noexcept
         {
             if ( this != &src )
             {
@@ -341,7 +340,7 @@ namespace CC
         }
 
         // Interface copy assignment
-        Buffer<T>& operator=(_In_ const IBuffer<T>& src)
+        IBuffer<T>& operator=(_In_ const IBuffer<T>& src)
         {
             if ( this != &src )
             {
@@ -352,7 +351,7 @@ namespace CC
         }
 
         // Interface move assignment
-        Buffer<T>& operator=(_In_ IBuffer<T>&& src) noexcept
+        IBuffer<T>& operator=(_Inout_ IBuffer<T>&& src) noexcept
         {
             if ( this != &src )
             {
@@ -369,13 +368,13 @@ namespace CC
         }
 
         // T* overload - returns pointer to mutable internal buffer.
-        explicit operator T* () noexcept
+        explicit operator T*() noexcept
         {
             return m_pBuf;
         }
 
         // const T* overload - returns pointer to immutable internal buffer.
-        explicit operator const T* () const noexcept
+        explicit operator const T*() const noexcept
         {
             return m_pBuf;
         }
@@ -428,74 +427,34 @@ namespace CC
             return !Compare(rhs.Ptr( ), rhs.Length( ));
         }
 
-        // Addition Assignment overload - writes specified T object to internal buffer at m_WritePos, then returns reference to this object.
-        // Note: Will throw std::logic_error if m_pBuf == nullptr.
-        // Note: Will throw std::out_of_range if write would go beyond end of buffer.
-        virtual Buffer<T>& operator+=(_In_ const T& t)
-        {
-            Write(t);
-            return *this;
-        }
-
-        // Addition Assignment overload - writes source buffer content to internal buffer at m_WritePos, then returns reference to this object.
-        // Note: Will only copy up to src.WritePosition( ) of source buffer.
-        // Note: Will throw std::logic_error if m_pBuf == nullptr.
-        // Note: Will throw std::logic_error if src.Ptr( ) == nullptr.
-        // Note: Will throw std::out_of_range if write would go beyond end of buffer.
-        virtual Buffer<T>& operator+=(_In_ const IBuffer<T>& src)
-        {
-            Write(src);
-            return *this;
-        }
-
-        // Insertion overload - writes specified T object to internal buffer at m_WritePos, then returns reference to this object.
-        // Note: Will throw std::logic_error if m_pBuf == nullptr.
-        // Note: Will throw std::out_of_range if write would go beyond end of buffer.
-        virtual Buffer<T>& operator<<(_In_ const T& t)
-        {
-            Write(t);
-            return *this;
-        }
-
-        // Insertion overload - writes source buffer content to internal buffer at m_WritePos, then returns reference to this object.
-        // Note: Will only copy up to src.WritePosition( ) of source buffer.
-        // Note: Will throw std::logic_error if m_pBuf == nullptr.
-        // Note: Will throw std::logic_error if src.Ptr( ) == nullptr.
-        // Note: Will throw std::out_of_range if write would go beyond end of buffer.
-        virtual Buffer<T>& operator<<(_In_ const IBuffer<T>& src)
-        {
-            Write(src);
-            return *this;
-        }
-
         /// Getters \\\
 
         // Returns pointer to internal buffer (mutable).
-        virtual constexpr T* Ptr( ) noexcept
+        virtual T* Ptr( ) noexcept
         {
             return m_pBuf;
         }
 
         // Returns pointer to internal buffer (immutable).
-        virtual constexpr const T* Ptr( ) const noexcept
+        virtual const T* Ptr( ) const noexcept
         {
             return m_pBuf;
         }
 
         // Returns length of internal buffer.
-        virtual constexpr const size_t& Length( ) const noexcept
+        virtual const size_t& Length( ) const noexcept
         {
             return m_Len;
         }
 
         // Returns size in bytes of internal buffer.
-        virtual constexpr const size_t Size( ) const noexcept
+        virtual const size_t Size( ) const noexcept
         {
             return sizeof(T)* m_Len;
         }
 
         // Returns current write position.
-        virtual constexpr const size_t& WritePosition( ) const noexcept
+        virtual const size_t& WritePosition( ) const noexcept
         {
             return m_WritePos;
         }
@@ -518,14 +477,14 @@ namespace CC
 
         /// Public Methods \\\
 
-        // Returns pointer to internal buffer, resets data members to default values.
-        // Note: Caller now owns the buffer memory - they must ensure it is freed at some point.
-        // Note: Will return nullptr if the buffer doesn't currently manage any resources.
-        virtual T* Claim( ) noexcept
+        // Resets internal data members to default values.
+        // Note: This will not free any internal resources - use with caution.
+        virtual void Reset( ) noexcept
         {
-            T* p = m_pBuf;
-            Reset( );
-            return p;
+            m_pBuf = nullptr;
+            m_Len = 0;
+            m_WritePos = 0;
+            m_FreeFunc = nullptr;
         }
 
         // Causes the buffer to free any resources, resetting data members to their default values.
@@ -535,21 +494,10 @@ namespace CC
             Reset( );
         }
 
-        // Initializes all elements of the buffer.
-        // Note: This will throw std::logic_error if the internal buffer is nullptr.
-        virtual void ZeroBuffer( )
-        {
-            ValidateDereference(__FUNCSIG__, m_pBuf);
-            for ( size_t i = 0; i < m_Len; i++ )
-            {
-                m_pBuf[i] = T( );
-            }
-        }
-
         // Returns true if contents of m_pBuf match contents of p (up to len), false otherwise.
         // Note: Throws std::invalid_argument if p is null and len is not zero, or if p is not null and len is zero.
         // Note: Throws std::out_of_range if len > m_Len
-        const bool Compare(_In_opt_ const T* p, _In_ const size_t& len) const
+        const bool Compare(_In_reads_opt_(len) const T* p, _In_ const size_t& len) const
         {
             ValidateRawPointerArgs(__FUNCSIG__, p, len);
 
@@ -589,16 +537,26 @@ namespace CC
             m_pBuf[m_WritePos++] = t;
         }
 
+        // Writes specified T object to internal buffer at m_WritePos.
+        // Note: Will throw std::logic_error if m_pBuf == nullptr.
+        // Note: Will throw std::out_of_range if write would go beyond end of buffer.
+        virtual void Write(_Inout_ T&& t)
+        {
+            ValidateWriteRequest(__FUNCSIG__, &t, 1);
+            m_pBuf[m_WritePos++] = std::move(t);
+        }
+
         // Writes raw pointer content to internal buffer at m_WritePos.
         // Note: Will throw std::logic_error if m_pBuf == nullptr.
-        // Note: Will throw std::logic_error if p == nullptr.
+        // Note: Will throw std::logic_error if src == nullptr.
         // Note: Will throw std::out_of_range if write would go beyond end of buffer.
-        virtual void Write(_In_ const T* const p, _In_ const size_t& len)
+        virtual void Write(_In_reads_opt_(len) const T* const src, _In_ const size_t& len)
         {
-            ValidateWriteRequest(__FUNCSIG__, p, len);
-            for ( size_t i = 0; i < len; i++ )
+            if ( len > 0 )
             {
-                m_pBuf[m_WritePos++] = p[i];
+                ValidateWriteRequest(__FUNCSIG__, src, len);
+                CopyToRawBuffer(m_pBuf + m_WritePos, src, len);
+                m_WritePos += len;
             }
         }
 

@@ -61,7 +61,7 @@ namespace CC
     template <class T>
     bool constexpr IsSupportedCharType( )
     {
-        return std::is_same<T, utf8>::value || std::is_same<T, utf16>::value;
+        return std::is_same_v<T, utf8> || std::is_same_v<T, utf16>;
     }
 
 
@@ -69,7 +69,7 @@ namespace CC
     template <class T>
     bool constexpr IsSignedIntegerType( )
     {
-        return std::is_integral<T>::value&& std::is_signed<T>::value;
+        return std::is_integral_v<T>&& std::is_signed_v<T>;
     }
 
 
@@ -77,7 +77,7 @@ namespace CC
     template <class T>
     bool constexpr IsUnsignedIntegerType( )
     {
-        return std::is_integral<T>::value&& std::is_unsigned<T>::value;
+        return std::is_integral_v<T>&& std::is_unsigned_v<T>;
     }
 
 
@@ -93,7 +93,7 @@ namespace CC
     template <class T>
     bool constexpr IsPointerType( )
     {
-        return std::is_pointer<T>::value;
+        return std::is_pointer_v<T>;
     }
 
 

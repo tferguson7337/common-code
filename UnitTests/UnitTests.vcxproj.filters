@@ -43,6 +43,12 @@
     <ClInclude Include="..\Headers\CCIBuffer.h">
       <Filter>CommonCode\Interfaces</Filter>
     </ClInclude>
+    <ClInclude Include="..\Headers\CCDynamicBuffer.h">
+      <Filter>CommonCode\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\CCDynamicBufferTests.h">
+      <Filter>Tests\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\RunTests.cpp" />
@@ -51,6 +57,9 @@
       <Filter>Tests\Source</Filter>
     </ClCompile>
     <ClCompile Include="Source\CCStringUtilTests.cpp">
+      <Filter>Tests\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\CCDynamicBufferTests.cpp">
       <Filter>Tests\Source</Filter>
     </ClCompile>
   </ItemGroup>

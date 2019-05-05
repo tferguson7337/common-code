@@ -133,7 +133,7 @@ namespace CC
             if constexpr ( RT == ReturnType::CCBuffer )
             {
                 Buffer<C> ret(len + 1);
-                ret.ZeroBuffer( );
+                memset(ret.Ptr( ), 0, sizeof(C) * (len + 1));
                 return ret;
             }
             else if constexpr ( RT == ReturnType::CppString )

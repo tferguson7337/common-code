@@ -2,6 +2,7 @@
 
 // CC Tests
 #include <CCBufferTests.h>
+#include <CCDynamicBufferTests.h>
 #include <CCStringUtilTests.h>
 
 
@@ -11,6 +12,7 @@ static bool RunAllTests(UnitTestRunner<char>& utr)
     utr.GetTestSetData( ).SetTestSetName("CommonCode - All");
     utr.AddUnitTests(CC::StringUtilTests::GetTests( ));
     utr.AddUnitTests(CC::BufferTests::GetTests( ));
+    utr.AddUnitTests(CC::DynamicBufferTests::GetTests( ));
     return utr.RunUnitTests( );
 }
 
@@ -30,12 +32,22 @@ static bool RunBufferTests(UnitTestRunner<char>& utr)
     return utr.RunUnitTests( );
 }
 
+static bool RunDynamicBufferTests(UnitTestRunner<char>& utr)
+{
+    utr.ClearUnitTests( );
+    utr.GetTestSetData( ).SetTestSetName("CommonCode - Dynamic Buffer");
+    utr.AddUnitTests(CC::DynamicBufferTests::GetTests( ));
+    return utr.RunUnitTests( );
+}
+
+
 // Test-Set-Name To Run-Test-Function Mapping
 const TestFuncMap s_TestFuncMap
 {
     TestPair("All", RunAllTests),
     TestPair("StringUtil", RunStringUtilTests),
-    TestPair("Buffer", RunBufferTests)
+    TestPair("Buffer", RunBufferTests),
+    TestPair("DynamicBuffer", RunDynamicBufferTests)
 };
 
 

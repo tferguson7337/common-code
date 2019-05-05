@@ -16,6 +16,8 @@ namespace CC
 {
     class BufferTests
     {
+        friend class DynamicBufferTests;
+
         BufferTests( ) = delete;
         BufferTests(const BufferTests&) = delete;
         BufferTests(BufferTests&&) = delete;
@@ -65,16 +67,6 @@ namespace CC
             Zero = 0,
             One,
             Many,
-
-            _End,
-            _Begin = 0
-        };
-
-        enum class InvocationType : size_t
-        {
-            Method = 0,
-            AddAssignOp,
-            InsertionOp,
 
             _End,
             _Begin = 0
@@ -174,9 +166,6 @@ namespace CC
 
         // Tests behavior of the overloaded subscript operator methods.
         class DereferenceOperatorTests;
-
-        // Tests ZeroBuffer method behavior.
-        class ZeroBufferTests;
 
         // Tests comparison behavior between buffers.
         class ComparisonTests;
@@ -1090,58 +1079,6 @@ namespace CC
         }
     };
 
-    class BufferTests::ZeroBufferTests
-    {
-    public:
-
-        template <typename T, TestQuantity TQ>
-        static UTR ZeroBuffer( )
-        {
-            constexpr const size_t len = GetTQNum<TQ>( );
-            constexpr const bool bThrowExpected = (len == 0);
-            Buffer<T> buffer(len);
-            bool bThrew = false;
-
-            try
-            {
-                buffer.ZeroBuffer( );
-            }
-            catch ( const std::exception& e )
-            {
-                bThrew = true;
-                if ( !bThrowExpected )
-                {
-                    SUTL_TEST_EXCEPTION(e.what( ));
-                }
-            }
-
-            SUTL_TEST_ASSERT(bThrew == bThrowExpected);
-            if constexpr ( !bThrowExpected )
-            {
-                try
-                {
-                    for ( size_t i = 0; i < len; i++ )
-                    {
-                        if constexpr ( std::is_same_v<T, Helper> )
-                        {
-                            buffer[i] == Helper( );
-                        }
-                        else
-                        {
-                            buffer[i] = static_cast<T>(i);
-                        }
-                    }
-                }
-                catch ( const std::exception& e )
-                {
-                    SUTL_TEST_EXCEPTION(e.what( ));
-                }
-            }
-
-            SUTL_TEST_SUCCESS( );
-        }
-    };
-
     class BufferTests::ComparisonTests
     {
     public:
@@ -1416,7 +1353,7 @@ namespace CC
     {
     public:
 
-        template <typename T, TestQuantity TQ, InvocationType IT>
+        template <typename T, TestQuantity TQ>
         static UTR WriteElement( )
         {
             constexpr const size_t len = GetTQNum<TQ>( );
@@ -1430,25 +1367,7 @@ namespace CC
 
             try
             {
-                if constexpr ( IT == InvocationType::Method )
-                {
-                    buffer.Write(testData[0]);
-                }
-                else if constexpr ( IT == InvocationType::AddAssignOp )
-                {
-                    buffer += testData[0];
-                }
-                else if constexpr ( IT == InvocationType::InsertionOp )
-                {
-                    buffer << testData[0];
-                }
-                else
-                {
-                    std::string msg1 = __FUNCSIG__": Unknown InvocationType template argument[";
-                    std::string data1 = std::to_string(static_cast<std::underlying_type_t<InvocationType>>(IT));
-                    std::string msg2 = "].";
-                    throw std::exception(msg1 + data1 + msg2);
-                }
+                buffer.Write(testData[0]);
             }
             catch ( const std::logic_error& e )
             {
@@ -1468,25 +1387,7 @@ namespace CC
 
             try
             {
-                if constexpr ( IT == InvocationType::Method )
-                {
-                    buffer.Write(testData[1]);
-                }
-                else if constexpr ( IT == InvocationType::AddAssignOp )
-                {
-                    buffer += testData[1];
-                }
-                else if constexpr ( IT == InvocationType::InsertionOp )
-                {
-                    buffer << testData[1];
-                }
-                else
-                {
-                    std::string msg1 = __FUNCSIG__": Unknown InvocationType template argument[";
-                    std::string data1 = std::to_string(static_cast<std::underlying_type_t<InvocationType>>(IT));
-                    std::string msg2 = "].";
-                    throw std::exception(msg1 + data1 + msg2);
-                }
+                buffer.Write(testData[1]);
             }
             catch ( const std::out_of_range& e )
             {
@@ -1543,6 +1444,7 @@ namespace CC
         template <typename T, TestQuantity TQ1, TestQuantity TQ2>
         static UTR WritePtrNull( )
         {
+            constexpr const bool bExpectThrow = (TQ2 != TestQuantity::Zero);
             constexpr const size_t len = GetTQNum<TQ1>( );
             Buffer<T> buffer(len);
             bool bThrew = false;
@@ -1560,7 +1462,7 @@ namespace CC
                 SUTL_TEST_EXCEPTION(e.what( ));
             }
 
-            SUTL_TEST_ASSERT(bThrew);
+            SUTL_TEST_ASSERT(bExpectThrow == bThrew);
 
             SUTL_TEST_SUCCESS( );
         }
@@ -1572,10 +1474,9 @@ namespace CC
             constexpr const size_t len2 = GetTQNum<TQ2>( );
             constexpr const bool bNullBuffer = (len1 == 0);
             constexpr const bool bNullSource = (len2 == 0);
-            constexpr const bool bSameLen = (len1 == len2);
-            constexpr const bool bExpectDerefThrow = (bNullBuffer || bNullSource);
-            constexpr const bool bExpectFirstWriteThrow = (!bExpectDerefThrow && len2 > len1);
-            constexpr const bool bExpectSecondWriteThrow = (!bExpectDerefThrow && len2 >= len1);
+            constexpr const bool bExpectDerefThrow = (bNullBuffer && !bNullSource);
+            constexpr const bool bExpectFirstWriteThrow = (!bNullSource && !bExpectDerefThrow && len2 > len1);
+            constexpr const bool bExpectSecondWriteThrow = (!bNullSource && !bExpectDerefThrow && (2 * len2) > len1);
 
             std::vector<T> testData(GetTestData<T, TQ2>( ));
             Buffer<T> buffer(len1);
@@ -1613,11 +1514,11 @@ namespace CC
 
             if constexpr ( !bExpectFirstWriteThrow && !bExpectDerefThrow )
             {
-                SUTL_TEST_ASSERT(buffer.Ptr( ));
+                SUTL_TEST_ASSERT(bNullSource || buffer.Ptr( ));
                 SUTL_TEST_ASSERT(buffer.Length( ) == len1);
                 SUTL_TEST_ASSERT(buffer.Size( ) == sizeof(T) * len1);
                 SUTL_TEST_ASSERT(buffer.WritePosition( ) == testData.size( ));
-                SUTL_TEST_ASSERT(buffer.m_FreeFunc == ((len1 == 1) ? Buffer<T>::FreeSingle : Buffer<T>::FreeArray));
+                SUTL_TEST_ASSERT(buffer.m_FreeFunc == ((len1 == 0) ? nullptr : (len1 == 1) ? Buffer<T>::FreeSingle : Buffer<T>::FreeArray));
             }
             else if constexpr ( bExpectFirstWriteThrow )
             {
@@ -1678,11 +1579,11 @@ namespace CC
 
             if constexpr ( !bExpectSecondWriteThrow && !bExpectDerefThrow )
             {
-                SUTL_TEST_ASSERT(buffer.Ptr( ));
+                SUTL_TEST_ASSERT(bNullSource || buffer.Ptr( ));
                 SUTL_TEST_ASSERT(buffer.Length( ) == len1);
                 SUTL_TEST_ASSERT(buffer.Size( ) == sizeof(T) * len1);
                 SUTL_TEST_ASSERT(buffer.WritePosition( ) == std::min(buffer.Length( ), testData.size( ) * 2));
-                SUTL_TEST_ASSERT(buffer.m_FreeFunc == ((len1 == 1) ? Buffer<T>::FreeSingle : Buffer<T>::FreeArray));
+                SUTL_TEST_ASSERT(buffer.m_FreeFunc == ((len1 == 0) ? nullptr : (len1 == 1) ? Buffer<T>::FreeSingle : Buffer<T>::FreeArray));
             }
             else if constexpr ( bExpectSecondWriteThrow )
             {
@@ -1715,18 +1616,18 @@ namespace CC
             SUTL_TEST_SUCCESS( );
         }
 
-        template <typename T, TestQuantity TQ1, TestQuantity TQ2, InvocationType IT>
+        template <typename T, TestQuantity TQ1, TestQuantity TQ2>
         static UTR WriteToWritePosition( )
         {
             constexpr const size_t len1 = GetTQNum<TQ1>( );
             constexpr const size_t len2 = GetTQNum<TQ2>( );
             constexpr const size_t writeLen = (len2 == 1) ? len2 : len2 >> 1;
             constexpr const bool bNullBuffer = (len1 == 0);
-            constexpr const bool bNullSrc = (len2 == 0);
-            constexpr const bool bExpectSetupDerefThrow = (bNullSrc || writeLen == 0);
-            constexpr const bool bExpectDerefThrow = (bNullBuffer || bNullSrc);
-            constexpr const bool bExpectFirstWriteThrow = (!bExpectDerefThrow && writeLen > len1);
-            constexpr const bool bExpectSecondWriteThrow = (!bExpectDerefThrow && (writeLen << 1) > len1);
+            constexpr const bool bNullSource = (len2 == 0);
+            constexpr const bool bExpectSetupDerefThrow = (bNullSource || writeLen == 0);
+            constexpr const bool bExpectDerefThrow = (bNullBuffer && !bNullSource);
+            constexpr const bool bExpectFirstWriteThrow = (!bNullSource && !bExpectDerefThrow && writeLen > len1);
+            constexpr const bool bExpectSecondWriteThrow = (!bNullSource && !bExpectDerefThrow && (2 * writeLen) > len1);
 
             std::vector<T> testData(GetTestData<T, TQ2>( ));
             Buffer<T> buffer(len1);
@@ -1738,43 +1639,14 @@ namespace CC
             {
                 src.Write(testData.data( ), writeLen);
             }
-            catch ( const std::logic_error& e )
-            {
-                bThrewLE = true;
-                if ( !bExpectSetupDerefThrow )
-                {
-                    SUTL_SETUP_EXCEPTION(e.what( ));
-                }
-            }
             catch ( const std::exception& e )
             {
                 SUTL_SETUP_EXCEPTION(e.what( ));
             }
 
-            SUTL_SETUP_ASSERT(bThrewLE == bExpectSetupDerefThrow);
-            bThrewLE = false;
-
             try
             {
-                if constexpr ( IT == InvocationType::Method )
-                {
-                    buffer.Write(src, true);
-                }
-                else if constexpr ( IT == InvocationType::AddAssignOp )
-                {
-                    buffer += src;
-                }
-                else if constexpr ( IT == InvocationType::InsertionOp )
-                {
-                    buffer << src;
-                }
-                else
-                {
-                    std::string msg1 = __FUNCSIG__": Unknown InvocationType template argument[";
-                    std::string data1 = std::to_string(static_cast<std::underlying_type_t<InvocationType>>(IT));
-                    std::string msg2 = "].";
-                    throw std::exception(msg1 + data1 + msg2);
-                }
+                buffer.Write(src, true);
             }
             catch ( const std::out_of_range& e )
             {
@@ -1802,11 +1674,11 @@ namespace CC
 
             if constexpr ( !bExpectFirstWriteThrow && !bExpectDerefThrow )
             {
-                SUTL_TEST_ASSERT(buffer.Ptr( ));
+                SUTL_TEST_ASSERT(bNullSource || buffer.Ptr( ));
                 SUTL_TEST_ASSERT(buffer.Length( ) == len1);
                 SUTL_TEST_ASSERT(buffer.Size( ) == sizeof(T) * len1);
                 SUTL_TEST_ASSERT(buffer.WritePosition( ) == writeLen);
-                SUTL_TEST_ASSERT(buffer.m_FreeFunc == ((len1 == 1) ? Buffer<T>::FreeSingle : Buffer<T>::FreeArray));
+                SUTL_TEST_ASSERT(buffer.m_FreeFunc == ((len1 == 0) ? nullptr : (len1 == 1) ? Buffer<T>::FreeSingle : Buffer<T>::FreeArray));
             }
             else if constexpr ( bExpectFirstWriteThrow )
             {
@@ -1838,25 +1710,7 @@ namespace CC
 
             try
             {
-                if constexpr ( IT == InvocationType::Method )
-                {
-                    buffer.Write(src, true);
-                }
-                else if constexpr ( IT == InvocationType::AddAssignOp )
-                {
-                    buffer += src;
-                }
-                else if constexpr ( IT == InvocationType::InsertionOp )
-                {
-                    buffer << src;
-                }
-                else
-                {
-                    std::string msg1 = __FUNCSIG__": Unknown InvocationType template argument[";
-                    std::string data1 = std::to_string(static_cast<std::underlying_type_t<InvocationType>>(IT));
-                    std::string msg2 = "].";
-                    throw std::exception(msg1 + data1 + msg2);
-                }
+                buffer.Write(src, true);
             }
             catch ( const std::out_of_range& e )
             {
@@ -1884,11 +1738,11 @@ namespace CC
 
             if constexpr ( !bExpectSecondWriteThrow && !bExpectDerefThrow )
             {
-                SUTL_TEST_ASSERT(buffer.Ptr( ));
+                SUTL_TEST_ASSERT(bNullSource || buffer.Ptr( ));
                 SUTL_TEST_ASSERT(buffer.Length( ) == len1);
                 SUTL_TEST_ASSERT(buffer.Size( ) == sizeof(T) * len1);
                 SUTL_TEST_ASSERT(buffer.WritePosition( ) == writeLen * 2);
-                SUTL_TEST_ASSERT(buffer.m_FreeFunc == ((len1 == 1) ? Buffer<T>::FreeSingle : Buffer<T>::FreeArray));
+                SUTL_TEST_ASSERT(buffer.m_FreeFunc == ((len1 == 0) ? nullptr : (len1 == 1) ? Buffer<T>::FreeSingle : Buffer<T>::FreeArray));
             }
             else if constexpr ( bExpectSecondWriteThrow )
             {
@@ -1928,11 +1782,9 @@ namespace CC
             constexpr const size_t len2 = GetTQNum<TQ2>( );
             constexpr const bool bNullBuffer = (len1 == 0);
             constexpr const bool bNullSource = (len2 == 0);
-            constexpr const bool bSameLen = (len1 == len2);
-            constexpr const bool bExpectSetupDerefThrow = (bNullSource || len2 == 0);
-            constexpr const bool bExpectDerefThrow = (bNullBuffer || bNullSource);
-            constexpr const bool bExpectFirstWriteThrow = (!bExpectDerefThrow && len2 > len1);
-            constexpr const bool bExpectSecondWriteThrow = (!bExpectDerefThrow && len2 >= len1);
+            constexpr const bool bExpectDerefThrow = (bNullBuffer && !bNullSource);
+            constexpr const bool bExpectFirstWriteThrow = (!bNullSource && !bExpectDerefThrow && len2 > len1);
+            constexpr const bool bExpectSecondWriteThrow = (!bNullSource && !bExpectDerefThrow && (2 * len2) > len1);
 
             std::vector<T> testData(GetTestData<T, TQ2>( ));
             Buffer<T> buffer(len1);
@@ -1944,21 +1796,10 @@ namespace CC
             {
                 src.Write(testData.data( ), testData.size( ));
             }
-            catch ( const std::logic_error& e )
-            {
-                bThrewLE = true;
-                if ( !bExpectDerefThrow )
-                {
-                    SUTL_SETUP_EXCEPTION(e.what( ));
-                }
-            }
             catch ( const std::exception& e )
             {
                 SUTL_SETUP_EXCEPTION(e.what( ));
             }
-
-            SUTL_SETUP_ASSERT(bThrewLE == bExpectSetupDerefThrow);
-            bThrewLE = false;
 
             try
             {
@@ -1990,11 +1831,11 @@ namespace CC
 
             if constexpr ( !bExpectFirstWriteThrow && !bExpectDerefThrow )
             {
-                SUTL_TEST_ASSERT(buffer.Ptr( ));
+                SUTL_TEST_ASSERT(bNullSource || buffer.Ptr( ));
                 SUTL_TEST_ASSERT(buffer.Length( ) == len1);
                 SUTL_TEST_ASSERT(buffer.Size( ) == sizeof(T) * len1);
                 SUTL_TEST_ASSERT(buffer.WritePosition( ) == src.Length( ));
-                SUTL_TEST_ASSERT(buffer.m_FreeFunc == ((len1 == 1) ? Buffer<T>::FreeSingle : Buffer<T>::FreeArray));
+                SUTL_TEST_ASSERT(buffer.m_FreeFunc == ((len1 == 0) ? nullptr : (len1 == 1) ? Buffer<T>::FreeSingle : Buffer<T>::FreeArray));
             }
             else if constexpr ( bExpectFirstWriteThrow )
             {
@@ -2054,11 +1895,11 @@ namespace CC
 
             if constexpr ( !bExpectSecondWriteThrow && !bExpectDerefThrow )
             {
-                SUTL_TEST_ASSERT(buffer.Ptr( ));
+                SUTL_TEST_ASSERT(bNullSource || buffer.Ptr( ));
                 SUTL_TEST_ASSERT(buffer.Length( ) == len1);
                 SUTL_TEST_ASSERT(buffer.Size( ) == sizeof(T) * len1);
                 SUTL_TEST_ASSERT(buffer.WritePosition( ) == std::min(buffer.Length( ), src.Length( ) * 2));
-                SUTL_TEST_ASSERT(buffer.m_FreeFunc == ((len1 == 1) ? Buffer<T>::FreeSingle : Buffer<T>::FreeArray));
+                SUTL_TEST_ASSERT(buffer.m_FreeFunc == ((len1 == 0) ? nullptr : (len1 == 1) ? Buffer<T>::FreeSingle : Buffer<T>::FreeArray));
             }
             else if constexpr ( bExpectSecondWriteThrow )
             {
