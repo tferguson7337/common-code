@@ -12,6 +12,18 @@ namespace CC
 
     protected:
 
+        // Moves len elements from src into dst.
+        static void MoveToRawBuffer(_Out_writes_opt_(len) T* dst, _Inout_opt_count_(len) T* src, _In_ const size_t& len)
+        {
+            if ( dst && src )
+            {
+                for ( size_t i = 0; i < len; i++ )
+                {
+                    dst[i] = std::move(src[i]);
+                }
+            }
+        }
+
         // Calculates new length for growing buffer.
         // If geometric increase is sufficent, then new length will be ((m_Len * 3) >> 1) (i.e., +50%)
         // Otherwise, the new length will be m_Len + minInc.
@@ -29,7 +41,7 @@ namespace CC
             if ( (this->m_WritePos + minInc) > this->m_Len )
             {
                 DynamicBuffer<T> newBuf(CalculateNewLength(this->m_Len, minInc));
-                Buffer<T>::CopyToRawBuffer(newBuf.m_pBuf, this->m_pBuf, this->m_WritePos);
+                MoveToRawBuffer(newBuf.m_pBuf, this->m_pBuf, this->m_WritePos);
                 newBuf.m_WritePos = this->m_WritePos;
                 Buffer<T>::TransferBuffer(*this, newBuf);
             }

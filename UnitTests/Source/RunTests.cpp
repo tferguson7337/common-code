@@ -21,5 +21,5 @@ int main(const int argc, const char* argv[ ])
         bPass &= f(utr);
     }
 
-    return bPass ? 0 : 0;
+    return bPass ? 0 : 1;
 }

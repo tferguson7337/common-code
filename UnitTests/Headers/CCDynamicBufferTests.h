@@ -270,14 +270,14 @@ namespace CC
 
     public:
 
-        template <typename T, TQ BufLen>
+        template <typename T, TQ BufLen, bool Move>
         static UTR WriteElement( )
         {
             constexpr const size_t origBufLen = GetTQNum<BufLen>( );
             constexpr const bool bExpectFirstWriteGrow = (origBufLen == 0);
             constexpr const bool bExpectSecondWriteGrow = (origBufLen == 1);
 
-            const std::vector<T> testData = BufferTests::GetTestData<T, TQ::Many>( );
+            std::vector<T> testData = BufferTests::GetTestData<T, TQ::Many>( );
 
             DynamicBuffer<T> dynBuf(origBufLen);
             const T* pBufPtr = dynBuf.Ptr( );
@@ -285,7 +285,14 @@ namespace CC
 
             try
             {
-                dynBuf.Write(testData[0]);
+                if constexpr ( Move )
+                {
+                    dynBuf.Write(std::move(testData[0]));
+                }
+                else
+                {
+                    dynBuf.Write(testData[0]);
+                }
             }
             catch ( const std::exception& e )
             {
@@ -294,7 +301,6 @@ namespace CC
 
             SUTL_TEST_ASSERT(bExpectFirstWriteGrow == (pBufPtr != dynBuf.Ptr( )));
             SUTL_TEST_ASSERT(bExpectFirstWriteGrow == (len != dynBuf.Length( )));
-            SUTL_TEST_ASSERT(memcmp(testData.data( ), dynBuf.Ptr( ), sizeof(T)) == 0);
             SUTL_TEST_ASSERT(dynBuf.WritePosition( ) == 1);
 
             pBufPtr = dynBuf.Ptr( );
@@ -302,7 +308,14 @@ namespace CC
 
             try
             {
-                dynBuf.Write(testData[1]);
+                if constexpr ( Move )
+                {
+                    dynBuf.Write(std::move(testData[1]));
+                }
+                else
+                {
+                    dynBuf.Write(testData[1]);
+                }
             }
             catch ( const std::exception& e )
             {
@@ -311,8 +324,38 @@ namespace CC
 
             SUTL_TEST_ASSERT(bExpectSecondWriteGrow == (pBufPtr != dynBuf.Ptr( )));
             SUTL_TEST_ASSERT(bExpectSecondWriteGrow == (len != dynBuf.Length( )));
-            SUTL_TEST_ASSERT(memcmp(testData.data( ), dynBuf.Ptr( ), sizeof(T) * 2) == 0);
             SUTL_TEST_ASSERT(dynBuf.WritePosition( ) == 2);
+
+            try
+            {
+                size_t srcIdx = 0;
+                for ( size_t i = 0; i < dynBuf.WritePosition( ); i++, srcIdx++ )
+                {
+                    if ( srcIdx == testData.size( ) )
+                    {
+                        srcIdx = 0;
+                    }
+
+                    SUTL_TEST_ASSERT(dynBuf[i] == testData[srcIdx]);
+                    if constexpr ( std::is_same_v<T, Helper> )
+                    {
+                        if ( i == 0 && bExpectSecondWriteGrow )
+                        {
+                            SUTL_TEST_ASSERT(!dynBuf[i].Copied( ));
+                            SUTL_TEST_ASSERT(dynBuf[i].Moved( ));
+                        }
+                        else
+                        {
+                            SUTL_TEST_ASSERT(dynBuf[i].Copied( ) == !Move);
+                            SUTL_TEST_ASSERT(dynBuf[i].Moved( ) == Move);
+                        }
+                    }
+                }
+            }
+            catch ( const std::exception& e )
+            {
+                SUTL_TEST_EXCEPTION(e.what( ));
+            }
 
             SUTL_TEST_SUCCESS( );
         }
@@ -352,7 +395,6 @@ namespace CC
             constexpr const size_t srcLen = BufferTests::GetTQNum<SrcBufLen>( );
             constexpr const size_t firstWriteLen = GetExpectedFirstPtrWriteLen<DstBufLen, SrcBufLen>( );
             constexpr const size_t secondWriteLen = GetExpectedSecondPtrWriteLen<DstBufLen, SrcBufLen>( );
-            constexpr const bool bExpectWrite = (SrcBufLen != TQ::Zero);
 
             std::vector<T> testData = BufferTests::GetTestData<T, SrcBufLen>( );
             DynamicBuffer<T> dynBuf(dstLen);
@@ -370,9 +412,27 @@ namespace CC
             SUTL_TEST_ASSERT((dstLen != firstWriteLen) == (pBufPtr != dynBuf.Ptr( )));
             SUTL_TEST_ASSERT(dynBuf.Length( ) == firstWriteLen);
             SUTL_TEST_ASSERT(dynBuf.WritePosition( ) == srcLen);
-            if constexpr ( bExpectWrite )
+            try
             {
-                SUTL_TEST_ASSERT(memcmp(testData.data( ), dynBuf.Ptr( ), sizeof(T) * srcLen) == 0);
+                size_t srcIdx = 0;
+                for ( size_t i = 0; i < srcLen; i++, srcIdx++ )
+                {
+                    if ( srcIdx == testData.size( ) )
+                    {
+                        srcIdx = 0;
+                    }
+
+                    SUTL_TEST_ASSERT(dynBuf[i] == testData[i]);
+                    if constexpr ( std::is_same_v<T, Helper> )
+                    {
+                        SUTL_TEST_ASSERT(dynBuf[i].Copied( ));
+                        SUTL_TEST_ASSERT(!dynBuf[i].Moved( ));
+                    }
+                }
+            }
+            catch ( const std::exception& e )
+            {
+                SUTL_TEST_EXCEPTION(e.what( ));
             }
 
             pBufPtr = dynBuf.Ptr( );
@@ -388,14 +448,35 @@ namespace CC
             SUTL_TEST_ASSERT((firstWriteLen == secondWriteLen) == (pBufPtr == dynBuf.Ptr( )));
             SUTL_TEST_ASSERT(dynBuf.Length( ) == secondWriteLen);
             SUTL_TEST_ASSERT(dynBuf.WritePosition( ) == srcLen * 2);
-            for ( size_t i = 0, srcIdx = 0; i < (srcLen * 2); i++, srcIdx++ )
+            try
             {
-                if ( srcIdx == srcLen )
+                size_t srcIdx = 0;
+                for ( size_t i = 0; i < dynBuf.WritePosition( ); i++, srcIdx++ )
                 {
-                    srcIdx = 0;
-                }
+                    if ( srcIdx == testData.size( ) )
+                    {
+                        srcIdx = 0;
+                    }
 
-                SUTL_TEST_ASSERT(dynBuf[i] == testData[srcIdx]);
+                    SUTL_TEST_ASSERT(dynBuf[i] == testData[srcIdx]);
+                    if constexpr ( std::is_same_v<T, Helper> )
+                    {
+                        if ( i < srcLen && firstWriteLen < secondWriteLen)
+                        {
+                            SUTL_TEST_ASSERT(!dynBuf[i].Copied( ));
+                            SUTL_TEST_ASSERT(dynBuf[i].Moved( ));
+                        }
+                        else
+                        {
+                            SUTL_TEST_ASSERT(dynBuf[i].Copied( ));
+                            SUTL_TEST_ASSERT(!dynBuf[i].Moved( ));
+                        }
+                    }
+                }
+            }
+            catch ( const std::exception& e )
+            {
+                SUTL_TEST_EXCEPTION(e.what( ));
             }
 
             SUTL_TEST_SUCCESS( );
@@ -460,14 +541,35 @@ namespace CC
             SUTL_TEST_ASSERT((firstWriteLen == secondWriteLen) == (pBufPtr == dstBuf.Ptr( )));
             SUTL_TEST_ASSERT(dstBuf.Length( ) == secondWriteLen);
             SUTL_TEST_ASSERT(dstBuf.WritePosition( ) == srcWritePos * 2);
-            for ( size_t i = 0, srcIdx = 0; i < (srcWritePos * 2); i++, srcIdx++ )
+            try
             {
-                if ( srcIdx == srcWritePos )
+                size_t srcIdx = 0;
+                for ( size_t i = 0; i < dstBuf.WritePosition( ); i++, srcIdx++ )
                 {
-                    srcIdx = 0;
-                }
+                    if ( srcIdx == srcBuf.WritePosition( ) )
+                    {
+                        srcIdx = 0;
+                    }
 
-                SUTL_TEST_ASSERT(dstBuf[i] == srcBuf[srcIdx]);
+                    SUTL_TEST_ASSERT(dstBuf[i] == srcBuf[srcIdx]);
+                    if constexpr ( std::is_same_v<T, Helper> )
+                    {
+                        if ( i < srcWritePos && firstWriteLen < secondWriteLen)
+                        {
+                            SUTL_TEST_ASSERT(!dstBuf[i].Copied( ));
+                            SUTL_TEST_ASSERT(dstBuf[i].Moved( ));
+                        }
+                        else
+                        {
+                            SUTL_TEST_ASSERT(dstBuf[i].Copied( ));
+                            SUTL_TEST_ASSERT(!dstBuf[i].Moved( ));
+                        }
+                    }
+                }
+            }
+            catch ( const std::exception& e )
+            {
+                SUTL_TEST_EXCEPTION(e.what( ));
             }
 
             SUTL_TEST_SUCCESS( );

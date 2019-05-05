@@ -37,6 +37,64 @@ namespace CC
             uint64_t m_u64;
             uint8_t m_u8Arr[s_ArrSize];
 
+            bool m_bCopied;
+            bool m_bMoved;
+
+            Helper( ) noexcept :
+                m_u8(0), m_u16(0), m_u32(0), m_u64(0),
+                m_bCopied(false), m_bMoved(false)
+            {
+                memset(m_u8Arr, 0, sizeof(m_u8Arr));
+            }
+
+            Helper(const Helper& src) :
+                Helper( )
+            {
+                *this = src;
+            }
+
+            Helper(Helper&& src) noexcept :
+                Helper( )
+            {
+                *this = std::move(src);
+            }
+
+            ~Helper( ) noexcept = default;
+
+            Helper& operator=(const Helper& src)
+            {
+                if ( this != &src )
+                {
+                    m_u8 = src.m_u8;
+                    m_u16 = src.m_u16;
+                    m_u32 = src.m_u32;
+                    m_u64 = src.m_u64;
+                    memcpy(m_u8Arr, src.m_u8Arr, sizeof(m_u8Arr));
+
+                    m_bCopied = true;
+                    m_bMoved = false;
+                }
+
+                return *this;
+            }
+
+            Helper& operator=(Helper&& src)
+            {
+                if ( this != &src )
+                {
+                    m_u8 = src.m_u8;
+                    m_u16 = src.m_u16;
+                    m_u32 = src.m_u32;
+                    m_u64 = src.m_u64;
+                    memcpy(m_u8Arr, src.m_u8Arr, sizeof(m_u8Arr));
+
+                    m_bCopied = false;
+                    m_bMoved = true;
+                }
+
+                return *this;
+            }
+
             const bool operator==(const Helper& rhs) const noexcept
             {
                 return m_u8 == rhs.m_u8
@@ -49,6 +107,16 @@ namespace CC
             const bool operator!=(const Helper& rhs) const noexcept
             {
                 return !operator==(rhs);
+            }
+
+            bool Copied( ) const noexcept
+            {
+                return m_bCopied;
+            }
+
+            bool Moved( ) const noexcept
+            {
+                return m_bMoved;
             }
         };
 
@@ -596,7 +664,21 @@ namespace CC
                     SUTL_TEST_ASSERT(pBuffer->m_FreeFunc == Buffer<T>::FreeArray);
                 }
 
-                SUTL_TEST_ASSERT(memcmp(pBuffer->Ptr( ), testData.data( ), sizeof(T) * pBuffer->Length( )) == 0);
+                size_t srcIdx = 0;
+                for ( size_t i = 0; i < pBuffer->WritePosition( ); i++, srcIdx )
+                {
+                    if ( srcIdx == testData.size( ) )
+                    {
+                        srcIdx = 0;
+                    }
+
+                    SUTL_TEST_ASSERT((*pBuffer)[i] == testData[srcIdx]);
+                    if constexpr ( std::is_same_v<T, Helper> )
+                    {
+                        SUTL_TEST_ASSERT((*pBuffer)[i].Copied( ));
+                        SUTL_TEST_ASSERT(!(*pBuffer)[i].Moved( ));
+                    }
+                }
             }
 
             delete pBuffer;
@@ -739,7 +821,21 @@ namespace CC
             else
             {
                 SUTL_TEST_ASSERT(srcBuffer);
-                SUTL_TEST_ASSERT(memcmp(pBuffer->Ptr( ), srcBuffer.Ptr( ), pBuffer->Size( )) == 0);
+                size_t srcIdx = 0;
+                for ( size_t i = 0; i < pBuffer->WritePosition( ); i++, srcIdx )
+                {
+                    if ( srcIdx == srcBuffer.Length( ) )
+                    {
+                        srcIdx = 0;
+                    }
+
+                    SUTL_TEST_ASSERT((*pBuffer)[i] == srcBuffer[srcIdx]);
+                    if constexpr ( std::is_same_v<T, Helper> )
+                    {
+                        SUTL_TEST_ASSERT((*pBuffer)[i].Copied( ));
+                        SUTL_TEST_ASSERT(!(*pBuffer)[i].Moved( ));
+                    }
+                }
             }
 
             delete pBuffer;
@@ -1353,7 +1449,7 @@ namespace CC
     {
     public:
 
-        template <typename T, TestQuantity TQ>
+        template <typename T, TestQuantity TQ, bool Move>
         static UTR WriteElement( )
         {
             constexpr const size_t len = GetTQNum<TQ>( );
@@ -1367,7 +1463,14 @@ namespace CC
 
             try
             {
-                buffer.Write(testData[0]);
+                if constexpr ( Move )
+                {
+                    buffer.Write(std::move(testData[0]));
+                }
+                else
+                {
+                    buffer.Write(testData[0]);
+                }
             }
             catch ( const std::logic_error& e )
             {
@@ -1387,7 +1490,14 @@ namespace CC
 
             try
             {
-                buffer.Write(testData[1]);
+                if constexpr ( Move )
+                {
+                    buffer.Write(std::move(testData[1]));
+                }
+                else
+                {
+                    buffer.Write(testData[1]);
+                }
             }
             catch ( const std::out_of_range& e )
             {
@@ -1425,7 +1535,6 @@ namespace CC
             else
             {
                 SUTL_TEST_ASSERT(buffer.WritePosition( ) == ((len == 1) ? 1 : 2));
-                SUTL_TEST_ASSERT(memcmp(buffer.Ptr( ), testData.data( ), sizeof(T) * buffer.WritePosition( )) == 0);
                 SUTL_TEST_ASSERT(buffer.Length( ) == len);
                 SUTL_TEST_ASSERT(buffer.Size( ) == sizeof(T) * len);
                 if constexpr ( len == 1 )
@@ -1436,6 +1545,29 @@ namespace CC
                 {
                     SUTL_TEST_ASSERT(buffer.m_FreeFunc == Buffer<T>::FreeArray);
                 }
+            }
+
+            try
+            {
+                size_t srcIdx = 0;
+                for ( size_t i = 0; i < buffer.WritePosition( ); i++, srcIdx++ )
+                {
+                    if ( srcIdx == testData.size( ) )
+                    {
+                        srcIdx = 0;
+                    }
+
+                    SUTL_TEST_ASSERT(buffer[i] == testData[srcIdx]);
+                    if constexpr ( std::is_same_v<T, Helper> )
+                    {
+                        SUTL_TEST_ASSERT(buffer[i].Copied( ) != Move);
+                        SUTL_TEST_ASSERT(buffer[i].Moved( ) == Move);
+                    }
+                }
+            }
+            catch ( const std::exception& e )
+            {
+                SUTL_TEST_EXCEPTION(e.what( ));
             }
 
             SUTL_TEST_SUCCESS( );
@@ -1613,6 +1745,29 @@ namespace CC
                 }
             }
 
+            try
+            {
+                size_t srcIdx = 0;
+                for ( size_t i = 0; i < buffer.WritePosition( ); i++, srcIdx++ )
+                {
+                    if ( srcIdx == testData.size( ) )
+                    {
+                        srcIdx = 0;
+                    }
+
+                    SUTL_TEST_ASSERT(buffer[i] == testData[srcIdx]);
+                    if constexpr ( std::is_same_v<T, Helper> )
+                    {
+                        SUTL_TEST_ASSERT(buffer[i].Copied( ));
+                        SUTL_TEST_ASSERT(!buffer[i].Moved( ));
+                    }
+                }
+            }
+            catch ( const std::exception& e )
+            {
+                SUTL_TEST_EXCEPTION(e.what( ));
+            }
+
             SUTL_TEST_SUCCESS( );
         }
 
@@ -1772,6 +1927,29 @@ namespace CC
                 }
             }
 
+            try
+            {
+                size_t srcIdx = 0;
+                for ( size_t i = 0; i < buffer.WritePosition( ); i++, srcIdx++ )
+                {
+                    if ( srcIdx == src.WritePosition( ) )
+                    {
+                        srcIdx = 0;
+                    }
+
+                    SUTL_TEST_ASSERT(buffer[i] == src[srcIdx]);
+                    if constexpr ( std::is_same_v<T, Helper> )
+                    {
+                        SUTL_TEST_ASSERT(buffer[i].Copied( ));
+                        SUTL_TEST_ASSERT(!buffer[i].Moved( ));
+                    }
+                }
+            }
+            catch ( const std::exception& e )
+            {
+                SUTL_TEST_EXCEPTION(e.what( ));
+            }
+
             SUTL_TEST_SUCCESS( );
         }
 
@@ -1927,6 +2105,29 @@ namespace CC
                     SUTL_TEST_ASSERT(buffer.WritePosition( ) == 0);
                     SUTL_TEST_ASSERT(buffer.m_FreeFunc == ((len1 == 1) ? Buffer<T>::FreeSingle : Buffer<T>::FreeArray));
                 }
+            }
+
+            try
+            {
+                size_t srcIdx = 0;
+                for ( size_t i = 0; i < buffer.WritePosition( ); i++, srcIdx++ )
+                {
+                    if ( srcIdx == src.WritePosition( ) )
+                    {
+                        srcIdx = 0;
+                    }
+
+                    SUTL_TEST_ASSERT(buffer[i] == src[srcIdx]);
+                    if constexpr ( std::is_same_v<T, Helper> )
+                    {
+                        SUTL_TEST_ASSERT(buffer[i].Copied( ));
+                        SUTL_TEST_ASSERT(!buffer[i].Moved( ));
+                    }
+                }
+            }
+            catch ( const std::exception& e )
+            {
+                SUTL_TEST_EXCEPTION(e.what( ));
             }
 
             SUTL_TEST_SUCCESS( );

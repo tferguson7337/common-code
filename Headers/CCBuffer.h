@@ -145,7 +145,6 @@ namespace CC
         }
 
         // Copies len element from src into dst.
-        // Note: Throws std::invalid_argument if dst or src is nullptr.
         static void CopyToRawBuffer(_Out_writes_opt_(len) T* dst, _In_reads_opt_(len) const T* src, _In_ const size_t& len)
         {
             if ( dst && src )
