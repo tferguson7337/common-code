@@ -242,6 +242,7 @@ namespace CC
         { }
 
         // Raw pointer copy constructor
+        // Note: Throws std::invalid_argument if p is null and len is not zero, or if p is not null and len is zero.
         Buffer(_In_reads_opt_(len) const T* p, _In_ const size_t& len) :
             m_pBuf(AllocateFromPointer(p, len)),
             m_Len(len),
@@ -249,7 +250,7 @@ namespace CC
             m_FreeFunc(GetFreeFunction(len))
         { }
 
-        // Raw pointer move constructor
+        // Raw pointer steal constructor
         // Note: Throws std::invalid_argument if p is null and len is not zero, or if p is not null and len is zero.
         Buffer(_Inout_opt_ T*&p, _In_ const size_t& len) :
             m_pBuf(p),

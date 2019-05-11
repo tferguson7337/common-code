@@ -88,8 +88,8 @@ namespace CC
             Buffer<T>(p, len)
         { }
 
-        // Raw pointer move constructor
-        DynamicBuffer(_Inout_opt_ T*& p, _In_ const size_t& len) noexcept :
+        // Raw pointer steal constructor
+        DynamicBuffer(_Inout_opt_ T*& p, _In_ const size_t& len) :
             Buffer<T>(p, len)
         { }
 
