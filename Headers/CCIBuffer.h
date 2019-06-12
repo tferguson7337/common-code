@@ -9,10 +9,10 @@ namespace CC
     {
     protected:
         IBuffer( ) noexcept = default;
-        IBuffer(const IBuffer<T>&) = default;
+        IBuffer(const IBuffer<T>&) noexcept = default;
         IBuffer(IBuffer<T>&&) noexcept = default;
         virtual ~IBuffer( ) noexcept = default;
-        IBuffer<T>& operator=(const IBuffer<T>&) = default;
+        IBuffer<T>& operator=(const IBuffer<T>&) noexcept = default;
         IBuffer<T>& operator=(IBuffer<T>&&) noexcept = default;
 
     public:
@@ -37,19 +37,11 @@ namespace CC
         // Note: This will throw std::out_of_range if the specified index is >= the internal buffer's length.
         virtual const T& operator[](_In_ const size_t&) const = 0;
 
-        // Dereference internal buffer pointer, returning a reference to the first element (mutable).
-        // Note: This will throw std::logic_error if the internal buffer is nullptr.
-        virtual T& operator*( ) = 0;
-
-        // Dereference internal buffer pointer, returning a reference to the first element (immutable).
-        // Note: This will throw std::logic_error if the internal buffer is nullptr.
-        virtual const T& operator*( ) const = 0;
-
         // Compares this buffer to RHS buffer, returning true if buffer contents match, false otherwise.
-        virtual const bool operator==(_In_ const IBuffer<T>&) const = 0;
+        virtual const bool operator==(_In_ const IBuffer<T>&) const noexcept = 0;
 
         // Compares this buffer to RHS buffer, returning true if buffer contents do not match, false otherwise.
-        virtual const bool operator!=(_In_ const IBuffer<T>&) const = 0;
+        virtual const bool operator!=(_In_ const IBuffer<T>&) const noexcept = 0;
 
         /// Getters \\\
 
@@ -72,7 +64,7 @@ namespace CC
 
         // Explicitly set the write position to a specified value.
         // Note: This will throw std::out_of_range if the specified write position is beyond the range of the buffer.     
-        virtual void SetWritePosition(_In_ const size_t&) = 0;
+        virtual bool SetWritePosition(_In_ const size_t&) noexcept = 0;
 
         // Explicitly resets the write position to the beginning of the buffer (0).
         virtual void ResetWritePosition( ) noexcept = 0;
@@ -88,30 +80,45 @@ namespace CC
         virtual void Free( ) noexcept = 0;
 
         // Compares contents of internal buffer to p (up to len).  Returns true if contents match, false otherwise.
-        // Note: This will throw std::invalid_argument if p == nullptr && len != 0 or if p != nullptr && len == 0.
-        // Note: This will throw std::out_of_range if len is larger than the internal buffer's length.
-        virtual const bool Compare(_In_opt_ const T* p, _In_ const size_t& len) const = 0;
+        virtual const bool Compare(_In_opt_ const T* p, _In_ const size_t& len) const noexcept = 0;
 
         // Compares contents of this buffer to the specified buffer.  Returns true if contents match, false otherwise.
-        virtual const bool Compare(_In_ const IBuffer<T>& buffer) const = 0;
+        virtual const bool Compare(_In_ const IBuffer<T>& buffer) const noexcept = 0;
 
-        // Writes a single object T to the current write position of the internal buffer - increments the write position.
-        // Note: This will throw std::out_of_range if the write would go beyond the end of the buffer.
-        virtual void Write(_In_ const T& t) = 0;
+        // Copies a single object T to the current write position of the internal buffer - increments the write position.
+        // Returns false if the write fails or otherwise could not be completed - returns true otherwise.
+        // Note: Modifies buffer's write position if the write is successful.
+        virtual bool Write(_In_ const T& t) noexcept(std::is_scalar_v<T>) = 0;
 
-        // Writes a single object T to the current write position of the internal buffer - increments the write position.
-        // Note: This will throw std::out_of_range if the write would go beyond the end of the buffer.
-        virtual void Write(_In_ T&& t) = 0;
+        // Moves a single object T to the current write position of the internal buffer - increments the write position.
+        // Returns false if the write fails or otherwise could not be completed - returns true otherwise.
+        // Note: Modifies buffer's write position if the write is successful.
+        virtual bool Write(_In_ T&& t) noexcept = 0;
 
-        // Writes len elements from p to the internal buffer - increments the write position by len.
-        // Note: This will throw std::logic_error internal buffer or p are nullptr.
-        // Note: This will throw std::out_of_range if the write would go beyond the end of the buffer.
-        virtual void Write(_In_ const T* const p, _In_ const size_t& len) = 0;
+        // Null-pointer write.
+        // Returns false.
+        virtual bool Write(_In_ const std::nullptr_t& pNull, _In_ const size_t& len) noexcept = 0;
 
+        // Raw pointer copy write.
+        // Writes len elements from p to the internal buffer - increments the write position by len if successful.
+        // Returns false if the write fails or otherwise could not be completed - returns true otherwise.
+        virtual bool Write(_In_ const T* const p, _In_ const size_t& len) noexcept(std::is_scalar_v<T>) = 0;
+
+        // Raw pointer move write.
+        // Writes len elements from p to the internal buffer - increments the write position by len if successful.
+        // Returns false if the write fails or otherwise could not be completed - returns true otherwise.
+        virtual bool Write(_In_ T*&& p, _In_ const size_t& len) noexcept = 0;
+
+        // Buffer copy write.
         // Writes src.WritePosition( ) elements from src's internal buffer if bCopyUpToSrcWritePos is true.
-        // Writes src.Length( ) elements from src's internal buffer if bCopyUpToSrcWritePos is false.
-        // Increments the write position by appropriate amount.
-        // Note: This will throw std::out_of_range if the write would go beyond the end of the buffer.
-        virtual void Write(_In_ const IBuffer<T>& src, _In_ const bool& bCopyUpToSrcWritePos) = 0;
+        // Returns false if the write fails or otherwise could not be completed - returns true otherwise.
+        // Note: Modifies buffer's write position if the write is successful.
+        virtual bool Write(_In_ const IBuffer<T>& src, _In_ const bool& bCopyUpToSrcWritePos) noexcept(std::is_scalar_v<T>) = 0;
+
+        // Buffer copy move.
+        // Writes src.WritePosition( ) elements from src's internal buffer if bCopyUpToSrcWritePos is true.
+        // Returns false if the write fails or otherwise could not be completed - returns true otherwise.
+        // Note: Modifies buffer's write position if the write is successful.
+        virtual bool Write(_In_ IBuffer<T>&& src, _In_ const bool& bCopyUpToSrcWritePos) noexcept = 0;
     };
 }

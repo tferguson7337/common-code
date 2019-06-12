@@ -12,18 +12,6 @@ namespace CC
 
     protected:
 
-        // Moves len elements from src into dst.
-        static void MoveToRawBuffer(_Out_writes_opt_(len) T* dst, _Inout_opt_count_(len) T* src, _In_ const size_t& len)
-        {
-            if ( dst && src )
-            {
-                for ( size_t i = 0; i < len; i++ )
-                {
-                    dst[i] = std::move(src[i]);
-                }
-            }
-        }
-
         // Calculates new length for growing buffer.
         // If geometric increase is sufficent, then new length will be ((m_Len * 3) >> 1) (i.e., +50%)
         // Otherwise, the new length will be m_Len + minInc.
@@ -36,19 +24,26 @@ namespace CC
         }
 
         // Grows buffer to new length, if required.
-        void GrowBufferIfRequired(_In_ const size_t& minInc)
+        bool GrowBufferIfRequired(_In_ const size_t& minInc) noexcept
         {
-            if ( (this->m_WritePos + minInc) > this->m_Len )
+            if ( (this->WritePosition( ) + minInc) > this->Length( ) )
             {
-                DynamicBuffer<T> newBuf(CalculateNewLength(this->m_Len, minInc));
-                MoveToRawBuffer(newBuf.m_pBuf, this->m_pBuf, this->m_WritePos);
-                newBuf.m_WritePos = this->m_WritePos;
+                DynamicBuffer<T> newBuf(CalculateNewLength(this->Length( ), minInc));
+                if ( !newBuf )
+                {
+                    return false;
+                }
+
+                Pointer<T>::MoveToRawPointer(newBuf.Ptr( ), this->Ptr( ), this->WritePosition( ));
+                newBuf.m_WritePos = this->WritePosition( );
                 Buffer<T>::TransferBuffer(*this, newBuf);
             }
+
+            return true;
         }
 
         // Common wrapper for copy assignment.
-        DynamicBuffer<T>& CopyAssignmentCommon(_In_ const IBuffer<T>& src)
+        DynamicBuffer<T>& CopyAssignmentCommon(_In_ const IBuffer<T>& src) noexcept
         {
             if ( this != &src )
             {
@@ -79,22 +74,22 @@ namespace CC
         { }
 
         // Buffer length constructor
-        explicit DynamicBuffer(_In_ const size_t& len) :
+        explicit DynamicBuffer(_In_ const size_t& len) noexcept :
             Buffer<T>(len)
         { }
 
         // Raw pointer copy constructor
-        DynamicBuffer(_In_reads_opt_(len) const T* p, _In_ const size_t& len) :
+        DynamicBuffer(_In_reads_opt_(len) const T* p, _In_ const size_t& len) noexcept(std::is_scalar_v<T>) :
             Buffer<T>(p, len)
         { }
 
         // Raw pointer steal constructor
-        DynamicBuffer(_Inout_opt_ T*& p, _In_ const size_t& len) :
+        DynamicBuffer(_Inout_opt_ T*& p, _In_ const size_t& len) noexcept :
             Buffer<T>(p, len)
         { }
 
         // Copy constructor
-        DynamicBuffer(_In_ const DynamicBuffer<T>& src) :
+        DynamicBuffer(_In_ const DynamicBuffer<T>& src) noexcept(std::is_scalar_v<T>) :
             Buffer<T>(src)
         { }
 
@@ -104,7 +99,7 @@ namespace CC
         { }
 
         // Interface copy constructor
-        DynamicBuffer(_In_ const IBuffer<T>& src) :
+        DynamicBuffer(_In_ const IBuffer<T>& src) noexcept(std::is_scalar_v<T>) :
             Buffer<T>(src)
         { }
 
@@ -121,7 +116,7 @@ namespace CC
         /// Operator Overloads \\\
 
         // Copy Assignment
-        DynamicBuffer<T>& operator=(_In_ const DynamicBuffer<T>& src)
+        DynamicBuffer<T>& operator=(_In_ const DynamicBuffer<T>& src) noexcept(std::is_scalar_v<T>)
         {
             return CopyAssignmentCommon(src);
         }
@@ -133,7 +128,7 @@ namespace CC
         }
 
         // Interface Copy Assignment
-        DynamicBuffer<T>& operator=(_In_ const IBuffer<T>& src)
+        DynamicBuffer<T>& operator=(_In_ const IBuffer<T>& src) noexcept(std::is_scalar_v<T>)
         {
             return CopyAssignmentCommon(src);
         }
@@ -148,38 +143,57 @@ namespace CC
 
         // Writes specified T object to internal buffer at m_WritePos.
         // Note: Will grow the internal buffer to hold the new element if the buffer is full.
-        virtual void Write(_In_ const T& t)
+        virtual bool Write(_In_ const T& t) noexcept(std::is_scalar_v<T>)
         {
             GrowBufferIfRequired(1);
-            this->m_pBuf[this->m_WritePos++] = t;
+            return Buffer<T>::Write(t);
         }
 
         // Writes specified T object to internal buffer at m_WritePos.
         // Note: Will grow the internal buffer to hold the new element if the buffer is full.
-        virtual void Write(_Inout_ T&& t)
+        virtual bool Write(_Inout_ T&& t) noexcept
         {
             GrowBufferIfRequired(1);
-            this->m_pBuf[this->m_WritePos++] = std::move(t);
+            return Buffer<T>::Write(std::move(t));
         }
 
-        // Writes raw pointer content to internal buffer at m_WritePos.
-        // Note: Will grow the internal buffer to hold the new elements if buffer doesn't have enough room.
-        virtual void Write(_In_reads_opt_(len) const T* const src, _In_ const size_t& len)
+        // Null-pointer write.
+        // Returns false.
+        virtual bool Write(_In_ const std::nullptr_t&, _In_ const size_t&) noexcept
         {
-            if ( len > 0 )
-            {
-                Buffer<T>::ValidateDereference(__FUNCSIG__, src);
-                GrowBufferIfRequired(len);
-                Buffer<T>::CopyToRawBuffer(this->m_pBuf + this->m_WritePos, src, len);
-                this->m_WritePos += len;
-            }
+            return false;
         }
 
-        // Writes buffer content to internal buffer at m_WritePos.
-        // Note: Will grow the internal buffer to hold the new elements if buffer doesn't have enough room.
-        virtual void Write(_In_ const IBuffer<T>& src, _In_ const bool& bCopyUpToSrcWritePos = true)
+        // Copies raw pointer content to internal buffer at m_WritePos, increments m_WritePos by len on successful write.
+        // Note: Will grow the internal buffer to hold the new element if the buffer is full.
+        virtual bool Write(_In_reads_opt_(len) const T* const src, _In_ const size_t& len) noexcept(std::is_scalar_v<T>)
         {
-            Write(src.Ptr( ), bCopyUpToSrcWritePos ? src.WritePosition( ) : src.Length( ));
+            GrowBufferIfRequired(len);
+            return Buffer<T>::Write(src, len);
+        }
+
+        // Moves raw pointer content to internal buffer at m_WritePos, increments m_WritePos by len on successful write.
+        // Note: Will grow the internal buffer to hold the new element if the buffer is full.
+        virtual bool Write(_Inout_opt_count_(len) T*&& src, _In_ const size_t& len) noexcept
+        {
+            GrowBufferIfRequired(len);
+            return Buffer<T>::Write(std::move(src), len);
+        }
+
+        // Copies source buffer content to internal buffer at m_WritePos.
+        // Note: If bCopyUpToSrcWritePos == true, will write up to src.WritePosition( ), otherwise up to src.Length( ).
+        // Note: Will grow the internal buffer to hold the new element if the buffer is full.
+        virtual bool Write(_In_ const IBuffer<T>& src, _In_ const bool& bCopyUpToSrcWritePos = true) noexcept(std::is_scalar_v<T>)
+        {
+            return Write(src.Ptr( ), bCopyUpToSrcWritePos ? src.WritePosition( ) : src.Length( ));
+        }
+
+        // Moves source buffer content to internal buffer at m_WritePos.
+        // Note: If bCopyUpToSrcWritePos == true, will write up to src.WritePosition( ), otherwise up to src.Length( ).
+        // Note: Will grow the internal buffer to hold the new element if the buffer is full.
+        virtual bool Write(_In_ IBuffer<T>&& src, _In_ const bool& bCopyUpToSrcWritePos = true) noexcept
+        {
+            return Write(std::move(src.Ptr( )), bCopyUpToSrcWritePos ? src.WritePosition( ) : src.Length( ));
         }
     };
 }

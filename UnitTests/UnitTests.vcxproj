@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="Source\CCBufferTests.cpp" />
     <ClCompile Include="Source\CCDynamicBufferTests.cpp" />
+    <ClCompile Include="Source\CCPointerTests.cpp" />
     <ClCompile Include="Source\CCStringUtilTests.cpp" />
     <ClCompile Include="Source\RunTests.cpp" />
     <ClCompile Include="Source\TestSets.cpp" />
@@ -30,10 +31,12 @@
     <ClInclude Include="..\Headers\CCDynamicBuffer.h" />
     <ClInclude Include="..\Headers\CCIBuffer.h" />
     <ClInclude Include="..\Headers\CCMacros.h" />
+    <ClInclude Include="..\Headers\CCPointer.h" />
     <ClInclude Include="..\Headers\CCStringUtil.h" />
     <ClInclude Include="..\Headers\CCTypes.h" />
     <ClInclude Include="Headers\CCBufferTests.h" />
     <ClInclude Include="Headers\CCDynamicBufferTests.h" />
+    <ClInclude Include="Headers\CCPointerTests.h" />
     <ClInclude Include="Headers\CCStringUtilTests.h" />
     <ClInclude Include="Headers\TestSets.h" />
   </ItemGroup>
