@@ -79,7 +79,7 @@ namespace CC
                 return *this;
             }
 
-            Helper& operator=(Helper&& src)
+            Helper& operator=(Helper&& src) noexcept
             {
                 if ( this != &src )
                 {

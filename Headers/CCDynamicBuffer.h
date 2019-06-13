@@ -24,14 +24,28 @@ namespace CC
         /// Protected Helper Methods \\\
 
         // Calculates new length for growing buffer.
-        // If geometric increase is sufficent, then new length will be ((m_Len * 3) >> 1) (i.e., +50%)
+        // If geometric increase is sufficent, then new length will be (m_Len + (m_Len >> 1)) (i.e., +50%)
         // Otherwise, the new length will be m_Len + minInc.
         static size_t CalculateNewLength(_In_ const size_t& oldLen, _In_ const size_t& minInc) noexcept
         {
-            const size_t geoNewLen = (oldLen * 3) >> 1;
+            const size_t geoNewLen = oldLen + (oldLen >> 1);
             const size_t minIncLen = oldLen + minInc;
             const size_t newLen = (geoNewLen < minIncLen) ? minIncLen : geoNewLen;
             return (newLen > 16) ? newLen : 16;
+        }
+
+        bool GrowBuffer(_In_ const size_t& minInc) noexcept
+        {
+            DynamicBuffer<T> newBuf(CalculateNewLength(this->Length( ), minInc));
+            if ( !newBuf )
+            {
+                return false;
+            }
+
+            Pointer<T>::MoveToRawPointer(newBuf.Ptr( ), this->Ptr( ), this->WritePosition( ));
+            newBuf.m_WritePos = this->WritePosition( );
+            Buffer<T>::TransferBuffer(*this, newBuf);
+            return true;
         }
 
         // Grows buffer to new length, if required.
@@ -39,15 +53,7 @@ namespace CC
         {
             if ( (this->WritePosition( ) + minInc) > this->Length( ) )
             {
-                DynamicBuffer<T> newBuf(CalculateNewLength(this->Length( ), minInc));
-                if ( !newBuf )
-                {
-                    return false;
-                }
-
-                Pointer<T>::MoveToRawPointer(newBuf.Ptr( ), this->Ptr( ), this->WritePosition( ));
-                newBuf.m_WritePos = this->WritePosition( );
-                Buffer<T>::TransferBuffer(*this, newBuf);
+                return GrowBuffer(minInc);
             }
 
             return true;
@@ -156,14 +162,32 @@ namespace CC
         // Note: Will allocate/grow the internal buffer to hold the new element if the buffer is null/full.
         virtual bool Write(_In_ const T& t) noexcept(std::is_scalar_v<T>)
         {
-            return GrowBufferIfRequired(1) && Buffer<T>::WriteInternal(&t, 1);
+            if ( this->m_WritePos >= this->m_Len )
+            {
+                if ( !GrowBuffer(1) )
+                {
+                    return false;
+                }
+            }
+
+            this->m_pPtr[this->m_WritePos++] = t;
+            return true;
         }
 
         // Writes specified T object to internal buffer at m_WritePos.
         // Note: Will allocate/grow the internal buffer to hold the new element if the buffer is null/full.
         virtual bool Write(_Inout_ T&& t) noexcept
         {
-            return GrowBufferIfRequired(1) && Buffer<T>::WriteInternal(&t, 1);
+            if ( this->m_WritePos >= this->m_Len )
+            {
+                if ( !GrowBuffer(1) )
+                {
+                    return false;
+                }
+            }
+
+            this->m_pPtr[this->m_WritePos++] = std::move(t);
+            return true;
         }
 
         // Null-pointer write.

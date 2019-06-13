@@ -113,7 +113,7 @@ namespace CC
         inline bool WriteInternal(_In_ const T* p, _In_ const size_t& len) noexcept(std::is_scalar_v<T>)
         {
             Pointer<T>::CopyToRawPointer(Ptr( ) + m_WritePos, p, len);
-            WriteInternalCommon(len);
+            m_WritePos += len;
             return true;
         }
 
@@ -121,14 +121,8 @@ namespace CC
         inline bool WriteInternal(_In_ T* p, _In_ const size_t& len) noexcept
         {
             Pointer<T>::MoveToRawPointer(Ptr( ) + m_WritePos, p, len);
-            WriteInternalCommon(len);
-            return true;
-        }
-
-        // Common operation for all writes: updates write position.
-        inline void WriteInternalCommon(_In_ const size_t& len) noexcept
-        {
             m_WritePos += len;
+            return true;
         }
 
     public:
@@ -289,31 +283,31 @@ namespace CC
         /// Getters \\\
 
         // Returns pointer to internal buffer (mutable).
-        virtual T* Ptr( ) noexcept
+        inline virtual T* Ptr( ) noexcept
         {
             return Pointer<T>::Ptr( );
         }
 
         // Returns pointer to internal buffer (immutable).
-        virtual const T* Ptr( ) const noexcept
+        inline virtual const T* Ptr( ) const noexcept
         {
             return Pointer<T>::Ptr( );
         }
 
         // Returns length of internal buffer.
-        virtual const size_t& Length( ) const noexcept
+        inline virtual const size_t& Length( ) const noexcept
         {
             return Pointer<T>::Length( );
         }
 
         // Returns size in bytes of internal buffer.
-        virtual const size_t Size( ) const noexcept
+        inline virtual const size_t Size( ) const noexcept
         {
             return Pointer<T>::Size( );
         }
 
         // Returns current write position.
-        virtual const size_t& WritePosition( ) const noexcept
+        inline virtual const size_t& WritePosition( ) const noexcept
         {
             return m_WritePos;
         }
@@ -322,7 +316,7 @@ namespace CC
 
         // Sets write position to specified value.
         // Note: Will throw std::out_of_range if pos >= this->m_Len
-        virtual bool SetWritePosition(_In_ const size_t& pos) noexcept
+        inline virtual bool SetWritePosition(_In_ const size_t& pos) noexcept
         {
             if ( !ValidateNewWritePosition(pos) )
             {
@@ -334,7 +328,7 @@ namespace CC
         }
 
         // Resets write position to beginning of buffer (0).
-        virtual void ResetWritePosition( ) noexcept
+        inline virtual void ResetWritePosition( ) noexcept
         {
             m_WritePos = 0;
         }
@@ -343,14 +337,14 @@ namespace CC
 
         // Resets internal data members to default values.
         // Note: This will not free any internal resources - use with caution.
-        virtual void Reset( ) noexcept
+        inline virtual void Reset( ) noexcept
         {
             Pointer<T>::Reset( );
             m_WritePos = 0;
         }
 
         // Causes the buffer to free any resources, resetting data members to their default values.
-        virtual void Free( ) noexcept
+        inline virtual void Free( ) noexcept
         {
             Pointer<T>::InvokeFreeFunction( );
         }
@@ -392,23 +386,35 @@ namespace CC
         }
 
         // Returns true if contents of this->m_pPtr match contents of buffer.Ptr( ), false otherwise.
-        virtual const bool Compare(_In_ const IBuffer<T>& buffer) const noexcept
+        inline virtual const bool Compare(_In_ const IBuffer<T>& buffer) const noexcept
         {
             return Compare(buffer.Ptr( ), buffer.Length( ));
         }
 
         // Writes specified T object to internal buffer at m_WritePos.
         // Returns false if write would exceed length of buffer, true otherwise.
-        virtual bool Write(_In_ const T& t) noexcept(std::is_scalar_v<T>)
+        inline virtual bool Write(_In_ const T& t) noexcept(std::is_scalar_v<T>)
         {
-            return ValidateSingleElementWriteRequest( ) && WriteInternal(&t, 1);
+            if ( !ValidateSingleElementWriteRequest( ) )
+            {
+                return false;
+            }
+
+            Ptr( )[m_WritePos++] = t;
+            return true;
         }
 
         // Writes specified T object to internal buffer at m_WritePos.
         // Returns false if write would exceed length of buffer, true otherwise.
-        virtual bool Write(_Inout_ T&& t) noexcept
+        inline virtual bool Write(_Inout_ T&& t) noexcept
         {
-            return ValidateSingleElementWriteRequest( ) && WriteInternal(&t, 1);
+            if ( !ValidateSingleElementWriteRequest( ) )
+            {
+                return false;
+            }
+
+            Ptr( )[m_WritePos++] = std::move(t);
+            return true;
         }
 
         // Null-pointer write.

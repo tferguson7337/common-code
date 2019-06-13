@@ -488,7 +488,10 @@ namespace CC
             if ( buffer )
             {
                 SUTL_TEST_ASSERT(buffer.Ptr( ) != dst.Ptr( ));
-                SUTL_TEST_ASSERT(memcmp(buffer.Ptr( ), dst.Ptr( ), dst.Size( )) == 0);
+                for ( size_t i = 0; i < dst.Length( ); i++ )
+                {
+                    SUTL_TEST_ASSERT(buffer.Ptr( )[i] == dst.Ptr( )[i]);
+                }
             }
             else
             {
@@ -521,7 +524,10 @@ namespace CC
             if ( buffer )
             {
                 SUTL_TEST_ASSERT(buffer.Ptr( ) != dst.Ptr( ));
-                SUTL_TEST_ASSERT(memcmp(buffer.Ptr( ), dst.Ptr( ), dst.Size( )) == 0);
+                for ( size_t i = 0; i < dst.Length( ); i++ )
+                {
+                    SUTL_TEST_ASSERT(buffer.Ptr( )[i] == dst.Ptr( )[i]);
+                }
             }
             else
             {

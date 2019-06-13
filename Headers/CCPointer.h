@@ -52,13 +52,33 @@ namespace CC
         // Note: Will return nullptr if allocation fails.
         _Ret_maybenull_ static T* Allocate(_In_ const size_t& len) noexcept
         {
-            return (len == 0) ? nullptr : (len == 1) ? new (std::nothrow) T : new (std::nothrow) T[len];
+            if ( len == 0 )
+            {
+                return nullptr;
+            }
+            else if ( len == 1 )
+            {
+                return new (std::nothrow) T;
+            }
+            else
+            {
+                return new (std::nothrow) T[len];
+            }
         }
 
         // Copies len element from src into dst.
         static void CopyToRawPointer(_Out_writes_opt_(len) T* dst, _In_reads_opt_(len) const T* src, _In_ const size_t& len) noexcept(std::is_scalar_v<T>)
         {
-            if ( dst && src )
+            if ( !dst || !src )
+            {
+                return;
+            }
+
+            if constexpr ( std::is_scalar_v<T> )
+            {
+                memcpy(dst, src, sizeof(T) * len);
+            }
+            else
             {
                 for ( size_t i = 0; i < len; i++ )
                 {
@@ -70,7 +90,16 @@ namespace CC
         // Moves len element from src into dst.
         static void MoveToRawPointer(_Out_writes_opt_(len) T* dst, _Inout_opt_count_(len) T* src, _In_ const size_t& len) noexcept
         {
-            if ( dst && src )
+            if ( !dst || !src )
+            {
+                return;
+            }
+
+            if constexpr ( std::is_scalar_v<T> )
+            {
+                memcpy(dst, src, sizeof(T) * len);
+            }
+            else
             {
                 for ( size_t i = 0; i < len; i++ )
                 {
@@ -138,10 +167,21 @@ namespace CC
         /// Protected Helper Methods \\\
 
         // Returns function pointer to appropriate cleanup function.
-        // nullptr if len == 0, FreeSingle if len == 1, and FreeArray otherwise.
+        // nullptr if m_Len == 0, FreeSingle if m_Len == 1, and FreeArray otherwise.
         _Ret_maybenull_ FreeFunc GetFreeFunction( ) noexcept
         {
-            return (m_Len == 0) ? nullptr : (m_Len == 1) ? FreeSingle : FreeArray;
+            if ( m_Len == 0 )
+            {
+                return nullptr;
+            }
+            else if ( m_Len == 1 )
+            {
+                return FreeSingle;
+            }
+            else
+            {
+                return FreeArray;
+            }
         }
 
         // Calls the appropriate cleanup function, if one has been assigned.
