@@ -22,10 +22,10 @@ namespace CC
         size_t m_Len;
         FreeFunc m_FreeFunc;
 
-        /// Static Protected Validator Methods \\\
+        /// Static Protected Throwing Validator Methods \\\
 
         // Throw std::logic_error if p is nullptr.
-        inline static void ValidateDereference(_In_ const char* const f, _In_opt_ const T* p)
+        inline static void ValidateDereferenceT(_In_ const char* const f, _In_opt_ const T* const p)
         {
             if ( !p )
             {
@@ -49,7 +49,7 @@ namespace CC
         }
 
         // Allocates pointer to len T elements.
-        // Note: Throws std::bad_alloc if allocation fails.
+        // Note: Will return nullptr if allocation fails.
         _Ret_maybenull_ static T* Allocate(_In_ const size_t& len) noexcept
         {
             return (len == 0) ? nullptr : (len == 1) ? new (std::nothrow) T : new (std::nothrow) T[len];
@@ -105,14 +105,14 @@ namespace CC
         static void CopyAllDataMembers(_Out_ Pointer<T>& dst, _In_ Pointer<T>& src) noexcept
         {
             dst.m_pPtr = src.m_pPtr;
-            CopyNonPointerPointerDataMembers(dst, src);
+            CopyNonRawPointerDataMembers(dst, src);
         }
 
         // Copies all Pointer data members from source Pointer object, except for the internal pointer.
         static void CopyNonRawPointerDataMembers(_Out_ Pointer<T>& dst, _In_ const Pointer<T>& src) noexcept
         {
             dst.m_Len = src.m_Len;
-            dst.m_FreeFunc = GetFreeFunction(dst.m_Len);
+            dst.m_FreeFunc = dst.GetFreeFunction( );
         }
 
         // Performs deep copy of src pointer, frees dst pointer, then assigned new pointer to dst.
@@ -172,7 +172,6 @@ namespace CC
         { }
 
         // Raw pointer copy constructor
-        // Note: Throws std::invalid_argument if p is null and len is not zero, or if p is not null and len is zero.
         Pointer(_In_reads_opt_(len) const T* p, _In_ const size_t& len) noexcept(std::is_scalar_v<T>) :
             m_pPtr(AllocateFromRawPointer(p, len)),
             m_Len((!!m_pPtr) ? len : 0),
@@ -180,7 +179,6 @@ namespace CC
         { }
 
         // Raw pointer steal constructor
-        // Note: Throws std::invalid_argument if p is null and len is not zero, or if p is not null and len is zero.
         Pointer(_Inout_opt_ T*&p, _In_ const size_t& len) noexcept :
             m_pPtr(p),
             m_Len((!!m_pPtr) ? len : 0),
@@ -259,7 +257,7 @@ namespace CC
         // Note: Will throw std::logic_error if m_pPtr == nullptr.
         virtual T& operator*( )
         {
-            ValidateDereference(__FUNCSIG__, m_pPtr);
+            ValidateDereferenceT(__FUNCSIG__, m_pPtr);
             return *m_pPtr;
         }
 
@@ -267,7 +265,7 @@ namespace CC
         // Note: Will throw std::logic_error if m_pPtr == nullptr.
         virtual const T& operator*( ) const
         {
-            ValidateDereference(__FUNCSIG__, m_pPtr);
+            ValidateDereferenceT(__FUNCSIG__, m_pPtr);
             return *m_pPtr;
         }
 
@@ -275,8 +273,8 @@ namespace CC
         // Note: Will throw std::logic_error if m_pPtr == nullptr.
         virtual T* operator->( )
         {
-            // Technically not dereferencing here, but the intention is to access a data member.
-            ValidateDereference(__FUNCSIG__, m_pPtr);
+            // Technically not dereferencing here, but the intention is likely to access a data member.
+            ValidateDereferenceT(__FUNCSIG__, m_pPtr);
             return m_pPtr;
         }
 
@@ -284,8 +282,8 @@ namespace CC
         // Note: Will throw std::logic_error if m_pPtr == nullptr.
         virtual const T* operator->( ) const
         {
-            // Technically not dereferencing here, but the intention is to access a data member.
-            ValidateDereference(__FUNCSIG__, m_pPtr);
+            // Technically not dereferencing here, but the intention is likely to access a data member.
+            ValidateDereferenceT(__FUNCSIG__, m_pPtr);
             return m_pPtr;
         }
 

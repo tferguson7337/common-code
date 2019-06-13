@@ -20,13 +20,34 @@ namespace CC
 
         size_t m_WritePos;
 
-        /// Protected Validator Methods \\\
+        /// Protected Validator Methods \\\ 
 
-        // Throws std::out_of_range if idx >= this->m_Len.
-        inline void ValidateIndex(_In_ const char* const f, _In_ const size_t& idx) const
+        // Returns false if pos >= this->m_Len - returns true otherwise.
+        inline bool ValidateNewWritePosition(_In_ const size_t& pos) const noexcept
         {
-            Pointer<T>::ValidateDereference(f, Ptr( ));
+            return pos <= Length( );
+        }
 
+        // Returns false if m_WritePos >= this->m_Len.
+        // Returns true otherwise.
+        inline bool ValidateSingleElementWriteRequest( ) const noexcept
+        {
+            return m_WritePos < Length( );
+        }
+
+        // Returns false if !p || !this->m_pPtr || writeLen == 0 || ((m_WritePos + writeLen) <= this->m_Len)
+        // Returns true otherwise.
+        inline bool ValidateWriteRequest(_In_opt_ const T* const p, _In_ const size_t& writeLen) const noexcept
+        {
+            return !!p && !!Ptr( ) && writeLen > 0 && ((m_WritePos + writeLen) <= Length( ));
+        }
+
+        /// Protected Throwing Validator Methods \\\
+
+        // Returns false if idx >= this->m_Len - returns true otherwise.
+        inline void ValidateAccessorIndexT(_In_ const char* const f, _In_ const size_t& idx) const
+        {
+            Pointer<T>::ValidateDereferenceT(f, Ptr( ));
             if ( idx >= Length( ) )
             {
                 static const std::string msg1 = ": Index[";
@@ -36,42 +57,6 @@ namespace CC
                 const std::string endStr = std::to_string(Length( ));
 
                 throw std::out_of_range(f + msg1 + idxStr + msg2 + endStr + msg3);
-            }
-        }
-
-        // Throws std::out_of_range if pos >= this->m_Len.
-        inline void ValidateWritePosition(_In_ const char* const f, _In_ const size_t& pos) const
-        {
-            if ( pos > Length( ) )
-            {
-                static const std::string msg1 = ": Position[";
-                static const std::string msg2 = "] exceeds length of buffer[";
-                static const std::string msg3 = "].";
-                const std::string idxStr = std::to_string(pos);
-                const std::string endStr = std::to_string(Length( ));
-
-                throw std::out_of_range(f + msg1 + idxStr + msg2 + endStr + msg3);
-            }
-        }
-
-        // Throws std::logic_error if p is nullptr.
-        // Throws std::logic_error if this->m_pPtr is nullptr.
-        // Throws std::out_of_range if (m_WritePos + writeLen) >= this->m_Len.
-        inline void ValidateWriteRequest(_In_ const char* const f, _In_opt_ const T* p, _In_ const size_t& writeLen) const
-        {
-            Pointer<T>::ValidateDereference(f, p);
-            Pointer<T>::ValidateDereference(f, Ptr( ));
-            if ( (m_WritePos + writeLen) > Length( ) )
-            {
-                static const std::string msg1 = ": Write of length[";
-                static const std::string msg2 = "] at buffer at position[";
-                static const std::string msg3 = "] would exceed length of buffer[";
-                static const std::string msg4 = "].";
-                const std::string writeLenStr = std::to_string(writeLen);
-                const std::string writePosStr = std::to_string(m_WritePos);
-                const std::string bufLenStr = std::to_string(Length( ));
-
-                throw std::out_of_range(f + msg1 + writeLenStr + msg2 + writePosStr + msg3 + bufLenStr + msg4);
             }
         }
 
@@ -96,7 +81,7 @@ namespace CC
         // Performs deep copy of src buffer, frees dst buffer, then assigned new buffer to dst.
         // Also copies all other Buffer data members of src to dst.
         // Note: If src buffer is nullptr, then dst will free buffer and replace it with nullptr.
-        static void CopyBuffer(_Inout_ Buffer<T>& dst, _In_ const IBuffer<T>& src)
+        static void CopyBuffer(_Inout_ Buffer<T>& dst, _In_ const IBuffer<T>& src) noexcept(std::is_scalar_v<T>)
         {
             T* p = Pointer<T>::AllocateFromRawPointer(src.Ptr( ), src.Length( ));
             dst.InvokeFreeFunction( );
@@ -122,6 +107,28 @@ namespace CC
             {
                 this->m_FreeFunc(Ptr( ));
             }
+        }
+
+        // Writes elements via copy to internal buffer, updates write position.
+        inline bool WriteInternal(_In_ const T* p, _In_ const size_t& len) noexcept(std::is_scalar_v<T>)
+        {
+            Pointer<T>::CopyToRawPointer(Ptr( ) + m_WritePos, p, len);
+            WriteInternalCommon(len);
+            return true;
+        }
+
+        // Writes elements via move semantics to internal buffer, updates write position.
+        inline bool WriteInternal(_In_ T* p, _In_ const size_t& len) noexcept
+        {
+            Pointer<T>::MoveToRawPointer(Ptr( ) + m_WritePos, p, len);
+            WriteInternalCommon(len);
+            return true;
+        }
+
+        // Common operation for all writes: updates write position.
+        inline void WriteInternalCommon(_In_ const size_t& len) noexcept
+        {
+            m_WritePos += len;
         }
 
     public:
@@ -254,7 +261,7 @@ namespace CC
         // Note: Will throw std::out_of_range if i >=this->m_Len.
         virtual T& operator[](_In_ const size_t& i)
         {
-            ValidateIndex(__FUNCSIG__, i);
+            ValidateAccessorIndexT(__FUNCSIG__, i);
             return Ptr( )[i];
         }
 
@@ -263,7 +270,7 @@ namespace CC
         // Note: Will throw std::out_of_range if i >=this->m_Len.
         virtual const T& operator[](_In_ const size_t& i) const
         {
-            ValidateIndex(__FUNCSIG__, i);
+            ValidateAccessorIndexT(__FUNCSIG__, i);
             return Ptr( )[i];
         }
 
@@ -317,7 +324,7 @@ namespace CC
         // Note: Will throw std::out_of_range if pos >= this->m_Len
         virtual bool SetWritePosition(_In_ const size_t& pos) noexcept
         {
-            if ( pos > Length( ) )
+            if ( !ValidateNewWritePosition(pos) )
             {
                 return false;
             }
@@ -349,7 +356,7 @@ namespace CC
         }
 
         // Returns true if contents of this->m_pPtr match contents of p (up to len), false otherwise.
-        const bool Compare(_In_reads_opt_(len) const T* p, _In_ const size_t& len) const noexcept
+        virtual const bool Compare(_In_reads_opt_(len) const T* p, _In_ const size_t& len) const noexcept
         {
             bool bRet = true;
 
@@ -385,37 +392,23 @@ namespace CC
         }
 
         // Returns true if contents of this->m_pPtr match contents of buffer.Ptr( ), false otherwise.
-        const bool Compare(_In_ const IBuffer<T>& buffer) const noexcept
+        virtual const bool Compare(_In_ const IBuffer<T>& buffer) const noexcept
         {
             return Compare(buffer.Ptr( ), buffer.Length( ));
         }
 
         // Writes specified T object to internal buffer at m_WritePos.
-        // Note: Will throw std::logic_error if this->m_pPtr == nullptr.
-        // Note: Will throw std::out_of_range if write would go beyond end of buffer.
+        // Returns false if write would exceed length of buffer, true otherwise.
         virtual bool Write(_In_ const T& t) noexcept(std::is_scalar_v<T>)
         {
-            if ( m_WritePos == Length( ) )
-            {
-                return false;
-            }
-
-            Ptr( )[m_WritePos++] = t;
-            return true;
+            return ValidateSingleElementWriteRequest( ) && WriteInternal(&t, 1);
         }
 
         // Writes specified T object to internal buffer at m_WritePos.
-        // Note: Will throw std::logic_error if this->m_pPtr == nullptr.
-        // Note: Will throw std::out_of_range if write would go beyond end of buffer.
+        // Returns false if write would exceed length of buffer, true otherwise.
         virtual bool Write(_Inout_ T&& t) noexcept
         {
-            if ( m_WritePos == Length( ) )
-            {
-                return false;
-            }
-
-            Ptr( )[m_WritePos++] = std::move(t);
-            return true;
+            return ValidateSingleElementWriteRequest( ) && WriteInternal(&t, 1);
         }
 
         // Null-pointer write.
@@ -428,27 +421,13 @@ namespace CC
         // Copies raw pointer content to internal buffer at m_WritePos, increments m_WritePos by len on successful write.
         virtual bool Write(_In_reads_opt_(len) const T* const src, _In_ const size_t& len) noexcept(std::is_scalar_v<T>)
         {
-            if ( !src || (len == 0) || ((m_WritePos + len) > Length( )) )
-            {
-                return false;
-            }
-
-            Pointer<T>::CopyToRawPointer(Ptr( ) + m_WritePos, src, len);
-            m_WritePos += len;
-            return true;
+            return ValidateWriteRequest(src, len) && WriteInternal(src, len);
         }
 
         // Moves raw pointer content to internal buffer at m_WritePos, increments m_WritePos by len on successful write.
         virtual bool Write(_Inout_opt_count_(len) T*&& src, _In_ const size_t& len) noexcept
         {
-            if ( !src || (len == 0) || ((m_WritePos + len) > Length( )) )
-            {
-                return false;
-            }
-
-            Pointer<T>::MoveToRawPointer(Ptr( ) + m_WritePos, src, len);
-            m_WritePos += len;
-            return true;
+            return ValidateWriteRequest(src, len) && WriteInternal(src, len);
         }
 
         // Copies source buffer content to internal buffer at m_WritePos.

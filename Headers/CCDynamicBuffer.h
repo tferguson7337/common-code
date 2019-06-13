@@ -12,10 +12,21 @@ namespace CC
 
     protected:
 
+        /// Protected Validator Methods \\\
+
+        // Returns false if !p || !this->m_pPtr || writeLen == 0
+        // Returns true otherwise.
+        inline static bool ValidateWriteRequest(_In_opt_ const T* const p, _In_ const size_t& writeLen) noexcept
+        {
+            return !!p && writeLen > 0;
+        }
+
+        /// Protected Helper Methods \\\
+
         // Calculates new length for growing buffer.
         // If geometric increase is sufficent, then new length will be ((m_Len * 3) >> 1) (i.e., +50%)
         // Otherwise, the new length will be m_Len + minInc.
-        static const size_t CalculateNewLength(_In_ const size_t& oldLen, _In_ const size_t& minInc) noexcept
+        static size_t CalculateNewLength(_In_ const size_t& oldLen, _In_ const size_t& minInc) noexcept
         {
             const size_t geoNewLen = (oldLen * 3) >> 1;
             const size_t minIncLen = oldLen + minInc;
@@ -123,7 +134,7 @@ namespace CC
 
         // Move Assignment
         DynamicBuffer<T>& operator=(_Inout_ DynamicBuffer<T>&& src) noexcept
-        { 
+        {
             return MoveAssignmentCommon(std::move(src));
         }
 
@@ -142,19 +153,17 @@ namespace CC
         /// Public Methods \\\
 
         // Writes specified T object to internal buffer at m_WritePos.
-        // Note: Will grow the internal buffer to hold the new element if the buffer is full.
+        // Note: Will allocate/grow the internal buffer to hold the new element if the buffer is null/full.
         virtual bool Write(_In_ const T& t) noexcept(std::is_scalar_v<T>)
         {
-            GrowBufferIfRequired(1);
-            return Buffer<T>::Write(t);
+            return GrowBufferIfRequired(1) && Buffer<T>::WriteInternal(&t, 1);
         }
 
         // Writes specified T object to internal buffer at m_WritePos.
-        // Note: Will grow the internal buffer to hold the new element if the buffer is full.
+        // Note: Will allocate/grow the internal buffer to hold the new element if the buffer is null/full.
         virtual bool Write(_Inout_ T&& t) noexcept
         {
-            GrowBufferIfRequired(1);
-            return Buffer<T>::Write(std::move(t));
+            return GrowBufferIfRequired(1) && Buffer<T>::WriteInternal(&t, 1);
         }
 
         // Null-pointer write.
@@ -165,24 +174,22 @@ namespace CC
         }
 
         // Copies raw pointer content to internal buffer at m_WritePos, increments m_WritePos by len on successful write.
-        // Note: Will grow the internal buffer to hold the new element if the buffer is full.
+        // Note: Will allocate/grow the internal buffer to hold the new element(s) if the buffer is null/full.
         virtual bool Write(_In_reads_opt_(len) const T* const src, _In_ const size_t& len) noexcept(std::is_scalar_v<T>)
         {
-            GrowBufferIfRequired(len);
-            return Buffer<T>::Write(src, len);
+            return ValidateWriteRequest(src, len) && GrowBufferIfRequired(len) && Buffer<T>::WriteInternal(src, len);
         }
 
         // Moves raw pointer content to internal buffer at m_WritePos, increments m_WritePos by len on successful write.
-        // Note: Will grow the internal buffer to hold the new element if the buffer is full.
+        // Note: Will allocate/grow the internal buffer to hold the new element(s) if the buffer is null/full.
         virtual bool Write(_Inout_opt_count_(len) T*&& src, _In_ const size_t& len) noexcept
         {
-            GrowBufferIfRequired(len);
-            return Buffer<T>::Write(std::move(src), len);
+            return ValidateWriteRequest(src, len) && GrowBufferIfRequired(len) && Buffer<T>::WriteInternal(src, len);
         }
 
         // Copies source buffer content to internal buffer at m_WritePos.
         // Note: If bCopyUpToSrcWritePos == true, will write up to src.WritePosition( ), otherwise up to src.Length( ).
-        // Note: Will grow the internal buffer to hold the new element if the buffer is full.
+        // Note: Will allocate/grow the internal buffer to hold the new element(s) if the buffer is null/full.
         virtual bool Write(_In_ const IBuffer<T>& src, _In_ const bool& bCopyUpToSrcWritePos = true) noexcept(std::is_scalar_v<T>)
         {
             return Write(src.Ptr( ), bCopyUpToSrcWritePos ? src.WritePosition( ) : src.Length( ));
@@ -190,7 +197,7 @@ namespace CC
 
         // Moves source buffer content to internal buffer at m_WritePos.
         // Note: If bCopyUpToSrcWritePos == true, will write up to src.WritePosition( ), otherwise up to src.Length( ).
-        // Note: Will grow the internal buffer to hold the new element if the buffer is full.
+        // Note: Will allocate/grow the internal buffer to hold the new element(s) if the buffer is null/full.
         virtual bool Write(_In_ IBuffer<T>&& src, _In_ const bool& bCopyUpToSrcWritePos = true) noexcept
         {
             return Write(std::move(src.Ptr( )), bCopyUpToSrcWritePos ? src.WritePosition( ) : src.Length( ));

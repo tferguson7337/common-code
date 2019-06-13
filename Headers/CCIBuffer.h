@@ -63,7 +63,7 @@ namespace CC
         /// Setters \\\
 
         // Explicitly set the write position to a specified value.
-        // Note: This will throw std::out_of_range if the specified write position is beyond the range of the buffer.     
+        // Note: Returns false if desired write position exceeds buffer length.  Returns true otherwise.
         virtual bool SetWritePosition(_In_ const size_t&) noexcept = 0;
 
         // Explicitly resets the write position to the beginning of the buffer (0).
