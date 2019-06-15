@@ -94,7 +94,6 @@ namespace CC
             SUTL_TEST_ASSERT(defaultBuffer.Length( ) == 0);
             SUTL_TEST_ASSERT(defaultBuffer.Size( ) == 0);
             SUTL_TEST_ASSERT(defaultBuffer.WritePosition( ) == 0);
-            SUTL_TEST_ASSERT(defaultBuffer.m_FreeFunc == nullptr);
 
             SUTL_TEST_SUCCESS( );
         }
@@ -110,7 +109,6 @@ namespace CC
                 SUTL_TEST_ASSERT(buffer.Length( ) == 0);
                 SUTL_TEST_ASSERT(buffer.Size( ) == 0);
                 SUTL_TEST_ASSERT(buffer.WritePosition( ) == 0);
-                SUTL_TEST_ASSERT(buffer.m_FreeFunc == nullptr);
             }
             else
             {
@@ -118,14 +116,6 @@ namespace CC
                 SUTL_TEST_ASSERT(buffer.Length( ) == GetTQNum<TQ>( ));
                 SUTL_TEST_ASSERT(buffer.Size( ) == sizeof(T) * GetTQNum<TQ>( ));
                 SUTL_TEST_ASSERT(buffer.WritePosition( ) == 0);
-                if constexpr ( TQ == TestQuantity::One )
-                {
-                    SUTL_TEST_ASSERT(buffer.m_FreeFunc == Buffer<T>::FreeSingle);
-                }
-                else
-                {
-                    SUTL_TEST_ASSERT(buffer.m_FreeFunc == Buffer<T>::FreeArray);
-                }
             }
 
             SUTL_TEST_SUCCESS( );
@@ -151,7 +141,6 @@ namespace CC
                 SUTL_TEST_ASSERT(pBuffer->Length( ) == 0);
                 SUTL_TEST_ASSERT(pBuffer->Size( ) == 0);
                 SUTL_TEST_ASSERT(pBuffer->WritePosition( ) == 0);
-                SUTL_TEST_ASSERT(pBuffer->m_FreeFunc == nullptr);
                 delete pBuffer;
                 pBuffer = nullptr;
             }
@@ -181,7 +170,6 @@ namespace CC
                 SUTL_TEST_ASSERT(pBuffer->Length( ) == 0);
                 SUTL_TEST_ASSERT(pBuffer->Size( ) == 0);
                 SUTL_TEST_ASSERT(pBuffer->WritePosition( ) == 0);
-                SUTL_TEST_ASSERT(pBuffer->m_FreeFunc == nullptr);
             }
             else
             {
@@ -189,14 +177,6 @@ namespace CC
                 SUTL_TEST_ASSERT(pBuffer->Length( ) == testData.size( ));
                 SUTL_TEST_ASSERT(pBuffer->Size( ) == sizeof(T) * testData.size( ));
                 SUTL_TEST_ASSERT(pBuffer->WritePosition( ) == 0);
-                if constexpr ( TQ == TestQuantity::One )
-                {
-                    SUTL_TEST_ASSERT(pBuffer->m_FreeFunc == Buffer<T>::FreeSingle);
-                }
-                else
-                {
-                    SUTL_TEST_ASSERT(pBuffer->m_FreeFunc == Buffer<T>::FreeArray);
-                }
 
                 size_t srcIdx = 0;
                 for ( size_t i = 0; i < pBuffer->WritePosition( ); i++, srcIdx )
@@ -242,7 +222,7 @@ namespace CC
                 SUTL_TEST_ASSERT(pBuffer->Length( ) == 0);
                 SUTL_TEST_ASSERT(pBuffer->Size( ) == 0);
                 SUTL_TEST_ASSERT(pBuffer->WritePosition( ) == 0);
-                SUTL_TEST_ASSERT(pBuffer->m_FreeFunc == nullptr);
+
                 delete pBuffer;
                 pBuffer = nullptr;
             }
@@ -281,7 +261,6 @@ namespace CC
                 SUTL_TEST_ASSERT(pBuffer->Length( ) == 0);
                 SUTL_TEST_ASSERT(pBuffer->Size( ) == 0);
                 SUTL_TEST_ASSERT(pBuffer->WritePosition( ) == 0);
-                SUTL_TEST_ASSERT(pBuffer->m_FreeFunc == nullptr);
             }
             else
             {
@@ -289,14 +268,6 @@ namespace CC
                 SUTL_TEST_ASSERT(pBuffer->Length( ) == testData.size( ));
                 SUTL_TEST_ASSERT(pBuffer->Size( ) == sizeof(T) * testData.size( ));
                 SUTL_TEST_ASSERT(pBuffer->WritePosition( ) == 0);
-                if constexpr ( TQ == TestQuantity::One )
-                {
-                    SUTL_TEST_ASSERT(pBuffer->m_FreeFunc == Buffer<T>::FreeSingle);
-                }
-                else
-                {
-                    SUTL_TEST_ASSERT(pBuffer->m_FreeFunc == Buffer<T>::FreeArray);
-                }
 
                 SUTL_TEST_ASSERT(memcmp(pBuffer->Ptr( ), testData.data( ), sizeof(T) * pBuffer->Length( )) == 0);
             }
@@ -333,7 +304,6 @@ namespace CC
             SUTL_TEST_ASSERT(pBuffer->Length( ) == srcBuffer.Length( ));
             SUTL_TEST_ASSERT(pBuffer->Size( ) == srcBuffer.Size( ));
             SUTL_TEST_ASSERT(pBuffer->WritePosition( ) == srcBuffer.WritePosition( ));
-            SUTL_TEST_ASSERT(pBuffer->m_FreeFunc == srcBuffer.m_FreeFunc);
 
             if constexpr ( TQ == TestQuantity::Zero )
             {
@@ -377,7 +347,6 @@ namespace CC
             const size_t srcLen = srcBuffer.Length( );
             const size_t srcSize = srcBuffer.Size( );
             const size_t srcWritePos = srcBuffer.WritePosition( );
-            const Buffer<T>::FreeFunc srcFreeFunc = srcBuffer.m_FreeFunc;
 
             SUTL_SETUP_ASSERT(srcLen == testData.size( ));
             if ( srcBuffer )
@@ -398,13 +367,11 @@ namespace CC
             SUTL_TEST_ASSERT(srcBuffer.Length( ) == 0);
             SUTL_TEST_ASSERT(srcBuffer.Size( ) == 0);
             SUTL_TEST_ASSERT(srcBuffer.WritePosition( ) == 0);
-            SUTL_TEST_ASSERT(srcBuffer.m_FreeFunc == nullptr);
 
             SUTL_TEST_ASSERT(pBuffer->Ptr( ) == srcPtr);
             SUTL_TEST_ASSERT(pBuffer->Length( ) == srcLen);
             SUTL_TEST_ASSERT(pBuffer->Size( ) == srcSize);
             SUTL_TEST_ASSERT(pBuffer->WritePosition( ) == srcWritePos);
-            SUTL_TEST_ASSERT(pBuffer->m_FreeFunc == srcFreeFunc);
 
             if constexpr ( TQ == TestQuantity::Zero )
             {
@@ -440,7 +407,6 @@ namespace CC
             SUTL_TEST_ASSERT(buffer.Length( ) == dst.Length( ));
             SUTL_TEST_ASSERT(buffer.Size( ) == dst.Size( ));
             SUTL_TEST_ASSERT(buffer.WritePosition( ) == dst.WritePosition( ));
-            SUTL_TEST_ASSERT(buffer.m_FreeFunc == dst.m_FreeFunc);
 
             dst.Reset( );
 
@@ -460,7 +426,6 @@ namespace CC
             SUTL_TEST_ASSERT(buffer.Length( ) == dst.Length( ));
             SUTL_TEST_ASSERT(buffer.Size( ) == dst.Size( ));
             SUTL_TEST_ASSERT(buffer.WritePosition( ) == dst.WritePosition( ));
-            SUTL_TEST_ASSERT(buffer.m_FreeFunc == dst.m_FreeFunc);
 
             SUTL_TEST_SUCCESS( );
         }
@@ -484,7 +449,7 @@ namespace CC
             SUTL_TEST_ASSERT(buffer.Length( ) == dst.Length( ));
             SUTL_TEST_ASSERT(buffer.Size( ) == dst.Size( ));
             SUTL_TEST_ASSERT(buffer.WritePosition( ) == dst.WritePosition( ));
-            SUTL_TEST_ASSERT(buffer.m_FreeFunc == dst.m_FreeFunc);
+
             if ( buffer )
             {
                 SUTL_TEST_ASSERT(buffer.Ptr( ) != dst.Ptr( ));
@@ -520,7 +485,7 @@ namespace CC
             SUTL_TEST_ASSERT(buffer.Length( ) == dst.Length( ));
             SUTL_TEST_ASSERT(buffer.Size( ) == dst.Size( ));
             SUTL_TEST_ASSERT(buffer.WritePosition( ) == dst.WritePosition( ));
-            SUTL_TEST_ASSERT(buffer.m_FreeFunc == dst.m_FreeFunc);
+
             if ( buffer )
             {
                 SUTL_TEST_ASSERT(buffer.Ptr( ) != dst.Ptr( ));
@@ -552,7 +517,6 @@ namespace CC
             const size_t len = buffer.Length( );
             const size_t size = buffer.Size( );
             const size_t pos = buffer.WritePosition( );
-            const Buffer<T>::FreeFunc freeFunc = buffer.m_FreeFunc;
 
             try
             {
@@ -567,7 +531,6 @@ namespace CC
             SUTL_TEST_ASSERT(dst.Length( ) == len);
             SUTL_TEST_ASSERT(dst.Size( ) == size);
             SUTL_TEST_ASSERT(dst.WritePosition( ) == pos);
-            SUTL_TEST_ASSERT(dst.m_FreeFunc == freeFunc);
 
             SUTL_TEST_SUCCESS( );
         }
@@ -582,7 +545,6 @@ namespace CC
             const size_t len = buffer.Length( );
             const size_t size = buffer.Size( );
             const size_t pos = buffer.WritePosition( );
-            const Buffer<T>::FreeFunc freeFunc = buffer.m_FreeFunc;
 
             try
             {
@@ -597,7 +559,6 @@ namespace CC
             SUTL_TEST_ASSERT(dst.Length( ) == len);
             SUTL_TEST_ASSERT(dst.Size( ) == size);
             SUTL_TEST_ASSERT(dst.WritePosition( ) == pos);
-            SUTL_TEST_ASSERT(dst.m_FreeFunc == freeFunc);
 
             SUTL_TEST_SUCCESS( );
         }
@@ -617,7 +578,7 @@ namespace CC
 
             SUTL_TEST_ASSERT(buffer.Length( ) == testData.size( ));
 
-            if ( len > 0 )
+            if constexpr ( len > 0 )
             {
                 try
                 {
@@ -1006,21 +967,12 @@ namespace CC
                 SUTL_TEST_ASSERT(buffer.Length( ) == 0);
                 SUTL_TEST_ASSERT(buffer.Size( ) == 0);
                 SUTL_TEST_ASSERT(buffer.WritePosition( ) == 0);
-                SUTL_TEST_ASSERT(buffer.m_FreeFunc == nullptr);
             }
             else
             {
                 SUTL_TEST_ASSERT(buffer.WritePosition( ) == ((len == 1) ? 1 : 2));
                 SUTL_TEST_ASSERT(buffer.Length( ) == len);
                 SUTL_TEST_ASSERT(buffer.Size( ) == sizeof(T) * len);
-                if constexpr ( len == 1 )
-                {
-                    SUTL_TEST_ASSERT(buffer.m_FreeFunc == Buffer<T>::FreeSingle);
-                }
-                else
-                {
-                    SUTL_TEST_ASSERT(buffer.m_FreeFunc == Buffer<T>::FreeArray);
-                }
             }
 
             try
@@ -1104,7 +1056,6 @@ namespace CC
             SUTL_TEST_ASSERT(bNullBuffer == !buffer.Ptr( ));
             SUTL_TEST_ASSERT(buffer.Length( ) == len1);
             SUTL_TEST_ASSERT(buffer.Size( ) == sizeof(T) * len1);
-            SUTL_TEST_ASSERT(buffer.m_FreeFunc == ((len1 == 0) ? nullptr : (len1 == 1) ? Buffer<T>::FreeSingle : Buffer<T>::FreeArray));
 
             if constexpr ( bFirstWriteResult == true )
             {
@@ -1134,7 +1085,6 @@ namespace CC
             SUTL_TEST_ASSERT(bNullBuffer == !buffer.Ptr( ));
             SUTL_TEST_ASSERT(buffer.Length( ) == len1);
             SUTL_TEST_ASSERT(buffer.Size( ) == sizeof(T) * len1);
-            SUTL_TEST_ASSERT(buffer.m_FreeFunc == ((len1 == 0) ? nullptr : (len1 == 1) ? Buffer<T>::FreeSingle : Buffer<T>::FreeArray));
 
             if constexpr ( bFirstWriteResult == false )
             {
@@ -1207,7 +1157,6 @@ namespace CC
             SUTL_TEST_ASSERT(src.Length( ) == len2);
             SUTL_TEST_ASSERT(src.Size( ) == sizeof(T) * len2);
             SUTL_TEST_ASSERT(src.WritePosition( ) == ((bSetupWriteResult == true) ? writeLen : 0));
-            SUTL_TEST_ASSERT(src.m_FreeFunc == ((len2 == 0) ? nullptr : (len2 == 1) ? Buffer<T>::FreeSingle : Buffer<T>::FreeArray));
 
             try
             {
@@ -1229,12 +1178,10 @@ namespace CC
             SUTL_TEST_ASSERT(src.Length( ) == len2);
             SUTL_TEST_ASSERT(src.Size( ) == sizeof(T) * len2);
             SUTL_TEST_ASSERT(src.WritePosition( ) == ((bSetupWriteResult == true) ? writeLen : 0));
-            SUTL_TEST_ASSERT(src.m_FreeFunc == ((len2 == 0) ? nullptr : (len2 == 1) ? Buffer<T>::FreeSingle : Buffer<T>::FreeArray));
 
             SUTL_TEST_ASSERT(bNullBuffer == !buffer.Ptr( ));
             SUTL_TEST_ASSERT(buffer.Length( ) == len1);
             SUTL_TEST_ASSERT(buffer.Size( ) == sizeof(T) * len1);
-            SUTL_TEST_ASSERT(buffer.m_FreeFunc == ((len1 == 0) ? nullptr : (len1 == 1) ? Buffer<T>::FreeSingle : Buffer<T>::FreeArray));
 
             if constexpr ( bFirstWriteResult == false )
             {
@@ -1265,12 +1212,10 @@ namespace CC
             SUTL_TEST_ASSERT(src.Length( ) == len2);
             SUTL_TEST_ASSERT(src.Size( ) == sizeof(T) * len2);
             SUTL_TEST_ASSERT(src.WritePosition( ) == ((bSetupWriteResult == true) ? writeLen : 0));
-            SUTL_TEST_ASSERT(src.m_FreeFunc == ((len2 == 0) ? nullptr : (len2 == 1) ? Buffer<T>::FreeSingle : Buffer<T>::FreeArray));
 
             SUTL_TEST_ASSERT(bNullBuffer == !buffer.Ptr( ));
             SUTL_TEST_ASSERT(buffer.Length( ) == len1);
             SUTL_TEST_ASSERT(buffer.Size( ) == sizeof(T) * len1);
-            SUTL_TEST_ASSERT(buffer.m_FreeFunc == ((len1 == 0) ? nullptr : (len1 == 1) ? Buffer<T>::FreeSingle : Buffer<T>::FreeArray));
 
             if constexpr ( bFirstWriteResult == false )
             {
@@ -1340,7 +1285,6 @@ namespace CC
             SUTL_TEST_ASSERT(src.Length( ) == len2);
             SUTL_TEST_ASSERT(src.Size( ) == sizeof(T) * len2);
             SUTL_TEST_ASSERT(src.WritePosition( ) == ((bSetupWriteResult == true) ? len2 : 0));
-            SUTL_TEST_ASSERT(src.m_FreeFunc == ((len2 == 0) ? nullptr : (len2 == 1) ? Buffer<T>::FreeSingle : Buffer<T>::FreeArray));
 
             try
             {
@@ -1362,12 +1306,10 @@ namespace CC
             SUTL_TEST_ASSERT(src.Length( ) == len2);
             SUTL_TEST_ASSERT(src.Size( ) == sizeof(T) * len2);
             SUTL_TEST_ASSERT(src.WritePosition( ) == ((bSetupWriteResult == true) ? len2 : 0));
-            SUTL_TEST_ASSERT(src.m_FreeFunc == ((len2 == 0) ? nullptr : (len2 == 1) ? Buffer<T>::FreeSingle : Buffer<T>::FreeArray));
 
             SUTL_TEST_ASSERT(bNullBuffer == !buffer.Ptr( ));
             SUTL_TEST_ASSERT(buffer.Length( ) == len1);
             SUTL_TEST_ASSERT(buffer.Size( ) == sizeof(T) * len1);
-            SUTL_TEST_ASSERT(buffer.m_FreeFunc == ((len1 == 0) ? nullptr : (len1 == 1) ? Buffer<T>::FreeSingle : Buffer<T>::FreeArray));
 
             if constexpr ( bFirstWriteResult == false )
             {
@@ -1398,12 +1340,10 @@ namespace CC
             SUTL_TEST_ASSERT(src.Length( ) == len2);
             SUTL_TEST_ASSERT(src.Size( ) == sizeof(T) * len2);
             SUTL_TEST_ASSERT(src.WritePosition( ) == ((bSetupWriteResult == true) ? len2 : 0));
-            SUTL_TEST_ASSERT(src.m_FreeFunc == ((len2 == 0) ? nullptr : (len2 == 1) ? Buffer<T>::FreeSingle : Buffer<T>::FreeArray));
 
             SUTL_TEST_ASSERT(bNullBuffer == !buffer.Ptr( ));
             SUTL_TEST_ASSERT(buffer.Length( ) == len1);
             SUTL_TEST_ASSERT(buffer.Size( ) == sizeof(T) * len1);
-            SUTL_TEST_ASSERT(buffer.m_FreeFunc == ((len1 == 0) ? nullptr : (len1 == 1) ? Buffer<T>::FreeSingle : Buffer<T>::FreeArray));
 
             if constexpr ( bFirstWriteResult == false )
             {

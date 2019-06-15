@@ -203,59 +203,6 @@ namespace CC
             return testData;
         }
 
-
-        static size_t& SingleFreeCounter( )
-        {
-            static size_t freeCounter = 0;
-            return freeCounter;
-        }
-
-        static size_t& ArrayFreeCounter( )
-        {
-            static size_t freeCounter = 0;
-            return freeCounter;
-        }
-
-        static void ResetFreeCounters( )
-        {
-            SingleFreeCounter( ) = 0;
-            ArrayFreeCounter( ) = 0;
-        }
-
-        template <typename T>
-        static void FreeSingle(T* p)
-        {
-            SingleFreeCounter( )++;
-            Pointer<T>::FreeSingle(p);
-        }
-
-        template <typename T>
-        static void FreeArray(T* p)
-        {
-            ArrayFreeCounter( )++;
-            Pointer<T>::FreeArray(p);
-        }
-
-        template <typename T, TestQuantity TQ>
-        static void AssignFreeWrapper(Pointer<T>& ptr)
-        {
-            static_assert(IsValidTestType<T>( ), __FUNCSIG__": Invalid Template Type Argument");
-            static_assert(IsValidTestQuantity<TQ>( ), __FUNCSIG__": Invalid TestQuantity Template Argument.");
-
-            if constexpr ( TQ == TestQuantity::Zero )
-            {
-                ptr.m_FreeFunc = nullptr;
-            }
-            else if constexpr ( TQ == TestQuantity::One )
-            {
-                ptr.m_FreeFunc = FreeSingle<T>;
-            }
-            else if constexpr ( TQ == TestQuantity::Many )
-            {
-                ptr.m_FreeFunc = FreeArray<T>;
-            }
-        }
-
     public:
 
         // Return list of Pointer unit tests.
@@ -405,9 +352,6 @@ namespace CC
             Pointer<T> ptr(GetTQNum<TQ>( ));
             Pointer<T> srcPtr(GetTQNum<TQ>( ));
 
-            ResetFreeCounters( );
-            AssignFreeWrapper<T, TQ>(ptr);
-
             try
             {
                 Pointer<T>::CopyPointerObj(ptr, srcPtr);
@@ -416,9 +360,6 @@ namespace CC
             {
                 SUTL_TEST_EXCEPTION(e.what( ));
             }
-
-            SUTL_TEST_ASSERT(SingleFreeCounter( ) == expectedSingleFreeCount);
-            SUTL_TEST_ASSERT(ArrayFreeCounter( ) == expectedArrayFreeCount);
 
             SUTL_TEST_ASSERT((ptr.Ptr( ) != srcPtr.Ptr( )) == (TQ != TestQuantity::Zero));
             SUTL_TEST_ASSERT(ptr.Length( ) == srcPtr.Length( ));
@@ -439,9 +380,6 @@ namespace CC
             Pointer<T> ptr(GetTQNum<TQ>( ));
             Pointer<T> srcPtr(GetTQNum<TQ>( ));
 
-            ResetFreeCounters( );
-            AssignFreeWrapper<T, TQ>(ptr);
-
             try
             {
                 Pointer<T>::TransferPointerObj(ptr, srcPtr);
@@ -450,9 +388,6 @@ namespace CC
             {
                 SUTL_TEST_EXCEPTION(e.what( ));
             }
-
-            SUTL_TEST_ASSERT(SingleFreeCounter( ) == expectedSingleFreeCount);
-            SUTL_TEST_ASSERT(ArrayFreeCounter( ) == expectedArrayFreeCount);
 
             SUTL_TEST_ASSERT((ptr.Ptr( ) != srcPtr.Ptr( )) == (TQ != TestQuantity::Zero));
             SUTL_TEST_ASSERT(srcPtr.Ptr( ) == nullptr);
@@ -474,25 +409,12 @@ namespace CC
             constexpr size_t expectedSingleFreeCount = (TQ == TestQuantity::One) ? 1 : 0;
             constexpr size_t expectedArrayFreeCount = (TQ == TestQuantity::Many) ? 1 : 0;
 
-            Pointer<T>* pPtr = nullptr;
+            Pointer<T> ptr(GetTQNum<TQ>( ));
 
-            try
-            {
-                pPtr = new Pointer<T>(GetTQNum<TQ>( ));
-            }
-            catch ( const std::exception& e )
-            {
-                SUTL_SETUP_EXCEPTION(e.what( ));
-            }
+            ptr.~Pointer( );
 
-            ResetFreeCounters( );
-            AssignFreeWrapper<T, TQ>(*pPtr);
-
-            delete pPtr;
-            pPtr = nullptr;
-
-            SUTL_TEST_ASSERT(SingleFreeCounter( ) == expectedSingleFreeCount);
-            SUTL_TEST_ASSERT(ArrayFreeCounter( ) == expectedArrayFreeCount);
+            SUTL_TEST_ASSERT(!ptr.m_pPtr);
+            SUTL_TEST_ASSERT(ptr.m_Len == 0);
 
             SUTL_TEST_SUCCESS( );
         }
@@ -505,13 +427,10 @@ namespace CC
 
             Pointer<T> ptr(GetTQNum<TQ>( ));
 
-            ResetFreeCounters( );
-            AssignFreeWrapper<T, TQ>(ptr);
-
             ptr.Free( );
 
-            SUTL_TEST_ASSERT(SingleFreeCounter( ) == expectedSingleFreeCount);
-            SUTL_TEST_ASSERT(ArrayFreeCounter( ) == expectedArrayFreeCount);
+            SUTL_TEST_ASSERT(!ptr.m_pPtr);
+            SUTL_TEST_ASSERT(ptr.m_Len == 0);
 
             SUTL_TEST_SUCCESS( );
         }
@@ -529,7 +448,6 @@ namespace CC
             SUTL_TEST_ASSERT(p.Ptr( ) == nullptr);
             SUTL_TEST_ASSERT(p.Length( ) == 0);
             SUTL_TEST_ASSERT(p.Size( ) == 0);
-            SUTL_TEST_ASSERT(p.m_FreeFunc == nullptr);
 
             SUTL_TEST_SUCCESS( );
         }
@@ -544,14 +462,6 @@ namespace CC
             SUTL_TEST_ASSERT(!p.Ptr( ) == bExpectNull);
             SUTL_TEST_ASSERT(p.Length( ) == len);
             SUTL_TEST_ASSERT(p.Size( ) == (sizeof(T) * len));
-            if constexpr ( bExpectNull )
-            {
-                SUTL_TEST_ASSERT(p.m_FreeFunc == nullptr);
-            }
-            else
-            {
-                SUTL_TEST_ASSERT(p.m_FreeFunc == ((len == 1) ? Pointer<T>::FreeSingle : Pointer<T>::FreeArray));
-            }
 
             SUTL_TEST_SUCCESS( );
         }
@@ -576,26 +486,17 @@ namespace CC
             SUTL_TEST_ASSERT(!pPointer->Ptr( ) == bExpectNull);
             SUTL_TEST_ASSERT(pPointer->Length( ) == len);
             SUTL_TEST_ASSERT(pPointer->Size( ) == (sizeof(T) * len));
-            if constexpr ( bExpectNull )
-            {
-                SUTL_TEST_ASSERT(pPointer->m_FreeFunc == nullptr);
-            }
-            else if constexpr ( len == 1 )
-            {
-                SUTL_TEST_ASSERT(pPointer->m_FreeFunc == Pointer<T>::FreeSingle);
-            }
-            else
-            {
-                SUTL_TEST_ASSERT(pPointer->m_FreeFunc == Pointer<T>::FreeArray);
-            }
 
-            for ( size_t i = 0; i < len; i++ )
+            if constexpr ( len > 0 )
             {
-                SUTL_TEST_ASSERT(pPointer->Ptr( )[i] == testData[i]);
-                if constexpr ( std::is_same_v<T, Helper> )
+                for ( size_t i = 0; i < len; i++ )
                 {
-                    SUTL_TEST_ASSERT(pPointer->Ptr( )[i].Copied( ));
-                    SUTL_TEST_ASSERT(!pPointer->Ptr( )[i].Moved( ));
+                    SUTL_TEST_ASSERT(pPointer->Ptr( )[i] == testData[i]);
+                    if constexpr ( std::is_same_v<T, Helper> )
+                    {
+                        SUTL_TEST_ASSERT(pPointer->Ptr( )[i].Copied( ));
+                        SUTL_TEST_ASSERT(!pPointer->Ptr( )[i].Moved( ));
+                    }
                 }
             }
 
@@ -643,26 +544,17 @@ namespace CC
             SUTL_TEST_ASSERT(!pTestCopy);
             SUTL_TEST_ASSERT(pPointer->Length( ) == len);
             SUTL_TEST_ASSERT(pPointer->Size( ) == (sizeof(T) * len));
-            if constexpr ( bExpectNull )
-            {
-                SUTL_TEST_ASSERT(pPointer->m_FreeFunc == nullptr);
-            }
-            else if constexpr ( len == 1 )
-            {
-                SUTL_TEST_ASSERT(pPointer->m_FreeFunc == Pointer<T>::FreeSingle);
-            }
-            else
-            {
-                SUTL_TEST_ASSERT(pPointer->m_FreeFunc == Pointer<T>::FreeArray);
-            }
 
-            for ( size_t i = 0; i < len; i++ )
+            if constexpr ( len > 0 )
             {
-                SUTL_TEST_ASSERT(pPointer->Ptr( )[i] == testData[i]);
-                if constexpr ( std::is_same_v<T, Helper> )
+                for ( size_t i = 0; i < len; i++ )
                 {
-                    SUTL_TEST_ASSERT(pPointer->Ptr( )[i].Copied( ));
-                    SUTL_TEST_ASSERT(!pPointer->Ptr( )[i].Moved( ));
+                    SUTL_TEST_ASSERT(pPointer->Ptr( )[i] == testData[i]);
+                    if constexpr ( std::is_same_v<T, Helper> )
+                    {
+                        SUTL_TEST_ASSERT(pPointer->Ptr( )[i].Copied( ));
+                        SUTL_TEST_ASSERT(!pPointer->Ptr( )[i].Moved( ));
+                    }
                 }
             }
 
@@ -691,18 +583,6 @@ namespace CC
             SUTL_TEST_ASSERT(!pSrc->Ptr( ) == bExpectNull);
             SUTL_TEST_ASSERT(pSrc->Length( ) == len);
             SUTL_TEST_ASSERT(pSrc->Size( ) == (sizeof(T) * len));
-            if constexpr ( bExpectNull )
-            {
-                SUTL_TEST_ASSERT(pSrc->m_FreeFunc == nullptr);
-            }
-            else if constexpr ( len == 1 )
-            {
-                SUTL_TEST_ASSERT(pSrc->m_FreeFunc == Pointer<T>::FreeSingle);
-            }
-            else
-            {
-                SUTL_TEST_ASSERT(pSrc->m_FreeFunc == Pointer<T>::FreeArray);
-            }
 
             try
             {
@@ -716,43 +596,22 @@ namespace CC
             SUTL_TEST_ASSERT(!pSrc->Ptr( ) == bExpectNull);
             SUTL_TEST_ASSERT(pSrc->Length( ) == len);
             SUTL_TEST_ASSERT(pSrc->Size( ) == (sizeof(T) * len));
-            if constexpr ( bExpectNull )
-            {
-                SUTL_TEST_ASSERT(pSrc->m_FreeFunc == nullptr);
-            }
-            else if constexpr ( len == 1 )
-            {
-                SUTL_TEST_ASSERT(pSrc->m_FreeFunc == Pointer<T>::FreeSingle);
-            }
-            else
-            {
-                SUTL_TEST_ASSERT(pSrc->m_FreeFunc == Pointer<T>::FreeArray);
-            }
 
             SUTL_TEST_ASSERT(!pPointer->Ptr( ) == bExpectNull);
             SUTL_TEST_ASSERT((pPointer->Ptr( ) == pSrc->Ptr( )) == bExpectNull);
             SUTL_TEST_ASSERT(pPointer->Length( ) == len);
             SUTL_TEST_ASSERT(pPointer->Size( ) == (sizeof(T) * len));
-            if constexpr ( bExpectNull )
-            {
-                SUTL_TEST_ASSERT(pPointer->m_FreeFunc == nullptr);
-            }
-            else if constexpr ( len == 1 )
-            {
-                SUTL_TEST_ASSERT(pPointer->m_FreeFunc == Pointer<T>::FreeSingle);
-            }
-            else
-            {
-                SUTL_TEST_ASSERT(pPointer->m_FreeFunc == Pointer<T>::FreeArray);
-            }
 
-            for ( size_t i = 0; i < len; i++ )
+            if constexpr ( len > 0 )
             {
-                SUTL_TEST_ASSERT(pPointer->Ptr( )[i] == pSrc->Ptr( )[i]);
-                if constexpr ( std::is_same_v<T, Helper> )
+                for ( size_t i = 0; i < len; i++ )
                 {
-                    SUTL_TEST_ASSERT(pPointer->Ptr( )[i].Copied( ));
-                    SUTL_TEST_ASSERT(!pPointer->Ptr( )[i].Moved( ));
+                    SUTL_TEST_ASSERT(pPointer->Ptr( )[i] == pSrc->Ptr( )[i]);
+                    if constexpr ( std::is_same_v<T, Helper> )
+                    {
+                        SUTL_TEST_ASSERT(pPointer->Ptr( )[i].Copied( ));
+                        SUTL_TEST_ASSERT(!pPointer->Ptr( )[i].Moved( ));
+                    }
                 }
             }
 
@@ -781,18 +640,6 @@ namespace CC
             SUTL_TEST_ASSERT(!pSrc->Ptr( ) == bExpectNull);
             SUTL_TEST_ASSERT(pSrc->Length( ) == len);
             SUTL_TEST_ASSERT(pSrc->Size( ) == (sizeof(T) * len));
-            if constexpr ( bExpectNull )
-            {
-                SUTL_TEST_ASSERT(pSrc->m_FreeFunc == nullptr);
-            }
-            else if constexpr ( len == 1 )
-            {
-                SUTL_TEST_ASSERT(pSrc->m_FreeFunc == Pointer<T>::FreeSingle);
-            }
-            else
-            {
-                SUTL_TEST_ASSERT(pSrc->m_FreeFunc == Pointer<T>::FreeArray);
-            }
 
             try
             {
@@ -806,32 +653,22 @@ namespace CC
             SUTL_TEST_ASSERT(!pSrc->Ptr( ));
             SUTL_TEST_ASSERT(pSrc->Length( ) == 0);
             SUTL_TEST_ASSERT(pSrc->Size( ) == 0);
-            SUTL_TEST_ASSERT(pSrc->m_FreeFunc == nullptr);
 
             SUTL_TEST_ASSERT(!pPointer->Ptr( ) == bExpectNull);
             SUTL_TEST_ASSERT((pPointer->Ptr( ) == pSrc->Ptr( )) == bExpectNull);
             SUTL_TEST_ASSERT(pPointer->Length( ) == len);
             SUTL_TEST_ASSERT(pPointer->Size( ) == (sizeof(T) * len));
-            if constexpr ( bExpectNull )
-            {
-                SUTL_TEST_ASSERT(pPointer->m_FreeFunc == nullptr);
-            }
-            else if constexpr ( len == 1 )
-            {
-                SUTL_TEST_ASSERT(pPointer->m_FreeFunc == Pointer<T>::FreeSingle);
-            }
-            else
-            {
-                SUTL_TEST_ASSERT(pPointer->m_FreeFunc == Pointer<T>::FreeArray);
-            }
 
-            for ( size_t i = 0; i < len; i++ )
+            if constexpr ( len > 0 )
             {
-                SUTL_TEST_ASSERT(pPointer->Ptr( )[i] == testData[i]);
-                if constexpr ( std::is_same_v<T, Helper> )
+                for ( size_t i = 0; i < len; i++ )
                 {
-                    SUTL_TEST_ASSERT(pPointer->Ptr( )[i].Copied( ));
-                    SUTL_TEST_ASSERT(!pPointer->Ptr( )[i].Moved( ));
+                    SUTL_TEST_ASSERT(pPointer->Ptr( )[i] == testData[i]);
+                    if constexpr ( std::is_same_v<T, Helper> )
+                    {
+                        SUTL_TEST_ASSERT(pPointer->Ptr( )[i].Copied( ));
+                        SUTL_TEST_ASSERT(!pPointer->Ptr( )[i].Moved( ));
+                    }
                 }
             }
 
@@ -865,26 +702,17 @@ namespace CC
             SUTL_TEST_ASSERT(!src.Ptr( ) == bExpectNullSrc);
             SUTL_TEST_ASSERT(src.Length( ) == lenSrc);
             SUTL_TEST_ASSERT(src.Size( ) == (sizeof(T) * lenSrc));
-            if constexpr ( bExpectNullSrc )
-            {
-                SUTL_TEST_ASSERT(src.m_FreeFunc == nullptr);
-            }
-            else if constexpr ( lenSrc == 1 )
-            {
-                SUTL_TEST_ASSERT(src.m_FreeFunc == Pointer<T>::FreeSingle);
-            }
-            else
-            {
-                SUTL_TEST_ASSERT(src.m_FreeFunc == Pointer<T>::FreeArray);
-            }
 
-            for ( size_t i = 0; i < lenSrc; i++ )
+            if constexpr ( lenSrc > 0 )
             {
-                SUTL_TEST_ASSERT(src.Ptr( )[i] == testDataSrc[i]);
-                if constexpr ( std::is_same_v<T, Helper> )
+                for ( size_t i = 0; i < lenSrc; i++ )
                 {
-                    SUTL_TEST_ASSERT(src.Ptr( )[i].Copied( ));
-                    SUTL_TEST_ASSERT(!src.Ptr( )[i].Moved( ));
+                    SUTL_TEST_ASSERT(src.Ptr( )[i] == testDataSrc[i]);
+                    if constexpr ( std::is_same_v<T, Helper> )
+                    {
+                        SUTL_TEST_ASSERT(src.Ptr( )[i].Copied( ));
+                        SUTL_TEST_ASSERT(!src.Ptr( )[i].Moved( ));
+                    }
                 }
             }
 
@@ -892,26 +720,17 @@ namespace CC
             SUTL_TEST_ASSERT(!dst.Ptr( ) == bExpectNullDst);
             SUTL_TEST_ASSERT(dst.Length( ) == lenDst);
             SUTL_TEST_ASSERT(dst.Size( ) == (sizeof(T) * lenDst));
-            if constexpr ( bExpectNullDst )
-            {
-                SUTL_TEST_ASSERT(dst.m_FreeFunc == nullptr);
-            }
-            else if constexpr ( lenDst == 1 )
-            {
-                SUTL_TEST_ASSERT(dst.m_FreeFunc == Pointer<T>::FreeSingle);
-            }
-            else
-            {
-                SUTL_TEST_ASSERT(dst.m_FreeFunc == Pointer<T>::FreeArray);
-            }
 
-            for ( size_t i = 0; i < lenDst; i++ )
+            if constexpr ( lenDst > 0 )
             {
-                SUTL_TEST_ASSERT(dst.Ptr( )[i] == testDataDst[i]);
-                if constexpr ( std::is_same_v<T, Helper> )
+                for ( size_t i = 0; i < lenDst; i++ )
                 {
-                    SUTL_TEST_ASSERT(dst.Ptr( )[i].Copied( ));
-                    SUTL_TEST_ASSERT(!dst.Ptr( )[i].Moved( ));
+                    SUTL_TEST_ASSERT(dst.Ptr( )[i] == testDataDst[i]);
+                    if constexpr ( std::is_same_v<T, Helper> )
+                    {
+                        SUTL_TEST_ASSERT(dst.Ptr( )[i].Copied( ));
+                        SUTL_TEST_ASSERT(!dst.Ptr( )[i].Moved( ));
+                    }
                 }
             }
 
@@ -929,26 +748,17 @@ namespace CC
             SUTL_TEST_ASSERT(src.Ptr( ) == pOrigSrc);
             SUTL_TEST_ASSERT(src.Length( ) == lenSrc);
             SUTL_TEST_ASSERT(src.Size( ) == (sizeof(T) * lenSrc));
-            if constexpr ( bExpectNullSrc )
-            {
-                SUTL_TEST_ASSERT(src.m_FreeFunc == nullptr);
-            }
-            else if constexpr ( lenSrc == 1 )
-            {
-                SUTL_TEST_ASSERT(src.m_FreeFunc == Pointer<T>::FreeSingle);
-            }
-            else
-            {
-                SUTL_TEST_ASSERT(src.m_FreeFunc == Pointer<T>::FreeArray);
-            }
 
-            for ( size_t i = 0; i < lenSrc; i++ )
+            if constexpr ( lenSrc > 0 )
             {
-                SUTL_TEST_ASSERT(src.Ptr( )[i] == testDataSrc[i]);
-                if constexpr ( std::is_same_v<T, Helper> )
+                for ( size_t i = 0; i < lenSrc; i++ )
                 {
-                    SUTL_TEST_ASSERT(src.Ptr( )[i].Copied( ));
-                    SUTL_TEST_ASSERT(!src.Ptr( )[i].Moved( ));
+                    SUTL_TEST_ASSERT(src.Ptr( )[i] == testDataSrc[i]);
+                    if constexpr ( std::is_same_v<T, Helper> )
+                    {
+                        SUTL_TEST_ASSERT(src.Ptr( )[i].Copied( ));
+                        SUTL_TEST_ASSERT(!src.Ptr( )[i].Moved( ));
+                    }
                 }
             }
 
@@ -956,26 +766,17 @@ namespace CC
             SUTL_TEST_ASSERT((dst.Ptr( ) == pOrigDst) == (bExpectNullSrc && bExpectNullDst));
             SUTL_TEST_ASSERT(dst.Length( ) == lenSrc);
             SUTL_TEST_ASSERT(dst.Size( ) == (sizeof(T) * lenSrc));
-            if constexpr ( bExpectNullSrc )
-            {
-                SUTL_TEST_ASSERT(dst.m_FreeFunc == nullptr);
-            }
-            else if constexpr ( lenSrc == 1 )
-            {
-                SUTL_TEST_ASSERT(dst.m_FreeFunc == Pointer<T>::FreeSingle);
-            }
-            else
-            {
-                SUTL_TEST_ASSERT(dst.m_FreeFunc == Pointer<T>::FreeArray);
-            }
 
-            for ( size_t i = 0; i < lenSrc; i++ )
+            if constexpr ( lenSrc > 0 )
             {
-                SUTL_TEST_ASSERT(dst.Ptr( )[i] == src.Ptr( )[i]);
-                if constexpr ( std::is_same_v<T, Helper> )
+                for ( size_t i = 0; i < lenSrc; i++ )
                 {
-                    SUTL_TEST_ASSERT(dst.Ptr( )[i].Copied( ));
-                    SUTL_TEST_ASSERT(!dst.Ptr( )[i].Moved( ));
+                    SUTL_TEST_ASSERT(dst.Ptr( )[i] == src.Ptr( )[i]);
+                    if constexpr ( std::is_same_v<T, Helper> )
+                    {
+                        SUTL_TEST_ASSERT(dst.Ptr( )[i].Copied( ));
+                        SUTL_TEST_ASSERT(!dst.Ptr( )[i].Moved( ));
+                    }
                 }
             }
 
@@ -1008,26 +809,17 @@ namespace CC
             SUTL_TEST_ASSERT(!src.Ptr( ) == bExpectNullSrc);
             SUTL_TEST_ASSERT(src.Length( ) == lenSrc);
             SUTL_TEST_ASSERT(src.Size( ) == (sizeof(T) * lenSrc));
-            if constexpr ( bExpectNullSrc )
-            {
-                SUTL_TEST_ASSERT(src.m_FreeFunc == nullptr);
-            }
-            else if constexpr ( lenSrc == 1 )
-            {
-                SUTL_TEST_ASSERT(src.m_FreeFunc == Pointer<T>::FreeSingle);
-            }
-            else
-            {
-                SUTL_TEST_ASSERT(src.m_FreeFunc == Pointer<T>::FreeArray);
-            }
 
-            for ( size_t i = 0; i < lenSrc; i++ )
+            if constexpr ( lenSrc > 0 )
             {
-                SUTL_TEST_ASSERT(src.Ptr( )[i] == testDataSrc[i]);
-                if constexpr ( std::is_same_v<T, Helper> )
+                for ( size_t i = 0; i < lenSrc; i++ )
                 {
-                    SUTL_TEST_ASSERT(src.Ptr( )[i].Copied( ));
-                    SUTL_TEST_ASSERT(!src.Ptr( )[i].Moved( ));
+                    SUTL_TEST_ASSERT(src.Ptr( )[i] == testDataSrc[i]);
+                    if constexpr ( std::is_same_v<T, Helper> )
+                    {
+                        SUTL_TEST_ASSERT(src.Ptr( )[i].Copied( ));
+                        SUTL_TEST_ASSERT(!src.Ptr( )[i].Moved( ));
+                    }
                 }
             }
 
@@ -1035,26 +827,17 @@ namespace CC
             SUTL_TEST_ASSERT(!dst.Ptr( ) == bExpectNullDst);
             SUTL_TEST_ASSERT(dst.Length( ) == lenDst);
             SUTL_TEST_ASSERT(dst.Size( ) == (sizeof(T) * lenDst));
-            if constexpr ( bExpectNullDst )
-            {
-                SUTL_TEST_ASSERT(dst.m_FreeFunc == nullptr);
-            }
-            else if constexpr ( lenDst == 1 )
-            {
-                SUTL_TEST_ASSERT(dst.m_FreeFunc == Pointer<T>::FreeSingle);
-            }
-            else
-            {
-                SUTL_TEST_ASSERT(dst.m_FreeFunc == Pointer<T>::FreeArray);
-            }
 
-            for ( size_t i = 0; i < lenDst; i++ )
+            if constexpr ( lenDst > 0 )
             {
-                SUTL_TEST_ASSERT(dst.Ptr( )[i] == testDataDst[i]);
-                if constexpr ( std::is_same_v<T, Helper> )
+                for ( size_t i = 0; i < lenDst; i++ )
                 {
-                    SUTL_TEST_ASSERT(dst.Ptr( )[i].Copied( ));
-                    SUTL_TEST_ASSERT(!dst.Ptr( )[i].Moved( ));
+                    SUTL_TEST_ASSERT(dst.Ptr( )[i] == testDataDst[i]);
+                    if constexpr ( std::is_same_v<T, Helper> )
+                    {
+                        SUTL_TEST_ASSERT(dst.Ptr( )[i].Copied( ));
+                        SUTL_TEST_ASSERT(!dst.Ptr( )[i].Moved( ));
+                    }
                 }
             }
 
@@ -1072,32 +855,22 @@ namespace CC
             SUTL_TEST_ASSERT(src.Ptr( ) == nullptr);
             SUTL_TEST_ASSERT(src.Length( ) == 0);
             SUTL_TEST_ASSERT(src.Size( ) == 0);
-            SUTL_TEST_ASSERT(src.m_FreeFunc == nullptr);
 
             // Ensure dst state is as expected after move.
             SUTL_TEST_ASSERT(dst.Ptr( ) == pOrigSrc);
             SUTL_TEST_ASSERT(dst.Length( ) == lenSrc);
             SUTL_TEST_ASSERT(dst.Size( ) == (sizeof(T) * lenSrc));
-            if constexpr ( bExpectNullSrc )
-            {
-                SUTL_TEST_ASSERT(dst.m_FreeFunc == nullptr);
-            }
-            else if constexpr ( lenSrc == 1 )
-            {
-                SUTL_TEST_ASSERT(dst.m_FreeFunc == Pointer<T>::FreeSingle);
-            }
-            else
-            {
-                SUTL_TEST_ASSERT(dst.m_FreeFunc == Pointer<T>::FreeArray);
-            }
 
-            for ( size_t i = 0; i < lenSrc; i++ )
+            if constexpr ( lenSrc > 0 )
             {
-                SUTL_TEST_ASSERT(dst.Ptr( )[i] == testDataSrc[i]);
-                if constexpr ( std::is_same_v<T, Helper> )
+                for ( size_t i = 0; i < lenSrc; i++ )
                 {
-                    SUTL_TEST_ASSERT(dst.Ptr( )[i].Copied( ));
-                    SUTL_TEST_ASSERT(!dst.Ptr( )[i].Moved( ));
+                    SUTL_TEST_ASSERT(dst.Ptr( )[i] == testDataSrc[i]);
+                    if constexpr ( std::is_same_v<T, Helper> )
+                    {
+                        SUTL_TEST_ASSERT(dst.Ptr( )[i].Copied( ));
+                        SUTL_TEST_ASSERT(!dst.Ptr( )[i].Moved( ));
+                    }
                 }
             }
 

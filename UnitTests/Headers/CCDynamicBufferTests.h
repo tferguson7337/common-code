@@ -418,27 +418,30 @@ namespace CC
             SUTL_TEST_ASSERT((dstLen != firstWriteLen) == (pFirstBufPtr != dynBuf.Ptr( )));
             SUTL_TEST_ASSERT(dynBuf.Length( ) == firstWriteLen);
             SUTL_TEST_ASSERT(dynBuf.WritePosition( ) == srcLen);
-            try
+            if constexpr ( srcLen > 0 )
             {
-                size_t srcIdx = 0;
-                for ( size_t i = 0; i < srcLen; i++, srcIdx++ )
+                try
                 {
-                    if ( srcIdx == testData.size( ) )
+                    size_t srcIdx = 0;
+                    for ( size_t i = 0; i < srcLen; i++, srcIdx++ )
                     {
-                        srcIdx = 0;
-                    }
+                        if ( srcIdx == testData.size( ) )
+                        {
+                            srcIdx = 0;
+                        }
 
-                    SUTL_TEST_ASSERT(dynBuf[i] == testData[i]);
-                    if constexpr ( std::is_same_v<T, Helper> )
-                    {
-                        SUTL_TEST_ASSERT(dynBuf[i].Copied( ) == !Move);
-                        SUTL_TEST_ASSERT(dynBuf[i].Moved( ) == Move);
+                        SUTL_TEST_ASSERT(dynBuf[i] == testData[i]);
+                        if constexpr ( std::is_same_v<T, Helper> )
+                        {
+                            SUTL_TEST_ASSERT(dynBuf[i].Copied( ) == !Move);
+                            SUTL_TEST_ASSERT(dynBuf[i].Moved( ) == Move);
+                        }
                     }
                 }
-            }
-            catch ( const std::exception& e )
-            {
-                SUTL_TEST_EXCEPTION(e.what( ));
+                catch ( const std::exception& e )
+                {
+                    SUTL_TEST_EXCEPTION(e.what( ));
+                }
             }
 
             pSecondBufPtr = dynBuf.Ptr( );
@@ -461,35 +464,38 @@ namespace CC
             SUTL_TEST_ASSERT((firstWriteLen == secondWriteLen) == (pSecondBufPtr == dynBuf.Ptr( )));
             SUTL_TEST_ASSERT(dynBuf.Length( ) == secondWriteLen);
             SUTL_TEST_ASSERT(dynBuf.WritePosition( ) == srcLen * 2);
-            try
+            if constexpr ( srcLen > 0 )
             {
-                size_t srcIdx = 0;
-                for ( size_t i = 0; i < dynBuf.WritePosition( ); i++, srcIdx++ )
+                try
                 {
-                    if ( srcIdx == testData.size( ) )
+                    size_t srcIdx = 0;
+                    for ( size_t i = 0; i < dynBuf.WritePosition( ); i++, srcIdx++ )
                     {
-                        srcIdx = 0;
-                    }
-
-                    SUTL_TEST_ASSERT(dynBuf[i] == testData[srcIdx]);
-                    if constexpr ( std::is_same_v<T, Helper> )
-                    {
-                        if ( (i < srcLen) && (pSecondBufPtr != dynBuf.Ptr( )) )
+                        if ( srcIdx == testData.size( ) )
                         {
-                            SUTL_TEST_ASSERT(!dynBuf[i].Copied( ));
-                            SUTL_TEST_ASSERT(dynBuf[i].Moved( ));
+                            srcIdx = 0;
                         }
-                        else
+
+                        SUTL_TEST_ASSERT(dynBuf[i] == testData[srcIdx]);
+                        if constexpr ( std::is_same_v<T, Helper> )
                         {
-                            SUTL_TEST_ASSERT(dynBuf[i].Copied( ) == !Move);
-                            SUTL_TEST_ASSERT(dynBuf[i].Moved( ) == Move);
+                            if ( (i < srcLen) && (pSecondBufPtr != dynBuf.Ptr( )) )
+                            {
+                                SUTL_TEST_ASSERT(!dynBuf[i].Copied( ));
+                                SUTL_TEST_ASSERT(dynBuf[i].Moved( ));
+                            }
+                            else
+                            {
+                                SUTL_TEST_ASSERT(dynBuf[i].Copied( ) == !Move);
+                                SUTL_TEST_ASSERT(dynBuf[i].Moved( ) == Move);
+                            }
                         }
                     }
                 }
-            }
-            catch ( const std::exception& e )
-            {
-                SUTL_TEST_EXCEPTION(e.what( ));
+                catch ( const std::exception& e )
+                {
+                    SUTL_TEST_EXCEPTION(e.what( ));
+                }
             }
 
             SUTL_TEST_SUCCESS( );

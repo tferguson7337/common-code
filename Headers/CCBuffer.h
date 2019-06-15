@@ -74,7 +74,6 @@ namespace CC
         static void CopyNonPointerBufferDataMembers(_Out_ Buffer<T>& dst, _In_ const IBuffer<T>& src) noexcept
         {
             dst.m_Len = src.Length( );
-            dst.m_FreeFunc = dst.GetFreeFunction( );
             dst.m_WritePos = src.WritePosition( );
         }
 
@@ -99,15 +98,6 @@ namespace CC
         }
 
         /// Protected Helper Methods \\\
-
-        // Calls the appropriate cleanup function, if one has been assigned.
-        void InvokeFreeFunction( ) noexcept
-        {
-            if ( this->m_FreeFunc )
-            {
-                this->m_FreeFunc(Ptr( ));
-            }
-        }
 
         // Writes elements via copy to internal buffer, updates write position.
         inline bool WriteInternal(_In_ const T* p, _In_ const size_t& len) noexcept(std::is_scalar_v<T>)

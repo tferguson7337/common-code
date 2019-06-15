@@ -12,15 +12,10 @@ namespace CC
 
     protected:
 
-        /// Type Aliases \\\
-
-        using FreeFunc = void(*)(T*);
-
         /// Protected Member Functions \\\
 
         T* m_pPtr;
         size_t m_Len;
-        FreeFunc m_FreeFunc;
 
         /// Static Protected Throwing Validator Methods \\\
 
@@ -35,18 +30,6 @@ namespace CC
         }
 
         /// Static Protected Helper Methods \\\
-
-        // Cleanup function - used for single-element raw pointers.
-        static void FreeSingle(_In_opt_ _Post_ptr_invalid_ T* p) noexcept
-        {
-            delete p;
-        }
-
-        // Cleanup function - used for multi-element raw pointers.
-        static void FreeArray(_In_opt_ _Post_ptr_invalid_ T* p) noexcept
-        {
-            delete[ ] p;
-        }
 
         // Allocates pointer to len T elements.
         // Note: Will return nullptr if allocation fails.
@@ -67,7 +50,7 @@ namespace CC
         }
 
         // Copies len element from src into dst.
-        static void CopyToRawPointer(_Out_writes_opt_(len) T* dst, _In_reads_opt_(len) const T* src, _In_ const size_t& len) noexcept(std::is_scalar_v<T>)
+        static void CopyToRawPointer(_Out_writes_(len) T* dst, _In_reads_(len) const T* src, _In_ const size_t& len) noexcept(std::is_scalar_v<T>)
         {
             if ( !dst || !src )
             {
@@ -115,17 +98,28 @@ namespace CC
             if ( !!src && len > 0 )
             {
                 p = Allocate(len);
-                CopyToRawPointer(p, src, len);
+                if ( !!p )
+                {
+                    CopyToRawPointer(p, src, len);
+                }
             }
 
             return p;
         }
 
         // Allocates pointer to len T elements, copies contents of raw pointer to the new memory block.
-        _Ret_maybenull_ static T* AllocateFromPointerObj(_In_ const Pointer<T>& src) noexcept(std::is_scalar_v<T>)
+        _Ret_writes_maybenull_(src.m_Len) static T* AllocateFromPointerObj(_In_ const Pointer<T>& src) noexcept(std::is_scalar_v<T>)
         {
-            T* p = Allocate(src.m_Len);
-            CopyToRawPointer(p, src.m_pPtr, src.m_Len);
+            T* p = nullptr;
+            if ( src )
+            {
+                p = Allocate(src.m_Len);
+                if ( !!p )
+                {
+                    CopyToRawPointer(p, src.m_pPtr, src.m_Len);
+                }
+            }
+            
             return p;
         }
 
@@ -134,14 +128,7 @@ namespace CC
         static void CopyAllDataMembers(_Out_ Pointer<T>& dst, _In_ Pointer<T>& src) noexcept
         {
             dst.m_pPtr = src.m_pPtr;
-            CopyNonRawPointerDataMembers(dst, src);
-        }
-
-        // Copies all Pointer data members from source Pointer object, except for the internal pointer.
-        static void CopyNonRawPointerDataMembers(_Out_ Pointer<T>& dst, _In_ const Pointer<T>& src) noexcept
-        {
             dst.m_Len = src.m_Len;
-            dst.m_FreeFunc = dst.GetFreeFunction( );
         }
 
         // Performs deep copy of src pointer, frees dst pointer, then assigned new pointer to dst.
@@ -151,9 +138,8 @@ namespace CC
         {
             T* p = AllocateFromPointerObj(src);
             dst.InvokeFreeFunction( );
-
             dst.m_pPtr = p;
-            CopyNonRawPointerDataMembers(dst, src);
+            dst.m_Len = src.m_Len;
         }
 
         // Performs shallow copy of src Pointer data members to dst, then resets src.
@@ -166,30 +152,21 @@ namespace CC
 
         /// Protected Helper Methods \\\
 
-        // Returns function pointer to appropriate cleanup function.
-        // nullptr if m_Len == 0, FreeSingle if m_Len == 1, and FreeArray otherwise.
-        _Ret_maybenull_ FreeFunc GetFreeFunction( ) noexcept
-        {
-            if ( m_Len == 0 )
-            {
-                return nullptr;
-            }
-            else if ( m_Len == 1 )
-            {
-                return FreeSingle;
-            }
-            else
-            {
-                return FreeArray;
-            }
-        }
-
         // Calls the appropriate cleanup function, if one has been assigned.
         void InvokeFreeFunction( ) noexcept
         {
-            if ( m_FreeFunc )
+            if ( !!m_pPtr )
             {
-                m_FreeFunc(m_pPtr);
+                if ( m_Len == 1 )
+                {
+                    delete m_pPtr;
+                }
+                else
+                {
+                    delete[ ] m_pPtr;
+                }
+
+                Reset( );
             }
         }
 
@@ -200,29 +177,25 @@ namespace CC
         // Default constructor
         constexpr Pointer( ) noexcept :
             m_pPtr(nullptr),
-            m_Len(0),
-            m_FreeFunc(nullptr)
+            m_Len(0)
         { }
 
         // Pointer length constructor
         explicit Pointer(_In_ const size_t& len) noexcept :
             m_pPtr(Allocate(len)),
-            m_Len((!!m_pPtr) ? len : 0),
-            m_FreeFunc(GetFreeFunction( ))
+            m_Len((!!m_pPtr) ? len : 0)
         { }
 
         // Raw pointer copy constructor
         Pointer(_In_reads_opt_(len) const T* p, _In_ const size_t& len) noexcept(std::is_scalar_v<T>) :
             m_pPtr(AllocateFromRawPointer(p, len)),
-            m_Len((!!m_pPtr) ? len : 0),
-            m_FreeFunc(GetFreeFunction( ))
+            m_Len((!!m_pPtr) ? len : 0)
         { }
 
         // Raw pointer steal constructor
         Pointer(_Inout_opt_ T*&p, _In_ const size_t& len) noexcept :
             m_pPtr(p),
-            m_Len((!!m_pPtr) ? len : 0),
-            m_FreeFunc(GetFreeFunction( ))
+            m_Len((!!m_pPtr) ? len : 0)
         {
             p = nullptr;
         }
@@ -230,15 +203,13 @@ namespace CC
         // Copy constructor
         Pointer(_In_ const Pointer<T>& src) noexcept(std::is_scalar_v<T>) :
             m_pPtr(AllocateFromPointerObj(src)),
-            m_Len(src.m_Len),
-            m_FreeFunc(GetFreeFunction( ))
+            m_Len((!!m_pPtr) ? src.m_Len : 0)
         { }
 
         // Move constructor
         Pointer(_Inout_ Pointer<T>&& src) noexcept :
             m_pPtr(src.m_pPtr),
-            m_Len(src.m_Len),
-            m_FreeFunc(GetFreeFunction( ))
+            m_Len(src.m_Len)
         {
             src.Reset( );
         }
@@ -361,14 +332,12 @@ namespace CC
         {
             m_pPtr = nullptr;
             m_Len = 0;
-            m_FreeFunc = nullptr;
         }
 
         // Causes the pointer to free any resources, resetting data members to their default values.
         virtual void Free( ) noexcept
         {
             InvokeFreeFunction( );
-            Reset( );
         }
     };
 }
