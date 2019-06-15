@@ -39,7 +39,7 @@ namespace CC
         // Returns true otherwise.
         inline bool ValidateWriteRequest(_In_opt_ const T* const p, _In_ const size_t& writeLen) const noexcept
         {
-            return !!p && !!Ptr( ) && writeLen > 0 && ((m_WritePos + writeLen) <= Length( ));
+            return !!p && !!Get( ) && writeLen > 0 && ((m_WritePos + writeLen) <= Length( ));
         }
 
         /// Protected Throwing Validator Methods \\\
@@ -47,7 +47,7 @@ namespace CC
         // Returns false if idx >= this->m_Len - returns true otherwise.
         inline void ValidateAccessorIndexT(_In_ const char* const f, _In_ const size_t& idx) const
         {
-            Pointer<T>::ValidateDereferenceT(f, Ptr( ));
+            Pointer<T>::ValidateDereferenceT(f, Get( ));
             if ( idx >= Length( ) )
             {
                 static const std::string msg1 = ": Index[";
@@ -66,7 +66,7 @@ namespace CC
         // Note: The pointer data member is shallow copied.
         static void CopyAllBufferDataMembers(_Out_ Buffer<T>& dst, _In_ IBuffer<T>& src) noexcept
         {
-            dst.m_pPtr = src.Ptr( );
+            dst.m_pPtr = src.Get( );
             CopyNonPointerBufferDataMembers(dst, src);
         }
 
@@ -82,7 +82,7 @@ namespace CC
         // Note: If src buffer is nullptr, then dst will free buffer and replace it with nullptr.
         static void CopyBuffer(_Inout_ Buffer<T>& dst, _In_ const IBuffer<T>& src) noexcept(std::is_scalar_v<T>)
         {
-            T* p = Pointer<T>::AllocateFromRawPointer(src.Ptr( ), src.Length( ));
+            T* p = Pointer<T>::AllocateFromRawPointer(src.Get( ), src.Length( ));
             dst.InvokeFreeFunction( );
 
             dst.m_pPtr = p;
@@ -102,7 +102,7 @@ namespace CC
         // Writes elements via copy to internal buffer, updates write position.
         inline bool WriteInternal(_In_ const T* p, _In_ const size_t& len) noexcept(std::is_scalar_v<T>)
         {
-            Pointer<T>::CopyToRawPointer(Ptr( ) + m_WritePos, p, len);
+            Pointer<T>::CopyToRawPointer(Get( ) + m_WritePos, p, len);
             m_WritePos += len;
             return true;
         }
@@ -110,7 +110,7 @@ namespace CC
         // Writes elements via move semantics to internal buffer, updates write position.
         inline bool WriteInternal(_In_ T* p, _In_ const size_t& len) noexcept
         {
-            Pointer<T>::MoveToRawPointer(Ptr( ) + m_WritePos, p, len);
+            Pointer<T>::MoveToRawPointer(Get( ) + m_WritePos, p, len);
             m_WritePos += len;
             return true;
         }
@@ -159,13 +159,13 @@ namespace CC
 
         // Interface copy constructor
         Buffer(_In_ const IBuffer<T>& src) noexcept(std::is_scalar_v<T>) :
-            Pointer<T>(src.Ptr( ), src.Length( )),
+            Pointer<T>(src.Get( ), src.Length( )),
             m_WritePos(src.WritePosition( ))
         { }
 
         // Interface move constructor
         Buffer(_Inout_ IBuffer<T>&& src) noexcept :
-            Pointer<T>(src.Ptr( ), src.Length( )),
+            Pointer<T>(src.Get( ), src.Length( )),
             m_WritePos(src.WritePosition( ))
         {
             src.Reset( );
@@ -225,19 +225,19 @@ namespace CC
         // Return true for non-null buffer - false otherwise.
         virtual explicit operator bool( ) const noexcept
         {
-            return !!Ptr( );
+            return !!Get( );
         }
 
         // Return pointer to internal buffer (mutable).
         virtual explicit operator T*() noexcept
         {
-            return Ptr( );
+            return Get( );
         }
 
         // Return pointer to internal buffer (immutable).
         virtual explicit operator const T*() const noexcept
         {
-            return Ptr( );
+            return Get( );
         }
 
         // Subscript overload - returns reference to mutable element from internal buffer via index.
@@ -246,7 +246,7 @@ namespace CC
         virtual T& operator[](_In_ const size_t& i)
         {
             ValidateAccessorIndexT(__FUNCSIG__, i);
-            return Ptr( )[i];
+            return Get( )[i];
         }
 
         // Subscript overload - returns reference to immutable element from internal buffer via index.
@@ -255,31 +255,31 @@ namespace CC
         virtual const T& operator[](_In_ const size_t& i) const
         {
             ValidateAccessorIndexT(__FUNCSIG__, i);
-            return Ptr( )[i];
+            return Get( )[i];
         }
 
         // Comparison Equal-To overload - returns true if contents of specified buffer match this->m_pPtr, false otherwise.
         virtual const bool operator==(_In_ const IBuffer<T>& rhs) const noexcept
         {
-            return Compare(rhs.Ptr( ), rhs.Length( ));
+            return Compare(rhs.Get( ), rhs.Length( ));
         }
 
         // Comparison Not-Equal-To overload - returns true if contents of specified buffer do not match this->m_pPtr, false otherwise.
         virtual const bool operator!=(_In_ const IBuffer<T>& rhs) const noexcept
         {
-            return !Compare(rhs.Ptr( ), rhs.Length( ));
+            return !Compare(rhs.Get( ), rhs.Length( ));
         }
 
         /// Getters \\\
 
         // Returns pointer to internal buffer (mutable).
-        inline virtual T* Ptr( ) noexcept
+        inline virtual T* Get( ) noexcept
         {
             return Pointer<T>::Get( );
         }
 
         // Returns pointer to internal buffer (immutable).
-        inline virtual const T* Ptr( ) const noexcept
+        inline virtual const T* Get( ) const noexcept
         {
             return Pointer<T>::Get( );
         }
@@ -345,13 +345,13 @@ namespace CC
             bool bRet = true;
 
             // Trivial case(t): both pointers point to same addr.
-            if ( Ptr( ) == p )
+            if ( Get( ) == p )
             {
                 return true;
             }
 
             // Trivial cases(f): Either pointer is null or requested comparison-length exceeds length of buffer.
-            if ( !Ptr( ) || !p || len > Length( ) )
+            if ( !Get( ) || !p || len > Length( ) )
             {
                 return false;
             }
@@ -359,13 +359,13 @@ namespace CC
             // Use memcmp if possible (scalar values only).
             if constexpr ( std::is_scalar_v<T> )
             {
-                bRet = (memcmp(Ptr( ), p, len * sizeof(T)) == 0);
+                bRet = (memcmp(Get( ), p, len * sizeof(T)) == 0);
             }
             else
             {
                 for ( size_t i = 0; i < len; i++ )
                 {
-                    if ( Ptr( )[i] != p[i] )
+                    if ( Get( )[i] != p[i] )
                     {
                         return false;
                     }
@@ -375,10 +375,10 @@ namespace CC
             return bRet;
         }
 
-        // Returns true if contents of this->m_pPtr match contents of buffer.Ptr( ), false otherwise.
+        // Returns true if contents of this->m_pPtr match contents of buffer.Get( ), false otherwise.
         inline virtual const bool Compare(_In_ const IBuffer<T>& buffer) const noexcept
         {
-            return Compare(buffer.Ptr( ), buffer.Length( ));
+            return Compare(buffer.Get( ), buffer.Length( ));
         }
 
         // Writes specified T object to internal buffer at m_WritePos.
@@ -390,7 +390,7 @@ namespace CC
                 return false;
             }
 
-            Ptr( )[m_WritePos++] = t;
+            Get( )[m_WritePos++] = t;
             return true;
         }
 
@@ -403,7 +403,7 @@ namespace CC
                 return false;
             }
 
-            Ptr( )[m_WritePos++] = std::move(t);
+            Get( )[m_WritePos++] = std::move(t);
             return true;
         }
 
@@ -430,14 +430,14 @@ namespace CC
         // Note: If bCopyUpToSrcWritePos == true, will write up to src.WritePosition( ), otherwise up to src.Length( ).
         virtual bool Write(_In_ const IBuffer<T>& src, _In_ const bool& bCopyUpToSrcWritePos = true) noexcept(std::is_scalar_v<T>)
         {
-            return Write(src.Ptr( ), bCopyUpToSrcWritePos ? src.WritePosition( ) : src.Length( ));
+            return Write(src.Get( ), bCopyUpToSrcWritePos ? src.WritePosition( ) : src.Length( ));
         }
 
         // Moves source buffer content to internal buffer at m_WritePos.
         // Note: If bCopyUpToSrcWritePos == true, will write up to src.WritePosition( ), otherwise up to src.Length( ).
         virtual bool Write(_In_ IBuffer<T>&& src, _In_ const bool& bCopyUpToSrcWritePos = true) noexcept
         {
-            return Write(std::move(src.Ptr( )), bCopyUpToSrcWritePos ? src.WritePosition( ) : src.Length( ));
+            return Write(std::move(src.Get( )), bCopyUpToSrcWritePos ? src.WritePosition( ) : src.Length( ));
         }
     };
 }

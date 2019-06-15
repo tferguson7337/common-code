@@ -90,7 +90,7 @@ namespace CC
         {
             Buffer<T> defaultBuffer;
 
-            SUTL_TEST_ASSERT(defaultBuffer.Ptr( ) == nullptr);
+            SUTL_TEST_ASSERT(defaultBuffer.Get( ) == nullptr);
             SUTL_TEST_ASSERT(defaultBuffer.Length( ) == 0);
             SUTL_TEST_ASSERT(defaultBuffer.Size( ) == 0);
             SUTL_TEST_ASSERT(defaultBuffer.WritePosition( ) == 0);
@@ -105,14 +105,14 @@ namespace CC
 
             if constexpr ( TQ == TestQuantity::Zero )
             {
-                SUTL_TEST_ASSERT(buffer.Ptr( ) == nullptr);
+                SUTL_TEST_ASSERT(buffer.Get( ) == nullptr);
                 SUTL_TEST_ASSERT(buffer.Length( ) == 0);
                 SUTL_TEST_ASSERT(buffer.Size( ) == 0);
                 SUTL_TEST_ASSERT(buffer.WritePosition( ) == 0);
             }
             else
             {
-                SUTL_TEST_ASSERT(buffer.Ptr( ) != nullptr);
+                SUTL_TEST_ASSERT(buffer.Get( ) != nullptr);
                 SUTL_TEST_ASSERT(buffer.Length( ) == GetTQNum<TQ>( ));
                 SUTL_TEST_ASSERT(buffer.Size( ) == sizeof(T) * GetTQNum<TQ>( ));
                 SUTL_TEST_ASSERT(buffer.WritePosition( ) == 0);
@@ -137,7 +137,7 @@ namespace CC
 
             if ( pBuffer )
             {
-                SUTL_TEST_ASSERT(pBuffer->Ptr( ) == nullptr);
+                SUTL_TEST_ASSERT(pBuffer->Get( ) == nullptr);
                 SUTL_TEST_ASSERT(pBuffer->Length( ) == 0);
                 SUTL_TEST_ASSERT(pBuffer->Size( ) == 0);
                 SUTL_TEST_ASSERT(pBuffer->WritePosition( ) == 0);
@@ -166,14 +166,14 @@ namespace CC
             SUTL_TEST_ASSERT(pBuffer);
             if constexpr ( TQ == TestQuantity::Zero )
             {
-                SUTL_TEST_ASSERT(pBuffer->Ptr( ) == nullptr);
+                SUTL_TEST_ASSERT(pBuffer->Get( ) == nullptr);
                 SUTL_TEST_ASSERT(pBuffer->Length( ) == 0);
                 SUTL_TEST_ASSERT(pBuffer->Size( ) == 0);
                 SUTL_TEST_ASSERT(pBuffer->WritePosition( ) == 0);
             }
             else
             {
-                SUTL_TEST_ASSERT(pBuffer->Ptr( ) != nullptr);
+                SUTL_TEST_ASSERT(pBuffer->Get( ) != nullptr);
                 SUTL_TEST_ASSERT(pBuffer->Length( ) == testData.size( ));
                 SUTL_TEST_ASSERT(pBuffer->Size( ) == sizeof(T) * testData.size( ));
                 SUTL_TEST_ASSERT(pBuffer->WritePosition( ) == 0);
@@ -218,7 +218,7 @@ namespace CC
 
             if ( pBuffer )
             {
-                SUTL_TEST_ASSERT(pBuffer->Ptr( ) == nullptr);
+                SUTL_TEST_ASSERT(pBuffer->Get( ) == nullptr);
                 SUTL_TEST_ASSERT(pBuffer->Length( ) == 0);
                 SUTL_TEST_ASSERT(pBuffer->Size( ) == 0);
                 SUTL_TEST_ASSERT(pBuffer->WritePosition( ) == 0);
@@ -257,19 +257,19 @@ namespace CC
 
             if constexpr ( TQ == TestQuantity::Zero )
             {
-                SUTL_TEST_ASSERT(pBuffer->Ptr( ) == nullptr);
+                SUTL_TEST_ASSERT(pBuffer->Get( ) == nullptr);
                 SUTL_TEST_ASSERT(pBuffer->Length( ) == 0);
                 SUTL_TEST_ASSERT(pBuffer->Size( ) == 0);
                 SUTL_TEST_ASSERT(pBuffer->WritePosition( ) == 0);
             }
             else
             {
-                SUTL_TEST_ASSERT(pBuffer->Ptr( ) != nullptr);
+                SUTL_TEST_ASSERT(pBuffer->Get( ) != nullptr);
                 SUTL_TEST_ASSERT(pBuffer->Length( ) == testData.size( ));
                 SUTL_TEST_ASSERT(pBuffer->Size( ) == sizeof(T) * testData.size( ));
                 SUTL_TEST_ASSERT(pBuffer->WritePosition( ) == 0);
 
-                SUTL_TEST_ASSERT(memcmp(pBuffer->Ptr( ), testData.data( ), sizeof(T) * pBuffer->Length( )) == 0);
+                SUTL_TEST_ASSERT(memcmp(pBuffer->Get( ), testData.data( ), sizeof(T) * pBuffer->Length( )) == 0);
             }
 
             delete pBuffer;
@@ -288,7 +288,7 @@ namespace CC
             SUTL_SETUP_ASSERT(srcBuffer.Length( ) == testData.size( ));
             if ( srcBuffer )
             {
-                memcpy(srcBuffer.Ptr( ), testData.data( ), srcBuffer.Size( ));
+                memcpy(srcBuffer.Get( ), testData.data( ), srcBuffer.Size( ));
             }
 
             try
@@ -307,8 +307,8 @@ namespace CC
 
             if constexpr ( TQ == TestQuantity::Zero )
             {
-                SUTL_TEST_ASSERT(pBuffer->Ptr( ) == nullptr);
-                SUTL_TEST_ASSERT(pBuffer->Ptr( ) == srcBuffer.Ptr( ));
+                SUTL_TEST_ASSERT(pBuffer->Get( ) == nullptr);
+                SUTL_TEST_ASSERT(pBuffer->Get( ) == srcBuffer.Get( ));
             }
             else
             {
@@ -343,7 +343,7 @@ namespace CC
             std::vector<T> testData = GetTestData<T, TQ>( );
             Buffer<T>* pBuffer = nullptr;
 
-            const T* srcPtr = srcBuffer.Ptr( );
+            const T* srcPtr = srcBuffer.Get( );
             const size_t srcLen = srcBuffer.Length( );
             const size_t srcSize = srcBuffer.Size( );
             const size_t srcWritePos = srcBuffer.WritePosition( );
@@ -351,7 +351,7 @@ namespace CC
             SUTL_SETUP_ASSERT(srcLen == testData.size( ));
             if ( srcBuffer )
             {
-                memcpy(srcBuffer.Ptr( ), testData.data( ), srcBuffer.Size( ));
+                memcpy(srcBuffer.Get( ), testData.data( ), srcBuffer.Size( ));
             }
 
             try
@@ -363,24 +363,24 @@ namespace CC
                 SUTL_TEST_EXCEPTION(e.what( ));
             }
 
-            SUTL_TEST_ASSERT(srcBuffer.Ptr( ) == nullptr);
+            SUTL_TEST_ASSERT(srcBuffer.Get( ) == nullptr);
             SUTL_TEST_ASSERT(srcBuffer.Length( ) == 0);
             SUTL_TEST_ASSERT(srcBuffer.Size( ) == 0);
             SUTL_TEST_ASSERT(srcBuffer.WritePosition( ) == 0);
 
-            SUTL_TEST_ASSERT(pBuffer->Ptr( ) == srcPtr);
+            SUTL_TEST_ASSERT(pBuffer->Get( ) == srcPtr);
             SUTL_TEST_ASSERT(pBuffer->Length( ) == srcLen);
             SUTL_TEST_ASSERT(pBuffer->Size( ) == srcSize);
             SUTL_TEST_ASSERT(pBuffer->WritePosition( ) == srcWritePos);
 
             if constexpr ( TQ == TestQuantity::Zero )
             {
-                SUTL_TEST_ASSERT(pBuffer->Ptr( ) == nullptr);
+                SUTL_TEST_ASSERT(pBuffer->Get( ) == nullptr);
             }
             else
             {
                 SUTL_TEST_ASSERT(srcPtr);
-                SUTL_TEST_ASSERT(memcmp(pBuffer->Ptr( ), srcPtr, srcSize) == 0);
+                SUTL_TEST_ASSERT(memcmp(pBuffer->Get( ), srcPtr, srcSize) == 0);
             }
 
             delete pBuffer;
@@ -403,7 +403,7 @@ namespace CC
 
             Buffer<T>::CopyAllBufferDataMembers(dst, buffer);
 
-            SUTL_TEST_ASSERT(buffer.Ptr( ) == dst.Ptr( ));
+            SUTL_TEST_ASSERT(buffer.Get( ) == dst.Get( ));
             SUTL_TEST_ASSERT(buffer.Length( ) == dst.Length( ));
             SUTL_TEST_ASSERT(buffer.Size( ) == dst.Size( ));
             SUTL_TEST_ASSERT(buffer.WritePosition( ) == dst.WritePosition( ));
@@ -422,7 +422,7 @@ namespace CC
 
             Buffer<T>::CopyNonPointerBufferDataMembers(dst, buffer);
 
-            SUTL_TEST_ASSERT(!!buffer == (buffer.Ptr( ) != dst.Ptr( )));
+            SUTL_TEST_ASSERT(!!buffer == (buffer.Get( ) != dst.Get( )));
             SUTL_TEST_ASSERT(buffer.Length( ) == dst.Length( ));
             SUTL_TEST_ASSERT(buffer.Size( ) == dst.Size( ));
             SUTL_TEST_ASSERT(buffer.WritePosition( ) == dst.WritePosition( ));
@@ -452,15 +452,15 @@ namespace CC
 
             if ( buffer )
             {
-                SUTL_TEST_ASSERT(buffer.Ptr( ) != dst.Ptr( ));
+                SUTL_TEST_ASSERT(buffer.Get( ) != dst.Get( ));
                 for ( size_t i = 0; i < dst.Length( ); i++ )
                 {
-                    SUTL_TEST_ASSERT(buffer.Ptr( )[i] == dst.Ptr( )[i]);
+                    SUTL_TEST_ASSERT(buffer.Get( )[i] == dst.Get( )[i]);
                 }
             }
             else
             {
-                SUTL_TEST_ASSERT(buffer.Ptr( ) == dst.Ptr( ));
+                SUTL_TEST_ASSERT(buffer.Get( ) == dst.Get( ));
             }
 
             SUTL_TEST_SUCCESS( );
@@ -488,15 +488,15 @@ namespace CC
 
             if ( buffer )
             {
-                SUTL_TEST_ASSERT(buffer.Ptr( ) != dst.Ptr( ));
+                SUTL_TEST_ASSERT(buffer.Get( ) != dst.Get( ));
                 for ( size_t i = 0; i < dst.Length( ); i++ )
                 {
-                    SUTL_TEST_ASSERT(buffer.Ptr( )[i] == dst.Ptr( )[i]);
+                    SUTL_TEST_ASSERT(buffer.Get( )[i] == dst.Get( )[i]);
                 }
             }
             else
             {
-                SUTL_TEST_ASSERT(buffer.Ptr( ) == dst.Ptr( ));
+                SUTL_TEST_ASSERT(buffer.Get( ) == dst.Get( ));
             }
 
             SUTL_TEST_SUCCESS( );
@@ -513,7 +513,7 @@ namespace CC
             Buffer<T> buffer(GetTestData<T, TQ>( ).data( ), GetTQNum<TQ>( ));
             Buffer<T> dst;
 
-            const T* ptr = buffer.Ptr( );
+            const T* ptr = buffer.Get( );
             const size_t len = buffer.Length( );
             const size_t size = buffer.Size( );
             const size_t pos = buffer.WritePosition( );
@@ -527,7 +527,7 @@ namespace CC
                 SUTL_TEST_EXCEPTION(e.what( ));
             }
 
-            SUTL_TEST_ASSERT(dst.Ptr( ) == ptr);
+            SUTL_TEST_ASSERT(dst.Get( ) == ptr);
             SUTL_TEST_ASSERT(dst.Length( ) == len);
             SUTL_TEST_ASSERT(dst.Size( ) == size);
             SUTL_TEST_ASSERT(dst.WritePosition( ) == pos);
@@ -541,7 +541,7 @@ namespace CC
             Buffer<T> buffer(GetTestData<T, TQ>( ).data( ), GetTQNum<TQ>( ));
             Buffer<T> dst;
 
-            const T* ptr = buffer.Ptr( );
+            const T* ptr = buffer.Get( );
             const size_t len = buffer.Length( );
             const size_t size = buffer.Size( );
             const size_t pos = buffer.WritePosition( );
@@ -555,7 +555,7 @@ namespace CC
                 SUTL_TEST_EXCEPTION(e.what( ));
             }
 
-            SUTL_TEST_ASSERT(dst.Ptr( ) == ptr);
+            SUTL_TEST_ASSERT(dst.Get( ) == ptr);
             SUTL_TEST_ASSERT(dst.Length( ) == len);
             SUTL_TEST_ASSERT(dst.Size( ) == size);
             SUTL_TEST_ASSERT(dst.WritePosition( ) == pos);
@@ -963,7 +963,7 @@ namespace CC
 
             if constexpr ( len == 0 )
             {
-                SUTL_TEST_ASSERT(buffer.Ptr( ) == nullptr);
+                SUTL_TEST_ASSERT(buffer.Get( ) == nullptr);
                 SUTL_TEST_ASSERT(buffer.Length( ) == 0);
                 SUTL_TEST_ASSERT(buffer.Size( ) == 0);
                 SUTL_TEST_ASSERT(buffer.WritePosition( ) == 0);
@@ -1053,7 +1053,7 @@ namespace CC
                 SUTL_TEST_EXCEPTION(e.what( ));
             }
 
-            SUTL_TEST_ASSERT(bNullBuffer == !buffer.Ptr( ));
+            SUTL_TEST_ASSERT(bNullBuffer == !buffer.Get( ));
             SUTL_TEST_ASSERT(buffer.Length( ) == len1);
             SUTL_TEST_ASSERT(buffer.Size( ) == sizeof(T) * len1);
 
@@ -1082,7 +1082,7 @@ namespace CC
                 SUTL_TEST_EXCEPTION(e.what( ));
             }
 
-            SUTL_TEST_ASSERT(bNullBuffer == !buffer.Ptr( ));
+            SUTL_TEST_ASSERT(bNullBuffer == !buffer.Get( ));
             SUTL_TEST_ASSERT(buffer.Length( ) == len1);
             SUTL_TEST_ASSERT(buffer.Size( ) == sizeof(T) * len1);
 
@@ -1153,7 +1153,7 @@ namespace CC
                 SUTL_SETUP_EXCEPTION(e.what( ));
             }
 
-            SUTL_TEST_ASSERT(bNullSource == !src.Ptr( ));
+            SUTL_TEST_ASSERT(bNullSource == !src.Get( ));
             SUTL_TEST_ASSERT(src.Length( ) == len2);
             SUTL_TEST_ASSERT(src.Size( ) == sizeof(T) * len2);
             SUTL_TEST_ASSERT(src.WritePosition( ) == ((bSetupWriteResult == true) ? writeLen : 0));
@@ -1174,12 +1174,12 @@ namespace CC
                 SUTL_TEST_EXCEPTION(e.what( ));
             }
 
-            SUTL_TEST_ASSERT(bNullSource == !src.Ptr( ));
+            SUTL_TEST_ASSERT(bNullSource == !src.Get( ));
             SUTL_TEST_ASSERT(src.Length( ) == len2);
             SUTL_TEST_ASSERT(src.Size( ) == sizeof(T) * len2);
             SUTL_TEST_ASSERT(src.WritePosition( ) == ((bSetupWriteResult == true) ? writeLen : 0));
 
-            SUTL_TEST_ASSERT(bNullBuffer == !buffer.Ptr( ));
+            SUTL_TEST_ASSERT(bNullBuffer == !buffer.Get( ));
             SUTL_TEST_ASSERT(buffer.Length( ) == len1);
             SUTL_TEST_ASSERT(buffer.Size( ) == sizeof(T) * len1);
 
@@ -1208,12 +1208,12 @@ namespace CC
                 SUTL_TEST_EXCEPTION(e.what( ));
             }
 
-            SUTL_TEST_ASSERT(bNullSource == !src.Ptr( ));
+            SUTL_TEST_ASSERT(bNullSource == !src.Get( ));
             SUTL_TEST_ASSERT(src.Length( ) == len2);
             SUTL_TEST_ASSERT(src.Size( ) == sizeof(T) * len2);
             SUTL_TEST_ASSERT(src.WritePosition( ) == ((bSetupWriteResult == true) ? writeLen : 0));
 
-            SUTL_TEST_ASSERT(bNullBuffer == !buffer.Ptr( ));
+            SUTL_TEST_ASSERT(bNullBuffer == !buffer.Get( ));
             SUTL_TEST_ASSERT(buffer.Length( ) == len1);
             SUTL_TEST_ASSERT(buffer.Size( ) == sizeof(T) * len1);
 
@@ -1281,7 +1281,7 @@ namespace CC
                 SUTL_SETUP_EXCEPTION(e.what( ));
             }
 
-            SUTL_TEST_ASSERT(bNullSource == !src.Ptr( ));
+            SUTL_TEST_ASSERT(bNullSource == !src.Get( ));
             SUTL_TEST_ASSERT(src.Length( ) == len2);
             SUTL_TEST_ASSERT(src.Size( ) == sizeof(T) * len2);
             SUTL_TEST_ASSERT(src.WritePosition( ) == ((bSetupWriteResult == true) ? len2 : 0));
@@ -1302,12 +1302,12 @@ namespace CC
                 SUTL_TEST_EXCEPTION(e.what( ));
             }
 
-            SUTL_TEST_ASSERT(bNullSource == !src.Ptr( ));
+            SUTL_TEST_ASSERT(bNullSource == !src.Get( ));
             SUTL_TEST_ASSERT(src.Length( ) == len2);
             SUTL_TEST_ASSERT(src.Size( ) == sizeof(T) * len2);
             SUTL_TEST_ASSERT(src.WritePosition( ) == ((bSetupWriteResult == true) ? len2 : 0));
 
-            SUTL_TEST_ASSERT(bNullBuffer == !buffer.Ptr( ));
+            SUTL_TEST_ASSERT(bNullBuffer == !buffer.Get( ));
             SUTL_TEST_ASSERT(buffer.Length( ) == len1);
             SUTL_TEST_ASSERT(buffer.Size( ) == sizeof(T) * len1);
 
@@ -1336,12 +1336,12 @@ namespace CC
                 SUTL_TEST_EXCEPTION(e.what( ));
             }
 
-            SUTL_TEST_ASSERT(bNullSource == !src.Ptr( ));
+            SUTL_TEST_ASSERT(bNullSource == !src.Get( ));
             SUTL_TEST_ASSERT(src.Length( ) == len2);
             SUTL_TEST_ASSERT(src.Size( ) == sizeof(T) * len2);
             SUTL_TEST_ASSERT(src.WritePosition( ) == ((bSetupWriteResult == true) ? len2 : 0));
 
-            SUTL_TEST_ASSERT(bNullBuffer == !buffer.Ptr( ));
+            SUTL_TEST_ASSERT(bNullBuffer == !buffer.Get( ));
             SUTL_TEST_ASSERT(buffer.Length( ) == len1);
             SUTL_TEST_ASSERT(buffer.Size( ) == sizeof(T) * len1);
 

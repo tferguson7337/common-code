@@ -14,7 +14,7 @@ namespace CC
 
         /// Protected Validator Methods \\\
 
-        // Returns false if !p || !this->m_pPtr || writeLen == 0
+        // Returns false if !p || writeLen == 0
         // Returns true otherwise.
         inline static bool ValidateWriteRequest(_In_opt_ const T* const p, _In_ const size_t& writeLen) noexcept
         {
@@ -42,7 +42,7 @@ namespace CC
                 return false;
             }
 
-            Pointer<T>::MoveToRawPointer(newBuf.Ptr( ), this->Ptr( ), this->WritePosition( ));
+            Pointer<T>::MoveToRawPointer(newBuf.Get( ), this->Get( ), this->WritePosition( ));
             newBuf.m_WritePos = this->WritePosition( );
             Buffer<T>::TransferBuffer(*this, newBuf);
             return true;
@@ -216,7 +216,7 @@ namespace CC
         // Note: Will allocate/grow the internal buffer to hold the new element(s) if the buffer is null/full.
         virtual bool Write(_In_ const IBuffer<T>& src, _In_ const bool& bCopyUpToSrcWritePos = true) noexcept(std::is_scalar_v<T>)
         {
-            return Write(src.Ptr( ), bCopyUpToSrcWritePos ? src.WritePosition( ) : src.Length( ));
+            return Write(src.Get( ), bCopyUpToSrcWritePos ? src.WritePosition( ) : src.Length( ));
         }
 
         // Moves source buffer content to internal buffer at m_WritePos.
@@ -224,7 +224,7 @@ namespace CC
         // Note: Will allocate/grow the internal buffer to hold the new element(s) if the buffer is null/full.
         virtual bool Write(_In_ IBuffer<T>&& src, _In_ const bool& bCopyUpToSrcWritePos = true) noexcept
         {
-            return Write(std::move(src.Ptr( )), bCopyUpToSrcWritePos ? src.WritePosition( ) : src.Length( ));
+            return Write(std::move(src.Get( )), bCopyUpToSrcWritePos ? src.WritePosition( ) : src.Length( ));
         }
     };
 }

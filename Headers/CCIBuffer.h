@@ -46,10 +46,10 @@ namespace CC
         /// Getters \\\
 
         // Return a pointer to the internal buffer (mutable).
-        virtual T* Ptr( ) noexcept = 0;
+        virtual T* Get( ) noexcept = 0;
 
         // Return a pointer to the internal buffer (immutable).
-        virtual const T* Ptr( ) const noexcept = 0;
+        virtual const T* Get( ) const noexcept = 0;
 
         // Return length of internal buffer.
         virtual const size_t& Length( ) const noexcept = 0;

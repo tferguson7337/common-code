@@ -133,7 +133,7 @@ namespace CC
             if constexpr ( RT == ReturnType::CCBuffer )
             {
                 Buffer<C> ret(len + 1);
-                memset(ret.Ptr( ), 0, sizeof(C) * (len + 1));
+                memset(ret.Get( ), 0, sizeof(C) * (len + 1));
                 return ret;
             }
             else if constexpr ( RT == ReturnType::CppString )
@@ -238,7 +238,7 @@ namespace CC
         template <typename C>
         static C* GetRawDestinationPointer(_In_ Buffer<C>& dst) noexcept
         {
-            return dst.Ptr( );
+            return dst.Get( );
         }
 
         template <typename C>

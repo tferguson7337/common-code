@@ -48,7 +48,7 @@ namespace CC
 
             if constexpr ( _RT == RT::CCBuffer )
             {
-                return reinterpret_cast<const Buffer<C>*>(obj)->Ptr( );
+                return reinterpret_cast<const Buffer<C>*>(obj)->Get( );
             }
             else if constexpr ( _RT == RT::CppString )
             {
