@@ -145,13 +145,13 @@ namespace CC
         }
 
         // Interface Copy Assignment
-        DynamicBuffer<T>& operator=(_In_ const IBuffer<T>& src) noexcept(std::is_scalar_v<T>)
+        IBuffer<T>& operator=(_In_ const IBuffer<T>& src) noexcept(std::is_scalar_v<T>)
         {
             return CopyAssignmentCommon(src);
         }
 
         // Interface Move Assignment
-        DynamicBuffer<T>& operator=(_Inout_ IBuffer<T>&& src) noexcept
+        IBuffer<T>& operator=(_Inout_ IBuffer<T>&& src) noexcept
         {
             return MoveAssignmentCommon(std::move(src));
         }
@@ -162,12 +162,9 @@ namespace CC
         // Note: Will allocate/grow the internal buffer to hold the new element if the buffer is null/full.
         virtual bool Write(_In_ const T& t) noexcept(std::is_scalar_v<T>)
         {
-            if ( this->m_WritePos >= this->m_Len )
+            if ( (this->m_WritePos >= this->m_Len) && !GrowBuffer(1) )
             {
-                if ( !GrowBuffer(1) )
-                {
-                    return false;
-                }
+                return false;
             }
 
             this->m_pPtr[this->m_WritePos++] = t;
@@ -178,12 +175,9 @@ namespace CC
         // Note: Will allocate/grow the internal buffer to hold the new element if the buffer is null/full.
         virtual bool Write(_Inout_ T&& t) noexcept
         {
-            if ( this->m_WritePos >= this->m_Len )
+            if ( (this->m_WritePos >= this->m_Len) && !GrowBuffer(1) )
             {
-                if ( !GrowBuffer(1) )
-                {
-                    return false;
-                }
+                return false;
             }
 
             this->m_pPtr[this->m_WritePos++] = std::move(t);
