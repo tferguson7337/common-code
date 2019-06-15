@@ -275,13 +275,13 @@ namespace CC
         // Returns pointer to internal buffer (mutable).
         inline virtual T* Ptr( ) noexcept
         {
-            return Pointer<T>::Ptr( );
+            return Pointer<T>::Get( );
         }
 
         // Returns pointer to internal buffer (immutable).
         inline virtual const T* Ptr( ) const noexcept
         {
-            return Pointer<T>::Ptr( );
+            return Pointer<T>::Get( );
         }
 
         // Returns length of internal buffer.

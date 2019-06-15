@@ -361,11 +361,11 @@ namespace CC
                 SUTL_TEST_EXCEPTION(e.what( ));
             }
 
-            SUTL_TEST_ASSERT((ptr.Ptr( ) != srcPtr.Ptr( )) == (TQ != TestQuantity::Zero));
+            SUTL_TEST_ASSERT((ptr.Get( ) != srcPtr.Get( )) == (TQ != TestQuantity::Zero));
             SUTL_TEST_ASSERT(ptr.Length( ) == srcPtr.Length( ));
             for ( size_t i = 0; i < GetTQNum<TQ>( ); i++ )
             {
-                SUTL_TEST_ASSERT(ptr.Ptr( )[i] == srcPtr.Ptr( )[i]);
+                SUTL_TEST_ASSERT(ptr.Get( )[i] == srcPtr.Get( )[i]);
             }
 
             SUTL_TEST_SUCCESS( );
@@ -389,14 +389,14 @@ namespace CC
                 SUTL_TEST_EXCEPTION(e.what( ));
             }
 
-            SUTL_TEST_ASSERT((ptr.Ptr( ) != srcPtr.Ptr( )) == (TQ != TestQuantity::Zero));
-            SUTL_TEST_ASSERT(srcPtr.Ptr( ) == nullptr);
+            SUTL_TEST_ASSERT((ptr.Get( ) != srcPtr.Get( )) == (TQ != TestQuantity::Zero));
+            SUTL_TEST_ASSERT(srcPtr.Get( ) == nullptr);
             if constexpr ( std::is_same_v<T, Helper> )
             {
                 for ( size_t i = 0; i < GetTQNum<TQ>( ); i++ )
                 {
-                    SUTL_TEST_ASSERT(!ptr.Ptr( )[i].Copied( ));
-                    SUTL_TEST_ASSERT(!ptr.Ptr( )[i].Moved( ));
+                    SUTL_TEST_ASSERT(!ptr.Get( )[i].Copied( ));
+                    SUTL_TEST_ASSERT(!ptr.Get( )[i].Moved( ));
                 }
             }
 
@@ -445,7 +445,7 @@ namespace CC
         {
             Pointer<T> p;
 
-            SUTL_TEST_ASSERT(p.Ptr( ) == nullptr);
+            SUTL_TEST_ASSERT(p.Get( ) == nullptr);
             SUTL_TEST_ASSERT(p.Length( ) == 0);
             SUTL_TEST_ASSERT(p.Size( ) == 0);
 
@@ -459,7 +459,7 @@ namespace CC
             constexpr const size_t len = GetTQNum<TQ>( );
             Pointer<T> p(len);
 
-            SUTL_TEST_ASSERT(!p.Ptr( ) == bExpectNull);
+            SUTL_TEST_ASSERT(!p.Get( ) == bExpectNull);
             SUTL_TEST_ASSERT(p.Length( ) == len);
             SUTL_TEST_ASSERT(p.Size( ) == (sizeof(T) * len));
 
@@ -483,7 +483,7 @@ namespace CC
                 SUTL_TEST_EXCEPTION(e.what( ));
             }
 
-            SUTL_TEST_ASSERT(!pPointer->Ptr( ) == bExpectNull);
+            SUTL_TEST_ASSERT(!pPointer->Get( ) == bExpectNull);
             SUTL_TEST_ASSERT(pPointer->Length( ) == len);
             SUTL_TEST_ASSERT(pPointer->Size( ) == (sizeof(T) * len));
 
@@ -491,11 +491,11 @@ namespace CC
             {
                 for ( size_t i = 0; i < len; i++ )
                 {
-                    SUTL_TEST_ASSERT(pPointer->Ptr( )[i] == testData[i]);
+                    SUTL_TEST_ASSERT(pPointer->Get( )[i] == testData[i]);
                     if constexpr ( std::is_same_v<T, Helper> )
                     {
-                        SUTL_TEST_ASSERT(pPointer->Ptr( )[i].Copied( ));
-                        SUTL_TEST_ASSERT(!pPointer->Ptr( )[i].Moved( ));
+                        SUTL_TEST_ASSERT(pPointer->Get( )[i].Copied( ));
+                        SUTL_TEST_ASSERT(!pPointer->Get( )[i].Moved( ));
                     }
                 }
             }
@@ -539,8 +539,8 @@ namespace CC
                 SUTL_TEST_EXCEPTION(e.what( ));
             }
 
-            SUTL_TEST_ASSERT(!pPointer->Ptr( ) == bExpectNull);
-            SUTL_TEST_ASSERT(pPointer->Ptr( ) == pOrigPtr);
+            SUTL_TEST_ASSERT(!pPointer->Get( ) == bExpectNull);
+            SUTL_TEST_ASSERT(pPointer->Get( ) == pOrigPtr);
             SUTL_TEST_ASSERT(!pTestCopy);
             SUTL_TEST_ASSERT(pPointer->Length( ) == len);
             SUTL_TEST_ASSERT(pPointer->Size( ) == (sizeof(T) * len));
@@ -549,11 +549,11 @@ namespace CC
             {
                 for ( size_t i = 0; i < len; i++ )
                 {
-                    SUTL_TEST_ASSERT(pPointer->Ptr( )[i] == testData[i]);
+                    SUTL_TEST_ASSERT(pPointer->Get( )[i] == testData[i]);
                     if constexpr ( std::is_same_v<T, Helper> )
                     {
-                        SUTL_TEST_ASSERT(pPointer->Ptr( )[i].Copied( ));
-                        SUTL_TEST_ASSERT(!pPointer->Ptr( )[i].Moved( ));
+                        SUTL_TEST_ASSERT(pPointer->Get( )[i].Copied( ));
+                        SUTL_TEST_ASSERT(!pPointer->Get( )[i].Moved( ));
                     }
                 }
             }
@@ -580,7 +580,7 @@ namespace CC
                 SUTL_SETUP_EXCEPTION(e.what( ));
             }
 
-            SUTL_TEST_ASSERT(!pSrc->Ptr( ) == bExpectNull);
+            SUTL_TEST_ASSERT(!pSrc->Get( ) == bExpectNull);
             SUTL_TEST_ASSERT(pSrc->Length( ) == len);
             SUTL_TEST_ASSERT(pSrc->Size( ) == (sizeof(T) * len));
 
@@ -593,12 +593,12 @@ namespace CC
                 SUTL_TEST_EXCEPTION(e.what( ));
             }
 
-            SUTL_TEST_ASSERT(!pSrc->Ptr( ) == bExpectNull);
+            SUTL_TEST_ASSERT(!pSrc->Get( ) == bExpectNull);
             SUTL_TEST_ASSERT(pSrc->Length( ) == len);
             SUTL_TEST_ASSERT(pSrc->Size( ) == (sizeof(T) * len));
 
-            SUTL_TEST_ASSERT(!pPointer->Ptr( ) == bExpectNull);
-            SUTL_TEST_ASSERT((pPointer->Ptr( ) == pSrc->Ptr( )) == bExpectNull);
+            SUTL_TEST_ASSERT(!pPointer->Get( ) == bExpectNull);
+            SUTL_TEST_ASSERT((pPointer->Get( ) == pSrc->Get( )) == bExpectNull);
             SUTL_TEST_ASSERT(pPointer->Length( ) == len);
             SUTL_TEST_ASSERT(pPointer->Size( ) == (sizeof(T) * len));
 
@@ -606,11 +606,11 @@ namespace CC
             {
                 for ( size_t i = 0; i < len; i++ )
                 {
-                    SUTL_TEST_ASSERT(pPointer->Ptr( )[i] == pSrc->Ptr( )[i]);
+                    SUTL_TEST_ASSERT(pPointer->Get( )[i] == pSrc->Get( )[i]);
                     if constexpr ( std::is_same_v<T, Helper> )
                     {
-                        SUTL_TEST_ASSERT(pPointer->Ptr( )[i].Copied( ));
-                        SUTL_TEST_ASSERT(!pPointer->Ptr( )[i].Moved( ));
+                        SUTL_TEST_ASSERT(pPointer->Get( )[i].Copied( ));
+                        SUTL_TEST_ASSERT(!pPointer->Get( )[i].Moved( ));
                     }
                 }
             }
@@ -637,7 +637,7 @@ namespace CC
                 SUTL_SETUP_EXCEPTION(e.what( ));
             }
 
-            SUTL_TEST_ASSERT(!pSrc->Ptr( ) == bExpectNull);
+            SUTL_TEST_ASSERT(!pSrc->Get( ) == bExpectNull);
             SUTL_TEST_ASSERT(pSrc->Length( ) == len);
             SUTL_TEST_ASSERT(pSrc->Size( ) == (sizeof(T) * len));
 
@@ -650,12 +650,12 @@ namespace CC
                 SUTL_TEST_EXCEPTION(e.what( ));
             }
 
-            SUTL_TEST_ASSERT(!pSrc->Ptr( ));
+            SUTL_TEST_ASSERT(!pSrc->Get( ));
             SUTL_TEST_ASSERT(pSrc->Length( ) == 0);
             SUTL_TEST_ASSERT(pSrc->Size( ) == 0);
 
-            SUTL_TEST_ASSERT(!pPointer->Ptr( ) == bExpectNull);
-            SUTL_TEST_ASSERT((pPointer->Ptr( ) == pSrc->Ptr( )) == bExpectNull);
+            SUTL_TEST_ASSERT(!pPointer->Get( ) == bExpectNull);
+            SUTL_TEST_ASSERT((pPointer->Get( ) == pSrc->Get( )) == bExpectNull);
             SUTL_TEST_ASSERT(pPointer->Length( ) == len);
             SUTL_TEST_ASSERT(pPointer->Size( ) == (sizeof(T) * len));
 
@@ -663,11 +663,11 @@ namespace CC
             {
                 for ( size_t i = 0; i < len; i++ )
                 {
-                    SUTL_TEST_ASSERT(pPointer->Ptr( )[i] == testData[i]);
+                    SUTL_TEST_ASSERT(pPointer->Get( )[i] == testData[i]);
                     if constexpr ( std::is_same_v<T, Helper> )
                     {
-                        SUTL_TEST_ASSERT(pPointer->Ptr( )[i].Copied( ));
-                        SUTL_TEST_ASSERT(!pPointer->Ptr( )[i].Moved( ));
+                        SUTL_TEST_ASSERT(pPointer->Get( )[i].Copied( ));
+                        SUTL_TEST_ASSERT(!pPointer->Get( )[i].Moved( ));
                     }
                 }
             }
@@ -692,14 +692,14 @@ namespace CC
 
             Pointer<T> src(testDataSrc.data( ), lenSrc);
             Pointer<T> dst(testDataDst.data( ), lenDst);
-            const T* pOrigSrc = src.Ptr( );
-            const T* pOrigDst = dst.Ptr( );
+            const T* pOrigSrc = src.Get( );
+            const T* pOrigDst = dst.Get( );
 
             // Pointers should be different unless both should be nullptr.
             SUTL_TEST_ASSERT((pOrigSrc == pOrigDst) == (bExpectNullSrc && bExpectNullDst));
 
             // Ensure src state is as expected.
-            SUTL_TEST_ASSERT(!src.Ptr( ) == bExpectNullSrc);
+            SUTL_TEST_ASSERT(!src.Get( ) == bExpectNullSrc);
             SUTL_TEST_ASSERT(src.Length( ) == lenSrc);
             SUTL_TEST_ASSERT(src.Size( ) == (sizeof(T) * lenSrc));
 
@@ -707,17 +707,17 @@ namespace CC
             {
                 for ( size_t i = 0; i < lenSrc; i++ )
                 {
-                    SUTL_TEST_ASSERT(src.Ptr( )[i] == testDataSrc[i]);
+                    SUTL_TEST_ASSERT(src.Get( )[i] == testDataSrc[i]);
                     if constexpr ( std::is_same_v<T, Helper> )
                     {
-                        SUTL_TEST_ASSERT(src.Ptr( )[i].Copied( ));
-                        SUTL_TEST_ASSERT(!src.Ptr( )[i].Moved( ));
+                        SUTL_TEST_ASSERT(src.Get( )[i].Copied( ));
+                        SUTL_TEST_ASSERT(!src.Get( )[i].Moved( ));
                     }
                 }
             }
 
             // Ensure dst state is as expected.
-            SUTL_TEST_ASSERT(!dst.Ptr( ) == bExpectNullDst);
+            SUTL_TEST_ASSERT(!dst.Get( ) == bExpectNullDst);
             SUTL_TEST_ASSERT(dst.Length( ) == lenDst);
             SUTL_TEST_ASSERT(dst.Size( ) == (sizeof(T) * lenDst));
 
@@ -725,11 +725,11 @@ namespace CC
             {
                 for ( size_t i = 0; i < lenDst; i++ )
                 {
-                    SUTL_TEST_ASSERT(dst.Ptr( )[i] == testDataDst[i]);
+                    SUTL_TEST_ASSERT(dst.Get( )[i] == testDataDst[i]);
                     if constexpr ( std::is_same_v<T, Helper> )
                     {
-                        SUTL_TEST_ASSERT(dst.Ptr( )[i].Copied( ));
-                        SUTL_TEST_ASSERT(!dst.Ptr( )[i].Moved( ));
+                        SUTL_TEST_ASSERT(dst.Get( )[i].Copied( ));
+                        SUTL_TEST_ASSERT(!dst.Get( )[i].Moved( ));
                     }
                 }
             }
@@ -745,7 +745,7 @@ namespace CC
             }
 
             // Ensure src state is as expected after copy.
-            SUTL_TEST_ASSERT(src.Ptr( ) == pOrigSrc);
+            SUTL_TEST_ASSERT(src.Get( ) == pOrigSrc);
             SUTL_TEST_ASSERT(src.Length( ) == lenSrc);
             SUTL_TEST_ASSERT(src.Size( ) == (sizeof(T) * lenSrc));
 
@@ -753,17 +753,17 @@ namespace CC
             {
                 for ( size_t i = 0; i < lenSrc; i++ )
                 {
-                    SUTL_TEST_ASSERT(src.Ptr( )[i] == testDataSrc[i]);
+                    SUTL_TEST_ASSERT(src.Get( )[i] == testDataSrc[i]);
                     if constexpr ( std::is_same_v<T, Helper> )
                     {
-                        SUTL_TEST_ASSERT(src.Ptr( )[i].Copied( ));
-                        SUTL_TEST_ASSERT(!src.Ptr( )[i].Moved( ));
+                        SUTL_TEST_ASSERT(src.Get( )[i].Copied( ));
+                        SUTL_TEST_ASSERT(!src.Get( )[i].Moved( ));
                     }
                 }
             }
 
             // Ensure dst state is as expected after copy.
-            SUTL_TEST_ASSERT((dst.Ptr( ) == pOrigDst) == (bExpectNullSrc && bExpectNullDst));
+            SUTL_TEST_ASSERT((dst.Get( ) == pOrigDst) == (bExpectNullSrc && bExpectNullDst));
             SUTL_TEST_ASSERT(dst.Length( ) == lenSrc);
             SUTL_TEST_ASSERT(dst.Size( ) == (sizeof(T) * lenSrc));
 
@@ -771,11 +771,11 @@ namespace CC
             {
                 for ( size_t i = 0; i < lenSrc; i++ )
                 {
-                    SUTL_TEST_ASSERT(dst.Ptr( )[i] == src.Ptr( )[i]);
+                    SUTL_TEST_ASSERT(dst.Get( )[i] == src.Get( )[i]);
                     if constexpr ( std::is_same_v<T, Helper> )
                     {
-                        SUTL_TEST_ASSERT(dst.Ptr( )[i].Copied( ));
-                        SUTL_TEST_ASSERT(!dst.Ptr( )[i].Moved( ));
+                        SUTL_TEST_ASSERT(dst.Get( )[i].Copied( ));
+                        SUTL_TEST_ASSERT(!dst.Get( )[i].Moved( ));
                     }
                 }
             }
@@ -800,13 +800,13 @@ namespace CC
 
             Pointer<T> src(testDataSrc.data( ), lenSrc);
             Pointer<T> dst(testDataDst.data( ), lenDst);
-            const T* pOrigSrc = src.Ptr( );
+            const T* pOrigSrc = src.Get( );
 
             // Pointers should be different unless both should be nullptr.
-            SUTL_TEST_ASSERT((pOrigSrc == dst.Ptr( )) == (bExpectNullSrc && bExpectNullDst));
+            SUTL_TEST_ASSERT((pOrigSrc == dst.Get( )) == (bExpectNullSrc && bExpectNullDst));
 
             // Ensure src state is as expected.
-            SUTL_TEST_ASSERT(!src.Ptr( ) == bExpectNullSrc);
+            SUTL_TEST_ASSERT(!src.Get( ) == bExpectNullSrc);
             SUTL_TEST_ASSERT(src.Length( ) == lenSrc);
             SUTL_TEST_ASSERT(src.Size( ) == (sizeof(T) * lenSrc));
 
@@ -814,17 +814,17 @@ namespace CC
             {
                 for ( size_t i = 0; i < lenSrc; i++ )
                 {
-                    SUTL_TEST_ASSERT(src.Ptr( )[i] == testDataSrc[i]);
+                    SUTL_TEST_ASSERT(src.Get( )[i] == testDataSrc[i]);
                     if constexpr ( std::is_same_v<T, Helper> )
                     {
-                        SUTL_TEST_ASSERT(src.Ptr( )[i].Copied( ));
-                        SUTL_TEST_ASSERT(!src.Ptr( )[i].Moved( ));
+                        SUTL_TEST_ASSERT(src.Get( )[i].Copied( ));
+                        SUTL_TEST_ASSERT(!src.Get( )[i].Moved( ));
                     }
                 }
             }
 
             // Ensure dst state is as expected.
-            SUTL_TEST_ASSERT(!dst.Ptr( ) == bExpectNullDst);
+            SUTL_TEST_ASSERT(!dst.Get( ) == bExpectNullDst);
             SUTL_TEST_ASSERT(dst.Length( ) == lenDst);
             SUTL_TEST_ASSERT(dst.Size( ) == (sizeof(T) * lenDst));
 
@@ -832,11 +832,11 @@ namespace CC
             {
                 for ( size_t i = 0; i < lenDst; i++ )
                 {
-                    SUTL_TEST_ASSERT(dst.Ptr( )[i] == testDataDst[i]);
+                    SUTL_TEST_ASSERT(dst.Get( )[i] == testDataDst[i]);
                     if constexpr ( std::is_same_v<T, Helper> )
                     {
-                        SUTL_TEST_ASSERT(dst.Ptr( )[i].Copied( ));
-                        SUTL_TEST_ASSERT(!dst.Ptr( )[i].Moved( ));
+                        SUTL_TEST_ASSERT(dst.Get( )[i].Copied( ));
+                        SUTL_TEST_ASSERT(!dst.Get( )[i].Moved( ));
                     }
                 }
             }
@@ -852,12 +852,12 @@ namespace CC
             }
 
             // Ensure src state is as expected after move.
-            SUTL_TEST_ASSERT(src.Ptr( ) == nullptr);
+            SUTL_TEST_ASSERT(src.Get( ) == nullptr);
             SUTL_TEST_ASSERT(src.Length( ) == 0);
             SUTL_TEST_ASSERT(src.Size( ) == 0);
 
             // Ensure dst state is as expected after move.
-            SUTL_TEST_ASSERT(dst.Ptr( ) == pOrigSrc);
+            SUTL_TEST_ASSERT(dst.Get( ) == pOrigSrc);
             SUTL_TEST_ASSERT(dst.Length( ) == lenSrc);
             SUTL_TEST_ASSERT(dst.Size( ) == (sizeof(T) * lenSrc));
 
@@ -865,11 +865,11 @@ namespace CC
             {
                 for ( size_t i = 0; i < lenSrc; i++ )
                 {
-                    SUTL_TEST_ASSERT(dst.Ptr( )[i] == testDataSrc[i]);
+                    SUTL_TEST_ASSERT(dst.Get( )[i] == testDataSrc[i]);
                     if constexpr ( std::is_same_v<T, Helper> )
                     {
-                        SUTL_TEST_ASSERT(dst.Ptr( )[i].Copied( ));
-                        SUTL_TEST_ASSERT(!dst.Ptr( )[i].Moved( ));
+                        SUTL_TEST_ASSERT(dst.Get( )[i].Copied( ));
+                        SUTL_TEST_ASSERT(!dst.Get( )[i].Moved( ));
                     }
                 }
             }
@@ -910,7 +910,7 @@ namespace CC
             if constexpr ( !bExpectNull )
             {
                 SUTL_TEST_ASSERT(tVal == testData.front( ));
-                SUTL_TEST_ASSERT(tVal == p.Ptr( )[0]);
+                SUTL_TEST_ASSERT(tVal == p.Get( )[0]);
             }
 
             if constexpr ( std::is_same_v<T, Helper> )

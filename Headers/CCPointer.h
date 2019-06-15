@@ -301,13 +301,13 @@ namespace CC
         /// Getters \\\
 
         // Returns pointer to internal pointer (mutable).
-        virtual T* Ptr( ) noexcept
+        virtual T* Get( ) noexcept
         {
             return m_pPtr;
         }
 
         // Returns pointer to internal pointer (immutable).
-        virtual const T* Ptr( ) const noexcept
+        virtual const T* Get( ) const noexcept
         {
             return m_pPtr;
         }
