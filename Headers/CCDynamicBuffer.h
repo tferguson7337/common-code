@@ -25,15 +25,14 @@ namespace CC
 
         // Calculates new length for growing buffer.
         // If geometric increase is sufficent, then new length will be (m_Len + (m_Len >> 1)) (i.e., +50%)
-        // Otherwise, the new length will be m_Len + minInc.
+        // Otherwise, the new length will be std::max(16, m_Len + minInc).
         static size_t CalculateNewLength(_In_ const size_t& oldLen, _In_ const size_t& minInc) noexcept
         {
-            const size_t geoNewLen = oldLen + (oldLen >> 1);
-            const size_t minIncLen = oldLen + minInc;
-            const size_t newLen = (geoNewLen < minIncLen) ? minIncLen : geoNewLen;
-            return (newLen > 16) ? newLen : 16;
+            static const size_t minNewLen = 16;
+            return std::max(minNewLen, std::max(oldLen + (oldLen >> 1), oldLen + minInc));
         }
 
+        // Grows buffer by creating a new buffer of greater size and moving original buffer contents over to new buffer.
         bool GrowBuffer(_In_ const size_t& minInc) noexcept
         {
             DynamicBuffer<T> newBuf(CalculateNewLength(this->Length( ), minInc));
