@@ -32,10 +32,13 @@
     <ClInclude Include="..\Headers\CCIBuffer.h" />
     <ClInclude Include="..\Headers\CCMacros.h" />
     <ClInclude Include="..\Headers\CCPointer.h" />
+    <ClInclude Include="..\Headers\CCPointerCommonHelpers.h" />
+    <ClInclude Include="..\Headers\CCSharedPointer.h" />
     <ClInclude Include="..\Headers\CCStringUtil.h" />
     <ClInclude Include="..\Headers\CCTypes.h" />
     <ClInclude Include="Headers\CCBufferTests.h" />
     <ClInclude Include="Headers\CCDynamicBufferTests.h" />
+    <ClInclude Include="Headers\CCIPointer.h" />
     <ClInclude Include="Headers\CCPointerTests.h" />
     <ClInclude Include="Headers\CCStringUtilTests.h" />
     <ClInclude Include="Headers\TestSets.h" />

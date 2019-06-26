@@ -1,10 +1,12 @@
 #pragma once
 
+// CC
 #include "CCIBuffer.h"
 #include "CCPointer.h"
-#include "CCTypes.h"
 
+// STL
 #include <stdexcept>
+
 
 namespace CC
 {
@@ -80,7 +82,7 @@ namespace CC
         // Performs deep copy of src buffer, frees dst buffer, then assigned new buffer to dst.
         // Also copies all other Buffer data members of src to dst.
         // Note: If src buffer is nullptr, then dst will free buffer and replace it with nullptr.
-        static void CopyBuffer(_Inout_ Buffer<T>& dst, _In_ const IBuffer<T>& src) noexcept(std::is_scalar_v<T>)
+        static void CopyBuffer(_Inout_ Buffer<T>& dst, _In_ const IBuffer<T>& src) noexcept(CC_IS_NOTHROW_COPY(T))
         {
             T* p = Pointer<T>::AllocateFromRawPointer(src.Get( ), src.Length( ));
             dst.InvokeFreeFunction( );
@@ -100,7 +102,7 @@ namespace CC
         /// Protected Helper Methods \\\
 
         // Writes elements via copy to internal buffer, updates write position.
-        inline bool WriteInternal(_In_ const T* p, _In_ const size_t& len) noexcept(std::is_scalar_v<T>)
+        inline bool WriteInternal(_In_ const T* p, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_COPY(T))
         {
             Pointer<T>::CopyToRawPointer(Get( ) + m_WritePos, p, len);
             m_WritePos += len;
@@ -108,7 +110,7 @@ namespace CC
         }
 
         // Writes elements via move semantics to internal buffer, updates write position.
-        inline bool WriteInternal(_In_ T* p, _In_ const size_t& len) noexcept
+        inline bool WriteInternal(_In_ T* p, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_MOVE(T))
         {
             Pointer<T>::MoveToRawPointer(Get( ) + m_WritePos, p, len);
             m_WritePos += len;
@@ -126,13 +128,13 @@ namespace CC
         { }
 
         // Buffer length constructor
-        explicit Buffer(_In_ const size_t& len) noexcept :
+        explicit Buffer(_In_ const size_t& len) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T)) :
             Pointer<T>(len),
             m_WritePos(0)
         { }
 
         // Raw pointer copy constructor
-        Buffer(_In_reads_opt_(len) const T* p, _In_ const size_t& len) noexcept(std::is_scalar_v<T>) :
+        Buffer(_In_reads_opt_(len) const T* p, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T)) :
             Pointer<T>(p, len),
             m_WritePos(0)
         { }
@@ -144,7 +146,7 @@ namespace CC
         { }
 
         // Copy constructor
-        Buffer(_In_ const Buffer<T>& src) noexcept(std::is_scalar_v<T>) :
+        Buffer(_In_ const Buffer<T>& src) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T)) :
             Pointer<T>(src),
             m_WritePos(src.WritePosition( ))
         { }
@@ -158,7 +160,7 @@ namespace CC
         }
 
         // Interface copy constructor
-        Buffer(_In_ const IBuffer<T>& src) noexcept(std::is_scalar_v<T>) :
+        Buffer(_In_ const IBuffer<T>& src) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T)) :
             Pointer<T>(src.Get( ), src.Length( )),
             m_WritePos(src.WritePosition( ))
         { }
@@ -179,7 +181,7 @@ namespace CC
         /// Operator Overloads \\\
 
         // Copy assignment
-        Buffer<T>& operator=(_In_ const Buffer<T>& src) noexcept(std::is_scalar_v<T>)
+        Buffer<T>& operator=(_In_ const Buffer<T>& src) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T))
         {
             if ( this != &src )
             {
@@ -201,7 +203,7 @@ namespace CC
         }
 
         // Interface copy assignment
-        IBuffer<T>& operator=(_In_ const IBuffer<T>& src) noexcept(std::is_scalar_v<T>)
+        IBuffer<T>& operator=(_In_ const IBuffer<T>& src) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T))
         {
             if ( this != &src )
             {
@@ -383,7 +385,7 @@ namespace CC
 
         // Writes specified T object to internal buffer at m_WritePos.
         // Returns false if write would exceed length of buffer, true otherwise.
-        inline virtual bool Write(_In_ const T& t) noexcept(std::is_scalar_v<T>)
+        inline virtual bool Write(_In_ const T& t) noexcept(CC_IS_NOTHROW_COPY(T))
         {
             if ( !ValidateSingleElementWriteRequest( ) )
             {
@@ -396,7 +398,7 @@ namespace CC
 
         // Writes specified T object to internal buffer at m_WritePos.
         // Returns false if write would exceed length of buffer, true otherwise.
-        inline virtual bool Write(_Inout_ T&& t) noexcept
+        inline virtual bool Write(_Inout_ T&& t) noexcept(CC_IS_NOTHROW_MOVE(T))
         {
             if ( !ValidateSingleElementWriteRequest( ) )
             {
@@ -415,27 +417,27 @@ namespace CC
         }
 
         // Copies raw pointer content to internal buffer at m_WritePos, increments m_WritePos by len on successful write.
-        virtual bool Write(_In_reads_opt_(len) const T* const src, _In_ const size_t& len) noexcept(std::is_scalar_v<T>)
+        virtual bool Write(_In_reads_opt_(len) const T* const src, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_COPY(T))
         {
             return ValidateWriteRequest(src, len) && WriteInternal(src, len);
         }
 
         // Moves raw pointer content to internal buffer at m_WritePos, increments m_WritePos by len on successful write.
-        virtual bool Write(_Inout_opt_count_(len) T*&& src, _In_ const size_t& len) noexcept
+        virtual bool Write(_Inout_opt_count_(len) T*&& src, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_MOVE(T))
         {
             return ValidateWriteRequest(src, len) && WriteInternal(src, len);
         }
 
         // Copies source buffer content to internal buffer at m_WritePos.
         // Note: If bCopyUpToSrcWritePos == true, will write up to src.WritePosition( ), otherwise up to src.Length( ).
-        virtual bool Write(_In_ const IBuffer<T>& src, _In_ const bool& bCopyUpToSrcWritePos = true) noexcept(std::is_scalar_v<T>)
+        virtual bool Write(_In_ const IBuffer<T>& src, _In_ const bool& bCopyUpToSrcWritePos = true) noexcept(CC_IS_NOTHROW_COPY(T))
         {
             return Write(src.Get( ), bCopyUpToSrcWritePos ? src.WritePosition( ) : src.Length( ));
         }
 
         // Moves source buffer content to internal buffer at m_WritePos.
         // Note: If bCopyUpToSrcWritePos == true, will write up to src.WritePosition( ), otherwise up to src.Length( ).
-        virtual bool Write(_In_ IBuffer<T>&& src, _In_ const bool& bCopyUpToSrcWritePos = true) noexcept
+        virtual bool Write(_In_ IBuffer<T>&& src, _In_ const bool& bCopyUpToSrcWritePos = true) noexcept(CC_IS_NOTHROW_MOVE(T))
         {
             return Write(std::move(src.Get( )), bCopyUpToSrcWritePos ? src.WritePosition( ) : src.Length( ));
         }

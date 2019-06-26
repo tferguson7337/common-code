@@ -1,6 +1,11 @@
 #pragma once
 
+// CC
+#include "CCMacros.h"
+
+// SAL Macros
 #include <sal.h>
+
 
 namespace CC
 {
@@ -8,7 +13,7 @@ namespace CC
     class IBuffer
     {
     protected:
-        IBuffer( ) noexcept = default;
+        constexpr IBuffer( ) noexcept = default;
         IBuffer(const IBuffer<T>&) noexcept = default;
         IBuffer(IBuffer<T>&&) noexcept = default;
         virtual ~IBuffer( ) noexcept = default;
@@ -88,12 +93,12 @@ namespace CC
         // Copies a single object T to the current write position of the internal buffer - increments the write position.
         // Returns false if the write fails or otherwise could not be completed - returns true otherwise.
         // Note: Modifies buffer's write position if the write is successful.
-        virtual bool Write(_In_ const T& t) noexcept(std::is_scalar_v<T>) = 0;
+        virtual bool Write(_In_ const T& t) noexcept(CC_IS_NOTHROW_COPY(T)) = 0;
 
         // Moves a single object T to the current write position of the internal buffer - increments the write position.
         // Returns false if the write fails or otherwise could not be completed - returns true otherwise.
         // Note: Modifies buffer's write position if the write is successful.
-        virtual bool Write(_In_ T&& t) noexcept = 0;
+        virtual bool Write(_In_ T&& t) noexcept(CC_IS_NOTHROW_MOVE(T)) = 0;
 
         // Null-pointer write.
         // Returns false.
@@ -102,23 +107,23 @@ namespace CC
         // Raw pointer copy write.
         // Writes len elements from p to the internal buffer - increments the write position by len if successful.
         // Returns false if the write fails or otherwise could not be completed - returns true otherwise.
-        virtual bool Write(_In_ const T* const p, _In_ const size_t& len) noexcept(std::is_scalar_v<T>) = 0;
+        virtual bool Write(_In_ const T* const p, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_COPY(T)) = 0;
 
         // Raw pointer move write.
         // Writes len elements from p to the internal buffer - increments the write position by len if successful.
         // Returns false if the write fails or otherwise could not be completed - returns true otherwise.
-        virtual bool Write(_In_ T*&& p, _In_ const size_t& len) noexcept = 0;
+        virtual bool Write(_In_ T*&& p, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_MOVE(T)) = 0;
 
         // Buffer copy write.
         // Writes src.WritePosition( ) elements from src's internal buffer if bCopyUpToSrcWritePos is true.
         // Returns false if the write fails or otherwise could not be completed - returns true otherwise.
         // Note: Modifies buffer's write position if the write is successful.
-        virtual bool Write(_In_ const IBuffer<T>& src, _In_ const bool& bCopyUpToSrcWritePos) noexcept(std::is_scalar_v<T>) = 0;
+        virtual bool Write(_In_ const IBuffer<T>& src, _In_ const bool& bCopyUpToSrcWritePos) noexcept(CC_IS_NOTHROW_COPY(T)) = 0;
 
         // Buffer copy move.
         // Writes src.WritePosition( ) elements from src's internal buffer if bCopyUpToSrcWritePos is true.
         // Returns false if the write fails or otherwise could not be completed - returns true otherwise.
         // Note: Modifies buffer's write position if the write is successful.
-        virtual bool Write(_In_ IBuffer<T>&& src, _In_ const bool& bCopyUpToSrcWritePos) noexcept = 0;
+        virtual bool Write(_In_ IBuffer<T>&& src, _In_ const bool& bCopyUpToSrcWritePos) noexcept(CC_IS_NOTHROW_MOVE(T)) = 0;
     };
 }

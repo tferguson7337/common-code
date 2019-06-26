@@ -1,149 +1,55 @@
 #pragma once
 
+// CC
+#include "CCMacros.h"
+#include "CCIPointer.h"
+#include "CCPointerCommonHelpers.h"
+
+// STL
 #include <stdexcept>
+
 
 namespace CC
 {
     template <typename T>
-    class Pointer
+    class Pointer : public IPointer<T>, public PointerCommonHelpers<T>
     {
         // Testing class.
         friend class PointerTests;
 
+        // Type Alias
+        using PCH = PointerCommonHelpers<T>;
+
     protected:
 
-        /// Protected Member Functions \\\
+        /// Protected Data Members \\\
 
         T* m_pPtr;
         size_t m_Len;
 
-        /// Static Protected Throwing Validator Methods \\\
-
-        // Throw std::logic_error if p is nullptr.
-        inline static void ValidateDereferenceT(_In_ const char* const f, _In_opt_ const T* const p)
-        {
-            if ( !p )
-            {
-                static const std::string msg = ": Attempted to dereference nullptr.";
-                throw std::logic_error(f + msg);
-            }
-        }
-
         /// Static Protected Helper Methods \\\
-
-        // Allocates pointer to len T elements.
-        // Note: Will return nullptr if allocation fails.
-        _Ret_maybenull_ static T* Allocate(_In_ const size_t& len) noexcept
-        {
-            if ( len == 0 )
-            {
-                return nullptr;
-            }
-            else if ( len == 1 )
-            {
-                return new (std::nothrow) T;
-            }
-            else
-            {
-                return new (std::nothrow) T[len];
-            }
-        }
-
-        // Copies len element from src into dst.
-        static void CopyToRawPointer(_Out_writes_(len) T* dst, _In_reads_(len) const T* src, _In_ const size_t& len) noexcept(std::is_scalar_v<T>)
-        {
-            if ( !dst || !src )
-            {
-                return;
-            }
-
-            if constexpr ( std::is_scalar_v<T> )
-            {
-                memcpy(dst, src, sizeof(T) * len);
-            }
-            else
-            {
-                for ( size_t i = 0; i < len; i++ )
-                {
-                    dst[i] = src[i];
-                }
-            }
-        }
-
-        // Moves len element from src into dst.
-        static void MoveToRawPointer(_Out_writes_opt_(len) T* dst, _Inout_opt_count_(len) T* src, _In_ const size_t& len) noexcept
-        {
-            if ( !dst || !src )
-            {
-                return;
-            }
-
-            if constexpr ( std::is_scalar_v<T> )
-            {
-                memcpy(dst, src, sizeof(T) * len);
-            }
-            else
-            {
-                for ( size_t i = 0; i < len; i++ )
-                {
-                    dst[i] = std::move(src[i]);
-                }
-            }
-        }
-
-        // Allocates pointer to len T elements, copies contents of ptr to the new memory block.
-        _Ret_writes_maybenull_(len) static T* AllocateFromRawPointer(_In_reads_opt_(len) const T* src, _In_ const size_t& len) noexcept(std::is_scalar_v<T>)
-        {
-            T* p = nullptr;
-            if ( !!src && len > 0 )
-            {
-                p = Allocate(len);
-                if ( !!p )
-                {
-                    CopyToRawPointer(p, src, len);
-                }
-            }
-
-            return p;
-        }
-
-        // Allocates pointer to len T elements, copies contents of raw pointer to the new memory block.
-        _Ret_writes_maybenull_(src.m_Len) static T* AllocateFromPointerObj(_In_ const Pointer<T>& src) noexcept(std::is_scalar_v<T>)
-        {
-            T* p = nullptr;
-            if ( src )
-            {
-                p = Allocate(src.m_Len);
-                if ( !!p )
-                {
-                    CopyToRawPointer(p, src.m_pPtr, src.m_Len);
-                }
-            }
-            
-            return p;
-        }
 
         // Copies all Pointer data members from source Pointer object.
         // Note: The pointer data member is shallow copied.
-        static void CopyAllDataMembers(_Out_ Pointer<T>& dst, _In_ Pointer<T>& src) noexcept
+        static void CopyAllDataMembers(_Out_ Pointer<T>& dst, _In_ IPointer<T>& src) noexcept
         {
-            dst.m_pPtr = src.m_pPtr;
-            dst.m_Len = src.m_Len;
+            dst.m_pPtr = src.Get( );
+            dst.m_Len = src.Length( );
         }
 
         // Performs deep copy of src pointer, frees dst pointer, then assigned new pointer to dst.
         // Also copies all other Pointer data members of src to dst.
         // Note: If src pointer is nullptr, then dst will free its pointer and replace it with nullptr.
-        static void CopyPointerObj(_Inout_ Pointer<T>& dst, _In_ const Pointer<T>& src) noexcept(std::is_scalar_v<T>)
+        static void CopyPointerObj(_Inout_ Pointer<T>& dst, _In_ const IPointer<T>& src) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T))
         {
-            T* p = AllocateFromPointerObj(src);
+            T* p = PCH::AllocateFromIPointerObj(src);
             dst.InvokeFreeFunction( );
             dst.m_pPtr = p;
-            dst.m_Len = src.m_Len;
+            dst.m_Len = src.Length( );
         }
 
         // Performs shallow copy of src Pointer data members to dst, then resets src.
-        static void TransferPointerObj(_Inout_ Pointer<T>& dst, _Inout_ Pointer<T>& src) noexcept
+        static void TransferPointerObj(_Inout_ Pointer<T>& dst, _Inout_ IPointer<T>& src) noexcept
         {
             dst.InvokeFreeFunction( );
             CopyAllDataMembers(dst, src);
@@ -152,22 +58,19 @@ namespace CC
 
         /// Protected Helper Methods \\\
 
-        // Calls the appropriate cleanup function, if one has been assigned.
+        // Calls the appropriate cleanup function.
         void InvokeFreeFunction( ) noexcept
         {
-            if ( !!m_pPtr )
+            if ( m_Len == 1 )
             {
-                if ( m_Len == 1 )
-                {
-                    delete m_pPtr;
-                }
-                else
-                {
-                    delete[ ] m_pPtr;
-                }
-
-                Reset( );
+                delete m_pPtr;
             }
+            else
+            {
+                delete[ ] m_pPtr;
+            }
+
+            Reset( );
         }
 
     public:
@@ -182,13 +85,13 @@ namespace CC
 
         // Pointer length constructor
         explicit Pointer(_In_ const size_t& len) noexcept :
-            m_pPtr(Allocate(len)),
+            m_pPtr(PCH::Allocate(len)),
             m_Len((!!m_pPtr) ? len : 0)
         { }
 
         // Raw pointer copy constructor
-        Pointer(_In_reads_opt_(len) const T* p, _In_ const size_t& len) noexcept(std::is_scalar_v<T>) :
-            m_pPtr(AllocateFromRawPointer(p, len)),
+        Pointer(_In_reads_opt_(len) const T* p, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T)) :
+            m_pPtr(PCH::AllocateFromRawPointer(p, len)),
             m_Len((!!m_pPtr) ? len : 0)
         { }
 
@@ -201,8 +104,8 @@ namespace CC
         }
 
         // Copy constructor
-        Pointer(_In_ const Pointer<T>& src) noexcept(std::is_scalar_v<T>) :
-            m_pPtr(AllocateFromPointerObj(src)),
+        Pointer(_In_ const Pointer<T>& src) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T)) :
+            m_pPtr(PCH::AllocateFromIPointerObj(src)),
             m_Len((!!m_pPtr) ? src.m_Len : 0)
         { }
 
@@ -217,7 +120,7 @@ namespace CC
         /// Public Destructor \\\
 
         // Destructor
-        ~Pointer( ) noexcept
+        virtual ~Pointer( ) noexcept
         {
             InvokeFreeFunction( );
         }
@@ -225,7 +128,7 @@ namespace CC
         /// Operator Overloads \\\
 
         // Copy assignment
-        Pointer<T>& operator=(_In_ const Pointer<T>& src) noexcept(std::is_scalar_v<T>)
+        Pointer<T>& operator=(_In_ const Pointer<T>& src) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T))
         {
             if ( this != &src )
             {
@@ -268,7 +171,7 @@ namespace CC
         // Note: Will throw std::logic_error if m_pPtr == nullptr.
         virtual T& operator*( )
         {
-            ValidateDereferenceT(__FUNCSIG__, m_pPtr);
+            PCH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
             return *m_pPtr;
         }
 
@@ -276,7 +179,7 @@ namespace CC
         // Note: Will throw std::logic_error if m_pPtr == nullptr.
         virtual const T& operator*( ) const
         {
-            ValidateDereferenceT(__FUNCSIG__, m_pPtr);
+            PCH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
             return *m_pPtr;
         }
 
@@ -285,7 +188,7 @@ namespace CC
         virtual T* operator->( )
         {
             // Technically not dereferencing here, but the intention is likely to access a data member.
-            ValidateDereferenceT(__FUNCSIG__, m_pPtr);
+            PCH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
             return m_pPtr;
         }
 
@@ -294,7 +197,7 @@ namespace CC
         virtual const T* operator->( ) const
         {
             // Technically not dereferencing here, but the intention is likely to access a data member.
-            ValidateDereferenceT(__FUNCSIG__, m_pPtr);
+            PCH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
             return m_pPtr;
         }
 

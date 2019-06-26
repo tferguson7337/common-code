@@ -262,10 +262,10 @@ namespace CC
         {
             static const std::vector<SupportedCharacterTuple> sNumberChars
             {
-                MAKE_CHAR_TUPLE('0'), MAKE_CHAR_TUPLE('1'), MAKE_CHAR_TUPLE('2'), MAKE_CHAR_TUPLE('3'),
-                MAKE_CHAR_TUPLE('4'), MAKE_CHAR_TUPLE('5'), MAKE_CHAR_TUPLE('6'), MAKE_CHAR_TUPLE('7'),
-                MAKE_CHAR_TUPLE('8'), MAKE_CHAR_TUPLE('9'), MAKE_CHAR_TUPLE('A'), MAKE_CHAR_TUPLE('B'),
-                MAKE_CHAR_TUPLE('C'), MAKE_CHAR_TUPLE('D'), MAKE_CHAR_TUPLE('E'), MAKE_CHAR_TUPLE('F')
+                CC_MAKE_CHAR_TUPLE('0'), CC_MAKE_CHAR_TUPLE('1'), CC_MAKE_CHAR_TUPLE('2'), CC_MAKE_CHAR_TUPLE('3'),
+                CC_MAKE_CHAR_TUPLE('4'), CC_MAKE_CHAR_TUPLE('5'), CC_MAKE_CHAR_TUPLE('6'), CC_MAKE_CHAR_TUPLE('7'),
+                CC_MAKE_CHAR_TUPLE('8'), CC_MAKE_CHAR_TUPLE('9'), CC_MAKE_CHAR_TUPLE('A'), CC_MAKE_CHAR_TUPLE('B'),
+                CC_MAKE_CHAR_TUPLE('C'), CC_MAKE_CHAR_TUPLE('D'), CC_MAKE_CHAR_TUPLE('E'), CC_MAKE_CHAR_TUPLE('F')
             };
 
             return sNumberChars;
@@ -275,10 +275,10 @@ namespace CC
         {
             static const std::vector<SupportedStringTuple> sBasePrefixes
             {
-                MAKE_STR_TUPLE("0b"),   // binary
-                MAKE_STR_TUPLE("0"),    // octal
-                MAKE_STR_TUPLE("0n"),   // decimal
-                MAKE_STR_TUPLE("0x"),   // hexadecimal
+                CC_MAKE_STR_TUPLE("0b"),   // binary
+                CC_MAKE_STR_TUPLE("0"),    // octal
+                CC_MAKE_STR_TUPLE("0n"),   // decimal
+                CC_MAKE_STR_TUPLE("0x"),   // hexadecimal
             };
 
             return sBasePrefixes;
