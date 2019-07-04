@@ -63,7 +63,7 @@ namespace CC
                 return;
             }
 
-            if constexpr ( std::is_scalar_v<T> )
+            if constexpr ( !std::is_class_v<T> && !std::is_union_v<T> )
             {
                 memcpy(dst, src, sizeof(T) * len);
             }
@@ -84,7 +84,7 @@ namespace CC
                 return;
             }
 
-            if constexpr ( std::is_scalar_v<T> )
+            if constexpr ( !std::is_class_v<T> && !std::is_union_v<T> )
             {
                 memcpy(dst, src, sizeof(T) * len);
             }
