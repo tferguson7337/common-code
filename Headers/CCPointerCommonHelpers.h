@@ -56,7 +56,7 @@ namespace CC
         }
 
         // Copies len element from src into dst.
-        static void CopyToRawPointer(_Out_writes_(len) T* dst, _In_reads_(len) const T* src, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_COPY(T))
+        static void CopyToRawPointer(_Out_writes_opt_(len) T* dst, _In_reads_opt_(len) const T* src, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_COPY(T))
         {
             if ( !dst || !src )
             {
