@@ -11,7 +11,7 @@
 namespace CC
 {
     template <typename T>
-    class Buffer : public IBuffer<T>, public Pointer<T>
+    class [[nodiscard]] Buffer : public IBuffer<T>, public Pointer<T>
     {
         // Testing class.
         friend class BufferTests;
@@ -25,21 +25,21 @@ namespace CC
         /// Protected Validator Methods \\\ 
 
         // Returns false if pos >= this->m_Len - returns true otherwise.
-        inline bool ValidateNewWritePosition(_In_ const size_t& pos) const noexcept
+        [[nodiscard]] _Success_(return) inline bool ValidateNewWritePosition(_In_ const size_t& pos) const noexcept
         {
             return pos <= Length( );
         }
 
         // Returns false if m_WritePos >= this->m_Len.
         // Returns true otherwise.
-        inline bool ValidateSingleElementWriteRequest( ) const noexcept
+        [[nodiscard]] _Success_(return) inline bool ValidateSingleElementWriteRequest( ) const noexcept
         {
             return m_WritePos < Length( );
         }
 
         // Returns false if !p || !this->m_pPtr || writeLen == 0 || ((m_WritePos + writeLen) <= this->m_Len)
         // Returns true otherwise.
-        inline bool ValidateWriteRequest(_In_opt_ const T* const p, _In_ const size_t& writeLen) const noexcept
+        [[nodiscard]] _Success_(return) inline bool ValidateWriteRequest(_In_opt_ const T* const p, _In_ const size_t& writeLen) const noexcept
         {
             return !!p && !!Get( ) && writeLen > 0 && ((m_WritePos + writeLen) <= Length( ));
         }
@@ -102,7 +102,7 @@ namespace CC
         /// Protected Helper Methods \\\
 
         // Writes elements via copy to internal buffer, updates write position.
-        inline bool WriteInternal(_In_ const T* p, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_COPY(T))
+        [[nodiscard]] _Success_(return) bool WriteInternal(_In_ const T* p, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_COPY(T))
         {
             Pointer<T>::CopyToRawPointer(Get( ) + m_WritePos, p, len);
             m_WritePos += len;
@@ -110,7 +110,7 @@ namespace CC
         }
 
         // Writes elements via move semantics to internal buffer, updates write position.
-        inline bool WriteInternal(_In_ T* p, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_MOVE(T))
+        [[nodiscard]] _Success_(return) bool WriteInternal(_In_ T* p, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_MOVE(T))
         {
             Pointer<T>::MoveToRawPointer(Get( ) + m_WritePos, p, len);
             m_WritePos += len;
@@ -225,19 +225,19 @@ namespace CC
         }
 
         // Return true for non-null buffer - false otherwise.
-        virtual explicit operator bool( ) const noexcept
+        [[nodiscard]] virtual explicit operator bool( ) const noexcept
         {
             return !!Get( );
         }
 
         // Return pointer to internal buffer (mutable).
-        virtual explicit operator T*() noexcept
+        [[nodiscard]] _Ret_maybenull_ virtual explicit operator T*() noexcept
         {
             return Get( );
         }
 
         // Return pointer to internal buffer (immutable).
-        virtual explicit operator const T*() const noexcept
+        [[nodiscard]] _Ret_maybenull_ virtual explicit operator const T*() const noexcept
         {
             return Get( );
         }
@@ -245,29 +245,29 @@ namespace CC
         // Subscript overload - returns reference to mutable element from internal buffer via index.
         // Note: Will throw std::logic_error if this->m_pPtr == nullptr.
         // Note: Will throw std::out_of_range if i >=this->m_Len.
-        virtual T& operator[](_In_ const size_t& i)
+        [[nodiscard]] virtual T& operator[](_In_ const size_t& i)
         {
             ValidateAccessorIndexT(__FUNCSIG__, i);
-            return Get( )[i];
+            return this->m_pPtr[i];
         }
 
         // Subscript overload - returns reference to immutable element from internal buffer via index.
         // Note: Will throw std::logic_error if this->m_pPtr == nullptr.
         // Note: Will throw std::out_of_range if i >=this->m_Len.
-        virtual const T& operator[](_In_ const size_t& i) const
+        [[nodiscard]] virtual const T& operator[](_In_ const size_t& i) const
         {
             ValidateAccessorIndexT(__FUNCSIG__, i);
-            return Get( )[i];
+            return this->m_pPtr[i];
         }
 
         // Comparison Equal-To overload - returns true if contents of specified buffer match this->m_pPtr, false otherwise.
-        virtual const bool operator==(_In_ const IBuffer<T>& rhs) const noexcept
+        [[nodiscard]] virtual bool operator==(_In_ const IBuffer<T>& rhs) const noexcept
         {
             return Compare(rhs.Get( ), rhs.Length( ));
         }
 
         // Comparison Not-Equal-To overload - returns true if contents of specified buffer do not match this->m_pPtr, false otherwise.
-        virtual const bool operator!=(_In_ const IBuffer<T>& rhs) const noexcept
+        [[nodiscard]] virtual bool operator!=(_In_ const IBuffer<T>& rhs) const noexcept
         {
             return !Compare(rhs.Get( ), rhs.Length( ));
         }
@@ -275,31 +275,31 @@ namespace CC
         /// Getters \\\
 
         // Returns pointer to internal buffer (mutable).
-        inline virtual T* Get( ) noexcept
+        [[nodiscard]] _Ret_maybenull_ inline virtual T* Get( ) noexcept
         {
             return Pointer<T>::Get( );
         }
 
         // Returns pointer to internal buffer (immutable).
-        inline virtual const T* Get( ) const noexcept
+        [[nodiscard]] _Ret_maybenull_ inline virtual const T* Get( ) const noexcept
         {
             return Pointer<T>::Get( );
         }
 
         // Returns length of internal buffer.
-        inline virtual const size_t& Length( ) const noexcept
+        [[nodiscard]] inline virtual const size_t& Length( ) const noexcept
         {
             return Pointer<T>::Length( );
         }
 
         // Returns size in bytes of internal buffer.
-        inline virtual const size_t Size( ) const noexcept
+        [[nodiscard]] inline virtual const size_t Size( ) const noexcept
         {
             return Pointer<T>::Size( );
         }
 
         // Returns current write position.
-        inline virtual const size_t& WritePosition( ) const noexcept
+        [[nodiscard]] inline virtual const size_t& WritePosition( ) const noexcept
         {
             return m_WritePos;
         }
@@ -308,7 +308,7 @@ namespace CC
 
         // Sets write position to specified value.
         // Note: Will throw std::out_of_range if pos >= this->m_Len
-        inline virtual bool SetWritePosition(_In_ const size_t& pos) noexcept
+        [[nodiscard]] _Success_(return) inline virtual bool SetWritePosition(_In_ const size_t& pos) noexcept
         {
             if ( !ValidateNewWritePosition(pos) )
             {
@@ -342,18 +342,18 @@ namespace CC
         }
 
         // Returns true if contents of this->m_pPtr match contents of p (up to len), false otherwise.
-        virtual const bool Compare(_In_reads_opt_(len) const T* p, _In_ const size_t& len) const noexcept
+        [[nodiscard]] _Success_(return) virtual bool Compare(_In_reads_opt_(len) const T* p, _In_ const size_t& len) const noexcept
         {
             bool bRet = true;
 
             // Trivial case(t): both pointers point to same addr.
-            if ( Get( ) == p )
+            if ( this->m_pPtr == p )
             {
                 return true;
             }
 
             // Trivial cases(f): Either pointer is null or requested comparison-length exceeds length of buffer.
-            if ( !Get( ) || !p || len > Length( ) )
+            if ( !this->m_pPtr || !p || len > Length( ) )
             {
                 return false;
             }
@@ -361,13 +361,13 @@ namespace CC
             // Use memcmp if possible (scalar values only).
             if constexpr ( std::is_scalar_v<T> )
             {
-                bRet = (memcmp(Get( ), p, len * sizeof(T)) == 0);
+                bRet = (memcmp(this->m_pPtr, p, len * sizeof(T)) == 0);
             }
             else
             {
                 for ( size_t i = 0; i < len; i++ )
                 {
-                    if ( Get( )[i] != p[i] )
+                    if ( this->m_pPtr[i] != p[i] )
                     {
                         return false;
                     }
@@ -378,66 +378,66 @@ namespace CC
         }
 
         // Returns true if contents of this->m_pPtr match contents of buffer.Get( ), false otherwise.
-        inline virtual const bool Compare(_In_ const IBuffer<T>& buffer) const noexcept
+        [[nodiscard]] _Success_(return) inline virtual bool Compare(_In_ const IBuffer<T>& buffer) const noexcept
         {
             return Compare(buffer.Get( ), buffer.Length( ));
         }
 
         // Writes specified T object to internal buffer at m_WritePos.
         // Returns false if write would exceed length of buffer, true otherwise.
-        inline virtual bool Write(_In_ const T& t) noexcept(CC_IS_NOTHROW_COPY(T))
+        [[nodiscard]] _Success_(return) inline virtual bool Write(_In_ const T& t) noexcept(CC_IS_NOTHROW_COPY(T))
         {
             if ( !ValidateSingleElementWriteRequest( ) )
             {
                 return false;
             }
 
-            Get( )[m_WritePos++] = t;
+            this->m_pPtr[m_WritePos++] = t;
             return true;
         }
 
         // Writes specified T object to internal buffer at m_WritePos.
         // Returns false if write would exceed length of buffer, true otherwise.
-        inline virtual bool Write(_Inout_ T&& t) noexcept(CC_IS_NOTHROW_MOVE(T))
+        [[nodiscard]] _Success_(return) inline virtual bool Write(_Inout_ T&& t) noexcept(CC_IS_NOTHROW_MOVE(T))
         {
             if ( !ValidateSingleElementWriteRequest( ) )
             {
                 return false;
             }
 
-            Get( )[m_WritePos++] = std::move(t);
+            this->m_pPtr[m_WritePos++] = std::move(t);
             return true;
         }
 
         // Null-pointer write.
         // Returns false.
-        virtual bool Write(_In_ const std::nullptr_t&, _In_ const size_t&) noexcept
+        [[nodiscard]] _Success_(return) virtual bool Write(_In_ const std::nullptr_t&, _In_ const size_t&) noexcept
         {
             return false;
         }
 
         // Copies raw pointer content to internal buffer at m_WritePos, increments m_WritePos by len on successful write.
-        virtual bool Write(_In_reads_opt_(len) const T* const src, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_COPY(T))
+        [[nodiscard]] _Success_(return) virtual bool Write(_In_reads_opt_(len) const T* const src, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_COPY(T))
         {
             return ValidateWriteRequest(src, len) && WriteInternal(src, len);
         }
 
         // Moves raw pointer content to internal buffer at m_WritePos, increments m_WritePos by len on successful write.
-        virtual bool Write(_Inout_opt_count_(len) T*&& src, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_MOVE(T))
+        [[nodiscard]] _Success_(return) virtual bool Write(_Inout_opt_count_(len) T*&& src, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_MOVE(T))
         {
             return ValidateWriteRequest(src, len) && WriteInternal(src, len);
         }
 
         // Copies source buffer content to internal buffer at m_WritePos.
         // Note: If bCopyUpToSrcWritePos == true, will write up to src.WritePosition( ), otherwise up to src.Length( ).
-        virtual bool Write(_In_ const IBuffer<T>& src, _In_ const bool& bCopyUpToSrcWritePos = true) noexcept(CC_IS_NOTHROW_COPY(T))
+        [[nodiscard]] _Success_(return) virtual bool Write(_In_ const IBuffer<T>& src, _In_ const bool& bCopyUpToSrcWritePos = true) noexcept(CC_IS_NOTHROW_COPY(T))
         {
             return Write(src.Get( ), bCopyUpToSrcWritePos ? src.WritePosition( ) : src.Length( ));
         }
 
         // Moves source buffer content to internal buffer at m_WritePos.
         // Note: If bCopyUpToSrcWritePos == true, will write up to src.WritePosition( ), otherwise up to src.Length( ).
-        virtual bool Write(_In_ IBuffer<T>&& src, _In_ const bool& bCopyUpToSrcWritePos = true) noexcept(CC_IS_NOTHROW_MOVE(T))
+        [[nodiscard]] _Success_(return) virtual bool Write(_In_ IBuffer<T>&& src, _In_ const bool& bCopyUpToSrcWritePos = true) noexcept(CC_IS_NOTHROW_MOVE(T))
         {
             return Write(std::move(src.Get( )), bCopyUpToSrcWritePos ? src.WritePosition( ) : src.Length( ));
         }

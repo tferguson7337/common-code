@@ -122,7 +122,7 @@ namespace CC
 
             DynamicBuffer<T> dynBuf(origBufSize);
             const T* pBufPtr = dynBuf.Get( );
-            dynBuf.GrowBufferIfRequired(minInc);
+            SUTL_TEST_ASSERT(dynBuf.GrowBufferIfRequired(minInc));
             if constexpr ( bGrowReqZeroWritePos )
             {
                 SUTL_TEST_ASSERT(pBufPtr != dynBuf.Get( ));
@@ -132,7 +132,7 @@ namespace CC
             dynBuf = DynamicBuffer<T>(origBufSize);
             dynBuf.m_WritePos = origBufSize;
             pBufPtr = dynBuf.Get( );
-            dynBuf.GrowBufferIfRequired(minInc);
+            SUTL_TEST_ASSERT(dynBuf.GrowBufferIfRequired(minInc));
             if constexpr ( bGrowReqEndWritePos )
             {
                 SUTL_TEST_ASSERT(pBufPtr != dynBuf.Get( ));
@@ -288,11 +288,11 @@ namespace CC
             {
                 if constexpr ( Move )
                 {
-                    dynBuf.Write(std::move(testData[0]));
+                    SUTL_TEST_ASSERT(dynBuf.Write(std::move(testData[0])));
                 }
                 else
                 {
-                    dynBuf.Write(testData[0]);
+                    SUTL_TEST_ASSERT(dynBuf.Write(testData[0]));
                 }
             }
             catch ( const std::exception& e )
@@ -311,11 +311,11 @@ namespace CC
             {
                 if constexpr ( Move )
                 {
-                    dynBuf.Write(std::move(testData[1]));
+                    SUTL_TEST_ASSERT(dynBuf.Write(std::move(testData[1])));
                 }
                 else
                 {
-                    dynBuf.Write(testData[1]);
+                    SUTL_TEST_ASSERT(dynBuf.Write(testData[1]));
                 }
             }
             catch ( const std::exception& e )

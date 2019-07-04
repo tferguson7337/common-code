@@ -29,10 +29,10 @@ namespace CC
 
     private:
 
+        // Type aliases
         using TestQuantity = PointerTests::TestQuantity;
         using Helper = PointerTests::Helper;
 
-        // Type aliases
         using UTR = UnitTestResult;
         using UTFunc = std::function<UTR(void)>;
         using UTList = std::list<UTFunc>;
@@ -452,10 +452,14 @@ namespace CC
 
             if ( buffer )
             {
-                SUTL_TEST_ASSERT(buffer.Get( ) != dst.Get( ));
+                const T* pRawBufPtr = buffer.Get( );
+                const T* pRawDstPtr = dst.Get( );
+                SUTL_TEST_ASSERT(!!pRawBufPtr);
+                SUTL_TEST_ASSERT(!!pRawDstPtr);
+                SUTL_TEST_ASSERT(pRawBufPtr != pRawDstPtr);
                 for ( size_t i = 0; i < dst.Length( ); i++ )
                 {
-                    SUTL_TEST_ASSERT(buffer.Get( )[i] == dst.Get( )[i]);
+                    SUTL_TEST_ASSERT(pRawBufPtr[i] == pRawDstPtr[i]);
                 }
             }
             else
@@ -469,7 +473,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         static UTR CopyAssignment( )
         {
-            constexpr const size_t len = GetTQNum<TQ>( );
+            constexpr const size_t len = GetTQNum<TQ>( );            
             Buffer<T> buffer(GetTestData<T, TQ>( ).data( ), len);
             Buffer<T> dst;
 
@@ -482,16 +486,21 @@ namespace CC
                 SUTL_TEST_EXCEPTION(e.what( ));
             }
 
+            SUTL_TEST_ASSERT(dst.Length( ) == len);
             SUTL_TEST_ASSERT(buffer.Length( ) == dst.Length( ));
             SUTL_TEST_ASSERT(buffer.Size( ) == dst.Size( ));
             SUTL_TEST_ASSERT(buffer.WritePosition( ) == dst.WritePosition( ));
 
             if ( buffer )
             {
-                SUTL_TEST_ASSERT(buffer.Get( ) != dst.Get( ));
+                const T* pRawBufPtr = buffer.Get( );
+                const T* pRawDstPtr = dst.Get( );
+                SUTL_TEST_ASSERT(!!pRawBufPtr);
+                SUTL_TEST_ASSERT(!!pRawDstPtr);
+                SUTL_TEST_ASSERT(pRawBufPtr != pRawDstPtr);
                 for ( size_t i = 0; i < dst.Length( ); i++ )
                 {
-                    SUTL_TEST_ASSERT(buffer.Get( )[i] == dst.Get( )[i]);
+                    SUTL_TEST_ASSERT(pRawBufPtr[i] == pRawDstPtr[i]);
                 }
             }
             else
@@ -595,7 +604,7 @@ namespace CC
 
             try
             {
-                buffer[len];
+                static_cast<void>(buffer[len]);
             }
             catch ( const std::out_of_range& )
             {

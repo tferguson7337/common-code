@@ -12,7 +12,7 @@
 namespace CC
 {
     template <typename T>
-    class Pointer : public IPointer<T>, public PointerCommonHelpers<T>
+    class [[nodiscard]] Pointer : public IPointer<T>, public PointerCommonHelpers<T>
     {
         // Testing class.
         friend class PointerTests;
@@ -150,26 +150,26 @@ namespace CC
         }
 
         // bool overload - returns true if m_pPtr != nullptr, false otherwise.
-        virtual explicit operator bool( ) const noexcept
+        [[nodiscard]] virtual explicit operator bool( ) const noexcept
         {
-            return m_pPtr != nullptr;
+            return !!m_pPtr;
         }
 
         // T* overload - returns pointer to mutable internal pointer.
-        virtual explicit operator T*() noexcept
+        [[nodiscard]] _Ret_maybenull_ virtual explicit operator T*() noexcept
         {
             return m_pPtr;
         }
 
         // const T* overload - returns pointer to immutable internal pointer.
-        virtual explicit operator const T*() const noexcept
+        [[nodiscard]] _Ret_maybenull_ virtual explicit operator const T*() const noexcept
         {
             return m_pPtr;
         }
 
         // Dereference overload - returns reference to first element from internal pointer (mutable).
         // Note: Will throw std::logic_error if m_pPtr == nullptr.
-        virtual T& operator*( )
+        [[nodiscard]] virtual T& operator*( )
         {
             PCH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
             return *m_pPtr;
@@ -177,7 +177,7 @@ namespace CC
 
         // Dereference overload - returns reference to first element from internal pointer (immutable).
         // Note: Will throw std::logic_error if m_pPtr == nullptr.
-        virtual const T& operator*( ) const
+        [[nodiscard]] virtual const T& operator*( ) const
         {
             PCH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
             return *m_pPtr;
@@ -185,7 +185,7 @@ namespace CC
 
         // Pointer-member-access overload - returns reference to internal pointer (mutable).
         // Note: Will throw std::logic_error if m_pPtr == nullptr.
-        virtual T* operator->( )
+        [[nodiscard]] virtual T* operator->( )
         {
             // Technically not dereferencing here, but the intention is likely to access a data member.
             PCH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
@@ -194,7 +194,7 @@ namespace CC
 
         // Pointer-member-access overload - returns reference to internal pointer (immutable).
         // Note: Will throw std::logic_error if m_pPtr == nullptr.
-        virtual const T* operator->( ) const
+        [[nodiscard]] virtual const T* operator->( ) const
         {
             // Technically not dereferencing here, but the intention is likely to access a data member.
             PCH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
@@ -204,25 +204,25 @@ namespace CC
         /// Getters \\\
 
         // Returns pointer to internal pointer (mutable).
-        virtual T* Get( ) noexcept
+        [[nodiscard]] _Ret_maybenull_ virtual T* Get( ) noexcept
         {
             return m_pPtr;
         }
 
         // Returns pointer to internal pointer (immutable).
-        virtual const T* Get( ) const noexcept
+        [[nodiscard]] _Ret_maybenull_ virtual const T* Get( ) const noexcept
         {
             return m_pPtr;
         }
 
         // Returns length of internal pointer.
-        virtual const size_t& Length( ) const noexcept
+        [[nodiscard]] virtual const size_t& Length( ) const noexcept
         {
             return m_Len;
         }
 
         // Returns size in bytes of internal pointer.
-        virtual const size_t Size( ) const noexcept
+        [[nodiscard]] virtual const size_t Size( ) const noexcept
         {
             return sizeof(T) * m_Len;
         }

@@ -13,7 +13,7 @@
 namespace CC
 {
     template <typename T>
-    class SharedPointer : public IPointer<T>, public PointerCommonHelpers<T>
+    class [[nodiscard]] SharedPointer : public IPointer<T>, public PointerCommonHelpers<T>
     {
         // Test class.
         friend class SharedPointerTests;
@@ -33,7 +33,7 @@ namespace CC
 
         /// Static Protected Helper Methods \\\
 
-        _Ret_maybenull_ static RefCounter* AllocateRefCounter( ) noexcept
+        [[nodiscard]] _Ret_maybenull_ static RefCounter* AllocateRefCounter( ) noexcept
         {
             return new (std::nothrow) RefCounter(1);
         }
@@ -179,40 +179,40 @@ namespace CC
 
         /// Public Operator Overloads \\\
 
-        virtual explicit operator bool( ) const noexcept
+        [[nodiscard]] virtual explicit operator bool( ) const noexcept
         {
             return !!m_pPtr;
         }
 
-        virtual explicit operator T*() noexcept
+        [[nodiscard]] _Ret_maybenull_ virtual explicit operator T*() noexcept
         {
             return m_pPtr;
         }
 
-        virtual explicit operator const T*() const noexcept
+        [[nodiscard]] _Ret_maybenull_ virtual explicit operator const T*() const noexcept
         {
             return m_pPtr;
         }
 
-        virtual T& operator*( )
+        [[nodiscard]] virtual T& operator*( )
         {
             PCH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
             return *m_pPtr;
         }
 
-        virtual const T& operator*( ) const
+        [[nodiscard]] virtual const T& operator*( ) const
         {
             PCH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
             return *m_pPtr;
         }
 
-        virtual T* operator->( )
+        [[nodiscard]] virtual T* operator->( )
         {
             PCH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
             return m_pPtr;
         }
 
-        virtual const T* operator->( ) const
+        [[nodiscard]] virtual const T* operator->( ) const
         {
             PCH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
             return m_pPtr;
@@ -221,25 +221,25 @@ namespace CC
         /// Getters \\\
 
         // Returns pointer to mutable internal pointer.
-        virtual T* Get( ) noexcept
+        [[nodiscard]] _Ret_maybenull_ virtual T* Get( ) noexcept
         {
             return m_pPtr;
         }
 
         // Returns pointer to immutable internal pointer.
-        virtual const T* Get( ) const noexcept
+        [[nodiscard]] _Ret_maybenull_ virtual const T* Get( ) const noexcept
         {
             return m_pPtr;
         }
 
         // Returns length of elements pointed to by internal pointer.
-        virtual const size_t& Length( ) const noexcept
+        [[nodiscard]] virtual const size_t& Length( ) const noexcept
         {
             return m_Len;
         }
 
         // Returns size in bytes of data element(s) pointed to by internal pointer.
-        virtual const size_t Size( ) const noexcept
+        [[nodiscard]] virtual const size_t Size( ) const noexcept
         {
             return sizeof(T) * m_Len;
         }

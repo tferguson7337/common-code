@@ -37,24 +37,6 @@ namespace CC
 
         /// Common Protected Static Helper Methods \\\
 
-        // Allocates pointer to len T elements.
-        // Note: Will return nullptr if allocation fails.
-        _Ret_maybenull_ static T* Allocate(_In_ const size_t& len) noexcept
-        {
-            if ( len == 0 )
-            {
-                return nullptr;
-            }
-            else if ( len == 1 )
-            {
-                return new (std::nothrow) T;
-            }
-            else
-            {
-                return new (std::nothrow) T[len];
-            }
-        }
-
         // Copies len element from src into dst.
         static void CopyToRawPointer(_Out_writes_opt_(len) T* dst, _In_reads_opt_(len) const T* src, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_COPY(T))
         {
@@ -97,8 +79,26 @@ namespace CC
             }
         }
 
+        // Allocates pointer to len T elements.
+        // Note: Will return nullptr if allocation fails.
+        [[nodiscard]] _Ret_maybenull_ static T* Allocate(_In_ const size_t& len) noexcept
+        {
+            if ( len == 0 )
+            {
+                return nullptr;
+            }
+            else if ( len == 1 )
+            {
+                return new (std::nothrow) T;
+            }
+            else
+            {
+                return new (std::nothrow) T[len];
+            }
+        }
+
         // Allocates pointer to len T elements, copies contents of ptr to the new memory block.
-        _Ret_writes_maybenull_(len) static T* AllocateFromRawPointer(_In_reads_opt_(len) const T* src, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T))
+        [[nodiscard]] _Ret_writes_maybenull_(len) static T* AllocateFromRawPointer(_In_reads_opt_(len) const T* src, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T))
         {
             T* p = nullptr;
             if ( !!src && len > 0 )
@@ -114,7 +114,7 @@ namespace CC
         }
 
         // Allocates pointer to len T elements, copies contents of raw pointer to the new memory block.
-        _Ret_maybenull_ static T* AllocateFromIPointerObj(_In_ const IPointer<T>& src) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T))
+        [[nodiscard]] _Ret_maybenull_ static T* AllocateFromIPointerObj(_In_ const IPointer<T>& src) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T))
         {
             return AllocateFromRawPointer(src.Get( ), src.Length( ));
         }

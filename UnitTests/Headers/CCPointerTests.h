@@ -18,6 +18,7 @@ namespace CC
     {
         friend class BufferTests;
         friend class DynamicBufferTests;
+        friend class SharedPointerTests;
 
     private:
 
@@ -96,7 +97,7 @@ namespace CC
                 return *this;
             }
 
-            const bool operator==(const Helper& rhs) const noexcept
+            bool operator==(const Helper& rhs) const noexcept
             {
                 return m_u8 == rhs.m_u8
                     && m_u16 == rhs.m_u16
@@ -105,7 +106,7 @@ namespace CC
                     && memcmp(m_u8Arr, rhs.m_u8Arr, sizeof(m_u8Arr)) == 0;
             }
 
-            const bool operator!=(const Helper& rhs) const noexcept
+            bool operator!=(const Helper& rhs) const noexcept
             {
                 return !operator==(rhs);
             }

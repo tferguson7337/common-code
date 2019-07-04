@@ -87,7 +87,7 @@ namespace CC
         /// Constexpr Enum Validators \\\
 
         template <OperationType OT>
-        static constexpr bool IsValidOperationType( ) noexcept
+        [[nodiscard]] _Success_(return) static constexpr bool IsValidOperationType( ) noexcept
         {
             return OT == OperationType::Comparison
                 || OT == OperationType::Copy
@@ -96,7 +96,7 @@ namespace CC
         }
 
         template <EarlyExitResult EER>
-        static constexpr bool IsValidEarlyExitResult( ) noexcept
+        [[nodiscard]] _Success_(return) static constexpr bool IsValidEarlyExitResult( ) noexcept
         {
             return EER == EarlyExitResult::NoExit
                 || EER == EarlyExitResult::True
@@ -106,7 +106,7 @@ namespace CC
         }
 
         template <ReturnType RT>
-        static constexpr bool IsValidReturnType( ) noexcept
+        [[nodiscard]] _Success_(return) static constexpr bool IsValidReturnType( ) noexcept
         {
             return RT == ReturnType::CCBuffer
                 || RT == ReturnType::CppString;
@@ -115,7 +115,7 @@ namespace CC
         /// Common Private Helpers \\\
 
         template <ReturnType RT, typename C>
-        static auto BuildEmptyString( )
+        [[nodiscard]] static auto BuildEmptyString( )
         {
             if constexpr ( RT == ReturnType::CCBuffer )
             {
@@ -128,7 +128,7 @@ namespace CC
         }
 
         template <ReturnType RT, typename C>
-        static auto BuildBuffer(_In_ const size_t& len)
+        [[nodiscard]] static auto BuildBuffer(_In_ const size_t& len)
         {
             if constexpr ( RT == ReturnType::CCBuffer )
             {
@@ -154,7 +154,7 @@ namespace CC
         // Determines if an early-exit condition for string comparison has been met.
         // If an early-exit condition is met, returns value specifying early return result.
         template <typename C>
-        static EarlyExitResult CheckForComparisonEarlyExit(_In_ const C* lhs, _In_ const size_t& lhsLen, _In_ const C* rhs, _In_ const size_t& rhsLen) noexcept
+        [[nodiscard]] static EarlyExitResult CheckForComparisonEarlyExit(_In_ const C* lhs, _In_ const size_t& lhsLen, _In_ const C* rhs, _In_ const size_t& rhsLen) noexcept
         {
             if ( lhsLen != rhsLen )
             {
@@ -182,7 +182,7 @@ namespace CC
         // Performs case-sensitive comparison of two specified strings.
         // Returns true if both strings are the same, false otherwise.
         template <class T>
-        static bool CaseSensitiveCompare(_In_ const T* lhs, _In_ const T* rhs, _In_ const size_t& len) noexcept
+        [[nodiscard]] _Success_(return) static bool CaseSensitiveCompare(_In_ const T* lhs, _In_ const T* rhs, _In_ const size_t& len) noexcept
         {
             if constexpr ( std::is_same_v<T, utf8> )
             {
@@ -197,7 +197,7 @@ namespace CC
         // Performs case-insensitive comparison of two specified strings.
         // Returns true if both strings are the same, false otherwise.
         template <class T>
-        static bool CaseInsensitiveCompare(_In_ const T* lhs, _In_ const T* rhs, _In_ const size_t& len) noexcept
+        [[nodiscard]] _Success_(return) static bool CaseInsensitiveCompare(_In_ const T* lhs, _In_ const T* rhs, _In_ const size_t& len) noexcept
         {
             if constexpr ( std::is_same_v<T, utf8> )
             {
@@ -212,7 +212,7 @@ namespace CC
         /// Copy/UTFConversion Private Helpers \\\
 
         template <ReturnType RT, typename C>
-        static EarlyExitResult CheckForCopyEarlyExit(_In_ const C* src, _In_ const size_t& len) noexcept
+        [[nodiscard]] static EarlyExitResult CheckForCopyEarlyExit(_In_ const C* src, _In_ const size_t& len) noexcept
         {
             if ( !src || len == 0 )
             {
@@ -230,19 +230,19 @@ namespace CC
         }
 
         template <ReturnType RT, typename CSrc>
-        static EarlyExitResult CheckForUTFConversionEarlyExit(_In_ const CSrc* src, _In_ const size_t& len) noexcept
+        [[nodiscard]] static EarlyExitResult CheckForUTFConversionEarlyExit(_In_ const CSrc* src, _In_ const size_t& len) noexcept
         {
             return CheckForCopyEarlyExit<RT>(src, len);
         }
 
         template <typename C>
-        static C* GetRawDestinationPointer(_In_ Buffer<C>& dst) noexcept
+        [[nodiscard]] _Ret_maybenull_ static C* GetRawDestinationPointer(_In_ Buffer<C>& dst) noexcept
         {
             return dst.Get( );
         }
 
         template <typename C>
-        static C* GetRawDestinationPointer(_In_ std::basic_string<C>& dst) noexcept
+        [[nodiscard]] _Ret_maybenull_ static C* GetRawDestinationPointer(_In_ std::basic_string<C>& dst) noexcept
         {
             return const_cast<C*>(dst.data( ));
         }
@@ -258,7 +258,7 @@ namespace CC
 
         /// Number Conversion Private Helpers \\\
 
-        static const std::vector<SupportedCharacterTuple>& GetNumberCharsTuple( )
+        [[nodiscard]] static const std::vector<SupportedCharacterTuple>& GetNumberCharsTuple( )
         {
             static const std::vector<SupportedCharacterTuple> sNumberChars
             {
@@ -271,7 +271,7 @@ namespace CC
             return sNumberChars;
         }
 
-        static const std::vector<SupportedStringTuple>& GetBasePrefixesTuple( )
+        [[nodiscard]] static const std::vector<SupportedStringTuple>& GetBasePrefixesTuple( )
         {
             static const std::vector<SupportedStringTuple> sBasePrefixes
             {
@@ -287,7 +287,7 @@ namespace CC
         // Returns true if Base template argument is one of the explicitly
         // defined Base enum class values.  Returns false otherwise.
         template <Base B>
-        static constexpr bool IsValidBaseType( ) noexcept
+        [[nodiscard]] _Success_(return) static constexpr bool IsValidBaseType( ) noexcept
         {
             if constexpr ( B == Base::Binary || B == Base::Octal || B == Base::Decimal || B == Base::Hexadecimal )
             {
@@ -301,7 +301,7 @@ namespace CC
 
         // Returns a predefined prefix string for a particular Base value.
         template <Base B, class T>
-        static const std::basic_string<T>& GetBasePrefixString( ) noexcept
+        [[nodiscard]] static const std::basic_string<T>& GetBasePrefixString( ) noexcept
         {
             const std::vector<SupportedStringTuple>& bases = GetBasePrefixesTuple( );
 
@@ -326,7 +326,7 @@ namespace CC
         // Returns a predefined character representation of a number.
         // The number must be between 0 and 15, inclusive.
         template <class T, class N>
-        static const T& NumberToCharacter(_In_ const N& n) noexcept
+        [[nodiscard]] static const T& NumberToCharacter(_In_ const N& n) noexcept
         {
             return std::get<T>(GetNumberCharsTuple( ).at(static_cast<size_t>(n)));
         }
@@ -335,7 +335,7 @@ namespace CC
         // For Binary, Octal, and Hexadecimal bases, this includes all leading zeroes.
         // Note: Number of leading zeroes is dependent on sizeof(N) and Base.
         template <Base B, class N>
-        static const size_t GetTotalDigits(_In_ const N& n) noexcept
+        [[nodiscard]] static size_t GetTotalDigits(_In_ const N& n) noexcept
         {
             if constexpr ( B == Base::Binary )
             {
@@ -379,7 +379,7 @@ namespace CC
         // For Binary, Octal, and Hexadecimal, this will return the amount to shift by.
         // For Decimal, this will return the amount to divide by.
         template <Base B, class N>
-        static constexpr const N GetAdjuster( ) noexcept
+        [[nodiscard]] static constexpr N GetAdjuster( ) noexcept
         {
             if constexpr ( B == Base::Binary )
             {
@@ -403,7 +403,7 @@ namespace CC
         // For Binary, Octal, and Hexadecimal, this will apply an appropriate bit mask.
         // For Decimal, this will return the result of modulus-by-10.
         template <Base B, class N>
-        static const N GetDigit(_In_ const N& n) noexcept
+        [[nodiscard]] static N GetDigit(_In_ const N& n) noexcept
         {
             if constexpr ( B == Base::Binary )
             {
@@ -448,7 +448,7 @@ namespace CC
 
         // Returns a pre-defined base-dependent separator that is placed between groups of digits.
         template <Base B, class T>
-        static constexpr const T GetSeparator( ) noexcept
+        [[nodiscard]] static constexpr T GetSeparator( ) noexcept
         {
             if constexpr ( B == Base::Binary || B == Base::Octal || B == Base::Hexadecimal )
             {
@@ -462,7 +462,7 @@ namespace CC
 
         // Returns the base-dependent number of digits that occur between separators.
         template <Base B>
-        static constexpr const size_t GetSeparatorInterval( ) noexcept
+        [[nodiscard]] static constexpr size_t GetSeparatorInterval( ) noexcept
         {
             if constexpr ( B == Base::Binary || B == Base::Hexadecimal )
             {
@@ -476,7 +476,7 @@ namespace CC
 
         // Returns the buffer length that is required to hold all digits.
         template <Base B, class T, class N>
-        static size_t GetRequiredLength(_In_ const N& n) noexcept
+        [[nodiscard]] static size_t GetRequiredLength(_In_ const N& n) noexcept
         {
             const size_t prefixSize = GetBasePrefixString<B, T>( ).size( );
             const size_t digits = GetTotalDigits<B>(n);
@@ -557,7 +557,7 @@ namespace CC
         // Returns number of characters in a C-string, not including the null-terminator.
         // Note: nullptr is treated as an empty string (i.e., returns 0).
         template <class T>
-        static size_t GetLength(_In_opt_z_ const T* src) noexcept
+        [[nodiscard]] static size_t GetLength(_In_opt_z_ const T* src) noexcept
         {
             static_assert(IsSupportedCharType<T>( ), __FUNCTION__": Invalid character type.");
 
@@ -580,21 +580,21 @@ namespace CC
 
         // Forwards approriate arguments to Compare(const T*, const size_t&, const T*, const size_t&, const bool&)
         template <class T>
-        static bool Compare(_In_ const std::basic_string<T>& lhs, _In_ const std::basic_string<T>& rhs, _In_ const bool& bCaseSensitive = true) noexcept
+        [[nodiscard]] _Success_(return) static bool Compare(_In_ const std::basic_string<T>& lhs, _In_ const std::basic_string<T>& rhs, _In_ const bool& bCaseSensitive = true) noexcept
         {
             return Compare(lhs.c_str( ), lhs.length( ), rhs.c_str( ), rhs.length( ), bCaseSensitive);
         }
 
         // Calculates string length and forwards approriate arguments to Compare(const T*, const size_t&, const T*, const size_t&, const bool&)
         template <class T>
-        static bool Compare(_In_z_ const T* lhs, _In_z_ const T* rhs, const bool& bCaseSensitive = true) noexcept
+        [[nodiscard]] _Success_(return) static bool Compare(_In_z_ const T* lhs, _In_z_ const T* rhs, const bool& bCaseSensitive = true) noexcept
         {
             return Compare(lhs, GetLength(lhs), rhs, GetLength(rhs), bCaseSensitive);
         }
 
         // Returns true if both strings are the same size and have the same contents.
         template <class T>
-        static bool Compare(_In_ const T* lhs, _In_ const size_t& lhsLen, _In_ const T* rhs, _In_ const size_t& rhsLen, _In_ const bool& bCaseSensitive = true) noexcept
+        [[nodiscard]] _Success_(return) static bool Compare(_In_ const T* lhs, _In_ const size_t& lhsLen, _In_ const T* rhs, _In_ const size_t& rhsLen, _In_ const bool& bCaseSensitive = true) noexcept
         {
             static_assert(IsSupportedCharType<T>( ), __FUNCTION__": Invalid character type.");
 
@@ -616,19 +616,19 @@ namespace CC
         /// Copy Public Methods \\\
 
         template <ReturnType RT, typename C>
-        static auto Copy(_In_ const std::basic_string<C>& src)
+        [[nodiscard]] static auto Copy(_In_ const std::basic_string<C>& src)
         {
             return Copy<RT, C>(src.c_str( ), src.length( ));
         }
 
         template <ReturnType RT, typename C>
-        static auto Copy(_In_z_ const C* src)
+        [[nodiscard]] static auto Copy(_In_z_ const C* src)
         {
             return Copy<RT, C>(src, GetLength(src));
         }
 
         template <ReturnType RT, typename C>
-        static auto Copy(_In_ const C* src, const size_t& len)
+        [[nodiscard]] static auto Copy(_In_ const C* src, const size_t& len)
         {
             static_assert(IsValidReturnType<RT>( ), __FUNCTION__": Invalid ReturnType template argument");
             static_assert(IsSupportedCharType<C>( ), __FUNCTION__": Invalid character type template argument");
@@ -654,19 +654,19 @@ namespace CC
         /// UTFConversion Public Methods \\\
 
         template <ReturnType RT, typename CDst, typename CSrc>
-        static auto UTFConversion(_In_ const std::basic_string<CSrc>& src)
+        [[nodiscard]] static auto UTFConversion(_In_ const std::basic_string<CSrc>& src)
         {
             return UTFConversion<RT, CDst>(src.c_str( ), src.length( ));
         }
 
         template <ReturnType RT, typename CDst, typename CSrc>
-        static auto UTFConversion(_In_z_ const CSrc* src)
+        [[nodiscard]] static auto UTFConversion(_In_z_ const CSrc* src)
         {
             return UTFConversion<RT, CDst>(src, GetLength(src));
         }
 
         template <ReturnType RT, typename CDst, typename CSrc>
-        static auto UTFConversion(_In_ const CSrc* src, _In_ const size_t& len)
+        [[nodiscard]] static auto UTFConversion(_In_ const CSrc* src, _In_ const size_t& len)
         {
             static_assert(IsValidReturnType<RT>( ), __FUNCTION__": Invalid ReturnType template argument");
             static_assert(IsSupportedCharType<CDst>( ), __FUNCTION__": Invalid destination character type.");
@@ -702,7 +702,7 @@ namespace CC
     typename = typename std::enable_if<IsSupportedCharType<T>( ) && IsIntegerRepresentableType<N>( )>::type
 
         template <ReturnType RT, Base B, class T, class N, _ENABLE_IF_NUMBER_CONVERT_SUPPORTED(T, N)>
-        static auto NumberConversion(_In_ const N& integral)
+        [[nodiscard]] static auto NumberConversion(_In_ const N& integral)
         {
             static_assert(IsSupportedCharType<T>( ), __FUNCTION__": Invalid character type.");
             static_assert(IsValidBaseType<B>( ), __FUNCTION__": Invalid Base Type");

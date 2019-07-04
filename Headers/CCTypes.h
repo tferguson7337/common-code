@@ -1,9 +1,14 @@
 #ifndef _CC_TYPES_H_
 #define _CC_TYPES_H_
 
+// STL
 #include <cstdint>
 #include <string>
 #include <tuple>
+
+// SAL
+#include <sal.h>
+
 
 namespace CC
 {
@@ -59,7 +64,7 @@ namespace CC
 
     // Supported Char type.
     template <class T>
-    bool constexpr IsSupportedCharType( )
+    [[nodiscard]] _Success_(return) bool constexpr IsSupportedCharType( )
     {
         return std::is_same_v<T, utf8> || std::is_same_v<T, utf16>;
     }
@@ -67,7 +72,7 @@ namespace CC
 
     // Signed integer type.
     template <class T>
-    bool constexpr IsSignedIntegerType( )
+    [[nodiscard]] _Success_(return) bool constexpr IsSignedIntegerType( )
     {
         return std::is_integral_v<T>&& std::is_signed_v<T>;
     }
@@ -75,7 +80,7 @@ namespace CC
 
     // Unsigned integer type.
     template <class T>
-    bool constexpr IsUnsignedIntegerType( )
+    [[nodiscard]] _Success_(return) bool constexpr IsUnsignedIntegerType( )
     {
         return std::is_integral_v<T>&& std::is_unsigned_v<T>;
     }
@@ -83,7 +88,7 @@ namespace CC
 
     // Integer type.
     template <class T>
-    bool constexpr IsIntegerType( )
+    [[nodiscard]] _Success_(return) bool constexpr IsIntegerType( )
     {
         return IsSignedIntegerType<T>( ) || IsUnsignedIntegerType<T>( );
     }
@@ -91,7 +96,7 @@ namespace CC
 
     // Pointer type.
     template <class T>
-    bool constexpr IsPointerType( )
+    [[nodiscard]] _Success_(return) bool constexpr IsPointerType( )
     {
         return std::is_pointer_v<T>;
     }
@@ -99,7 +104,7 @@ namespace CC
 
     // Integer Representable type.
     template <class T>
-    bool constexpr IsIntegerRepresentableType( )
+    [[nodiscard]] _Success_(return) bool constexpr IsIntegerRepresentableType( )
     {
         return IsIntegerType<T>( ) || IsPointerType<T>( );
     }
