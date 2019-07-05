@@ -14,6 +14,6 @@ using TestFuncMap = std::vector<TestPair>;
 
 extern const TestFuncMap s_TestFuncMap;
 
-const TestSetFunc GetTestSetFunction(const std::string& str);
+const TestSetFunc GetTestSetFunction(_In_ const std::string& str);
 
 std::list<TestSetFunc> GetTestSetFunctions(_In_ const int& argc, _In_count_(argc) const char* argv[ ]);

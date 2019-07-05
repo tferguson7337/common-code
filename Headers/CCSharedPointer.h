@@ -51,6 +51,8 @@ namespace CC
             {
                 delete[ ] m_pPtr;
             }
+
+            delete m_pRefCount;
         }
 
         // Calls Free if m_pPtr is not nullptr and m_pRefCount is nullptr.
@@ -72,7 +74,7 @@ namespace CC
 
         // Decrements reference counter if pointer is not nullptr.
         // Note: Returns "old" value (i.e., post-fix decrement) if m_pRefCount is not null, 0 otherwise.
-        RCIntegral DecrementRefCounter( ) noexcept
+        [[nodiscard]] RCIntegral DecrementRefCounter( ) noexcept
         {
             return (!!m_pRefCount) ? (*m_pRefCount)-- : 0;
         }
@@ -83,7 +85,6 @@ namespace CC
 
         // Default constructor
         constexpr SharedPointer( ) noexcept :
-            IPointer<T>( ),
             m_pPtr(nullptr),
             m_pRefCount(nullptr),
             m_Len(0)
@@ -91,7 +92,6 @@ namespace CC
 
         // SharedPointer length constructor
         explicit SharedPointer(_In_ const size_t& len) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T)) :
-            IPointer<T>( ),
             m_pPtr(PCH::Allocate(len)),
             m_pRefCount((!!m_pPtr) ? AllocateRefCounter( ) : nullptr),
             m_Len((!!m_pPtr) ? len : 0)
@@ -101,7 +101,6 @@ namespace CC
 
         // Raw pointer copy constructor
         SharedPointer(_In_reads_opt_(len) const T* p, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T)) :
-            IPointer<T>( ),
             m_pPtr(PCH::AllocateFromRawPointer(p, len)),
             m_pRefCount((!!m_pPtr) ? AllocateRefCounter( ) : nullptr),
             m_Len((!!m_pPtr) ? len : 0)
@@ -111,7 +110,6 @@ namespace CC
 
         // Raw pointer steal constructor
         SharedPointer(_Inout_opt_ T*&p, _In_ const size_t& len) noexcept :
-            IPointer<T>( ),
             m_pPtr(p),
             m_pRefCount((!!m_pPtr) ? AllocateRefCounter( ) : nullptr),
             m_Len((!!m_pPtr) ? len : 0)
@@ -122,7 +120,6 @@ namespace CC
 
         // Copy constructor
         SharedPointer(_In_ const SharedPointer<T>& src) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T)) :
-            IPointer<T>(src),
             m_pPtr(src.m_pPtr),
             m_pRefCount(src.m_pRefCount),
             m_Len((!!m_pPtr) ? src.m_Len : 0)
@@ -132,7 +129,6 @@ namespace CC
 
         // Move constructor
         SharedPointer(_Inout_ SharedPointer<T>&& src) noexcept :
-            IPointer<T>(std::move(src)),
             m_pPtr(src.m_pPtr),
             m_pRefCount(src.m_pRefCount),
             m_Len((!!m_pPtr) ? src.m_Len : 0)

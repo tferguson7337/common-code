@@ -5,22 +5,24 @@
 #include <CCDynamicBufferTests.h>
 #include <CCPointerTests.h>
 #include <CCPointerCommonHelpersTests.h>
+#include <CCSharedPointerTests.h>
 #include <CCStringUtilTests.h>
 
 
-static bool RunAllTests(UnitTestRunner<char>& utr)
+static bool RunAllTests(_Inout_ UnitTestRunner<char>& utr)
 {
     utr.ClearUnitTests( );
     utr.GetTestSetData( ).SetTestSetName("CommonCode - All");
     utr.AddUnitTests(CC::StringUtilTests::GetTests( ));
     utr.AddUnitTests(CC::PointerCommonHelpersTests::GetTests( ));
     utr.AddUnitTests(CC::PointerTests::GetTests( ));
+    utr.AddUnitTests(CC::SharedPointerTests::GetTests( ));
     utr.AddUnitTests(CC::BufferTests::GetTests( ));
     utr.AddUnitTests(CC::DynamicBufferTests::GetTests( ));
     return utr.RunUnitTests( );
 }
 
-static bool RunStringUtilTests(UnitTestRunner<char>& utr)
+static bool RunStringUtilTests(_Inout_ UnitTestRunner<char>& utr)
 {
     utr.ClearUnitTests( );
     utr.GetTestSetData( ).SetTestSetName("CommonCode - StringUtil");
@@ -28,7 +30,7 @@ static bool RunStringUtilTests(UnitTestRunner<char>& utr)
     return utr.RunUnitTests( );
 }
 
-static bool RunPointerCommonHelpersTests(UnitTestRunner<char>& utr)
+static bool RunPointerCommonHelpersTests(_Inout_ UnitTestRunner<char>& utr)
 {
     utr.ClearUnitTests( );
     utr.GetTestSetData( ).SetTestSetName("CommonCode - PointerCommonHelpers");
@@ -36,7 +38,7 @@ static bool RunPointerCommonHelpersTests(UnitTestRunner<char>& utr)
     return utr.RunUnitTests( );
 }
 
-static bool RunPointerTests(UnitTestRunner<char>& utr)
+static bool RunPointerTests(_Inout_ UnitTestRunner<char>& utr)
 {
     utr.ClearUnitTests( );
     utr.GetTestSetData( ).SetTestSetName("CommonCode - Pointer");
@@ -44,7 +46,15 @@ static bool RunPointerTests(UnitTestRunner<char>& utr)
     return utr.RunUnitTests( );
 }
 
-static bool RunBufferTests(UnitTestRunner<char>& utr)
+static bool RunSharedPointerTests(_Inout_ UnitTestRunner<char>& utr)
+{
+    utr.ClearUnitTests( );
+    utr.GetTestSetData( ).SetTestSetName("CommonCode - SharedPointer");
+    utr.AddUnitTests(CC::SharedPointerTests::GetTests( ));
+    return utr.RunUnitTests( );
+}
+
+static bool RunBufferTests(_Inout_ UnitTestRunner<char>& utr)
 {
     utr.ClearUnitTests( );
     utr.GetTestSetData( ).SetTestSetName("CommonCode - Buffer");
@@ -52,7 +62,7 @@ static bool RunBufferTests(UnitTestRunner<char>& utr)
     return utr.RunUnitTests( );
 }
 
-static bool RunDynamicBufferTests(UnitTestRunner<char>& utr)
+static bool RunDynamicBufferTests(_Inout_ UnitTestRunner<char>& utr)
 {
     utr.ClearUnitTests( );
     utr.GetTestSetData( ).SetTestSetName("CommonCode - Dynamic Buffer");
@@ -68,12 +78,13 @@ const TestFuncMap s_TestFuncMap
     TestPair("StringUtil", RunStringUtilTests),
     TestPair("PointerCommonHelpers", RunPointerCommonHelpersTests),
     TestPair("Pointer", RunPointerTests),
+    TestPair("SharedPointer", RunSharedPointerTests),
     TestPair("Buffer", RunBufferTests),
     TestPair("DynamicBuffer", RunDynamicBufferTests)
 };
 
 
-const TestSetFunc GetTestSetFunction(const std::string& str)
+const TestSetFunc GetTestSetFunction(_In_ const std::string& str)
 {
     TestSetFunc func;
 
