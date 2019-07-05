@@ -12,7 +12,8 @@
 // Target Class
 #include <CCSharedPointer.h>
 
-#include <CCPointerTests.h>
+// Test Helper Utils
+#include <CCPointerCommonHelpersTests.h>
 
 namespace CC
 {
@@ -28,13 +29,12 @@ namespace CC
     private:
 
         // Type aliases
-        using TestQuantity = PointerTests::TestQuantity;
-        using Helper = PointerTests::Helper;
+        using TestQuantity = PointerCommonHelpersTests::TestQuantity;
+        using Helper = PointerCommonHelpersTests::Helper;
 
         using UTR = UnitTestResult;
         using UTFunc = std::function<UTR(void)>;
         using UTList = std::list<UTFunc>;
-
 
     public:
 

@@ -9,30 +9,40 @@
 #include <list>
 #include <memory>
 
-// Test Helpers
-#include <CCPointerTests.h>
+// Target Class
+#include <CCDynamicBuffer.h>
+
+// Test Helper Utils
+#include <CCPointerCommonHelpersTests.h>
 #include <CCBufferTests.h>
 
-// Target Test Class
-#include <CCDynamicBuffer.h>
 
 namespace CC
 {
     class DynamicBufferTests
     {
+        DynamicBufferTests( ) = delete;
+        DynamicBufferTests(const DynamicBufferTests&) = delete;
+        DynamicBufferTests(DynamicBufferTests&&) = delete;
+        ~DynamicBufferTests( ) = delete;
+        DynamicBufferTests& operator=(const DynamicBufferTests&) = delete;
+        DynamicBufferTests& operator=(DynamicBufferTests&&) = delete;
+
     private:
 
         // Type aliases
+        using PCHT = PointerCommonHelpersTests;
+        using Helper = PCHT::Helper;
+        using TQ = PCHT::TestQuantity;
+
         using UTR = UnitTestResult;
         using UTFunc = std::function<UTR(void)>;
         using UTList = std::list<UTFunc>;
-        using Helper = PointerTests::Helper;
-        using TQ = PointerTests::TestQuantity;
 
         template <TQ _TQ>
         static constexpr const size_t GetTQNum( )
         {
-            static_assert(PointerTests::IsValidTestQuantity<_TQ>( ), __FUNCSIG__": Invalid TestQuantity Template Argument.");
+            static_assert(PCHT::IsValidTestQuantity<_TQ>( ), __FUNCSIG__": Invalid TestQuantity Template Argument.");
 
             if constexpr ( _TQ == TQ::Zero )
             {
@@ -51,8 +61,8 @@ namespace CC
         template <TQ OrigBufLen, TQ MinInc>
         static constexpr const size_t GetExpectedNewLen( )
         {
-            static_assert(PointerTests::IsValidTestQuantity<OrigBufLen>( ), __FUNCTION__": Invalid test quantity.");
-            static_assert(PointerTests::IsValidTestQuantity<MinInc>( ), __FUNCTION__": Invalid test quantity.");
+            static_assert(PCHT::IsValidTestQuantity<OrigBufLen>( ), __FUNCTION__": Invalid test quantity.");
+            static_assert(PCHT::IsValidTestQuantity<MinInc>( ), __FUNCTION__": Invalid test quantity.");
 
             if constexpr ( OrigBufLen != TQ::Many )
             {
@@ -153,8 +163,8 @@ namespace CC
             constexpr const size_t dst = GetTQNum<DstLen>( );
             constexpr const size_t src = BufferTests::GetTQNum<SrcLen>( );
 
-            static_assert(PointerTests::IsValidTestQuantity<DstLen>( ), __FUNCTION__": Invalid test quantity.");
-            static_assert(PointerTests::IsValidTestQuantity<SrcLen>( ), __FUNCTION__": Invalid test quantity.");
+            static_assert(PCHT::IsValidTestQuantity<DstLen>( ), __FUNCTION__": Invalid test quantity.");
+            static_assert(PCHT::IsValidTestQuantity<SrcLen>( ), __FUNCTION__": Invalid test quantity.");
 
             if constexpr ( SrcLen == TQ::Zero )
             {
@@ -176,8 +186,8 @@ namespace CC
             constexpr const size_t dst = GetExpectedFirstPtrWriteLen<DstLen, SrcLen>( );
             constexpr const size_t src = BufferTests::GetTQNum<SrcLen>( );
 
-            static_assert(PointerTests::IsValidTestQuantity<DstLen>( ), __FUNCTION__": Invalid test quantity.");
-            static_assert(PointerTests::IsValidTestQuantity<SrcLen>( ), __FUNCTION__": Invalid test quantity.");
+            static_assert(PCHT::IsValidTestQuantity<DstLen>( ), __FUNCTION__": Invalid test quantity.");
+            static_assert(PCHT::IsValidTestQuantity<SrcLen>( ), __FUNCTION__": Invalid test quantity.");
 
             if constexpr ( SrcLen == TQ::Zero )
             {

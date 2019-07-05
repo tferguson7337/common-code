@@ -41,7 +41,7 @@ namespace CC
         // Returns true otherwise.
         [[nodiscard]] _Success_(return) inline bool ValidateWriteRequest(_In_opt_ const T* const p, _In_ const size_t& writeLen) const noexcept
         {
-            return !!p && !!Get( ) && writeLen > 0 && ((m_WritePos + writeLen) <= Length( ));
+            return !!p && !!this->m_pPtr && writeLen > 0 && ((m_WritePos + writeLen) <= Length( ));
         }
 
         /// Protected Throwing Validator Methods \\\
@@ -49,7 +49,7 @@ namespace CC
         // Returns false if idx >= this->m_Len - returns true otherwise.
         inline void ValidateAccessorIndexT(_In_ const char* const f, _In_ const size_t& idx) const
         {
-            Pointer<T>::ValidateDereferenceT(f, Get( ));
+            Pointer<T>::ValidateDereferenceT(f, this->m_pPtr);
             if ( idx >= Length( ) )
             {
                 static const std::string msg1 = ": Index[";
@@ -104,7 +104,7 @@ namespace CC
         // Writes elements via copy to internal buffer, updates write position.
         [[nodiscard]] _Success_(return) bool WriteInternal(_In_ const T* p, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_COPY(T))
         {
-            Pointer<T>::CopyToRawPointer(Get( ) + m_WritePos, p, len);
+            Pointer<T>::CopyToRawPointer(this->m_pPtr + m_WritePos, p, len);
             m_WritePos += len;
             return true;
         }
@@ -112,7 +112,7 @@ namespace CC
         // Writes elements via move semantics to internal buffer, updates write position.
         [[nodiscard]] _Success_(return) bool WriteInternal(_In_ T* p, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_MOVE(T))
         {
-            Pointer<T>::MoveToRawPointer(Get( ) + m_WritePos, p, len);
+            Pointer<T>::MoveToRawPointer(this->m_pPtr + m_WritePos, p, len);
             m_WritePos += len;
             return true;
         }
@@ -227,19 +227,19 @@ namespace CC
         // Return true for non-null buffer - false otherwise.
         [[nodiscard]] virtual explicit operator bool( ) const noexcept
         {
-            return !!Get( );
+            return !!this->m_pPtr;
         }
 
         // Return pointer to internal buffer (mutable).
         [[nodiscard]] _Ret_maybenull_ virtual explicit operator T*() noexcept
         {
-            return Get( );
+            return this->m_pPtr;
         }
 
         // Return pointer to internal buffer (immutable).
         [[nodiscard]] _Ret_maybenull_ virtual explicit operator const T*() const noexcept
         {
-            return Get( );
+            return this->m_pPtr;
         }
 
         // Subscript overload - returns reference to mutable element from internal buffer via index.

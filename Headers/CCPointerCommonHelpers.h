@@ -1,6 +1,7 @@
 #pragma once
 
 // CC
+#include "CCIPointer.h"
 #include "CCMacros.h"
 
 // STL
@@ -12,6 +13,8 @@ namespace CC
     template <typename T>
     class PointerCommonHelpers
     {
+        friend class PointerCommonHelpersTests;
+
     protected:
 
         /// Protected Default Constructor, Virtual Destructor \\\
