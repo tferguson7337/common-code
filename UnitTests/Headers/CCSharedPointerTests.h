@@ -614,7 +614,7 @@ namespace CC
         {
             constexpr size_t ptrLen = PCHT::GetTQNum<TQ>( );
             constexpr size_t iterations = 16;
-            const size_t arrLen = static_cast<size_t>(std::thread::hardware_concurrency( ) << 1);
+            constexpr size_t arrLen = 8;
 
             SharedPointer<CleanupHelper<T>> p;
             std::vector<SharedPointer<CleanupHelper<T>>> sPArr(arrLen);
@@ -716,7 +716,7 @@ namespace CC
         {
             constexpr size_t ptrLen = PCHT::GetTQNum<TQ>( );
             constexpr size_t iterations = 8;
-            const size_t arrLen = static_cast<size_t>(std::thread::hardware_concurrency( ) << 1);
+            constexpr size_t arrLen = 8;
 
             SharedPointer<CleanupHelper<T>> p;
             std::vector<SharedPointer<CleanupHelper<T>>> sPArr(arrLen);
@@ -822,7 +822,7 @@ namespace CC
         {
             constexpr size_t ptrLen = PCHT::GetTQNum<TQ>( );
             constexpr size_t iterations = 8;
-            const size_t arrLen = static_cast<size_t>(std::thread::hardware_concurrency( ) << 1);
+            constexpr size_t arrLen = 8;
 
             SharedPointer<CleanupHelper<T>> p;
             std::vector<SharedPointer<CleanupHelper<T>>> sPArr(arrLen);

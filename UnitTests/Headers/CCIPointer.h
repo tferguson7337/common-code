@@ -31,10 +31,10 @@ namespace CC
         [[nodiscard]] virtual explicit operator bool( ) const noexcept = 0;
 
         // T* overload - returns pointer to mutable internal pointer.
-        [[nodiscard]] _Ret_maybenull_ virtual explicit operator T*() noexcept = 0;
+        [[nodiscard]] virtual explicit operator T*() noexcept = 0;
 
         // const T* overload - returns pointer to immutable internal pointer.
-        [[nodiscard]] _Ret_maybenull_ virtual explicit operator const T*() const noexcept = 0;
+        [[nodiscard]] virtual explicit operator const T*() const noexcept = 0;
 
         // Dereference overload - returns mutable reference to first element from internal pointer.
         // Note: Excepted to throw exception if internal pointer is nullptr.
@@ -55,10 +55,10 @@ namespace CC
         /// Getters \\\
 
         // Returns pointer to mutable internal pointer.
-        [[nodiscard]] _Ret_maybenull_ virtual T* Get( ) noexcept = 0;
+        [[nodiscard]] virtual T* Get( ) noexcept = 0;
 
         // Returns pointer to immutable internal pointer.
-        [[nodiscard]] _Ret_maybenull_ virtual const T* Get( ) const noexcept = 0;
+        [[nodiscard]] virtual const T* Get( ) const noexcept = 0;
 
         // Returns length of elements pointed to by internal pointer.
         [[nodiscard]] virtual const size_t& Length( ) const noexcept = 0;

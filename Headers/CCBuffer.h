@@ -231,13 +231,13 @@ namespace CC
         }
 
         // Return pointer to internal buffer (mutable).
-        [[nodiscard]] _Ret_maybenull_ virtual explicit operator T*() noexcept
+        [[nodiscard]] virtual explicit operator T*() noexcept
         {
             return this->m_pPtr;
         }
 
         // Return pointer to internal buffer (immutable).
-        [[nodiscard]] _Ret_maybenull_ virtual explicit operator const T*() const noexcept
+        [[nodiscard]] virtual explicit operator const T*() const noexcept
         {
             return this->m_pPtr;
         }
@@ -275,13 +275,13 @@ namespace CC
         /// Getters \\\
 
         // Returns pointer to internal buffer (mutable).
-        [[nodiscard]] _Ret_maybenull_ inline virtual T* Get( ) noexcept
+        [[nodiscard]] inline virtual T* Get( ) noexcept
         {
             return Pointer<T>::Get( );
         }
 
         // Returns pointer to internal buffer (immutable).
-        [[nodiscard]] _Ret_maybenull_ inline virtual const T* Get( ) const noexcept
+        [[nodiscard]] inline virtual const T* Get( ) const noexcept
         {
             return Pointer<T>::Get( );
         }

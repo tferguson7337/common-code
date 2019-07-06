@@ -27,10 +27,10 @@ namespace CC
         [[nodiscard]] virtual explicit operator bool( ) const noexcept = 0;
 
         // Return pointer to internal buffer (mutable).
-        [[nodiscard]] virtual _Ret_maybenull_ explicit operator T* () noexcept = 0;
+        [[nodiscard]] virtual explicit operator T* () noexcept = 0;
 
         // Return pointer to internal buffer (immutable).
-        [[nodiscard]] virtual _Ret_maybenull_ explicit operator const T* () const noexcept = 0;
+        [[nodiscard]] virtual explicit operator const T* () const noexcept = 0;
 
         // Access internal buffer elements via index, returns a reference to the indexed element (mutable).
         // Note: This will throw std::logic_error if the internal buffer is nullptr.
@@ -51,10 +51,10 @@ namespace CC
         /// Getters \\\
 
         // Return a pointer to the internal buffer (mutable).
-        [[nodiscard]] _Ret_maybenull_ virtual T* Get( ) noexcept = 0;
+        [[nodiscard]] virtual T* Get( ) noexcept = 0;
 
         // Return a pointer to the internal buffer (immutable).
-        [[nodiscard]] _Ret_maybenull_ virtual const T* Get( ) const noexcept = 0;
+        [[nodiscard]] virtual const T* Get( ) const noexcept = 0;
 
         // Return length of internal buffer.
         [[nodiscard]] virtual const size_t& Length( ) const noexcept = 0;

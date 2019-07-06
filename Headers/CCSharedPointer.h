@@ -180,12 +180,12 @@ namespace CC
             return !!m_pPtr;
         }
 
-        [[nodiscard]] _Ret_maybenull_ virtual explicit operator T*() noexcept
+        [[nodiscard]] virtual explicit operator T*() noexcept
         {
             return m_pPtr;
         }
 
-        [[nodiscard]] _Ret_maybenull_ virtual explicit operator const T*() const noexcept
+        [[nodiscard]] virtual explicit operator const T*() const noexcept
         {
             return m_pPtr;
         }
@@ -217,13 +217,13 @@ namespace CC
         /// Getters \\\
 
         // Returns pointer to mutable internal pointer.
-        [[nodiscard]] _Ret_maybenull_ virtual T* Get( ) noexcept
+        [[nodiscard]] virtual T* Get( ) noexcept
         {
             return m_pPtr;
         }
 
         // Returns pointer to immutable internal pointer.
-        [[nodiscard]] _Ret_maybenull_ virtual const T* Get( ) const noexcept
+        [[nodiscard]] virtual const T* Get( ) const noexcept
         {
             return m_pPtr;
         }
