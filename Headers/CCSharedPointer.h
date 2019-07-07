@@ -53,6 +53,8 @@ namespace CC
             }
 
             delete m_pRefCount;
+
+            Reset( );
         }
 
         // Calls Free if m_pPtr is not nullptr and m_pRefCount is nullptr.
@@ -258,8 +260,6 @@ namespace CC
             {
                 InvokeFreeFunction( );
             }
-
-            Reset( );
         }
     };
 }
