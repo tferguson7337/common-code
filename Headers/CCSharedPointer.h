@@ -260,6 +260,10 @@ namespace CC
             {
                 InvokeFreeFunction( );
             }
+            else
+            {
+                Reset( );
+            }
         }
     };
 }
