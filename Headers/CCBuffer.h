@@ -16,6 +16,9 @@ namespace CC
         // Testing class.
         friend class BufferTests;
 
+        // Type alias.
+        using PCH = PointerCommonHelpers<T>;
+
     protected:
 
         /// Protected Data Members \\\
@@ -84,11 +87,17 @@ namespace CC
         // Note: If src buffer is nullptr, then dst will free buffer and replace it with nullptr.
         static void CopyBuffer(_Inout_ Buffer<T>& dst, _In_ const IBuffer<T>& src) noexcept(CC_IS_NOTHROW_COPY(T))
         {
-            T* p = Pointer<T>::AllocateFromRawPointer(src.Get( ), src.Length( ));
-            dst.InvokeFreeFunction( );
-
-            dst.m_pPtr = p;
-            CopyNonPointerBufferDataMembers(dst, src);
+            if ( src.Length( ) > dst.Length( ) )
+            {
+                dst.InvokeFreeFunction( );
+                dst.m_pPtr = PCH::AllocateFromRawPointer(src.Get( ), src.Length( ));
+                CopyNonPointerBufferDataMembers(dst, src);
+            }
+            else
+            {
+                PCH::CopyToRawPointer(dst.m_pPtr, src.Get( ), src.Length( ));
+                dst.m_WritePos = src.Length( );
+            }
         }
 
         // Performs shallow copy of src Buffer data members to dst, then resets src.
