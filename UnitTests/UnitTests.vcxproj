@@ -36,6 +36,7 @@
     <ClInclude Include="..\Headers\CCPointer.h" />
     <ClInclude Include="..\Headers\CCPointerCommonHelpers.h" />
     <ClInclude Include="..\Headers\CCSharedPointer.h" />
+    <ClInclude Include="..\Headers\CCString.h" />
     <ClInclude Include="..\Headers\CCStringUtil.h" />
     <ClInclude Include="..\Headers\CCTypes.h" />
     <ClInclude Include="Headers\CCBufferTests.h" />

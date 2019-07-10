@@ -29,7 +29,7 @@ namespace CC
         /// Common Static Protected Throwing Validator Methods \\\
 
         // Throw std::logic_error if p is nullptr.
-        inline static void ValidateDereferenceT(_In_ const char* const f, _In_opt_ const T* const p)
+        inline static void ValidateDereferenceT(_In_z_ const char* const f, _In_opt_ const T* const p)
         {
             if ( !p )
             {

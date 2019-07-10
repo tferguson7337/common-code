@@ -19,6 +19,7 @@ namespace CC
 
         // Type Alias
         using PCH = PointerCommonHelpers<T>;
+        using IBase = IPointer<T>;
 
     protected:
 
@@ -31,7 +32,7 @@ namespace CC
 
         // Copies all Pointer data members from source Pointer object.
         // Note: The pointer data member is shallow copied.
-        static void CopyAllDataMembers(_Out_ Pointer<T>& dst, _In_ IPointer<T>& src) noexcept
+        static void CopyAllDataMembers(_Out_ Pointer<T>& dst, _In_ IBase& src) noexcept
         {
             dst.m_pPtr = src.Get( );
             dst.m_Len = src.Length( );
@@ -40,7 +41,7 @@ namespace CC
         // Performs deep copy of src pointer, frees dst pointer, then assigned new pointer to dst.
         // Also copies all other Pointer data members of src to dst.
         // Note: If src pointer is nullptr, then dst will free its pointer and replace it with nullptr.
-        static void CopyPointerObj(_Inout_ Pointer<T>& dst, _In_ const IPointer<T>& src) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T))
+        static void CopyPointerObj(_Inout_ Pointer<T>& dst, _In_ const IBase& src) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T))
         {
             T* p = PCH::AllocateFromIPointerObj(src);
             dst.InvokeFreeFunction( );
@@ -49,7 +50,7 @@ namespace CC
         }
 
         // Performs shallow copy of src Pointer data members to dst, then resets src.
-        static void TransferPointerObj(_Inout_ Pointer<T>& dst, _Inout_ IPointer<T>& src) noexcept
+        static void TransferPointerObj(_Inout_ Pointer<T>& dst, _Inout_ IBase& src) noexcept
         {
             dst.InvokeFreeFunction( );
             CopyAllDataMembers(dst, src);

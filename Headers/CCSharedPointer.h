@@ -18,8 +18,9 @@ namespace CC
         // Test class.
         friend class SharedPointerTests;
 
-        // Type alias.
+        // Type aliases.
         using PCH = PointerCommonHelpers<T>;
+        using IBase = IPointer<T>;
         using RCIntegral = std::make_signed_t<size_t>;
         using RefCounter = std::atomic<RCIntegral>;
 
