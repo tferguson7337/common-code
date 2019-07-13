@@ -159,16 +159,15 @@ namespace CC
         [[nodiscard]] static bool AppendUsingRawPointer(_Inout_ String<T>& dst, _In_reads_(len) const T* const pStr, _In_ const size_t len) noexcept
         {
             bool bRet = true;
-            size_t newPos = ms_InvalidPos;
             if ( !ValidatePointerAndLength(pStr, len) )
             {
                 return false;
             }
 
-            newPos = m_SSOPos + len;
             if ( dst.IsUsingSSOArray( ) )
             {
-                if ( dst.newSSOPos < ms_SSOCap )
+                const size_t newPos = dst.m_SSOPos + len;
+                if ( newPos < ms_SSOCap )
                 {
                     memcpy(&dst.m_SSOArr[dst.m_SSOPos], pStr, len);
                     dst.m_SSOPos = newPos;
@@ -177,8 +176,11 @@ namespace CC
                 else
                 {
                     dst.m_DynBuf = DynamicBuffer<T>(newPos);
-                    bRet = dst.m_DynBuf;
-                    bRet = bRet && dst.m_DynBuf.Write(dst.m_SSOArr, dst.m_SSOPos);
+                    bRet = !!dst.m_DynBuf;
+                    if ( dst.m_SSOPos != 0 )
+                    {
+                        bRet = bRet && dst.m_DynBuf.Write(dst.m_SSOArr, dst.m_SSOPos);
+                    }
                     bRet = bRet && dst.m_DynBuf.Write(pStr, len);
                     bRet = bRet && dst.m_DynBuf.Write(ms_NullTerminator);
                     bRet = bRet && dst.DecrementDynBufWritePos( );
@@ -211,7 +213,7 @@ namespace CC
 
         [[nodiscard]] static bool CompareStrings(_In_ const T* const pLhs, _In_ const size_t& lhsLen, _In_ const String<T>& rhs, _In_ const bool& bCI = false) noexcept
         {
-            return CompareStrings(pLhs, lhsLen, rhs.CStr( ), lhs.Length( ), bCI);
+            return CompareStrings(pLhs, lhsLen, rhs.CStr( ), rhs.Length( ), bCI);
         }
 
         [[nodiscard]] static bool CompareStrings(_In_ const T* const pLhs, _In_ const size_t& lhsLen, _In_ const T* const pRhs, _In_ const size_t& rhsLen, _In_ const bool& bCI = false) noexcept
@@ -380,8 +382,7 @@ namespace CC
 
         String<T>& operator+=(_In_ const String<T>& src)
         {
-            ValidatePointerT(__FUNCSIG__, pCStr);
-            if ( !AppendUsingPointerObj(*this, src) )
+            if ( !AppendUsingStringObj(*this, src) )
             {
                 throw std::exception(__FUNCSIG__": Failed to append using CC::String object.");
             }
@@ -401,16 +402,10 @@ namespace CC
             return CStr[idx];
         }
 
-        [[nodiscard]] bool operator==(_In_ const T* pCStr) const noexcept
+        [[nodiscard]] bool operator==(_In_opt_ const T* pCStr) const noexcept
         {
-            size_t len = 0;
-            if ( !pCStr )
-            {
-                return false;
-            }
-
-            len = GetStringLength(pCStr);
-            if ( len != Length( ) )
+            size_t len = GetStringLength(pCStr);
+            if ( !pCStr || (len != Length( )) )
             {
                 return false;
             }
@@ -425,24 +420,24 @@ namespace CC
 
         /// Getters \\\
 
-        [[nodiscard]] _Ret_z_ T* CStr( ) const noexcept
+        [[nodiscard]] _Ret_z_ T* CStr( ) noexcept
         {
-            return (IsUsingSSOArray( )) ? m_SSOArr : m_DynBuf.Get( );
+            return IsUsingSSOArray( ) ? m_SSOArr : m_DynBuf.Get( );
         }
 
         [[nodiscard]] _Ret_z_ const T* CStr( ) const noexcept
         {
-            return (IsUsingSSOArray( )) ? m_SSOArr : m_DynBuf.Get( );
+            return IsUsingSSOArray( ) ? m_SSOArr : m_DynBuf.Get( );
         }
 
         [[nodiscard]] const size_t& Length( ) const noexcept
         {
-            return (IsUsingSSOArray( )) ? m_SSOPos : m_DynBuf.WritePosition( );
+            return IsUsingSSOArray( ) ? m_SSOPos : m_DynBuf.WritePosition( );
         }
 
         [[nodiscard]] const size_t& Capacity( ) const noexcept
         {
-            return (IsUsingSSOArray( )) ? ms_SSOCap : m_DynBuf.Length( );
+            return IsUsingSSOArray( ) ? ms_SSOCap : m_DynBuf.Length( );
         }
 
         /// Public Methods \\\

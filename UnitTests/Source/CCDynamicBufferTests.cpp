@@ -1,7 +1,9 @@
 #include <CCDynamicBufferTests.h>
 
+
 CC::DynamicBufferTests::UTList CC::DynamicBufferTests::GetTests( )
 {
+#pragma warning(suppress : 6262) // Suppress high stack memory usage warning.
     static const UTList tests
     {
         DynamicBufferTests::CalculateNewLengthTests::CalcNewLen<uint8_t, TQ::Zero, TQ::Zero>,
