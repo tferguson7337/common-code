@@ -6,6 +6,7 @@
 #include <CCPointerTests.h>
 #include <CCPointerCommonHelpersTests.h>
 #include <CCSharedPointerTests.h>
+#include <CCStringTests.h>
 #include <CCStringUtilTests.h>
 
 
@@ -13,19 +14,12 @@ static bool RunAllTests(_Inout_ UnitTestRunner<char>& utr)
 {
     utr.ClearUnitTests( );
     utr.GetTestSetData( ).SetTestSetName("CommonCode - All");
-    utr.AddUnitTests(CC::StringUtilTests::GetTests( ));
     utr.AddUnitTests(CC::PointerCommonHelpersTests::GetTests( ));
     utr.AddUnitTests(CC::PointerTests::GetTests( ));
     utr.AddUnitTests(CC::SharedPointerTests::GetTests( ));
     utr.AddUnitTests(CC::BufferTests::GetTests( ));
     utr.AddUnitTests(CC::DynamicBufferTests::GetTests( ));
-    return utr.RunUnitTests( );
-}
-
-static bool RunStringUtilTests(_Inout_ UnitTestRunner<char>& utr)
-{
-    utr.ClearUnitTests( );
-    utr.GetTestSetData( ).SetTestSetName("CommonCode - StringUtil");
+    utr.AddUnitTests(CC::StringTests::GetTests( ));
     utr.AddUnitTests(CC::StringUtilTests::GetTests( ));
     return utr.RunUnitTests( );
 }
@@ -70,17 +64,34 @@ static bool RunDynamicBufferTests(_Inout_ UnitTestRunner<char>& utr)
     return utr.RunUnitTests( );
 }
 
+static bool RunStringUtilTests(_Inout_ UnitTestRunner<char>& utr)
+{
+    utr.ClearUnitTests( );
+    utr.GetTestSetData( ).SetTestSetName("CommonCode - StringUtil");
+    utr.AddUnitTests(CC::StringUtilTests::GetTests( ));
+    return utr.RunUnitTests( );
+}
+
+static bool RunStringTests(_Inout_ UnitTestRunner<char>& utr)
+{
+    utr.ClearUnitTests( );
+    utr.GetTestSetData( ).SetTestSetName("CommonCode - String");
+    utr.AddUnitTests(CC::StringTests::GetTests( ));
+    return utr.RunUnitTests( );
+}
+
 
 // Test-Set-Name To Run-Test-Function Mapping
 const TestFuncMap s_TestFuncMap
 {
     TestPair("All", RunAllTests),
-    TestPair("StringUtil", RunStringUtilTests),
     TestPair("PointerCommonHelpers", RunPointerCommonHelpersTests),
     TestPair("Pointer", RunPointerTests),
     TestPair("SharedPointer", RunSharedPointerTests),
     TestPair("Buffer", RunBufferTests),
-    TestPair("DynamicBuffer", RunDynamicBufferTests)
+    TestPair("DynamicBuffer", RunDynamicBufferTests),
+    TestPair("StringUtil", RunStringUtilTests),
+    TestPair("String", RunStringTests)
 };
 
 

@@ -51,11 +51,6 @@ namespace CC
             return PCHT::GetTestData<T, TQ>( );
         }
 
-    public:
-
-        // Returns list of Buffer unit tests.
-        static UTList GetTests( );
-
         /// Test Subclasses \\\
 
         // Tests constructor behavior.
@@ -70,7 +65,7 @@ namespace CC
         // Tests behavior of the overloaded subscript operator methods.
         class SubscriptOperatorTests;
 
-        // Tests behavior of the overloaded subscript operator methods.
+        // Tests behavior of the overloaded dereference operator methods.
         class DereferenceOperatorTests;
 
         // Tests comparison behavior between buffers.
@@ -81,6 +76,11 @@ namespace CC
 
         // Tests behavior of the methods that write to the buffer.
         class WriteTests;
+
+    public:
+
+        // Returns list of Buffer unit tests.
+        static UTList GetTests( );
     };
 
     class BufferTests::ConstructorTests

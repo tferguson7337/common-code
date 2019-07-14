@@ -24,6 +24,7 @@ namespace CC
         friend class DynamicBufferTests;
         friend class PointerTests;
         friend class SharedPointerTests;
+        friend class StringTests;
         
         PointerCommonHelpersTests( ) = delete;
         PointerCommonHelpersTests(const PointerCommonHelpersTests&) = delete;
@@ -219,7 +220,7 @@ namespace CC
         using UTFunc = std::function<UTR(void)>;
         using UTList = std::list<UTFunc>;
 
-        /// Test Functions \\\
+        /// Test Methods \\\
 
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR CopyToRawPointer( )

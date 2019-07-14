@@ -38,11 +38,6 @@ namespace CC
         using UTFunc = std::function<UTR(void)>;
         using UTList = std::list<UTFunc>;
 
-    public:
-
-        // Return list of Pointer unit tests.
-        static UTList GetTests( );
-
         /// Test Subclasses \\\
 
         // Tests methods related to freeing memory.
@@ -57,8 +52,13 @@ namespace CC
         // Tests op-overloads and other methods related to moving.
         class MoveTests;
 
-        // Tests behavior of the overloaded subscript operator methods.
+        // Tests behavior of the overloaded dereference operator methods.
         class DereferenceOperatorTests;
+
+    public:
+
+        // Return list of Pointer unit tests.
+        static UTList GetTests( );
     };
 
     class PointerTests::DeallocationTests

@@ -73,6 +73,9 @@
     <ClInclude Include="..\Headers\CCString.h">
       <Filter>CommonCode\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="Headers\CCStringTests.h">
+      <Filter>Tests\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\RunTests.cpp" />
@@ -93,6 +96,9 @@
       <Filter>Tests\Source</Filter>
     </ClCompile>
     <ClCompile Include="Source\CCPointerCommonHelpersTests.cpp">
+      <Filter>Tests\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\CCStringTests.cpp">
       <Filter>Tests\Source</Filter>
     </ClCompile>
   </ItemGroup>

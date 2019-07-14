@@ -24,6 +24,7 @@
     <ClCompile Include="Source\CCPointerCommonHelpersTests.cpp" />
     <ClCompile Include="Source\CCPointerTests.cpp" />
     <ClCompile Include="Source\CCSharedPointerTests.cpp" />
+    <ClCompile Include="Source\CCStringTests.cpp" />
     <ClCompile Include="Source\CCStringUtilTests.cpp" />
     <ClCompile Include="Source\RunTests.cpp" />
     <ClCompile Include="Source\TestSets.cpp" />
@@ -45,6 +46,7 @@
     <ClInclude Include="Headers\CCPointerCommonHelpersTests.h" />
     <ClInclude Include="Headers\CCPointerTests.h" />
     <ClInclude Include="Headers\CCSharedPointerTests.h" />
+    <ClInclude Include="Headers\CCStringTests.h" />
     <ClInclude Include="Headers\CCStringUtilTests.h" />
     <ClInclude Include="Headers\TestSets.h" />
   </ItemGroup>
@@ -112,7 +114,7 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(ProjectDir)$(PlatformTarget)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)BuildArtifacts\$(PlatformTarget)\$(Configuration)\</IntDir>
-    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
+    <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
     <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>

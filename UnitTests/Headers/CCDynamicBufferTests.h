@@ -84,19 +84,21 @@ namespace CC
             return BufferTests::GetTestData<T, _TQ>( );
         }
 
-    public:
-
-        // Get list of DynamicBufferTests.
-        static UTList GetTests( );
+        /// Test Subclasses \\\
 
         // Tests methods related to calculating new length for buffer growth.
         class CalculateNewLengthTests;
-        
+
         // Tests methods related to growing the buffer if required.
         class GrowBufferIfRequiredTests;
 
         // Tests methods related to write operations.
         class WriteTests;
+
+    public:
+
+        // Get list of DynamicBufferTests.
+        static UTList GetTests( );
     };
 
     class DynamicBufferTests::CalculateNewLengthTests

@@ -279,8 +279,8 @@ namespace CC
         template <bool bCI = false>
         [[nodiscard]] static bool CompareStrings(_In_ const T* const pLhs, _In_ const size_t& lhsLen, _In_ const T* const pRhs, _In_ const size_t& rhsLen) noexcept
         {
-            size_t compLen = 0;
-            
+            size_t compLen = std::min(lhsLen, rhsLen);
+
             if ( pLhs == pRhs )
             {
                 return true;
@@ -291,8 +291,7 @@ namespace CC
                 return false;
             }
 
-            compLen = std::min(lhsLen, rhsLen);
-            if ( !bCI )
+            if constexpr ( !bCI )
             {
                 return memcmp(pLhs, pRhs, sizeof(T) * compLen) == 0;
             }
@@ -318,38 +317,49 @@ namespace CC
         // Returns true if copying len tc's is successful, false otherwise.
         [[nodiscard]] _Success_(return) bool LengthCharacterCtorHelper(_In_ const size_t& len, _In_ const T& tc) noexcept
         {
-            if ( len != 0 )
+            if ( len == 0 )
             {
-                if ( len < ms_SSOCap )
+                return true;
+            }
+
+            if ( len < ms_SSOCap )
+            {
+                if constexpr ( std::is_same_v<T, utf8> )
                 {
-                    memset(m_SSOArr, tc, sizeof(T) * len);
-                    m_SSOPos = len;
-                    m_SSOArr[m_SSOPos] = ms_NullTerminator;
+                    memset(m_SSOArr, tc, len);
+                }
+                else if constexpr ( std::is_same_v<T, utf16> )
+                {
+                    wmemset(m_SSOArr, tc, len);
                 }
                 else
                 {
-                    m_DynBuf = DynamicBuffer<T>(len + 1);
-                    if ( !m_DynBuf )
-                    {
-                        return false;
-                    }
+                    static_assert(false, __FUNCSIG__": Unsupported character type.");
+                }
 
-                    for ( size_t i = 0; i < len; i++ )
-                    {
-                        if ( !m_DynBuf.Write(tc) )
-                        {
-                            return false;
-                        }
-                    }
+                m_SSOPos = len;
+                m_SSOArr[m_SSOPos] = ms_NullTerminator;
 
-                    if ( !m_DynBuf.Write(ms_NullTerminator) || !DecrementDynBufWritePos( ) )
+                return true;
+            }
+            else
+            {
+                m_DynBuf = DynamicBuffer<T>(len + 1);
+                if ( !m_DynBuf )
+                {
+                    return false;
+                }
+
+                for ( size_t i = 0; i < len; i++ )
+                {
+                    if ( !m_DynBuf.Write(tc) )
                     {
                         return false;
                     }
                 }
-            }
 
-            return true;
+                return m_DynBuf.Write(ms_NullTerminator) && DecrementDynBufWritePos( );
+            }
         }
 
         // Copies SSO array contents to dynamic buffer
@@ -425,7 +435,7 @@ namespace CC
 
         // Pointer-and-length constructor
         // Note: If copy fails for any reason, this string will be cleared out.
-        String(_In_reads_(len) const T* const pStr, _In_ size_t len) noexcept :
+        String(_In_reads_(len) const T* const pStr, _In_ const size_t& len) noexcept :
             String( )
         {
             if ( !CopyFromRawPointer(*this, pStr, len) )
@@ -461,6 +471,21 @@ namespace CC
         ~String( ) noexcept = default;
 
         /// Assignment Overloads \\\
+                
+        // Assigns C-string contents to this string.
+        // Note: Throws std::invalid_argument if pCStr is nullptr or empty (string length is 0).
+        // Note: Throws std::exception if assignment fails for any reason.
+        String<T>& operator=(_In_z_ const T* pCStr)
+        {
+            const size_t len = GetStringLength(pCStr);
+            ValidatePointerAndLengthT(__FUNCSIG__, pCStr, len);
+            if ( !CopyFromRawPointer(*this, pCStr, len) )
+            {
+                throw std::exception(__FUNCSIG__": Failed to assign using C-string.");
+            }
+
+            return *this;
+        }
 
         // Assigns source string to this string via copy.
         String<T>& operator=(_In_ const String<T>& src) noexcept
@@ -486,21 +511,6 @@ namespace CC
                 {
                     Clear( );
                 }
-            }
-
-            return *this;
-        }
-
-        // Assigns C-string contents to this string.
-        // Note: Throws std::invalid_argument if pCStr is nullptr or empty (string length is 0).
-        // Note: Throws std::exception if assignment fails for any reason.
-        String<T>& operator=(_In_z_ const T* pCStr)
-        {
-            const size_t len = GetStringLength(pCStr);
-            ValidatePointerAndLengthT(__FUNCSIG__, pCStr, len);
-            if ( !CopyFromRawPointer(*this, pCStr, len) )
-            {
-                throw std::exception(__FUNCSIG__": Failed to assign using C-string.");
             }
 
             return *this;
@@ -648,18 +658,6 @@ namespace CC
 
         /// Public Methods \\\
 
-        // Resets the string to default state (empty).
-        void Clear( ) noexcept
-        {
-            m_DynBuf.Free( );
-            ResetSSOArray( );
-        }
-
-        // Returns true if string is currently empty (length is 0), false otherwise.
-        [[nodiscard]] bool IsEmpty( ) noexcept
-        {
-            return Length( ) == 0;
-        }
 
         /// Assign \\\
 
@@ -694,6 +692,7 @@ namespace CC
             return MoveFromStringObj(*this, std::move(src));
         }
 
+
         /// Append \\\
 
         // Appends a single character tc to this string.
@@ -721,6 +720,7 @@ namespace CC
             return AppendUsingStringObj(*this, src);
         }
 
+
         /// Compare \\\
 
         // Compares C-string contents to this string, using specified case-sensitivity option.
@@ -743,6 +743,22 @@ namespace CC
         [[nodiscard]] bool Compare(_In_ const String<T>& rhs) const noexcept
         {
             return CompareStrings<bCaseInsensitive>(*this, rhs);
+        }
+
+
+        /// Misc \\\
+
+        // Resets the string to default state (empty).
+        void Clear( ) noexcept
+        {
+            m_DynBuf.Free( );
+            ResetSSOArray( );
+        }
+
+        // Returns true if string is currently empty (length is 0), false otherwise.
+        [[nodiscard]] bool IsEmpty( ) noexcept
+        {
+            return Length( ) == 0;
         }
     };
 }
