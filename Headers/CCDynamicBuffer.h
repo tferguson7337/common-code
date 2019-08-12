@@ -13,7 +13,7 @@ namespace CC
         friend class DynamicBufferTests;
 
         // Type aliases.
-        using PCH = PointerCommonHelpers<T>;
+        using PH = PointerHelpers<T>;
         using Base = Buffer<T>;
         using IBase = IBuffer<T>;
 
@@ -48,21 +48,54 @@ namespace CC
                 return false;
             }
 
-            PCH::MoveToRawPointer(newBuf.Get( ), this->Get( ), this->WritePosition( ));
+            PH::MoveToRawPointer(newBuf.Get( ), this->Get( ), this->WritePosition( ));
             newBuf.m_WritePos = this->WritePosition( );
             Base::TransferBuffer(*this, newBuf);
             return true;
         }
 
-        // Grows buffer to new length, if required.
-        [[nodiscard]] _Success_(return) bool GrowBufferIfRequired(_In_ const size_t& minInc) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_MOVE(T))
+        [[nodiscard]] _Success_(return) bool WriteInternalGrowReq(_In_reads_(len) const T* src, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T) && CC_IS_NOTHROW_MOVE(T))
         {
-            if ( (this->WritePosition( ) + minInc) > this->Length( ) )
+            bool bRet = false;
+
+            DynamicBuffer<T> newBuf(CalculateNewLength(this->Length( ), len));
+            if ( !!newBuf )
             {
-                return GrowBuffer(minInc);
+                if ( newBuf.WriteInternal(this->Get( ), this->WritePosition( )) && newBuf.WriteInternal(src, len))
+                {
+                    *this = std::move(newBuf);
+                    bRet = true;
+                }
             }
 
-            return true;
+            return bRet;
+        }
+
+        [[nodiscard]] _Success_(return) bool WriteInternalGrowReq(_Inout_updates_(len) T* src, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T) && CC_IS_NOTHROW_MOVE(T))
+        {
+            bool bRet = false;
+
+            DynamicBuffer<T> newBuf(CalculateNewLength(this->Length( ), len));
+            if ( !!newBuf )
+            {
+                if ( newBuf.WriteInternal(this->Get( ), this->WritePosition( )) && newBuf.WriteInternal(src, len))
+                {
+                    *this = std::move(newBuf);
+                    bRet = true;
+                }
+            }
+
+            return bRet;
+        }
+
+        [[nodiscard]] _Success_(return) bool WriteInternalGrowIfReq(_In_reads_(len) const T* src, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T) && CC_IS_NOTHROW_MOVE(T))
+        {
+            return ((this->WritePosition( ) + len) > this->Length( )) ? WriteInternalGrowReq(src, len) : Base::WriteInternal(src, len);
+        }
+
+        [[nodiscard]] _Success_(return) bool WriteInternalGrowIfReq(_Inout_updates_(len) T* src, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T) && CC_IS_NOTHROW_MOVE(T))
+        {
+            return ((this->WritePosition( ) + len) > this->Length( )) ? WriteInternalGrowReq(src, len) : Base::WriteInternal(src, len);
         }
 
         // Common wrapper for copy assignment.
@@ -192,23 +225,23 @@ namespace CC
 
         // Null-pointer write.
         // Returns false.
-        [[nodiscard]] _Success_(return) virtual bool Write(_In_ const std::nullptr_t&, _In_ const size_t&) noexcept
+        [[nodiscard]] _Success_(return) virtual bool Write(_In_opt_ const std::nullptr_t&, _In_ const size_t&) noexcept
         {
             return false;
         }
 
         // Copies raw pointer content to internal buffer at m_WritePos, increments m_WritePos by len on successful write.
         // Note: Will allocate/grow the internal buffer to hold the new element(s) if the buffer is null/full.
-        [[nodiscard]] _Success_(return) virtual bool Write(_In_reads_opt_(len) const T* const src, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T) && CC_IS_NOTHROW_MOVE(T))
+        [[nodiscard]] _Success_(return) virtual bool Write(_In_reads_opt_(len) const T* src, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T) && CC_IS_NOTHROW_MOVE(T))
         {
-            return ValidateWriteRequest(src, len) && GrowBufferIfRequired(len) && Base::WriteInternal(src, len);
+            return ValidateWriteRequest(src, len) && WriteInternalGrowIfReq(src, len);
         }
 
         // Moves raw pointer content to internal buffer at m_WritePos, increments m_WritePos by len on successful write.
         // Note: Will allocate/grow the internal buffer to hold the new element(s) if the buffer is null/full.
-        [[nodiscard]] _Success_(return) virtual bool Write(_Inout_opt_count_(len) T*&& src, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T) && CC_IS_NOTHROW_MOVE(T))
+        [[nodiscard]] _Success_(return) virtual bool Write(_Inout_updates_opt_(len) T*&& src, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T) && CC_IS_NOTHROW_MOVE(T))
         {
-            return ValidateWriteRequest(src, len) && GrowBufferIfRequired(len) && Base::WriteInternal(src, len);
+            return ValidateWriteRequest(src, len) && WriteInternalGrowIfReq(src, len);
         }
 
         // Copies source buffer content to internal buffer at m_WritePos.

@@ -13,7 +13,7 @@
 #include <CCBuffer.h>
 
 // Test Helper Utils
-#include <CCPointerCommonHelpersTests.h>
+#include <CCPointerHelpersTests.h>
 
 namespace CC
 {
@@ -31,9 +31,9 @@ namespace CC
     private:
 
         // Type aliases
-        using PCHT = PointerCommonHelpersTests;
-        using TestQuantity = PCHT::TestQuantity;
-        using Helper = PCHT::Helper;
+        using PHT = PointerHelpersTests;
+        using TestQuantity = PHT::TestQuantity;
+        using Helper = PHT::Helper;
 
         using UTR = UnitTestResult;
         using UTFunc = std::function<UTR(void)>;
@@ -42,13 +42,13 @@ namespace CC
         template <TestQuantity TQ>
         static constexpr const size_t GetTQNum( )
         {
-            return PCHT::GetTQNum<TQ>( );
+            return PHT::GetTQNum<TQ>( );
         }
 
         template <typename T, TestQuantity TQ>
         static std::vector<T> GetTestData( )
         {
-            return PCHT::GetTestData<T, TQ>( );
+            return PHT::GetTestData<T, TQ>( );
         }
 
         /// Test Subclasses \\\

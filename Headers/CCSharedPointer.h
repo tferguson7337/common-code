@@ -3,7 +3,7 @@
 // CC
 #include "CCMacros.h"
 #include "CCIPointer.h"
-#include "CCPointerCommonHelpers.h"
+#include "CCPointerHelpers.h"
 
 // STL
 #include <atomic>
@@ -13,13 +13,13 @@
 namespace CC
 {
     template <typename T>
-    class [[nodiscard]] SharedPointer : public IPointer<T>, public PointerCommonHelpers<T>
+    class [[nodiscard]] SharedPointer : public IPointer<T>
     {
         // Test class.
         friend class SharedPointerTests;
 
         // Type aliases.
-        using PCH = PointerCommonHelpers<T>;
+        using PH = PointerHelpers<T>;
         using IBase = IPointer<T>;
         using RCIntegral = std::make_signed_t<size_t>;
         using RefCounter = std::atomic<RCIntegral>;
@@ -95,7 +95,7 @@ namespace CC
 
         // SharedPointer length constructor
         explicit SharedPointer(_In_ const size_t& len) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T)) :
-            m_pPtr(PCH::Allocate(len)),
+            m_pPtr(PH::Allocate(len)),
             m_pRefCount((!!m_pPtr) ? AllocateRefCounter( ) : nullptr),
             m_Len((!!m_pPtr) ? len : 0)
         {
@@ -104,7 +104,7 @@ namespace CC
 
         // Raw pointer copy constructor
         SharedPointer(_In_reads_opt_(len) const T* p, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T)) :
-            m_pPtr(PCH::AllocateFromRawPointer(p, len)),
+            m_pPtr(PH::AllocateFromRawPointer(p, len)),
             m_pRefCount((!!m_pPtr) ? AllocateRefCounter( ) : nullptr),
             m_Len((!!m_pPtr) ? len : 0)
         {
@@ -195,25 +195,25 @@ namespace CC
 
         [[nodiscard]] virtual T& operator*( )
         {
-            PCH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
+            PH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
             return *m_pPtr;
         }
 
         [[nodiscard]] virtual const T& operator*( ) const
         {
-            PCH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
+            PH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
             return *m_pPtr;
         }
 
         [[nodiscard]] virtual T* operator->( )
         {
-            PCH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
+            PH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
             return m_pPtr;
         }
 
         [[nodiscard]] virtual const T* operator->( ) const
         {
-            PCH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
+            PH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
             return m_pPtr;
         }
 

@@ -61,19 +61,19 @@
     <ClInclude Include="..\Headers\CCSharedPointer.h">
       <Filter>CommonCode\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\Headers\CCPointerCommonHelpers.h">
-      <Filter>CommonCode\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="Headers\CCSharedPointerTests.h">
-      <Filter>Tests\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Headers\CCPointerCommonHelpersTests.h">
       <Filter>Tests\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\Headers\CCString.h">
       <Filter>CommonCode\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Headers\CCStringTests.h">
+      <Filter>Tests\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Headers\CCPointerHelpers.h">
+      <Filter>CommonCode\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\CCPointerHelpersTests.h">
       <Filter>Tests\Headers</Filter>
     </ClInclude>
   </ItemGroup>
@@ -95,10 +95,10 @@
     <ClCompile Include="Source\CCSharedPointerTests.cpp">
       <Filter>Tests\Source</Filter>
     </ClCompile>
-    <ClCompile Include="Source\CCPointerCommonHelpersTests.cpp">
+    <ClCompile Include="Source\CCStringTests.cpp">
       <Filter>Tests\Source</Filter>
     </ClCompile>
-    <ClCompile Include="Source\CCStringTests.cpp">
+    <ClCompile Include="Source\CCPointerHelpersTests.cpp">
       <Filter>Tests\Source</Filter>
     </ClCompile>
   </ItemGroup>

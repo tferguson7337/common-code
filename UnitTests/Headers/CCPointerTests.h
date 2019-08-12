@@ -13,7 +13,7 @@
 #include <CCPointer.h>
 
 // Test Helper Utils
-#include <CCPointerCommonHelpersTests.h>
+#include <CCPointerHelpersTests.h>
 
 
 namespace CC
@@ -30,9 +30,9 @@ namespace CC
     private:
 
         // Type aliases
-        using PCHT = PointerCommonHelpersTests;
-        using TestQuantity = PCHT::TestQuantity;
-        using Helper = PCHT::Helper;
+        using PHT = PointerHelpersTests;
+        using TestQuantity = PHT::TestQuantity;
+        using Helper = PHT::Helper;
         
         using UTR = UnitTestResult;
         using UTFunc = std::function<UTR(void)>;
@@ -71,8 +71,8 @@ namespace CC
             constexpr size_t expectedSingleFreeCount = (TQ == TestQuantity::One) ? 1 : 0;
             constexpr size_t expectedArrayFreeCount = (TQ == TestQuantity::Many) ? 1 : 0;
 
-            Pointer<T> ptr(PCHT::GetTQNum<TQ>( ));
-            Pointer<T> srcPtr(PCHT::GetTQNum<TQ>( ));
+            Pointer<T> ptr(PHT::GetTQNum<TQ>( ));
+            Pointer<T> srcPtr(PHT::GetTQNum<TQ>( ));
 
             try
             {
@@ -85,7 +85,7 @@ namespace CC
 
             SUTL_TEST_ASSERT((ptr.Get( ) != srcPtr.Get( )) == (TQ != TestQuantity::Zero));
             SUTL_TEST_ASSERT(ptr.Length( ) == srcPtr.Length( ));
-            for ( size_t i = 0; i < PCHT::GetTQNum<TQ>( ); i++ )
+            for ( size_t i = 0; i < PHT::GetTQNum<TQ>( ); i++ )
             {
                 SUTL_TEST_ASSERT(ptr.Get( )[i] == srcPtr.Get( )[i]);
             }
@@ -99,8 +99,8 @@ namespace CC
             constexpr size_t expectedSingleFreeCount = (TQ == TestQuantity::One) ? 1 : 0;
             constexpr size_t expectedArrayFreeCount = (TQ == TestQuantity::Many) ? 1 : 0;
 
-            Pointer<T> ptr(PCHT::GetTQNum<TQ>( ));
-            Pointer<T> srcPtr(PCHT::GetTQNum<TQ>( ));
+            Pointer<T> ptr(PHT::GetTQNum<TQ>( ));
+            Pointer<T> srcPtr(PHT::GetTQNum<TQ>( ));
 
             try
             {
@@ -115,7 +115,7 @@ namespace CC
             SUTL_TEST_ASSERT(srcPtr.Get( ) == nullptr);
             if constexpr ( std::is_same_v<T, Helper> )
             {
-                for ( size_t i = 0; i < PCHT::GetTQNum<TQ>( ); i++ )
+                for ( size_t i = 0; i < PHT::GetTQNum<TQ>( ); i++ )
                 {
                     SUTL_TEST_ASSERT(!ptr.Get( )[i].Copied( ));
                     SUTL_TEST_ASSERT(!ptr.Get( )[i].Moved( ));
@@ -131,7 +131,7 @@ namespace CC
             constexpr size_t expectedSingleFreeCount = (TQ == TestQuantity::One) ? 1 : 0;
             constexpr size_t expectedArrayFreeCount = (TQ == TestQuantity::Many) ? 1 : 0;
 
-            Pointer<T> ptr(PCHT::GetTQNum<TQ>( ));
+            Pointer<T> ptr(PHT::GetTQNum<TQ>( ));
 
             ptr.~Pointer( );
 
@@ -147,7 +147,7 @@ namespace CC
             constexpr size_t expectedSingleFreeCount = (TQ == TestQuantity::One) ? 1 : 0;
             constexpr size_t expectedArrayFreeCount = (TQ == TestQuantity::Many) ? 1 : 0;
 
-            Pointer<T> ptr(PCHT::GetTQNum<TQ>( ));
+            Pointer<T> ptr(PHT::GetTQNum<TQ>( ));
 
             ptr.Free( );
 
@@ -178,7 +178,7 @@ namespace CC
         static UTR LengthCtor( )
         {
             constexpr const bool bExpectNull = (TQ == TestQuantity::Zero);
-            constexpr const size_t len = PCHT::GetTQNum<TQ>( );
+            constexpr const size_t len = PHT::GetTQNum<TQ>( );
             Pointer<T> p(len);
 
             SUTL_TEST_ASSERT(!p.Get( ) == bExpectNull);
@@ -192,8 +192,8 @@ namespace CC
         static UTR RawPointerCopyCtor( )
         {
             constexpr const bool bExpectNull = (TQ == TestQuantity::Zero);
-            constexpr const size_t len = PCHT::GetTQNum<TQ>( );
-            const std::vector<T> testData = PCHT::GetTestData<T, TQ>( );
+            constexpr const size_t len = PHT::GetTQNum<TQ>( );
+            const std::vector<T> testData = PHT::GetTestData<T, TQ>( );
             Pointer<T>* pPointer = nullptr;
 
             try
@@ -229,8 +229,8 @@ namespace CC
         static UTR RawPointerStealCtor( )
         {
             constexpr const bool bExpectNull = (TQ == TestQuantity::Zero);
-            constexpr const size_t len = PCHT::GetTQNum<TQ>( );
-            const std::vector<T> testData = PCHT::GetTestData<T, TQ>( );
+            constexpr const size_t len = PHT::GetTQNum<TQ>( );
+            const std::vector<T> testData = PHT::GetTestData<T, TQ>( );
             T* pTestCopy = nullptr;
             T* pOrigPtr = nullptr;
             Pointer<T>* pPointer = nullptr;
@@ -287,8 +287,8 @@ namespace CC
         static UTR CopyCtor( )
         {
             constexpr const bool bExpectNull = (TQ == TestQuantity::Zero);
-            constexpr const size_t len = PCHT::GetTQNum<TQ>( );
-            const std::vector<T> testData = PCHT::GetTestData<T, TQ>( );
+            constexpr const size_t len = PHT::GetTQNum<TQ>( );
+            const std::vector<T> testData = PHT::GetTestData<T, TQ>( );
 
             Pointer<T>* pSrc = nullptr;
             Pointer<T>* pPointer = nullptr;
@@ -344,8 +344,8 @@ namespace CC
         static UTR MoveCtor( )
         {
             constexpr const bool bExpectNull = (TQ == TestQuantity::Zero);
-            constexpr const size_t len = PCHT::GetTQNum<TQ>( );
-            const std::vector<T> testData = PCHT::GetTestData<T, TQ>( );
+            constexpr const size_t len = PHT::GetTQNum<TQ>( );
+            const std::vector<T> testData = PHT::GetTestData<T, TQ>( );
 
             Pointer<T>* pSrc = nullptr;
             Pointer<T>* pPointer = nullptr;
@@ -407,10 +407,10 @@ namespace CC
         {
             constexpr const bool bExpectNullSrc = (TQSrc == TestQuantity::Zero);
             constexpr const bool bExpectNullDst = (TQDst == TestQuantity::Zero);
-            constexpr const size_t lenSrc = PCHT::GetTQNum<TQSrc>( );
-            constexpr const size_t lenDst = PCHT::GetTQNum<TQDst>( );
-            const std::vector<T> testDataSrc = PCHT::GetTestData<T, TQSrc>( );
-            const std::vector<T> testDataDst = PCHT::GetTestData<T, TQDst>( );
+            constexpr const size_t lenSrc = PHT::GetTQNum<TQSrc>( );
+            constexpr const size_t lenDst = PHT::GetTQNum<TQDst>( );
+            const std::vector<T> testDataSrc = PHT::GetTestData<T, TQSrc>( );
+            const std::vector<T> testDataDst = PHT::GetTestData<T, TQDst>( );
 
             Pointer<T> src(testDataSrc.data( ), lenSrc);
             Pointer<T> dst(testDataDst.data( ), lenDst);
@@ -515,10 +515,10 @@ namespace CC
         {
             constexpr const bool bExpectNullSrc = (TQSrc == TestQuantity::Zero);
             constexpr const bool bExpectNullDst = (TQDst == TestQuantity::Zero);
-            constexpr const size_t lenSrc = PCHT::GetTQNum<TQSrc>( );
-            constexpr const size_t lenDst = PCHT::GetTQNum<TQDst>( );
-            const std::vector<T> testDataSrc = PCHT::GetTestData<T, TQSrc>( );
-            const std::vector<T> testDataDst = PCHT::GetTestData<T, TQDst>( );
+            constexpr const size_t lenSrc = PHT::GetTQNum<TQSrc>( );
+            constexpr const size_t lenDst = PHT::GetTQNum<TQDst>( );
+            const std::vector<T> testDataSrc = PHT::GetTestData<T, TQSrc>( );
+            const std::vector<T> testDataDst = PHT::GetTestData<T, TQDst>( );
 
             Pointer<T> src(testDataSrc.data( ), lenSrc);
             Pointer<T> dst(testDataDst.data( ), lenDst);
@@ -608,8 +608,8 @@ namespace CC
         static UTR Dereference( )
         {
             constexpr const bool bExpectNull = (TQ == TestQuantity::Zero);
-            constexpr const size_t len = PCHT::GetTQNum<TQ>( );
-            std::vector<T> testData = PCHT::GetTestData<T, TQ>( );
+            constexpr const size_t len = PHT::GetTQNum<TQ>( );
+            std::vector<T> testData = PHT::GetTestData<T, TQ>( );
             bool bThrew = false;
 
             Pointer<T> p(testData.data( ), len);

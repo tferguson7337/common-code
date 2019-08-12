@@ -265,6 +265,7 @@ namespace CC
     public:
         static UTR InvalidOperationType( )
         {
+#pragma warning(suppress : 26454) // Intentional overflow - suppress warning.
             constexpr OT invalidOT1 = static_cast<OT>(static_cast<OT_T>(OT::Begin) - 1);
             constexpr OT invalidOT2 = OT::End;
 
@@ -286,6 +287,7 @@ namespace CC
 
         static UTR InvalidEarlyExitResult( )
         {
+#pragma warning(suppress : 26454) // Intentional overflow - suppress warning.
             constexpr EER invalidEER1 = static_cast<EER>(static_cast<EER_T>(EER::Begin) - 1);
             constexpr EER invalidEER2 = EER::End;
 
@@ -308,6 +310,7 @@ namespace CC
 
         static UTR InvalidReturnType( )
         {
+#pragma warning(suppress : 26454) // Intentional overflow - suppress warning.
             constexpr RT invalidRT1 = static_cast<RT>(static_cast<RT_T>(RT::_Begin) - 1);
             constexpr RT invalidRT2 = RT::_End;
 
@@ -327,6 +330,7 @@ namespace CC
 
         static UTR InvalidBaseType( )
         {
+#pragma warning(suppress : 26454) // Intentional overflow - suppress warning.
             constexpr BT invalidBT1 = static_cast<BT>(static_cast<BT_T>(BT::_Begin) - 1);
             constexpr BT invalidBT2 = BT::_End;
 

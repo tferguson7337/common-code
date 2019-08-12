@@ -3,6 +3,7 @@
 // CC
 #include "CCDynamicBuffer.h"
 #include "CCMacros.h"
+#include "CCPointerHelpers.h"
 
 // STL
 #include <stdexcept>
@@ -15,6 +16,9 @@ namespace CC
     {
         // Testing class.
         friend class StringTests;
+
+        // Type aliases.
+        using PH = PointerHelpers;
 
     private:
 
@@ -49,29 +53,6 @@ namespace CC
             }
         }
 
-        /// Private Static Throwing Validators \\\
-
-        // Throws std::invalid_argument if p is nullptr.
-        static void ValidatePointerT(_In_z_ const char* const f, _In_opt_ const T* p)
-        {
-            if ( !p )
-            {
-                static const std::string msg = ": Received invalid nullptr argument.";
-                throw std::invalid_argument(f + msg);
-            }
-        }
-
-        // Throws std::invalid_argument if p is nullptr or len == 0.
-        static void ValidatePointerAndLengthT(_In_z_ const char* const f, _In_opt_ const T* p, _In_ const size_t& len)
-        {
-            ValidatePointerT(f, p);
-            if ( len == 0 )
-            {
-                static const std::string msg = ": Received invalid len argument (len == 0).";
-                throw std::invalid_argument(f + msg);
-            }
-        }
-
         /// Private Static Validators \\\
 
         // Returns false if p is nullptr, true otherwise.
@@ -96,7 +77,7 @@ namespace CC
 
         // Copies pStr contents to beginning of SSO array.
         // Note: This method assumes that the caller has already determined that the copy will fit in the SSO array.
-        [[nodiscard]] static bool CopyRawPointerToSSOArray(_Out_ String<T>& dst, _In_reads_(len) const T* const pStr, _In_ const size_t& len) noexcept
+        [[nodiscard]] _Success_(return) static bool CopyRawPointerToSSOArray(_Out_ String<T>& dst, _In_reads_(len) const T* const pStr, _In_ const size_t& len) noexcept
         {
             dst.Clear( );
             memcpy(dst.m_SSOArr, pStr, sizeof(T) * len);
@@ -105,7 +86,8 @@ namespace CC
             return true;
         }
 
-        [[nodiscard]] static bool CopyRawPointerToDynamicBuffer(_Out_ String<T>& dst, _In_reads_(len) const T* const pStr, _In_ const size_t& len) noexcept
+        // Resets dst's SSO array, creates a dynamic buffer for dst and copies pStr contents into the buffer.
+        [[nodiscard]] _Success_(return) static bool CopyRawPointerToDynamicBuffer(_Out_ String<T>& dst, _In_reads_(len) const T* const pStr, _In_ const size_t& len) noexcept
         {
             dst.ResetSSOArray( );
             dst.m_DynBuf = DynamicBuffer<T>(len + 1);
@@ -119,16 +101,16 @@ namespace CC
 
         // Appends pStr contents to end of current SSO array position.
         // Note: This method assumes that the caller has already determined that the append will fit in the SSO array.
-        [[nodiscard]] static bool AppendRawPointerToSSOArray(_Inout_ String<T>& dst, _In_reads_(len) const T* const pStr, _In_ const size_t& len) noexcept
+        [[nodiscard]] _Success_(return) static bool AppendRawPointerToSSOArray(_Inout_ String<T>& dst, _In_reads_(len) const T* const pStr, _In_ const size_t& len) noexcept
         {
-            memcpy(dst.m_SSOArr + dst.m_SSOPos, pStr, len);
+            memcpy(dst.m_SSOArr + dst.m_SSOPos, pStr, sizeof(T) * len);
             dst.m_SSOPos += len;
             dst.m_SSOArr[dst.m_SSOPos] = ms_NullTerminator;
             return true;
         }
 
         // Appends pStr contents to end of the dynamic buffer.
-        [[nodiscard]] static bool AppendRawPointerToDynamicBuffer(_Inout_ String<T>& dst, _In_reads_(len) const T* const pStr, _In_ const size_t& len) noexcept
+        [[nodiscard]] _Success_(return) static bool AppendRawPointerToDynamicBuffer(_Inout_ String<T>& dst, _In_reads_(len) const T* const pStr, _In_ const size_t& len) noexcept
         {
             return dst.m_DynBuf.Write(pStr, len)
                 && dst.m_DynBuf.Write(ms_NullTerminator)
@@ -137,7 +119,7 @@ namespace CC
 
         // Copies both SSO array and pStr contents to dynamic buffer.
         // Note: This will overwrite any previous dynamic buffer contents.
-        [[nodiscard]] static bool CopySSOArrayAndAppendRawPointerToDynamicBuffer(_Inout_ String<T>& dst, _In_reads_(len) const T* const pStr, _In_ const size_t& len) noexcept
+        [[nodiscard]] _Success_(return) static bool CopySSOArrayAndAppendRawPointerToDynamicBuffer(_Inout_ String<T>& dst, _In_reads_(len) const T* const pStr, _In_ const size_t& len) noexcept
         {
             dst.m_DynBuf = DynamicBuffer<T>(dst.m_SSOPos + len + 1);
             return !!dst.m_DynBuf
@@ -148,7 +130,7 @@ namespace CC
         /// Static Private Helper Methods \\\
 
         // Returns true if tc is ms_NullTerminator, false otherwise.
-        [[nodiscard]] bool IsNullTerminator(_In_ const T& tc) noexcept
+        [[nodiscard]] static bool IsNullTerminator(_In_ const T& tc) noexcept
         {
             return (tc == ms_NullTerminator) ? true : false;
         }
@@ -216,22 +198,25 @@ namespace CC
         }
 
         // Copies contents of pStr to dst.
-        [[nodiscard]] static bool CopyFromRawPointer(_Inout_ String<T>& dst, _In_reads_(len) const T* const pStr, _In_ const size_t& len) noexcept
+        [[nodiscard]] _Success_(return) static bool CopyFromRawPointer(_Inout_ String<T>& dst, _In_reads_opt_(len) const T* const pStr, _In_ const size_t& len) noexcept
         {
-            if ( !ValidatePointerAndLength(pStr, len) )
+            if ( !pStr || (len == 0))
             {
-                return false;
+                dst.Clear( );
+                return true;
             }
 
             return (len < ms_SSOCap) ? CopyRawPointerToSSOArray(dst, pStr, len) : CopyRawPointerToDynamicBuffer(dst, pStr, len);
         }
 
-        [[nodiscard]] static bool AppendUsingRawPointer(_Inout_ String<T>& dst, _In_reads_(len) const T* const pStr, _In_ const size_t& len) noexcept
+        // Appends pStr contents to dst.
+        // Note: If append would write past the end of the SSO array, dst allocates a dynamic buffer, copies SSO array to new buffer, and then appends pStr contents.
+        [[nodiscard]] _Success_(return) static bool AppendUsingRawPointer(_Inout_ String<T>& dst, _In_reads_opt_(len) const T* const pStr, _In_ const size_t& len) noexcept
         {
             bool bRet = true;
-            if ( !ValidatePointerAndLength(pStr, len) )
+            if ( !pStr || (len == 0))
             {
-                return false;
+                return true;
             }
 
             if ( dst.IsUsingSSOArray( ) )
@@ -253,31 +238,34 @@ namespace CC
             return bRet;
         }
 
-        [[nodiscard]] static bool AppendUsingStringObj(_Inout_ String<T>& dst, _In_ const String<T>& src) noexcept
+        // Appends src contents to end of dst.
+        // Returns true if the append operation is successful, false otherwise.
+        [[nodiscard]] _Success_(return) static bool AppendUsingStringObj(_Inout_ String<T>& dst, _In_ const String<T>& src) noexcept
         {
             return AppendUsingRawPointer(dst, src.CStr( ), src.Length( ));
         }
 
+        // Compares the two String objects, returns true
         template <bool bCI = false>
         [[nodiscard]] static bool CompareStrings(_In_ const String<T>& lhs, _In_ const String<T>& rhs) noexcept
         {
-            return (lhs.Length( ) == rhs.Length( )) && CompareStrings<bCI>(lhs.CStr( ), lhs.Length( ), rhs.CStr( ), lhs.Length( ));
+            return CompareStrings<bCI>(lhs.CStr( ), lhs.Length( ), rhs.CStr( ), rhs.Length( ));
         }
 
         template <bool bCI = false>
-        [[nodiscard]] static bool CompareStrings(_In_ const String<T>& lhs, _In_ const T* const pRhs, _In_ const size_t& rhsLen) noexcept
+        [[nodiscard]] static bool CompareStrings(_In_ const String<T>& lhs, _In_reads_(rhsLen) const T* const pRhs, _In_ const size_t& rhsLen) noexcept
         {
             return CompareStrings<bCI>(lhs.CStr( ), lhs.Length( ), pRhs, rhsLen);
         }
 
         template <bool bCI = false>
-        [[nodiscard]] static bool CompareStrings(_In_ const T* const pLhs, _In_ const size_t& lhsLen, _In_ const String<T>& rhs) noexcept
+        [[nodiscard]] static bool CompareStrings(_In_reads_(lhsLen) const T* const pLhs, _In_ const size_t& lhsLen, _In_ const String<T>& rhs) noexcept
         {
             return CompareStrings<bCI>(pLhs, lhsLen, rhs.CStr( ), rhs.Length( ));
         }
 
         template <bool bCI = false>
-        [[nodiscard]] static bool CompareStrings(_In_ const T* const pLhs, _In_ const size_t& lhsLen, _In_ const T* const pRhs, _In_ const size_t& rhsLen) noexcept
+        [[nodiscard]] static bool CompareStrings(_In_reads_(lhsLen) const T* const pLhs, _In_ const size_t& lhsLen, _In_reads_(rhsLen) const T* const pRhs, _In_ const size_t& rhsLen) noexcept
         {
             size_t compLen = std::min(lhsLen, rhsLen);
 
@@ -305,10 +293,6 @@ namespace CC
                 {
                     return _wcsnicmp(pLhs, pRhs, compLen) == 0;
                 }
-                else
-                {
-                    static_assert(false, __FUNCSIG__": Unsupported character type.");
-                }
             }
         }
 
@@ -331,10 +315,6 @@ namespace CC
                 else if constexpr ( std::is_same_v<T, utf16> )
                 {
                     wmemset(m_SSOArr, tc, len);
-                }
-                else
-                {
-                    static_assert(false, __FUNCSIG__": Unsupported character type.");
                 }
 
                 m_SSOPos = len;
@@ -377,8 +357,6 @@ namespace CC
             {
                 return false;
             }
-
-            ResetSSOArray( );
 
             return true;
         }
@@ -424,7 +402,7 @@ namespace CC
 
         // C-string constructor
         // Note: If copy fails for any reason, this string will be cleared out. 
-        explicit String(_In_z_ const T* const pCStr) noexcept :
+        explicit String(_In_opt_z_ const T* const pCStr) noexcept :
             String( )
         {
             if ( !CopyFromRawPointer(*this, pCStr, GetStringLength(pCStr)) )
@@ -435,7 +413,7 @@ namespace CC
 
         // Pointer-and-length constructor
         // Note: If copy fails for any reason, this string will be cleared out.
-        String(_In_reads_(len) const T* const pStr, _In_ const size_t& len) noexcept :
+        String(_In_reads_opt_(len) const T* const pStr, _In_ const size_t& len) noexcept :
             String( )
         {
             if ( !CopyFromRawPointer(*this, pStr, len) )
@@ -473,15 +451,12 @@ namespace CC
         /// Assignment Overloads \\\
                 
         // Assigns C-string contents to this string.
-        // Note: Throws std::invalid_argument if pCStr is nullptr or empty (string length is 0).
-        // Note: Throws std::exception if assignment fails for any reason.
-        String<T>& operator=(_In_z_ const T* pCStr)
+        // Note: Clears string if assignment fails.
+        String<T>& operator=(_In_opt_z_ const T* pCStr)
         {
-            const size_t len = GetStringLength(pCStr);
-            ValidatePointerAndLengthT(__FUNCSIG__, pCStr, len);
-            if ( !CopyFromRawPointer(*this, pCStr, len) )
+            if ( (pCStr != CStr( )) && (!pCStr || !CopyFromRawPointer(*this, pCStr, GetStringLength(pCStr))) )
             {
-                throw std::exception(__FUNCSIG__": Failed to assign using C-string.");
+                Clear( );
             }
 
             return *this;
@@ -524,39 +499,25 @@ namespace CC
             return !IsEmpty( );
         }
 
-        // Returns C-string pointer of this string (mutable).
-        [[nodiscard]] _Ret_z_ operator T*() noexcept
-        {
-            return CStr( );
-        }
-
-        // Returns C-string pointer of this string (immutable).
-        [[nodiscard]] _Ret_z_ operator const T*() const noexcept
-        {
-            return CStr( );
-        }
-
         // Appends C-string contents to this string.
-        // Note: Throws if pCStr is nullptr, and empty C-string, or if the append fails for any reason.
+        // Note: Clears string if append fails.
         String<T>& operator+=(_In_z_ const T* pCStr)
         {
-            size_t len = GetStringLength(pCStr);
-            ValidatePointerAndLengthT(__FUNCSIG__, pCStr, len);
-            if ( !AppendUsingRawPointer(*this, pCStr, len) )
+            if ( !AppendUsingRawPointer(*this, pCStr, GetStringLength(pCStr)) )
             {
-                throw std::exception(__FUNCSIG__": Failed to append using C-string.");
+                Clear( );
             }
 
             return *this;
         }
 
         // Appends source string contents to this string.
-        // Note: Throws if src is an empty string or if the append fails for any reason.
+        // Note: Clears string if append fails.
         String<T>& operator+=(_In_ const String<T>& src)
         {
             if ( !AppendUsingStringObj(*this, src) )
             {
-                throw std::exception(__FUNCSIG__": Failed to append using CC::String object.");
+                Clear( );
             }
 
             return *this;
@@ -579,7 +540,7 @@ namespace CC
         }
 
         // Performs case-sensitive comparison between C-string and this string - returns true if contents match, false otherwise.
-        [[nodiscard]] bool operator==(_In_opt_ const T* pCStr) const noexcept
+        [[nodiscard]] bool operator==(_In_opt_z_ const T* pCStr) const noexcept
         {
             size_t len = GetStringLength(pCStr);
             if ( !pCStr || (len != Length( )) )
@@ -593,7 +554,7 @@ namespace CC
         // Performs case-sensitive comparison between source string and this string - returns true if contents match, false otherwise.
         [[nodiscard]] bool operator==(_In_ const String<T>& other) const noexcept
         {
-            return CompareStrings(*this, other);
+            return (Length() == other.Length()) && CompareStrings(*this, other);
         }
 
         /// Getters \\\
@@ -675,7 +636,7 @@ namespace CC
 
         // Assigns pStr contents to this string.
         // Note: This will append a null-terminator after assigning pStr contents.
-        [[nodiscard]] bool Assign(_In_ const T* const pStr, _In_ const size_t& len) noexcept
+        [[nodiscard]] bool Assign(_In_reads_(len) const T* const pStr, _In_ const size_t& len) noexcept
         {
             return CopyFromRawPointer(*this, pStr, len);
         }
@@ -685,6 +646,13 @@ namespace CC
         {
             return CopyFromStringObj(*this, src);
         }
+
+		// Assigns source string contents to this string, up to len characters.
+		// Note: If len > src.Length(), this will correct to appending the entire str object.
+		[[nodiscard]] bool Assign(_In_ const String<T>& src, _In_ const size_t& len) noexcept
+		{
+			return CopyFromRawPointer(*this, src.CStr(), std::min<size_t>(src.Length(), len));
+		}
 
         // Assigns source string contents to this string, clears out the source string.
         [[nodiscard]] bool Assign(_Inout_ String<T>&& src) noexcept
@@ -709,7 +677,7 @@ namespace CC
 
         // Appends pStr contents to this string.
         // Note: This will append a null-terminator after assigning pStr contents.
-        [[nodiscard]] bool Append(_In_ const T* const pCStr, _In_ const size_t& len) noexcept
+        [[nodiscard]] bool Append(_In_reads_(len) const T* const pCStr, _In_ const size_t& len) noexcept
         {
             return AppendUsingRawPointer(*this, pCStr, len);
         }
@@ -720,6 +688,13 @@ namespace CC
             return AppendUsingStringObj(*this, src);
         }
 
+		// Appends source string contents to this string up to len characters.
+		// Note: If len > src.Length(), this will correct to appending the entire str object.
+		[[nodiscard]] bool Append(_In_ const String<T>& src, _In_ const size_t& len) noexcept
+		{
+			return AppendUsingRawPointer(*this, src.CStr(), std::min<size_t>(len, src.Length()));
+		}
+
 
         /// Compare \\\
 
@@ -727,23 +702,31 @@ namespace CC
         template <bool bCaseInsensitive = false>
         [[nodiscard]] bool Compare(_In_z_ const T* const pCStr) const noexcept
         {
-            size_t len = GetStringLength(pCStr);
-            return (len != ms_InvalidLen) && CompareStrings<bCaseInsensitive>(*this, pCStr, GetStringLength(pCStr));
+            const size_t len = GetStringLength(pCStr);
+            return (len != ms_InvalidLen) && (Length() == len) && CompareStrings<bCaseInsensitive>(*this, pCStr, len);
         }
 
         // Compares contents of pStr to this string, using specified case-sensitivity option.
         template <bool bCaseInsensitive = false>
-        [[nodiscard]] bool Compare(_In_ const T* const pStr, _In_ const size_t& len) const noexcept
+        [[nodiscard]] bool Compare(_In_reads_(len) const T* const pStr, _In_ const size_t& len) const noexcept
         {
-            return CompareStrings<bCaseInsensitive>(*this, pStr, len);
+            return (Length() >= len) && CompareStrings<bCaseInsensitive>(*this, pStr, len);
         }
 
         // Compares contents of source string to this string, using specified case-sensitivity option.
         template <bool bCaseInsensitive = false>
         [[nodiscard]] bool Compare(_In_ const String<T>& rhs) const noexcept
         {
-            return CompareStrings<bCaseInsensitive>(*this, rhs);
+            return (Length() == rhs.Length()) && CompareStrings<bCaseInsensitive>(*this, rhs);
         }
+
+		// Compares contents of source string to this string, up to len characters and using specified case-sensitivity option.
+		template <bool bCaseInsensitive = false>
+		[[nodiscard]] bool Compare(_In_ const String<T>& rhs, _In_ const size_t& len) const noexcept
+		{
+			const size_t& rhsLen = std::min(rhs.Length(), len);
+			return (Length() >= rhsLen) && CompareStrings<bCaseInsensitive>(*this, rhs.CStr(), rhsLen);
+		}
 
 
         /// Misc \\\

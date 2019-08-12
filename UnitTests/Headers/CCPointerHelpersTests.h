@@ -10,7 +10,7 @@
 #include <memory>
 
 // Target Class
-#include <CCPointerCommonHelpers.h>
+#include <CCPointerHelpers.h>
 
 // Test Helper
 #include <CCPointer.h>
@@ -18,7 +18,7 @@
 
 namespace CC
 {
-    class PointerCommonHelpersTests
+    class PointerHelpersTests
     {
         friend class BufferTests;
         friend class DynamicBufferTests;
@@ -26,12 +26,12 @@ namespace CC
         friend class SharedPointerTests;
         friend class StringTests;
         
-        PointerCommonHelpersTests( ) = delete;
-        PointerCommonHelpersTests(const PointerCommonHelpersTests&) = delete;
-        PointerCommonHelpersTests(PointerCommonHelpersTests&&) = delete;
-        ~PointerCommonHelpersTests( ) = delete;
-        PointerCommonHelpersTests& operator=(const PointerCommonHelpersTests&) = delete;
-        PointerCommonHelpersTests& operator=(PointerCommonHelpersTests&&) = delete;
+        PointerHelpersTests( ) = delete;
+        PointerHelpersTests(const PointerHelpersTests&) = delete;
+        PointerHelpersTests(PointerHelpersTests&&) = delete;
+        ~PointerHelpersTests( ) = delete;
+        PointerHelpersTests& operator=(const PointerHelpersTests&) = delete;
+        PointerHelpersTests& operator=(PointerHelpersTests&&) = delete;
 
     private:
 
@@ -214,7 +214,7 @@ namespace CC
 
         // Type aliases
         template <typename T>
-        using PCH = PointerCommonHelpers<T>;
+        using PH = PointerHelpers<T>;
 
         using UTR = UnitTestResult;
         using UTFunc = std::function<UTR(void)>;
@@ -245,7 +245,7 @@ namespace CC
                 SUTL_TEST_ASSERT(!pDst);
             }
 
-            PCH<T>::CopyToRawPointer(pDst, pSrc, len);
+            PH<T>::CopyToRawPointer(pDst, pSrc, len);
             if constexpr ( len != 0 )
             {
                 SUTL_TEST_ASSERT(!!pSrc);
@@ -297,7 +297,7 @@ namespace CC
                 SUTL_TEST_ASSERT(!pDst);
             }
 
-            PCH<T>::MoveToRawPointer(pDst, pSrc, len);
+            PH<T>::MoveToRawPointer(pDst, pSrc, len);
             if constexpr ( len != 0 )
             {
                 SUTL_TEST_ASSERT(!!pSrc);
@@ -332,7 +332,7 @@ namespace CC
             constexpr size_t len = static_cast<size_t>(TQ);
             T* p = nullptr;
 
-            p = PCH<T>::Allocate(len);
+            p = PH<T>::Allocate(len);
             if constexpr ( len == 0 )
             {
                 SUTL_TEST_ASSERT(!p);
@@ -372,7 +372,7 @@ namespace CC
                 SUTL_TEST_ASSERT(!pSrc);
             }
 
-            pDst = PCH<T>::AllocateFromRawPointer(pSrc, len);
+            pDst = PH<T>::AllocateFromRawPointer(pSrc, len);
             if constexpr ( len != 0 )
             {
                 SUTL_TEST_ASSERT(!!pSrc);
@@ -417,7 +417,7 @@ namespace CC
         {
             constexpr size_t len = static_cast<size_t>(TQ);
             std::vector<T> srcData = GetTestData<T, TQ>( );
-            Pointer<T> srcPtr(PCH<T>::AllocateFromRawPointer(srcData.data( ), len), len);
+            Pointer<T> srcPtr(PH<T>::AllocateFromRawPointer(srcData.data( ), len), len);
             T* pRawSrcPtr = srcPtr.Get( );
             T* pDst = nullptr;
 
@@ -430,7 +430,7 @@ namespace CC
                 SUTL_TEST_ASSERT(!pRawSrcPtr);
             }
 
-            pDst = PCH<T>::AllocateFromIPointerObj(srcPtr);
+            pDst = PH<T>::AllocateFromIPointerObj(srcPtr);
             if constexpr ( len != 0 )
             {
                 SUTL_TEST_ASSERT(!!pRawSrcPtr);
@@ -472,7 +472,7 @@ namespace CC
 
     public:
 
-        // Return list of PointerCommonHelpers unit tests.
+        // Return list of PointerHelpers unit tests.
         static UTList GetTests( );
     };
 }

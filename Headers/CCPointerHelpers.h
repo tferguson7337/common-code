@@ -11,22 +11,22 @@
 namespace CC
 {
     template <typename T>
-    class PointerCommonHelpers
+    class PointerHelpers
     {
-        friend class PointerCommonHelpersTests;
+        friend class PointerHelpersTests;
 
-    protected:
+    public:
 
-        /// Protected Default Constructor, Virtual Destructor \\\
+        /// Public Default Constructor, Virtual Destructor \\\
 
-        PointerCommonHelpers( ) noexcept = default;
-        PointerCommonHelpers(const PointerCommonHelpers&) noexcept = default;
-        PointerCommonHelpers(PointerCommonHelpers&&) noexcept = default;
-        virtual ~PointerCommonHelpers( ) noexcept = default;
-        PointerCommonHelpers& operator=(const PointerCommonHelpers&) noexcept = default;
-        PointerCommonHelpers& operator=(PointerCommonHelpers&&) noexcept = default;
+        PointerHelpers( ) noexcept = delete;
+        PointerHelpers(const PointerHelpers&) noexcept = delete;
+        PointerHelpers(PointerHelpers&&) noexcept = delete;
+        ~PointerHelpers( ) noexcept = delete;
+        PointerHelpers& operator=(const PointerHelpers&) noexcept = delete;
+        PointerHelpers& operator=(PointerHelpers&&) noexcept = delete;
 
-        /// Common Static Protected Throwing Validator Methods \\\
+        /// Common Static Public Throwing Validator Methods \\\
 
         // Throw std::logic_error if p is nullptr.
         inline static void ValidateDereferenceT(_In_z_ const char* const f, _In_opt_ const T* const p)
@@ -38,7 +38,7 @@ namespace CC
             }
         }
 
-        /// Common Protected Static Helper Methods \\\
+        /// Common Public Static Helper Methods \\\
 
         // Copies len element from src into dst.
         static void CopyToRawPointer(_Out_writes_opt_(len) T* dst, _In_reads_opt_(len) const T* src, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_COPY(T))

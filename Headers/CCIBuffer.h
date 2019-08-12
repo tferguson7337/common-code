@@ -85,7 +85,7 @@ namespace CC
         virtual void Free( ) noexcept = 0;
 
         // Compares contents of internal buffer to p (up to len).  Returns true if contents match, false otherwise.
-        [[nodiscard]] _Success_(return) virtual bool Compare(_In_opt_ const T* p, _In_ const size_t& len) const noexcept = 0;
+        [[nodiscard]] _Success_(return) virtual bool Compare(_In_reads_opt_(len) const T* p, _In_ const size_t& len) const noexcept = 0;
 
         // Compares contents of this buffer to the specified buffer.  Returns true if contents match, false otherwise.
         [[nodiscard]] _Success_(return) virtual bool Compare(_In_ const IBuffer<T>& buffer) const noexcept = 0;
@@ -102,17 +102,17 @@ namespace CC
 
         // Null-pointer write.
         // Returns false.
-        [[nodiscard]] _Success_(return) virtual bool Write(_In_ const std::nullptr_t& pNull, _In_ const size_t& len) noexcept = 0;
+        [[nodiscard]] _Success_(return) virtual bool Write(_In_opt_ const std::nullptr_t& pNull, _In_ const size_t& len) noexcept = 0;
 
         // Raw pointer copy write.
         // Writes len elements from p to the internal buffer - increments the write position by len if successful.
         // Returns false if the write fails or otherwise could not be completed - returns true otherwise.
-        [[nodiscard]] _Success_(return) virtual bool Write(_In_ const T* const p, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_COPY(T)) = 0;
+        [[nodiscard]] _Success_(return) virtual bool Write(_In_reads_opt_(len) const T* p, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_COPY(T)) = 0;
 
         // Raw pointer move write.
         // Writes len elements from p to the internal buffer - increments the write position by len if successful.
         // Returns false if the write fails or otherwise could not be completed - returns true otherwise.
-        [[nodiscard]] _Success_(return) virtual bool Write(_In_ T*&& p, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_MOVE(T)) = 0;
+        [[nodiscard]] _Success_(return) virtual bool Write(_Inout_updates_opt_(len) T*&& p, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_MOVE(T)) = 0;
 
         // Buffer copy write.
         // Writes src.WritePosition( ) elements from src's internal buffer if bCopyUpToSrcWritePos is true.

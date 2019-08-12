@@ -3,7 +3,7 @@
 // CC
 #include "CCMacros.h"
 #include "CCIPointer.h"
-#include "CCPointerCommonHelpers.h"
+#include "CCPointerHelpers.h"
 
 // STL
 #include <stdexcept>
@@ -12,13 +12,13 @@
 namespace CC
 {
     template <typename T>
-    class [[nodiscard]] Pointer : public IPointer<T>, public PointerCommonHelpers<T>
+    class [[nodiscard]] Pointer : public IPointer<T>
     {
         // Testing class.
         friend class PointerTests;
 
         // Type Alias
-        using PCH = PointerCommonHelpers<T>;
+        using PH = PointerHelpers<T>;
         using IBase = IPointer<T>;
 
     protected:
@@ -43,7 +43,7 @@ namespace CC
         // Note: If src pointer is nullptr, then dst will free its pointer and replace it with nullptr.
         static void CopyPointerObj(_Inout_ Pointer<T>& dst, _In_ const IBase& src) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T))
         {
-            T* p = PCH::AllocateFromIPointerObj(src);
+            T* p = PH::AllocateFromIPointerObj(src);
             dst.InvokeFreeFunction( );
             dst.m_pPtr = p;
             dst.m_Len = src.Length( );
@@ -86,13 +86,13 @@ namespace CC
 
         // Pointer length constructor
         explicit Pointer(_In_ const size_t& len) noexcept :
-            m_pPtr(PCH::Allocate(len)),
+            m_pPtr(PH::Allocate(len)),
             m_Len((!!m_pPtr) ? len : 0)
         { }
 
         // Raw pointer copy constructor
         Pointer(_In_reads_opt_(len) const T* p, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T)) :
-            m_pPtr(PCH::AllocateFromRawPointer(p, len)),
+            m_pPtr(PH::AllocateFromRawPointer(p, len)),
             m_Len((!!m_pPtr) ? len : 0)
         { }
 
@@ -106,7 +106,7 @@ namespace CC
 
         // Copy constructor
         Pointer(_In_ const Pointer<T>& src) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T)) :
-            m_pPtr(PCH::AllocateFromIPointerObj(src)),
+            m_pPtr(PH::AllocateFromIPointerObj(src)),
             m_Len((!!m_pPtr) ? src.m_Len : 0)
         { }
 
@@ -172,7 +172,7 @@ namespace CC
         // Note: Will throw std::logic_error if m_pPtr == nullptr.
         [[nodiscard]] virtual T& operator*( )
         {
-            PCH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
+            PH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
             return *m_pPtr;
         }
 
@@ -180,7 +180,7 @@ namespace CC
         // Note: Will throw std::logic_error if m_pPtr == nullptr.
         [[nodiscard]] virtual const T& operator*( ) const
         {
-            PCH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
+            PH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
             return *m_pPtr;
         }
 
@@ -189,7 +189,7 @@ namespace CC
         [[nodiscard]] virtual T* operator->( )
         {
             // Technically not dereferencing here, but the intention is likely to access a data member.
-            PCH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
+            PH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
             return m_pPtr;
         }
 
@@ -198,7 +198,7 @@ namespace CC
         [[nodiscard]] virtual const T* operator->( ) const
         {
             // Technically not dereferencing here, but the intention is likely to access a data member.
-            PCH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
+            PH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
             return m_pPtr;
         }
 

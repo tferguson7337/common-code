@@ -182,7 +182,7 @@ namespace CC
         // Performs case-sensitive comparison of two specified strings.
         // Returns true if both strings are the same, false otherwise.
         template <class T>
-        [[nodiscard]] _Success_(return) static bool CaseSensitiveCompare(_In_ const T* lhs, _In_ const T* rhs, _In_ const size_t& len) noexcept
+        [[nodiscard]] _Success_(return) static bool CaseSensitiveCompare(_In_reads_(len) const T* lhs, _In_reads_(len) const T* rhs, _In_ const size_t& len) noexcept
         {
             if constexpr ( std::is_same_v<T, utf8> )
             {
@@ -197,7 +197,7 @@ namespace CC
         // Performs case-insensitive comparison of two specified strings.
         // Returns true if both strings are the same, false otherwise.
         template <class T>
-        [[nodiscard]] _Success_(return) static bool CaseInsensitiveCompare(_In_ const T* lhs, _In_ const T* rhs, _In_ const size_t& len) noexcept
+        [[nodiscard]] _Success_(return) static bool CaseInsensitiveCompare(_In_reads_(len) const T* lhs, _In_reads_(len) const T* rhs, _In_ const size_t& len) noexcept
         {
             if constexpr ( std::is_same_v<T, utf8> )
             {
@@ -587,7 +587,7 @@ namespace CC
 
         // Calculates string length and forwards approriate arguments to Compare(const T*, const size_t&, const T*, const size_t&, const bool&)
         template <class T>
-        [[nodiscard]] _Success_(return) static bool Compare(_In_z_ const T* lhs, _In_z_ const T* rhs, const bool& bCaseSensitive = true) noexcept
+        [[nodiscard]] _Success_(return) static bool Compare(_In_z_ const T* lhs, _In_z_ const T* rhs, _In_ const bool& bCaseSensitive = true) noexcept
         {
             return Compare(lhs, GetLength(lhs), rhs, GetLength(rhs), bCaseSensitive);
         }
@@ -628,7 +628,7 @@ namespace CC
         }
 
         template <ReturnType RT, typename C>
-        [[nodiscard]] static auto Copy(_In_ const C* src, const size_t& len)
+        [[nodiscard]] static auto Copy(_In_reads_(len) const C* src, _In_ const size_t& len)
         {
             static_assert(IsValidReturnType<RT>( ), __FUNCTION__": Invalid ReturnType template argument");
             static_assert(IsSupportedCharType<C>( ), __FUNCTION__": Invalid character type template argument");
@@ -666,7 +666,7 @@ namespace CC
         }
 
         template <ReturnType RT, typename CDst, typename CSrc>
-        [[nodiscard]] static auto UTFConversion(_In_ const CSrc* src, _In_ const size_t& len)
+        [[nodiscard]] static auto UTFConversion(_In_reads_(len) const CSrc* src, _In_ const size_t& len)
         {
             static_assert(IsValidReturnType<RT>( ), __FUNCTION__": Invalid ReturnType template argument");
             static_assert(IsSupportedCharType<CDst>( ), __FUNCTION__": Invalid destination character type.");

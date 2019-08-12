@@ -4,7 +4,7 @@
 #include <CCBufferTests.h>
 #include <CCDynamicBufferTests.h>
 #include <CCPointerTests.h>
-#include <CCPointerCommonHelpersTests.h>
+#include <CCPointerHelpersTests.h>
 #include <CCSharedPointerTests.h>
 #include <CCStringTests.h>
 #include <CCStringUtilTests.h>
@@ -14,7 +14,7 @@ static bool RunAllTests(_Inout_ UnitTestRunner<char>& utr)
 {
     utr.ClearUnitTests( );
     utr.GetTestSetData( ).SetTestSetName("CommonCode - All");
-    utr.AddUnitTests(CC::PointerCommonHelpersTests::GetTests( ));
+    utr.AddUnitTests(CC::PointerHelpersTests::GetTests( ));
     utr.AddUnitTests(CC::PointerTests::GetTests( ));
     utr.AddUnitTests(CC::SharedPointerTests::GetTests( ));
     utr.AddUnitTests(CC::BufferTests::GetTests( ));
@@ -24,11 +24,11 @@ static bool RunAllTests(_Inout_ UnitTestRunner<char>& utr)
     return utr.RunUnitTests( );
 }
 
-static bool RunPointerCommonHelpersTests(_Inout_ UnitTestRunner<char>& utr)
+static bool RunPointerHelpersTests(_Inout_ UnitTestRunner<char>& utr)
 {
     utr.ClearUnitTests( );
-    utr.GetTestSetData( ).SetTestSetName("CommonCode - PointerCommonHelpers");
-    utr.AddUnitTests(CC::PointerCommonHelpersTests::GetTests( ));
+    utr.GetTestSetData( ).SetTestSetName("CommonCode - PointerHelpers");
+    utr.AddUnitTests(CC::PointerHelpersTests::GetTests( ));
     return utr.RunUnitTests( );
 }
 
@@ -85,7 +85,7 @@ static bool RunStringTests(_Inout_ UnitTestRunner<char>& utr)
 const TestFuncMap s_TestFuncMap
 {
     TestPair("All", RunAllTests),
-    TestPair("PointerCommonHelpers", RunPointerCommonHelpersTests),
+    TestPair("PointerHelpers", RunPointerHelpersTests),
     TestPair("Pointer", RunPointerTests),
     TestPair("SharedPointer", RunSharedPointerTests),
     TestPair("Buffer", RunBufferTests),

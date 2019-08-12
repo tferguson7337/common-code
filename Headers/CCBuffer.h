@@ -17,7 +17,7 @@ namespace CC
         friend class BufferTests;
 
         // Type aliases.
-        using PCH = PointerCommonHelpers<T>;
+        using PH = PointerHelpers<T>;
         using Base = Pointer<T>;
         using IBase = IBuffer<T>;
 
@@ -44,7 +44,7 @@ namespace CC
 
         // Returns false if !p || !this->m_pPtr || writeLen == 0 || ((m_WritePos + writeLen) <= this->m_Len)
         // Returns true otherwise.
-        [[nodiscard]] _Success_(return) inline bool ValidateWriteRequest(_In_opt_ const T* const p, _In_ const size_t& writeLen) const noexcept
+        [[nodiscard]] _Success_(return) inline bool ValidateWriteRequest(_In_opt_count_(writeLen) const T* const p, _In_ const size_t& writeLen) const noexcept
         {
             return !!p && !!this->m_pPtr && writeLen > 0 && ((m_WritePos + writeLen) <= Length( ));
         }
@@ -54,7 +54,7 @@ namespace CC
         // Returns false if idx >= this->m_Len - returns true otherwise.
         inline void ValidateAccessorIndexT(_In_z_ const char* const f, _In_ const size_t& idx) const
         {
-            Base::ValidateDereferenceT(f, this->m_pPtr);
+            PH::ValidateDereferenceT(f, this->m_pPtr);
             if ( idx >= Length( ) )
             {
                 static const std::string msg1 = ": Index[";
@@ -92,12 +92,12 @@ namespace CC
             if ( dst.Length( ) < src.Length( ) )
             {
                 dst.InvokeFreeFunction( );
-                dst.m_pPtr = PCH::AllocateFromRawPointer(src.Get( ), src.Length( ));
+                dst.m_pPtr = PH::AllocateFromRawPointer(src.Get( ), src.Length( ));
                 CopyNonPointerBufferDataMembers(dst, src);
             }
             else
             {
-                PCH::CopyToRawPointer(dst.m_pPtr, src.Get( ), src.Length( ));
+                PH::CopyToRawPointer(dst.m_pPtr, src.Get( ), src.Length( ));
                 dst.m_WritePos = src.Length( );
             }
         }
@@ -113,17 +113,17 @@ namespace CC
         /// Protected Helper Methods \\\
 
         // Writes elements via copy to internal buffer, updates write position.
-        [[nodiscard]] _Success_(return) bool WriteInternal(_In_ const T* p, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_COPY(T))
+        [[nodiscard]] _Success_(return) bool WriteInternal(_In_reads_(len) const T* p, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_COPY(T))
         {
-            Base::CopyToRawPointer(this->m_pPtr + m_WritePos, p, len);
+            PH::CopyToRawPointer(this->m_pPtr + m_WritePos, p, len);
             m_WritePos += len;
             return true;
         }
 
         // Writes elements via move semantics to internal buffer, updates write position.
-        [[nodiscard]] _Success_(return) bool WriteInternal(_In_ T* p, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_MOVE(T))
+        [[nodiscard]] _Success_(return) bool WriteInternal(_Inout_updates_all_(len) T* p, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_MOVE(T))
         {
-            Base::MoveToRawPointer(this->m_pPtr + m_WritePos, p, len);
+            PH::MoveToRawPointer(this->m_pPtr + m_WritePos, p, len);
             m_WritePos += len;
             return true;
         }
@@ -151,7 +151,7 @@ namespace CC
         { }
 
         // Raw pointer steal constructor
-        Buffer(_Inout_opt_ T*&p, _In_ const size_t& len) noexcept :
+        Buffer(_Inout_updates_all_opt_(len) T*&p, _In_ const size_t& len) noexcept :
             Base(p, len),
             m_WritePos(0)
         { }
@@ -428,13 +428,13 @@ namespace CC
         }
 
         // Copies raw pointer content to internal buffer at m_WritePos, increments m_WritePos by len on successful write.
-        [[nodiscard]] _Success_(return) virtual bool Write(_In_reads_opt_(len) const T* const src, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_COPY(T))
+        [[nodiscard]] _Success_(return) virtual bool Write(_In_reads_opt_(len) const T* src, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_COPY(T))
         {
             return ValidateWriteRequest(src, len) && WriteInternal(src, len);
         }
 
         // Moves raw pointer content to internal buffer at m_WritePos, increments m_WritePos by len on successful write.
-        [[nodiscard]] _Success_(return) virtual bool Write(_Inout_opt_count_(len) T*&& src, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_MOVE(T))
+        [[nodiscard]] _Success_(return) virtual bool Write(_Inout_updates_opt_(len) T*&& src, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_MOVE(T))
         {
             return ValidateWriteRequest(src, len) && WriteInternal(src, len);
         }
