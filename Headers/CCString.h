@@ -623,39 +623,39 @@ namespace CC
         /// Assign \\\
 
         // Assigns a single character tc to this string.
-        [[nodiscard]] bool Assign(_In_ const T& tc) noexcept
+        [[nodiscard]] _Success_(return) bool Assign(_In_ const T& tc) noexcept
         {
             return Assign(&tc, 1);
         }
 
         // Assigns C-string contents to this string (including null-terminator).
-        [[nodiscard]] bool Assign(_In_z_ const T* const pCStr) noexcept
+        [[nodiscard]] _Success_(return) bool Assign(_In_z_ const T* const pCStr) noexcept
         {
             return Assign(pCStr, GetStringLength(pCStr));
         }
 
         // Assigns pStr contents to this string.
         // Note: This will append a null-terminator after assigning pStr contents.
-        [[nodiscard]] bool Assign(_In_reads_(len) const T* const pStr, _In_ const size_t& len) noexcept
+        [[nodiscard]] _Success_(return) bool Assign(_In_reads_(len) const T* const pStr, _In_ const size_t& len) noexcept
         {
             return CopyFromRawPointer(*this, pStr, len);
         }
 
         // Assigns source string contents to this string.
-        [[nodiscard]] bool Assign(_In_ const String<T>& src) noexcept
+        [[nodiscard]] _Success_(return) bool Assign(_In_ const String<T>& src) noexcept
         {
             return CopyFromStringObj(*this, src);
         }
 
 		// Assigns source string contents to this string, up to len characters.
 		// Note: If len > src.Length(), this will correct to appending the entire str object.
-		[[nodiscard]] bool Assign(_In_ const String<T>& src, _In_ const size_t& len) noexcept
+		[[nodiscard]] _Success_(return) bool Assign(_In_ const String<T>& src, _In_ const size_t& len) noexcept
 		{
 			return CopyFromRawPointer(*this, src.CStr(), std::min<size_t>(src.Length(), len));
 		}
 
         // Assigns source string contents to this string, clears out the source string.
-        [[nodiscard]] bool Assign(_Inout_ String<T>&& src) noexcept
+        [[nodiscard]] _Success_(return) bool Assign(_Inout_ String<T>&& src) noexcept
         {
             return MoveFromStringObj(*this, std::move(src));
         }
@@ -664,33 +664,33 @@ namespace CC
         /// Append \\\
 
         // Appends a single character tc to this string.
-        [[nodiscard]] bool Append(_In_ const T& tc) noexcept
+        [[nodiscard]] _Success_(return) bool Append(_In_ const T& tc) noexcept
         {
             return Append(&tc, 1);
         }
 
         // Appends C-string contents to this string (including null-terminator).
-        [[nodiscard]] bool Append(_In_z_ const T* const pCStr) noexcept
+        [[nodiscard]] _Success_(return) bool Append(_In_z_ const T* const pCStr) noexcept
         {
             return Append(pCStr, GetStringLength(pCStr));
         }
 
         // Appends pStr contents to this string.
         // Note: This will append a null-terminator after assigning pStr contents.
-        [[nodiscard]] bool Append(_In_reads_(len) const T* const pCStr, _In_ const size_t& len) noexcept
+        [[nodiscard]] _Success_(return) bool Append(_In_reads_(len) const T* const pCStr, _In_ const size_t& len) noexcept
         {
             return AppendUsingRawPointer(*this, pCStr, len);
         }
 
         // Appends source string contents to this string.
-        [[nodiscard]] bool Append(_In_ const String<T>& src) noexcept
+        [[nodiscard]] _Success_(return) bool Append(_In_ const String<T>& src) noexcept
         {
             return AppendUsingStringObj(*this, src);
         }
 
 		// Appends source string contents to this string up to len characters.
 		// Note: If len > src.Length(), this will correct to appending the entire str object.
-		[[nodiscard]] bool Append(_In_ const String<T>& src, _In_ const size_t& len) noexcept
+		[[nodiscard]] _Success_(return) bool Append(_In_ const String<T>& src, _In_ const size_t& len) noexcept
 		{
 			return AppendUsingRawPointer(*this, src.CStr(), std::min<size_t>(len, src.Length()));
 		}
@@ -744,4 +744,8 @@ namespace CC
             return Length( ) == 0;
         }
     };
+
+	// Aliases for supported string types.
+	using StringUTF8 = String<utf8>;
+	using StringUTF16 = String<utf16>;
 }
