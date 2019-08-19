@@ -1,7 +1,7 @@
 #include <CCBufferTests.h>
 
 
-CC::BufferTests::UTList CC::BufferTests::GetTests( )
+CC::BufferTests::UTList CC::BufferTests::GetTests()
 {
 #pragma warning(suppress : 6262) // Suppress high stack memory usage warning.
     static const UTList tests

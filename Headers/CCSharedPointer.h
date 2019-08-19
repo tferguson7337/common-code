@@ -3,7 +3,7 @@
 // CC
 #include "CCMacros.h"
 #include "CCIPointer.h"
-#include "CCPointerHelpers.h"
+#include "CCPointerHelper.h"
 
 // STL
 #include <atomic>
@@ -19,7 +19,7 @@ namespace CC
         friend class SharedPointerTests;
 
         // Type aliases.
-        using PH = PointerHelpers<T>;
+        using PH = PointerHelper<T>;
         using IBase = IPointer<T>;
         using RCIntegral = std::make_signed_t<size_t>;
         using RefCounter = std::atomic<RCIntegral>;
@@ -34,7 +34,7 @@ namespace CC
 
         /// Static Protected Helper Methods \\\
 
-        [[nodiscard]] _Ret_maybenull_ static RefCounter* AllocateRefCounter( ) noexcept
+        [[nodiscard]] _Ret_maybenull_ static RefCounter* AllocateRefCounter() noexcept
         {
             return new (std::nothrow) RefCounter(1);
         }
@@ -42,42 +42,42 @@ namespace CC
         /// Protected Helper Methods \\\
 
         // Calls the appropriate cleanup function.
-        void InvokeFreeFunction( ) noexcept
+        void InvokeFreeFunction() noexcept
         {
-            if ( m_Len == 1 )
+            if (m_Len == 1)
             {
                 delete m_pPtr;
             }
             else
             {
-                delete[ ] m_pPtr;
+                delete[] m_pPtr;
             }
 
             delete m_pRefCount;
 
-            Reset( );
+            Reset();
         }
 
         // Calls Free if m_pPtr is not nullptr and m_pRefCount is nullptr.
         // Will return true if Free is called, false if no action is taken.
-        void FreeIfAnyCtorOrCopyAllocsFailed( ) noexcept
+        void FreeIfAnyCtorOrCopyAllocsFailed() noexcept
         {
-            if ( !!m_pPtr && !m_pRefCount )
+            if (!!m_pPtr && !m_pRefCount)
             {
-                Free( );
+                Free();
             }
         }
 
         // Increments reference counter if pointer is not nullptr.
         // Note: Returns "old" value (i.e., post-fix increment) if m_pRefCount is not null, 0 otherwise.
-        RCIntegral IncrementRefCounter( ) noexcept
+        RCIntegral IncrementRefCounter() noexcept
         {
             return (!!m_pRefCount) ? (*m_pRefCount)++ : 0;
         }
 
         // Decrements reference counter if pointer is not nullptr.
         // Note: Returns "old" value (i.e., post-fix decrement) if m_pRefCount is not null, 0 otherwise.
-        [[nodiscard]] RCIntegral DecrementRefCounter( ) noexcept
+        [[nodiscard]] RCIntegral DecrementRefCounter() noexcept
         {
             return (!!m_pRefCount) ? (*m_pRefCount)-- : 0;
         }
@@ -87,7 +87,7 @@ namespace CC
         /// Public Constructors \\\
 
         // Default constructor
-        constexpr SharedPointer( ) noexcept :
+        constexpr SharedPointer() noexcept :
             m_pPtr(nullptr),
             m_pRefCount(nullptr),
             m_Len(0)
@@ -95,29 +95,29 @@ namespace CC
 
         // SharedPointer length constructor
         explicit SharedPointer(_In_ const size_t& len) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T)) :
-            m_pPtr(PH::Allocate(len)),
-            m_pRefCount((!!m_pPtr) ? AllocateRefCounter( ) : nullptr),
+            m_pPtr(PH::AllocateLen(len)),
+            m_pRefCount((!!m_pPtr) ? AllocateRefCounter() : nullptr),
             m_Len((!!m_pPtr) ? len : 0)
         {
-            FreeIfAnyCtorOrCopyAllocsFailed( );
+            FreeIfAnyCtorOrCopyAllocsFailed();
         }
 
         // Raw pointer copy constructor
         SharedPointer(_In_reads_opt_(len) const T* p, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T)) :
             m_pPtr(PH::AllocateFromRawPointer(p, len)),
-            m_pRefCount((!!m_pPtr) ? AllocateRefCounter( ) : nullptr),
+            m_pRefCount((!!m_pPtr) ? AllocateRefCounter() : nullptr),
             m_Len((!!m_pPtr) ? len : 0)
         {
-            FreeIfAnyCtorOrCopyAllocsFailed( );
+            FreeIfAnyCtorOrCopyAllocsFailed();
         }
 
         // Raw pointer steal constructor
-        SharedPointer(_Inout_opt_ T*&p, _In_ const size_t& len) noexcept :
+        SharedPointer(_Inout_opt_ T*& p, _In_ const size_t& len) noexcept :
             m_pPtr(p),
-            m_pRefCount((!!m_pPtr) ? AllocateRefCounter( ) : nullptr),
+            m_pRefCount((!!m_pPtr) ? AllocateRefCounter() : nullptr),
             m_Len((!!m_pPtr) ? len : 0)
         {
-            FreeIfAnyCtorOrCopyAllocsFailed( );
+            FreeIfAnyCtorOrCopyAllocsFailed();
             p = nullptr;
         }
 
@@ -127,7 +127,7 @@ namespace CC
             m_pRefCount(src.m_pRefCount),
             m_Len((!!m_pPtr) ? src.m_Len : 0)
         {
-            IncrementRefCounter( );
+            IncrementRefCounter();
         }
 
         // Move constructor
@@ -136,27 +136,27 @@ namespace CC
             m_pRefCount(src.m_pRefCount),
             m_Len((!!m_pPtr) ? src.m_Len : 0)
         {
-            src.Reset( );
+            src.Reset();
         }
 
         /// Public Virtual Destructor \\\
 
-        virtual ~SharedPointer( ) noexcept
+        virtual ~SharedPointer() noexcept
         {
-            Free( );
+            Free();
         }
 
         /// Public Assignment Overloads \\\
 
         SharedPointer<T>& operator=(_In_ const SharedPointer<T>& src) noexcept
         {
-            if ( this != &src )
+            if (this != &src)
             {
-                Free( );
+                Free();
                 m_pPtr = src.m_pPtr;
                 m_pRefCount = src.m_pRefCount;
                 m_Len = src.m_Len;
-                IncrementRefCounter( );
+                IncrementRefCounter();
             }
 
             return *this;
@@ -164,13 +164,13 @@ namespace CC
 
         SharedPointer<T>& operator=(_Inout_ SharedPointer<T>&& src) noexcept
         {
-            if ( this != &src )
+            if (this != &src)
             {
-                Free( );
+                Free();
                 m_pPtr = src.m_pPtr;
                 m_pRefCount = src.m_pRefCount;
                 m_Len = src.m_Len;
-                src.Reset( );
+                src.Reset();
             }
 
             return *this;
@@ -178,40 +178,40 @@ namespace CC
 
         /// Public Operator Overloads \\\
 
-        [[nodiscard]] virtual explicit operator bool( ) const noexcept
+        [[nodiscard]] virtual explicit operator bool() const noexcept
         {
             return !!m_pPtr;
         }
 
-        [[nodiscard]] virtual explicit operator T*() noexcept
+        [[nodiscard]] virtual explicit operator T* () noexcept
         {
             return m_pPtr;
         }
 
-        [[nodiscard]] virtual explicit operator const T*() const noexcept
+        [[nodiscard]] virtual explicit operator const T* () const noexcept
         {
             return m_pPtr;
         }
 
-        [[nodiscard]] virtual T& operator*( )
+        [[nodiscard]] virtual T& operator*()
         {
             PH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
             return *m_pPtr;
         }
 
-        [[nodiscard]] virtual const T& operator*( ) const
+        [[nodiscard]] virtual const T& operator*() const
         {
             PH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
             return *m_pPtr;
         }
 
-        [[nodiscard]] virtual T* operator->( )
+        [[nodiscard]] virtual T* operator->()
         {
             PH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
             return m_pPtr;
         }
 
-        [[nodiscard]] virtual const T* operator->( ) const
+        [[nodiscard]] virtual const T* operator->() const
         {
             PH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
             return m_pPtr;
@@ -220,25 +220,25 @@ namespace CC
         /// Getters \\\
 
         // Returns pointer to mutable internal pointer.
-        [[nodiscard]] virtual T* Get( ) noexcept
+        [[nodiscard]] virtual T* Get() noexcept
         {
             return m_pPtr;
         }
 
         // Returns pointer to immutable internal pointer.
-        [[nodiscard]] virtual const T* Get( ) const noexcept
+        [[nodiscard]] virtual const T* Get() const noexcept
         {
             return m_pPtr;
         }
 
         // Returns length of elements pointed to by internal pointer.
-        [[nodiscard]] virtual const size_t& Length( ) const noexcept
+        [[nodiscard]] virtual const size_t& Length() const noexcept
         {
             return m_Len;
         }
 
         // Returns size in bytes of data element(s) pointed to by internal pointer.
-        [[nodiscard]] virtual const size_t Size( ) const noexcept
+        [[nodiscard]] virtual const size_t Size() const noexcept
         {
             return sizeof(T) * m_Len;
         }
@@ -247,7 +247,7 @@ namespace CC
 
         // Resets internal data members to default values.
         // Note: This will not free any internal resources - use with caution.
-        virtual void Reset( ) noexcept
+        virtual void Reset() noexcept
         {
             m_pPtr = nullptr;
             m_pRefCount = nullptr;
@@ -255,15 +255,15 @@ namespace CC
         }
 
         // Frees resources and resets data members to default values.
-        virtual void Free( ) noexcept
+        virtual void Free() noexcept
         {
-            if ( DecrementRefCounter( ) == 1 )
+            if (DecrementRefCounter() == 1)
             {
-                InvokeFreeFunction( );
+                InvokeFreeFunction();
             }
             else
             {
-                Reset( );
+                Reset();
             }
         }
     };

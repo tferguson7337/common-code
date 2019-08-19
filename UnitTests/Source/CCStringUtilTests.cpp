@@ -1,7 +1,7 @@
 #include <CCStringUtilTests.h>
 
 
-std::list<CC::StringUtilTests::UTFunc> CC::StringUtilTests::GetTests( )
+std::list<CC::StringUtilTests::UTFunc> CC::StringUtilTests::GetTests()
 {
 #pragma warning(suppress : 6262) // Suppress high stack memory usage warning.
     static const std::list<std::function<UTR(void)>> tests

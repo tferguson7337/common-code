@@ -17,7 +17,7 @@ namespace CC
         friend class BufferTests;
 
         // Type aliases.
-        using PH = PointerHelpers<T>;
+        using PH = PointerHelper<T>;
         using Base = Pointer<T>;
         using IBase = IBuffer<T>;
 
@@ -32,21 +32,21 @@ namespace CC
         // Returns false if pos >= this->m_Len - returns true otherwise.
         [[nodiscard]] _Success_(return) inline bool ValidateNewWritePosition(_In_ const size_t& pos) const noexcept
         {
-            return pos <= Length( );
+            return pos <= Length();
         }
 
         // Returns false if m_WritePos >= this->m_Len.
         // Returns true otherwise.
-        [[nodiscard]] _Success_(return) inline bool ValidateSingleElementWriteRequest( ) const noexcept
+        [[nodiscard]] _Success_(return) inline bool ValidateSingleElementWriteRequest() const noexcept
         {
-            return m_WritePos < Length( );
+            return m_WritePos < Length();
         }
 
         // Returns false if !p || !this->m_pPtr || writeLen == 0 || ((m_WritePos + writeLen) <= this->m_Len)
         // Returns true otherwise.
         [[nodiscard]] _Success_(return) inline bool ValidateWriteRequest(_In_opt_count_(writeLen) const T* const p, _In_ const size_t& writeLen) const noexcept
         {
-            return !!p && !!this->m_pPtr && writeLen > 0 && ((m_WritePos + writeLen) <= Length( ));
+            return !!p && !!this->m_pPtr && writeLen > 0 && ((m_WritePos + writeLen) <= Length());
         }
 
         /// Protected Throwing Validator Methods \\\
@@ -55,13 +55,13 @@ namespace CC
         inline void ValidateAccessorIndexT(_In_z_ const char* const f, _In_ const size_t& idx) const
         {
             PH::ValidateDereferenceT(f, this->m_pPtr);
-            if ( idx >= Length( ) )
+            if (idx >= Length())
             {
                 static const std::string msg1 = ": Index[";
                 static const std::string msg2 = "] exceeds length of buffer[";
                 static const std::string msg3 = "].";
                 const std::string idxStr = std::to_string(idx);
-                const std::string endStr = std::to_string(Length( ));
+                const std::string endStr = std::to_string(Length());
 
                 throw std::out_of_range(f + msg1 + idxStr + msg2 + endStr + msg3);
             }
@@ -73,15 +73,15 @@ namespace CC
         // Note: The pointer data member is shallow copied.
         static void CopyAllBufferDataMembers(_Out_ Buffer<T>& dst, _In_ IBase& src) noexcept
         {
-            dst.m_pPtr = src.Get( );
+            dst.m_pPtr = src.Get();
             CopyNonPointerBufferDataMembers(dst, src);
         }
 
         // Copies all Buffer data members from source IBuffer object, except for the internal buffer pointer.
         static void CopyNonPointerBufferDataMembers(_Out_ Buffer<T>& dst, _In_ const IBase& src) noexcept
         {
-            dst.m_Len = src.Length( );
-            dst.m_WritePos = src.WritePosition( );
+            dst.m_Len = src.Length();
+            dst.m_WritePos = src.WritePosition();
         }
 
         // Performs deep copy of src buffer, frees dst buffer, then assigned new buffer to dst.
@@ -89,25 +89,25 @@ namespace CC
         // Note: If src buffer is nullptr, then dst will free buffer and replace it with nullptr.
         static void CopyBuffer(_Inout_ Buffer<T>& dst, _In_ const IBase& src) noexcept(CC_IS_NOTHROW_COPY(T))
         {
-            if ( dst.Length( ) < src.Length( ) )
+            if (dst.Length() < src.Length())
             {
-                dst.InvokeFreeFunction( );
-                dst.m_pPtr = PH::AllocateFromRawPointer(src.Get( ), src.Length( ));
+                dst.InvokeFreeFunction();
+                dst.m_pPtr = PH::AllocateFromRawPointer(src.Get(), src.Length());
                 CopyNonPointerBufferDataMembers(dst, src);
             }
             else
             {
-                PH::CopyToRawPointer(dst.m_pPtr, src.Get( ), src.Length( ));
-                dst.m_WritePos = src.Length( );
+                PH::CopyToRawPointer(dst.m_pPtr, src.Get(), src.Length());
+                dst.m_WritePos = src.Length();
             }
         }
 
         // Performs shallow copy of src Buffer data members to dst, then resets src.
         static void TransferBuffer(_Inout_ Buffer<T>& dst, _Inout_ IBase& src) noexcept
         {
-            dst.InvokeFreeFunction( );
+            dst.InvokeFreeFunction();
             CopyAllBufferDataMembers(dst, src);
-            src.Reset( );
+            src.Reset();
         }
 
         /// Protected Helper Methods \\\
@@ -133,8 +133,8 @@ namespace CC
         /// Public Constructors \\\
 
         // Default constructor
-        constexpr Buffer( ) noexcept :
-            Base( ),
+        constexpr Buffer() noexcept :
+            Base(),
             m_WritePos(0)
         { }
 
@@ -151,7 +151,7 @@ namespace CC
         { }
 
         // Raw pointer steal constructor
-        Buffer(_Inout_updates_all_opt_(len) T*&p, _In_ const size_t& len) noexcept :
+        Buffer(_Inout_updates_all_opt_(len) T*& p, _In_ const size_t& len) noexcept :
             Base(p, len),
             m_WritePos(0)
         { }
@@ -159,42 +159,42 @@ namespace CC
         // Copy constructor
         Buffer(_In_ const Buffer<T>& src) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T)) :
             Base(src),
-            m_WritePos(src.WritePosition( ))
+            m_WritePos(src.WritePosition())
         { }
 
         // Move constructor
         Buffer(_Inout_ Buffer<T>&& src) noexcept :
             Base(std::move(src)),
-            m_WritePos(src.WritePosition( ))
+            m_WritePos(src.WritePosition())
         {
-            src.Reset( );
+            src.Reset();
         }
 
         // Interface copy constructor
         Buffer(_In_ const IBase& src) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T)) :
-            Base(src.Get( ), src.Length( )),
-            m_WritePos(src.WritePosition( ))
+            Base(src.Get(), src.Length()),
+            m_WritePos(src.WritePosition())
         { }
 
         // Interface move constructor
         Buffer(_Inout_ IBase&& src) noexcept :
-            Base(src.Get( ), src.Length( )),
-            m_WritePos(src.WritePosition( ))
+            Base(src.Get(), src.Length()),
+            m_WritePos(src.WritePosition())
         {
-            src.Reset( );
+            src.Reset();
         }
 
         /// Public Destructor \\\
 
         // Destructor
-        virtual ~Buffer( ) noexcept = default;
+        virtual ~Buffer() noexcept = default;
 
         /// Operator Overloads \\\
 
         // Copy assignment
         Buffer<T>& operator=(_In_ const Buffer<T>& src) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T))
         {
-            if ( this != &src )
+            if (this != &src)
             {
                 CopyBuffer(*this, src);
             }
@@ -205,7 +205,7 @@ namespace CC
         // Move assignment
         Buffer<T>& operator=(_Inout_ Buffer<T>&& src) noexcept
         {
-            if ( this != &src )
+            if (this != &src)
             {
                 TransferBuffer(*this, src);
             }
@@ -216,7 +216,7 @@ namespace CC
         // Interface copy assignment
         IBase& operator=(_In_ const IBase& src) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T))
         {
-            if ( this != &src )
+            if (this != &src)
             {
                 CopyBuffer(*this, src);
             }
@@ -227,7 +227,7 @@ namespace CC
         // Interface move assignment
         IBase& operator=(_Inout_ IBase&& src) noexcept
         {
-            if ( this != &src )
+            if (this != &src)
             {
                 TransferBuffer(*this, src);
             }
@@ -236,19 +236,19 @@ namespace CC
         }
 
         // Return true for non-null buffer - false otherwise.
-        [[nodiscard]] virtual explicit operator bool( ) const noexcept
+        [[nodiscard]] virtual explicit operator bool() const noexcept
         {
             return !!this->m_pPtr;
         }
 
         // Return pointer to internal buffer (mutable).
-        [[nodiscard]] virtual explicit operator T*() noexcept
+        [[nodiscard]] virtual explicit operator T* () noexcept
         {
             return this->m_pPtr;
         }
 
         // Return pointer to internal buffer (immutable).
-        [[nodiscard]] virtual explicit operator const T*() const noexcept
+        [[nodiscard]] virtual explicit operator const T* () const noexcept
         {
             return this->m_pPtr;
         }
@@ -274,43 +274,43 @@ namespace CC
         // Comparison Equal-To overload - returns true if contents of specified buffer match this->m_pPtr, false otherwise.
         [[nodiscard]] virtual bool operator==(_In_ const IBase& rhs) const noexcept
         {
-            return Compare(rhs.Get( ), rhs.Length( ));
+            return Compare(rhs.Get(), rhs.Length());
         }
 
         // Comparison Not-Equal-To overload - returns true if contents of specified buffer do not match this->m_pPtr, false otherwise.
         [[nodiscard]] virtual bool operator!=(_In_ const IBase& rhs) const noexcept
         {
-            return !Compare(rhs.Get( ), rhs.Length( ));
+            return !Compare(rhs.Get(), rhs.Length());
         }
 
         /// Getters \\\
 
         // Returns pointer to internal buffer (mutable).
-        [[nodiscard]] inline virtual T* Get( ) noexcept
+        [[nodiscard]] inline virtual T* Get() noexcept
         {
-            return Base::Get( );
+            return Base::Get();
         }
 
         // Returns pointer to internal buffer (immutable).
-        [[nodiscard]] inline virtual const T* Get( ) const noexcept
+        [[nodiscard]] inline virtual const T* Get() const noexcept
         {
-            return Base::Get( );
+            return Base::Get();
         }
 
         // Returns length of internal buffer.
-        [[nodiscard]] inline virtual const size_t& Length( ) const noexcept
+        [[nodiscard]] inline virtual const size_t& Length() const noexcept
         {
-            return Base::Length( );
+            return Base::Length();
         }
 
         // Returns size in bytes of internal buffer.
-        [[nodiscard]] inline virtual const size_t Size( ) const noexcept
+        [[nodiscard]] inline virtual const size_t Size() const noexcept
         {
-            return Base::Size( );
+            return Base::Size();
         }
 
         // Returns current write position.
-        [[nodiscard]] inline virtual const size_t& WritePosition( ) const noexcept
+        [[nodiscard]] inline virtual const size_t& WritePosition() const noexcept
         {
             return m_WritePos;
         }
@@ -321,7 +321,7 @@ namespace CC
         // Note: Will throw std::out_of_range if pos >= this->m_Len
         [[nodiscard]] _Success_(return) inline virtual bool SetWritePosition(_In_ const size_t& pos) noexcept
         {
-            if ( !ValidateNewWritePosition(pos) )
+            if (!ValidateNewWritePosition(pos))
             {
                 return false;
             }
@@ -331,7 +331,7 @@ namespace CC
         }
 
         // Resets write position to beginning of buffer (0).
-        inline virtual void ResetWritePosition( ) noexcept
+        inline virtual void ResetWritePosition() noexcept
         {
             m_WritePos = 0;
         }
@@ -340,16 +340,16 @@ namespace CC
 
         // Resets internal data members to default values.
         // Note: This will not free any internal resources - use with caution.
-        inline virtual void Reset( ) noexcept
+        inline virtual void Reset() noexcept
         {
-            Base::Reset( );
+            Base::Reset();
             m_WritePos = 0;
         }
 
         // Causes the buffer to free any resources, resetting data members to their default values.
-        inline virtual void Free( ) noexcept
+        inline virtual void Free() noexcept
         {
-            Base::InvokeFreeFunction( );
+            Base::InvokeFreeFunction();
         }
 
         // Returns true if contents of this->m_pPtr match contents of p (up to len), false otherwise.
@@ -358,27 +358,27 @@ namespace CC
             bool bRet = true;
 
             // Trivial case(t): both pointers point to same addr.
-            if ( this->m_pPtr == p )
+            if (this->m_pPtr == p)
             {
                 return true;
             }
 
             // Trivial cases(f): Either pointer is null or requested comparison-length exceeds length of buffer.
-            if ( !this->m_pPtr || !p || len > Length( ) )
+            if (!this->m_pPtr || !p || len > Length())
             {
                 return false;
             }
 
             // Use memcmp if possible (scalar values only).
-            if constexpr ( std::is_scalar_v<T> )
+            if constexpr (std::is_scalar_v<T>)
             {
                 bRet = (memcmp(this->m_pPtr, p, len * sizeof(T)) == 0);
             }
             else
             {
-                for ( size_t i = 0; i < len; i++ )
+                for (size_t i = 0; i < len; i++)
                 {
-                    if ( this->m_pPtr[i] != p[i] )
+                    if (this->m_pPtr[i] != p[i])
                     {
                         return false;
                     }
@@ -391,14 +391,14 @@ namespace CC
         // Returns true if contents of this->m_pPtr match contents of buffer.Get( ), false otherwise.
         [[nodiscard]] _Success_(return) inline virtual bool Compare(_In_ const IBase& buffer) const noexcept
         {
-            return Compare(buffer.Get( ), buffer.Length( ));
+            return Compare(buffer.Get(), buffer.Length());
         }
 
         // Writes specified T object to internal buffer at m_WritePos.
         // Returns false if write would exceed length of buffer, true otherwise.
         [[nodiscard]] _Success_(return) inline virtual bool Write(_In_ const T& t) noexcept(CC_IS_NOTHROW_COPY(T))
         {
-            if ( !ValidateSingleElementWriteRequest( ) )
+            if (!ValidateSingleElementWriteRequest())
             {
                 return false;
             }
@@ -411,7 +411,7 @@ namespace CC
         // Returns false if write would exceed length of buffer, true otherwise.
         [[nodiscard]] _Success_(return) inline virtual bool Write(_Inout_ T&& t) noexcept(CC_IS_NOTHROW_MOVE(T))
         {
-            if ( !ValidateSingleElementWriteRequest( ) )
+            if (!ValidateSingleElementWriteRequest())
             {
                 return false;
             }
@@ -443,14 +443,14 @@ namespace CC
         // Note: If bCopyUpToSrcWritePos == true, will write up to src.WritePosition( ), otherwise up to src.Length( ).
         [[nodiscard]] _Success_(return) virtual bool Write(_In_ const IBase& src, _In_ const bool& bCopyUpToSrcWritePos = true) noexcept(CC_IS_NOTHROW_COPY(T))
         {
-            return Write(src.Get( ), bCopyUpToSrcWritePos ? src.WritePosition( ) : src.Length( ));
+            return Write(src.Get(), bCopyUpToSrcWritePos ? src.WritePosition() : src.Length());
         }
 
         // Moves source buffer content to internal buffer at m_WritePos.
         // Note: If bCopyUpToSrcWritePos == true, will write up to src.WritePosition( ), otherwise up to src.Length( ).
         [[nodiscard]] _Success_(return) virtual bool Write(_In_ IBase&& src, _In_ const bool& bCopyUpToSrcWritePos = true) noexcept(CC_IS_NOTHROW_MOVE(T))
         {
-            return Write(std::move(src.Get( )), bCopyUpToSrcWritePos ? src.WritePosition( ) : src.Length( ));
+            return Write(std::move(src.Get()), bCopyUpToSrcWritePos ? src.WritePosition() : src.Length());
         }
     };
 }

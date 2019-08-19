@@ -3,7 +3,7 @@
 // CC
 #include "CCMacros.h"
 #include "CCIPointer.h"
-#include "CCPointerHelpers.h"
+#include "CCPointerHelper.h"
 
 // STL
 #include <stdexcept>
@@ -18,7 +18,7 @@ namespace CC
         friend class PointerTests;
 
         // Type Alias
-        using PH = PointerHelpers<T>;
+        using PH = PointerHelper<T>;
         using IBase = IPointer<T>;
 
     protected:
@@ -34,8 +34,8 @@ namespace CC
         // Note: The pointer data member is shallow copied.
         static void CopyAllDataMembers(_Out_ Pointer<T>& dst, _In_ IBase& src) noexcept
         {
-            dst.m_pPtr = src.Get( );
-            dst.m_Len = src.Length( );
+            dst.m_pPtr = src.Get();
+            dst.m_Len = src.Length();
         }
 
         // Performs deep copy of src pointer, frees dst pointer, then assigned new pointer to dst.
@@ -44,34 +44,34 @@ namespace CC
         static void CopyPointerObj(_Inout_ Pointer<T>& dst, _In_ const IBase& src) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T))
         {
             T* p = PH::AllocateFromIPointerObj(src);
-            dst.InvokeFreeFunction( );
+            dst.InvokeFreeFunction();
             dst.m_pPtr = p;
-            dst.m_Len = src.Length( );
+            dst.m_Len = src.Length();
         }
 
         // Performs shallow copy of src Pointer data members to dst, then resets src.
         static void TransferPointerObj(_Inout_ Pointer<T>& dst, _Inout_ IBase& src) noexcept
         {
-            dst.InvokeFreeFunction( );
+            dst.InvokeFreeFunction();
             CopyAllDataMembers(dst, src);
-            src.Reset( );
+            src.Reset();
         }
 
         /// Protected Helper Methods \\\
 
         // Calls the appropriate cleanup function.
-        void InvokeFreeFunction( ) noexcept
+        void InvokeFreeFunction() noexcept
         {
-            if ( m_Len == 1 )
+            if (m_Len == 1)
             {
                 delete m_pPtr;
             }
             else
             {
-                delete[ ] m_pPtr;
+                delete[] m_pPtr;
             }
 
-            Reset( );
+            Reset();
         }
 
     public:
@@ -79,14 +79,14 @@ namespace CC
         /// Public Constructors \\\
 
         // Default constructor
-        constexpr Pointer( ) noexcept :
+        constexpr Pointer() noexcept :
             m_pPtr(nullptr),
             m_Len(0)
         { }
 
         // Pointer length constructor
         explicit Pointer(_In_ const size_t& len) noexcept :
-            m_pPtr(PH::Allocate(len)),
+            m_pPtr(PH::AllocateLen(len)),
             m_Len((!!m_pPtr) ? len : 0)
         { }
 
@@ -97,7 +97,7 @@ namespace CC
         { }
 
         // Raw pointer steal constructor
-        Pointer(_Inout_opt_ T*&p, _In_ const size_t& len) noexcept :
+        Pointer(_Inout_opt_ T*& p, _In_ const size_t& len) noexcept :
             m_pPtr(p),
             m_Len((!!m_pPtr) ? len : 0)
         {
@@ -115,15 +115,15 @@ namespace CC
             m_pPtr(src.m_pPtr),
             m_Len(src.m_Len)
         {
-            src.Reset( );
+            src.Reset();
         }
 
         /// Public Destructor \\\
 
         // Destructor
-        virtual ~Pointer( ) noexcept
+        virtual ~Pointer() noexcept
         {
-            InvokeFreeFunction( );
+            InvokeFreeFunction();
         }
 
         /// Operator Overloads \\\
@@ -131,7 +131,7 @@ namespace CC
         // Copy assignment
         Pointer<T>& operator=(_In_ const Pointer<T>& src) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T))
         {
-            if ( this != &src )
+            if (this != &src)
             {
                 CopyPointerObj(*this, src);
             }
@@ -142,7 +142,7 @@ namespace CC
         // Move assignment
         Pointer<T>& operator=(_Inout_ Pointer<T>&& src) noexcept
         {
-            if ( this != &src )
+            if (this != &src)
             {
                 TransferPointerObj(*this, src);
             }
@@ -151,26 +151,26 @@ namespace CC
         }
 
         // bool overload - returns true if m_pPtr != nullptr, false otherwise.
-        [[nodiscard]] virtual explicit operator bool( ) const noexcept
+        [[nodiscard]] virtual explicit operator bool() const noexcept
         {
             return !!m_pPtr;
         }
 
         // T* overload - returns pointer to mutable internal pointer.
-        [[nodiscard]] virtual explicit operator T*() noexcept
+        [[nodiscard]] virtual explicit operator T* () noexcept
         {
             return m_pPtr;
         }
 
         // const T* overload - returns pointer to immutable internal pointer.
-        [[nodiscard]] virtual explicit operator const T*() const noexcept
+        [[nodiscard]] virtual explicit operator const T* () const noexcept
         {
             return m_pPtr;
         }
 
         // Dereference overload - returns reference to first element from internal pointer (mutable).
         // Note: Will throw std::logic_error if m_pPtr == nullptr.
-        [[nodiscard]] virtual T& operator*( )
+        [[nodiscard]] virtual T& operator*()
         {
             PH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
             return *m_pPtr;
@@ -178,7 +178,7 @@ namespace CC
 
         // Dereference overload - returns reference to first element from internal pointer (immutable).
         // Note: Will throw std::logic_error if m_pPtr == nullptr.
-        [[nodiscard]] virtual const T& operator*( ) const
+        [[nodiscard]] virtual const T& operator*() const
         {
             PH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
             return *m_pPtr;
@@ -186,7 +186,7 @@ namespace CC
 
         // Pointer-member-access overload - returns reference to internal pointer (mutable).
         // Note: Will throw std::logic_error if m_pPtr == nullptr.
-        [[nodiscard]] virtual T* operator->( )
+        [[nodiscard]] virtual T* operator->()
         {
             // Technically not dereferencing here, but the intention is likely to access a data member.
             PH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
@@ -195,7 +195,7 @@ namespace CC
 
         // Pointer-member-access overload - returns reference to internal pointer (immutable).
         // Note: Will throw std::logic_error if m_pPtr == nullptr.
-        [[nodiscard]] virtual const T* operator->( ) const
+        [[nodiscard]] virtual const T* operator->() const
         {
             // Technically not dereferencing here, but the intention is likely to access a data member.
             PH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
@@ -205,25 +205,25 @@ namespace CC
         /// Getters \\\
 
         // Returns pointer to internal pointer (mutable).
-        [[nodiscard]] virtual T* Get( ) noexcept
+        [[nodiscard]] virtual T* Get() noexcept
         {
             return m_pPtr;
         }
 
         // Returns pointer to internal pointer (immutable).
-        [[nodiscard]] virtual const T* Get( ) const noexcept
+        [[nodiscard]] virtual const T* Get() const noexcept
         {
             return m_pPtr;
         }
 
         // Returns length of internal pointer.
-        [[nodiscard]] virtual const size_t& Length( ) const noexcept
+        [[nodiscard]] virtual const size_t& Length() const noexcept
         {
             return m_Len;
         }
 
         // Returns size in bytes of internal pointer.
-        [[nodiscard]] virtual const size_t Size( ) const noexcept
+        [[nodiscard]] virtual const size_t Size() const noexcept
         {
             return sizeof(T) * m_Len;
         }
@@ -232,16 +232,16 @@ namespace CC
 
         // Resets internal data members to default values.
         // Note: This will not free any internal resources - use with caution.
-        virtual void Reset( ) noexcept
+        virtual void Reset() noexcept
         {
             m_pPtr = nullptr;
             m_Len = 0;
         }
 
         // Causes the pointer to free any resources, resetting data members to their default values.
-        virtual void Free( ) noexcept
+        virtual void Free() noexcept
         {
-            InvokeFreeFunction( );
+            InvokeFreeFunction();
         }
     };
 }

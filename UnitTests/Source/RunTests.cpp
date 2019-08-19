@@ -5,18 +5,18 @@
 #include <TestSets.h>
 
 
-int main(const int argc, const char* argv[ ])
+int main(const int argc, const char* argv[])
 {
     bool bPass = true;
     UnitTestRunner<char> utr;
     std::list<TestSetFunc> testFuncList(GetTestSetFunctions(argc, argv));
 
-    if ( testFuncList.empty( ) )
+    if (testFuncList.empty())
     {
         printf(__FUNCTION__": No tests selected.\r\n");
     }
 
-    for ( const TestSetFunc& f : testFuncList )
+    for (const TestSetFunc& f : testFuncList)
     {
         bPass &= f(utr);
     }

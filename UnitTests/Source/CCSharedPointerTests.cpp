@@ -1,6 +1,6 @@
 #include <CCSharedPointerTests.h>
 
-CC::SharedPointerTests::UTList CC::SharedPointerTests::GetTests( )
+CC::SharedPointerTests::UTList CC::SharedPointerTests::GetTests()
 {
     using TQ = TestQuantity;
     static const UTList tests

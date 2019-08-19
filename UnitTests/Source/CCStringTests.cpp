@@ -12,28 +12,28 @@ const std::vector<CC::SupportedStringTuple> CC::StringTests::ms_TestStrings
 
 const std::vector<CC::SupportedStringTuple> CC::StringTests::ms_DiffCaseTestStrings
 {
-	CC_MAKE_STR_TUPLE(""),
-	CC_MAKE_STR_TUPLE("A SHORT CSTRING."),
-	CC_MAKE_STR_TUPLE("ThIs Is A sTrInG tHaT hAs ToO mAnY cHaRs To FiT iN aN sSo ArRaY.")
+    CC_MAKE_STR_TUPLE(""),
+    CC_MAKE_STR_TUPLE("A SHORT CSTRING."),
+    CC_MAKE_STR_TUPLE("ThIs Is A sTrInG tHaT hAs ToO mAnY cHaRs To FiT iN aN sSo ArRaY.")
 };
 
 const std::vector<CC::SupportedStringTuple> CC::StringTests::ms_ShorterTestStrings
 {
-	CC_MAKE_STR_TUPLE(""),
-	CC_MAKE_STR_TUPLE("A short cstr"),
-	CC_MAKE_STR_TUPLE("This is a string")
+    CC_MAKE_STR_TUPLE(""),
+    CC_MAKE_STR_TUPLE("A short cstr"),
+    CC_MAKE_STR_TUPLE("This is a string")
 };
 
 const std::vector<CC::SupportedStringTuple> CC::StringTests::ms_LongerTestStrings
 {
-	CC_MAKE_STR_TUPLE(""),
-	CC_MAKE_STR_TUPLE("A short cstring.  Fits in SSO."),
-	CC_MAKE_STR_TUPLE("This is a string that has too many chars to fit in an SSO array.  Cool stuff.")
+    CC_MAKE_STR_TUPLE(""),
+    CC_MAKE_STR_TUPLE("A short cstring.  Fits in SSO."),
+    CC_MAKE_STR_TUPLE("This is a string that has too many chars to fit in an SSO array.  Cool stuff.")
 };
 
 
 // Return list of String unit tests.
-CC::StringTests::UTList CC::StringTests::GetTests( )
+CC::StringTests::UTList CC::StringTests::GetTests()
 {
     using TQ = TestQuantity;
 
@@ -140,7 +140,7 @@ CC::StringTests::UTList CC::StringTests::GetTests( )
         StringTests::SubscriptOperatorTests::SubscriptOp<utf8, TQ::Zero>,
         StringTests::SubscriptOperatorTests::SubscriptOp<utf8, TQ::One>,
         StringTests::SubscriptOperatorTests::SubscriptOp<utf8, TQ::Many>,
-		StringTests::SubscriptOperatorTests::SubscriptOp<utf16, TQ::Zero>,
+        StringTests::SubscriptOperatorTests::SubscriptOp<utf16, TQ::Zero>,
         StringTests::SubscriptOperatorTests::SubscriptOp<utf16, TQ::One>,
         StringTests::SubscriptOperatorTests::SubscriptOp<utf16, TQ::Many>,
 
@@ -221,12 +221,12 @@ CC::StringTests::UTList CC::StringTests::GetTests( )
         StringTests::Assign::StrObjCopyAssign<utf16, TQ::One>,
         StringTests::Assign::StrObjCopyAssign<utf16, TQ::Many>,
 
-		StringTests::Assign::StrObjAndLenCopyAssign<utf8, TQ::Zero>,
-		StringTests::Assign::StrObjAndLenCopyAssign<utf8, TQ::One>,
-		StringTests::Assign::StrObjAndLenCopyAssign<utf8, TQ::Many>,
-		StringTests::Assign::StrObjAndLenCopyAssign<utf16, TQ::Zero>,
-		StringTests::Assign::StrObjAndLenCopyAssign<utf16, TQ::One>,
-		StringTests::Assign::StrObjAndLenCopyAssign<utf16, TQ::Many>,
+        StringTests::Assign::StrObjAndLenCopyAssign<utf8, TQ::Zero>,
+        StringTests::Assign::StrObjAndLenCopyAssign<utf8, TQ::One>,
+        StringTests::Assign::StrObjAndLenCopyAssign<utf8, TQ::Many>,
+        StringTests::Assign::StrObjAndLenCopyAssign<utf16, TQ::Zero>,
+        StringTests::Assign::StrObjAndLenCopyAssign<utf16, TQ::One>,
+        StringTests::Assign::StrObjAndLenCopyAssign<utf16, TQ::Many>,
 
         StringTests::Assign::StrObjMoveAssign<utf8, TQ::Zero>,
         StringTests::Assign::StrObjMoveAssign<utf8, TQ::One>,
@@ -262,13 +262,13 @@ CC::StringTests::UTList CC::StringTests::GetTests( )
         StringTests::Append::StrObjAppend<utf16, TQ::Zero>,
         StringTests::Append::StrObjAppend<utf16, TQ::One>,
         StringTests::Append::StrObjAppend<utf16, TQ::Many>,
-			
-		StringTests::Append::StrObjAndLenAppend<utf8, TQ::Zero>,
-		StringTests::Append::StrObjAndLenAppend<utf8, TQ::One>,
-		StringTests::Append::StrObjAndLenAppend<utf8, TQ::Many>,
-		StringTests::Append::StrObjAndLenAppend<utf16, TQ::Zero>,
-		StringTests::Append::StrObjAndLenAppend<utf16, TQ::One>,
-		StringTests::Append::StrObjAndLenAppend<utf16, TQ::Many>,
+
+        StringTests::Append::StrObjAndLenAppend<utf8, TQ::Zero>,
+        StringTests::Append::StrObjAndLenAppend<utf8, TQ::One>,
+        StringTests::Append::StrObjAndLenAppend<utf8, TQ::Many>,
+        StringTests::Append::StrObjAndLenAppend<utf16, TQ::Zero>,
+        StringTests::Append::StrObjAndLenAppend<utf16, TQ::One>,
+        StringTests::Append::StrObjAndLenAppend<utf16, TQ::Many>,
 
         StringTests::CompareTests::CStrCompare<utf8, TQ::Zero, false>,
         StringTests::CompareTests::CStrCompare<utf8, TQ::Zero, true>,
@@ -320,55 +320,55 @@ CC::StringTests::UTList CC::StringTests::GetTests( )
         StringTests::CompareTests::StrAndLenCompare<utf16, TQ::Many, TQ::Many, false>,
         StringTests::CompareTests::StrAndLenCompare<utf16, TQ::Many, TQ::Many, true>,
 
-		StringTests::CompareTests::StrObjCompare<utf8, TQ::Zero, false>,
-		StringTests::CompareTests::StrObjCompare<utf8, TQ::Zero, true>,
-		StringTests::CompareTests::StrObjCompare<utf8, TQ::One, false>,
-		StringTests::CompareTests::StrObjCompare<utf8, TQ::One, true>,
-		StringTests::CompareTests::StrObjCompare<utf8, TQ::Many, false>,
-		StringTests::CompareTests::StrObjCompare<utf8, TQ::Many, true>,
-		StringTests::CompareTests::StrObjCompare<utf16, TQ::Zero, false>,
-		StringTests::CompareTests::StrObjCompare<utf16, TQ::Zero, true>,
-		StringTests::CompareTests::StrObjCompare<utf16, TQ::One, false>,
-		StringTests::CompareTests::StrObjCompare<utf16, TQ::One, true>,
-		StringTests::CompareTests::StrObjCompare<utf16, TQ::Many, false>,
-		StringTests::CompareTests::StrObjCompare<utf16, TQ::Many, true>,
+        StringTests::CompareTests::StrObjCompare<utf8, TQ::Zero, false>,
+        StringTests::CompareTests::StrObjCompare<utf8, TQ::Zero, true>,
+        StringTests::CompareTests::StrObjCompare<utf8, TQ::One, false>,
+        StringTests::CompareTests::StrObjCompare<utf8, TQ::One, true>,
+        StringTests::CompareTests::StrObjCompare<utf8, TQ::Many, false>,
+        StringTests::CompareTests::StrObjCompare<utf8, TQ::Many, true>,
+        StringTests::CompareTests::StrObjCompare<utf16, TQ::Zero, false>,
+        StringTests::CompareTests::StrObjCompare<utf16, TQ::Zero, true>,
+        StringTests::CompareTests::StrObjCompare<utf16, TQ::One, false>,
+        StringTests::CompareTests::StrObjCompare<utf16, TQ::One, true>,
+        StringTests::CompareTests::StrObjCompare<utf16, TQ::Many, false>,
+        StringTests::CompareTests::StrObjCompare<utf16, TQ::Many, true>,
 
-		StringTests::CompareTests::StrObjAndLenCompare<utf8, TQ::Zero, TQ::Zero, false>,
-		StringTests::CompareTests::StrObjAndLenCompare<utf8, TQ::Zero, TQ::Zero, true>,
-		StringTests::CompareTests::StrObjAndLenCompare<utf8, TQ::Zero, TQ::One, false>,
-		StringTests::CompareTests::StrObjAndLenCompare<utf8, TQ::Zero, TQ::One, true>,
-		StringTests::CompareTests::StrObjAndLenCompare<utf8, TQ::Zero, TQ::Many, false>,
-		StringTests::CompareTests::StrObjAndLenCompare<utf8, TQ::Zero, TQ::Many, true>,
-		StringTests::CompareTests::StrObjAndLenCompare<utf8, TQ::One, TQ::Zero, false>,
-		StringTests::CompareTests::StrObjAndLenCompare<utf8, TQ::One, TQ::Zero, true>,
-		StringTests::CompareTests::StrObjAndLenCompare<utf8, TQ::One, TQ::One, false>,
-		StringTests::CompareTests::StrObjAndLenCompare<utf8, TQ::One, TQ::One, true>,
-		StringTests::CompareTests::StrObjAndLenCompare<utf8, TQ::One, TQ::Many, false>,
-		StringTests::CompareTests::StrObjAndLenCompare<utf8, TQ::One, TQ::Many, true>,
-		StringTests::CompareTests::StrObjAndLenCompare<utf8, TQ::Many, TQ::Zero, false>,
-		StringTests::CompareTests::StrObjAndLenCompare<utf8, TQ::Many, TQ::Zero, true>,
-		StringTests::CompareTests::StrObjAndLenCompare<utf8, TQ::Many, TQ::One, false>,
-		StringTests::CompareTests::StrObjAndLenCompare<utf8, TQ::Many, TQ::One, true>,
-		StringTests::CompareTests::StrObjAndLenCompare<utf8, TQ::Many, TQ::Many, false>,
-		StringTests::CompareTests::StrObjAndLenCompare<utf8, TQ::Many, TQ::Many, true>,
-		StringTests::CompareTests::StrObjAndLenCompare<utf16, TQ::Zero, TQ::Zero, false>,
-		StringTests::CompareTests::StrObjAndLenCompare<utf16, TQ::Zero, TQ::Zero, true>,
-		StringTests::CompareTests::StrObjAndLenCompare<utf16, TQ::Zero, TQ::One, false>,
-		StringTests::CompareTests::StrObjAndLenCompare<utf16, TQ::Zero, TQ::One, true>,
-		StringTests::CompareTests::StrObjAndLenCompare<utf16, TQ::Zero, TQ::Many, false>,
-		StringTests::CompareTests::StrObjAndLenCompare<utf16, TQ::Zero, TQ::Many, true>,
-		StringTests::CompareTests::StrObjAndLenCompare<utf16, TQ::One, TQ::Zero, false>,
-		StringTests::CompareTests::StrObjAndLenCompare<utf16, TQ::One, TQ::Zero, true>,
-		StringTests::CompareTests::StrObjAndLenCompare<utf16, TQ::One, TQ::One, false>,
-		StringTests::CompareTests::StrObjAndLenCompare<utf16, TQ::One, TQ::One, true>,
-		StringTests::CompareTests::StrObjAndLenCompare<utf16, TQ::One, TQ::Many, false>,
-		StringTests::CompareTests::StrObjAndLenCompare<utf16, TQ::One, TQ::Many, true>,
-		StringTests::CompareTests::StrObjAndLenCompare<utf16, TQ::Many, TQ::Zero, false>,
-		StringTests::CompareTests::StrObjAndLenCompare<utf16, TQ::Many, TQ::Zero, true>,
-		StringTests::CompareTests::StrObjAndLenCompare<utf16, TQ::Many, TQ::One, false>,
-		StringTests::CompareTests::StrObjAndLenCompare<utf16, TQ::Many, TQ::One, true>,
-		StringTests::CompareTests::StrObjAndLenCompare<utf16, TQ::Many, TQ::Many, false>,
-		StringTests::CompareTests::StrObjAndLenCompare<utf16, TQ::Many, TQ::Many, true>,
+        StringTests::CompareTests::StrObjAndLenCompare<utf8, TQ::Zero, TQ::Zero, false>,
+        StringTests::CompareTests::StrObjAndLenCompare<utf8, TQ::Zero, TQ::Zero, true>,
+        StringTests::CompareTests::StrObjAndLenCompare<utf8, TQ::Zero, TQ::One, false>,
+        StringTests::CompareTests::StrObjAndLenCompare<utf8, TQ::Zero, TQ::One, true>,
+        StringTests::CompareTests::StrObjAndLenCompare<utf8, TQ::Zero, TQ::Many, false>,
+        StringTests::CompareTests::StrObjAndLenCompare<utf8, TQ::Zero, TQ::Many, true>,
+        StringTests::CompareTests::StrObjAndLenCompare<utf8, TQ::One, TQ::Zero, false>,
+        StringTests::CompareTests::StrObjAndLenCompare<utf8, TQ::One, TQ::Zero, true>,
+        StringTests::CompareTests::StrObjAndLenCompare<utf8, TQ::One, TQ::One, false>,
+        StringTests::CompareTests::StrObjAndLenCompare<utf8, TQ::One, TQ::One, true>,
+        StringTests::CompareTests::StrObjAndLenCompare<utf8, TQ::One, TQ::Many, false>,
+        StringTests::CompareTests::StrObjAndLenCompare<utf8, TQ::One, TQ::Many, true>,
+        StringTests::CompareTests::StrObjAndLenCompare<utf8, TQ::Many, TQ::Zero, false>,
+        StringTests::CompareTests::StrObjAndLenCompare<utf8, TQ::Many, TQ::Zero, true>,
+        StringTests::CompareTests::StrObjAndLenCompare<utf8, TQ::Many, TQ::One, false>,
+        StringTests::CompareTests::StrObjAndLenCompare<utf8, TQ::Many, TQ::One, true>,
+        StringTests::CompareTests::StrObjAndLenCompare<utf8, TQ::Many, TQ::Many, false>,
+        StringTests::CompareTests::StrObjAndLenCompare<utf8, TQ::Many, TQ::Many, true>,
+        StringTests::CompareTests::StrObjAndLenCompare<utf16, TQ::Zero, TQ::Zero, false>,
+        StringTests::CompareTests::StrObjAndLenCompare<utf16, TQ::Zero, TQ::Zero, true>,
+        StringTests::CompareTests::StrObjAndLenCompare<utf16, TQ::Zero, TQ::One, false>,
+        StringTests::CompareTests::StrObjAndLenCompare<utf16, TQ::Zero, TQ::One, true>,
+        StringTests::CompareTests::StrObjAndLenCompare<utf16, TQ::Zero, TQ::Many, false>,
+        StringTests::CompareTests::StrObjAndLenCompare<utf16, TQ::Zero, TQ::Many, true>,
+        StringTests::CompareTests::StrObjAndLenCompare<utf16, TQ::One, TQ::Zero, false>,
+        StringTests::CompareTests::StrObjAndLenCompare<utf16, TQ::One, TQ::Zero, true>,
+        StringTests::CompareTests::StrObjAndLenCompare<utf16, TQ::One, TQ::One, false>,
+        StringTests::CompareTests::StrObjAndLenCompare<utf16, TQ::One, TQ::One, true>,
+        StringTests::CompareTests::StrObjAndLenCompare<utf16, TQ::One, TQ::Many, false>,
+        StringTests::CompareTests::StrObjAndLenCompare<utf16, TQ::One, TQ::Many, true>,
+        StringTests::CompareTests::StrObjAndLenCompare<utf16, TQ::Many, TQ::Zero, false>,
+        StringTests::CompareTests::StrObjAndLenCompare<utf16, TQ::Many, TQ::Zero, true>,
+        StringTests::CompareTests::StrObjAndLenCompare<utf16, TQ::Many, TQ::One, false>,
+        StringTests::CompareTests::StrObjAndLenCompare<utf16, TQ::Many, TQ::One, true>,
+        StringTests::CompareTests::StrObjAndLenCompare<utf16, TQ::Many, TQ::Many, false>,
+        StringTests::CompareTests::StrObjAndLenCompare<utf16, TQ::Many, TQ::Many, true>,
 
         StringTests::ClearTests::Clear<utf8, TQ::Zero>,
         StringTests::ClearTests::Clear<utf8, TQ::One>,

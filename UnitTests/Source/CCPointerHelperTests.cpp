@@ -1,6 +1,6 @@
-#include <CCPointerHelpersTests.h>
+#include <CCPointerHelperTests.h>
 
-CC::PointerHelpersTests::UTList CC::PointerHelpersTests::GetTests( )
+CC::PointerHelperTests::UTList CC::PointerHelperTests::GetTests()
 {
     using TQ = TestQuantity;
 
@@ -53,6 +53,22 @@ CC::PointerHelpersTests::UTList CC::PointerHelpersTests::GetTests( )
         Allocate<Helper, TQ::Zero>,
         Allocate<Helper, TQ::One>,
         Allocate<Helper, TQ::Many>,
+
+        AllocateLen<uint8_t, TQ::Zero>,
+        AllocateLen<uint8_t, TQ::One>,
+        AllocateLen<uint8_t, TQ::Many>,
+        AllocateLen<uint16_t, TQ::Zero>,
+        AllocateLen<uint16_t, TQ::One>,
+        AllocateLen<uint16_t, TQ::Many>,
+        AllocateLen<uint32_t, TQ::Zero>,
+        AllocateLen<uint32_t, TQ::One>,
+        AllocateLen<uint32_t, TQ::Many>,
+        AllocateLen<uint64_t, TQ::Zero>,
+        AllocateLen<uint64_t, TQ::One>,
+        AllocateLen<uint64_t, TQ::Many>,
+        AllocateLen<Helper, TQ::Zero>,
+        AllocateLen<Helper, TQ::One>,
+        AllocateLen<Helper, TQ::Many>,
 
         AllocateFromRawPointer<uint8_t, TQ::Zero>,
         AllocateFromRawPointer<uint8_t, TQ::One>,

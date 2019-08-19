@@ -45,10 +45,10 @@ namespace CC
         friend class StringUtilTests;
 
         /// Static Class - No Ctors/Dtors
-        StringUtil( ) = delete;
+        StringUtil() = delete;
         StringUtil(const StringUtil&) = delete;
         StringUtil(StringUtil&&) = delete;
-        ~StringUtil( ) = delete;
+        ~StringUtil() = delete;
 
         StringUtil& operator=(const StringUtil&) = delete;
         StringUtil& operator=(StringUtil&&) = delete;
@@ -87,7 +87,7 @@ namespace CC
         /// Constexpr Enum Validators \\\
 
         template <OperationType OT>
-        [[nodiscard]] _Success_(return) static constexpr bool IsValidOperationType( ) noexcept
+        [[nodiscard]] _Success_(return) static constexpr bool IsValidOperationType() noexcept
         {
             return OT == OperationType::Comparison
                 || OT == OperationType::Copy
@@ -96,7 +96,7 @@ namespace CC
         }
 
         template <EarlyExitResult EER>
-        [[nodiscard]] _Success_(return) static constexpr bool IsValidEarlyExitResult( ) noexcept
+        [[nodiscard]] _Success_(return) static constexpr bool IsValidEarlyExitResult() noexcept
         {
             return EER == EarlyExitResult::NoExit
                 || EER == EarlyExitResult::True
@@ -106,7 +106,7 @@ namespace CC
         }
 
         template <ReturnType RT>
-        [[nodiscard]] _Success_(return) static constexpr bool IsValidReturnType( ) noexcept
+        [[nodiscard]] _Success_(return) static constexpr bool IsValidReturnType() noexcept
         {
             return RT == ReturnType::CCBuffer
                 || RT == ReturnType::CppString;
@@ -115,28 +115,28 @@ namespace CC
         /// Common Private Helpers \\\
 
         template <ReturnType RT, typename C>
-        [[nodiscard]] static auto BuildEmptyString( )
+        [[nodiscard]] static auto BuildEmptyString()
         {
-            if constexpr ( RT == ReturnType::CCBuffer )
+            if constexpr (RT == ReturnType::CCBuffer)
             {
-                return Buffer<C>( );
+                return Buffer<C>();
             }
-            else if constexpr ( RT == ReturnType::CppString )
+            else if constexpr (RT == ReturnType::CppString)
             {
-                return std::basic_string<C>( );
+                return std::basic_string<C>();
             }
         }
 
         template <ReturnType RT, typename C>
         [[nodiscard]] static auto BuildBuffer(_In_ const size_t& len)
         {
-            if constexpr ( RT == ReturnType::CCBuffer )
+            if constexpr (RT == ReturnType::CCBuffer)
             {
                 Buffer<C> ret(len + 1);
-                memset(ret.Get( ), 0, sizeof(C) * (len + 1));
+                memset(ret.Get(), 0, sizeof(C) * (len + 1));
                 return ret;
             }
-            else if constexpr ( RT == ReturnType::CppString )
+            else if constexpr (RT == ReturnType::CppString)
             {
                 return std::basic_string<C>(len, static_cast<C>('\0'));
             }
@@ -156,22 +156,22 @@ namespace CC
         template <typename C>
         [[nodiscard]] static EarlyExitResult CheckForComparisonEarlyExit(_In_ const C* lhs, _In_ const size_t& lhsLen, _In_ const C* rhs, _In_ const size_t& rhsLen) noexcept
         {
-            if ( lhsLen != rhsLen )
+            if (lhsLen != rhsLen)
             {
                 return EarlyExitResult::False;
             }
 
-            if ( (lhsLen == 0) && (rhsLen == 0) )
+            if ((lhsLen == 0) && (rhsLen == 0))
             {
                 return EarlyExitResult::True;
             }
 
-            if ( lhs == rhs )
+            if (lhs == rhs)
             {
                 return EarlyExitResult::True;
             }
 
-            if ( !lhs || !rhs )
+            if (!lhs || !rhs)
             {
                 return (!lhs && !rhs) ? EarlyExitResult::True : EarlyExitResult::False;
             }
@@ -184,7 +184,7 @@ namespace CC
         template <class T>
         [[nodiscard]] _Success_(return) static bool CaseSensitiveCompare(_In_reads_(len) const T* lhs, _In_reads_(len) const T* rhs, _In_ const size_t& len) noexcept
         {
-            if constexpr ( std::is_same_v<T, utf8> )
+            if constexpr (std::is_same_v<T, utf8>)
             {
                 return strncmp(lhs, rhs, len) == 0;
             }
@@ -199,7 +199,7 @@ namespace CC
         template <class T>
         [[nodiscard]] _Success_(return) static bool CaseInsensitiveCompare(_In_reads_(len) const T* lhs, _In_reads_(len) const T* rhs, _In_ const size_t& len) noexcept
         {
-            if constexpr ( std::is_same_v<T, utf8> )
+            if constexpr (std::is_same_v<T, utf8>)
             {
                 return _strnicmp(lhs, rhs, len) == 0;
             }
@@ -214,9 +214,9 @@ namespace CC
         template <ReturnType RT, typename C>
         [[nodiscard]] static EarlyExitResult CheckForCopyEarlyExit(_In_ const C* src, _In_ const size_t& len) noexcept
         {
-            if ( !src || len == 0 )
+            if (!src || len == 0)
             {
-                if constexpr ( RT == ReturnType::CCBuffer )
+                if constexpr (RT == ReturnType::CCBuffer)
                 {
                     return EarlyExitResult::ZeroedBuffer;
                 }
@@ -238,19 +238,19 @@ namespace CC
         template <typename C>
         [[nodiscard]] _Ret_maybenull_ static C* GetRawDestinationPointer(_In_ Buffer<C>& dst) noexcept
         {
-            return dst.Get( );
+            return dst.Get();
         }
 
         template <typename C>
         [[nodiscard]] _Ret_maybenull_ static C* GetRawDestinationPointer(_In_ std::basic_string<C>& dst) noexcept
         {
-            return const_cast<C*>(dst.data( ));
+            return const_cast<C*>(dst.data());
         }
 
         template <typename CDst, typename CSrc>
         static void PerformConversion(_Out_writes_(len) CDst* dst, _In_reads_(len) const CSrc* src, _In_ const size_t& len) noexcept
         {
-            for ( size_t i = 0; i < len; i++ )
+            for (size_t i = 0; i < len; i++)
             {
                 dst[i] = static_cast<CDst>(src[i]);
             }
@@ -258,7 +258,7 @@ namespace CC
 
         /// Number Conversion Private Helpers \\\
 
-        [[nodiscard]] static const std::vector<SupportedCharacterTuple>& GetNumberCharsTuple( )
+        [[nodiscard]] static const std::vector<SupportedCharacterTuple>& GetNumberCharsTuple()
         {
             static const std::vector<SupportedCharacterTuple> sNumberChars
             {
@@ -271,7 +271,7 @@ namespace CC
             return sNumberChars;
         }
 
-        [[nodiscard]] static const std::vector<SupportedStringTuple>& GetBasePrefixesTuple( )
+        [[nodiscard]] static const std::vector<SupportedStringTuple>& GetBasePrefixesTuple()
         {
             static const std::vector<SupportedStringTuple> sBasePrefixes
             {
@@ -287,9 +287,9 @@ namespace CC
         // Returns true if Base template argument is one of the explicitly
         // defined Base enum class values.  Returns false otherwise.
         template <Base B>
-        [[nodiscard]] _Success_(return) static constexpr bool IsValidBaseType( ) noexcept
+        [[nodiscard]] _Success_(return) static constexpr bool IsValidBaseType() noexcept
         {
-            if constexpr ( B == Base::Binary || B == Base::Octal || B == Base::Decimal || B == Base::Hexadecimal )
+            if constexpr (B == Base::Binary || B == Base::Octal || B == Base::Decimal || B == Base::Hexadecimal)
             {
                 return true;
             }
@@ -301,23 +301,23 @@ namespace CC
 
         // Returns a predefined prefix string for a particular Base value.
         template <Base B, class T>
-        [[nodiscard]] static const std::basic_string<T>& GetBasePrefixString( ) noexcept
+        [[nodiscard]] static const std::basic_string<T>& GetBasePrefixString() noexcept
         {
-            const std::vector<SupportedStringTuple>& bases = GetBasePrefixesTuple( );
+            const std::vector<SupportedStringTuple>& bases = GetBasePrefixesTuple();
 
-            if constexpr ( B == Base::Binary )
+            if constexpr (B == Base::Binary)
             {
                 return std::get<std::basic_string<T>>(bases[0]);
             }
-            else if constexpr ( B == Base::Octal )
+            else if constexpr (B == Base::Octal)
             {
                 return std::get<std::basic_string<T>>(bases[1]);
             }
-            else if constexpr ( B == Base::Decimal )
+            else if constexpr (B == Base::Decimal)
             {
                 return std::get<std::basic_string<T>>(bases[2]);
             }
-            else if constexpr ( B == Base::Hexadecimal )
+            else if constexpr (B == Base::Hexadecimal)
             {
                 return std::get<std::basic_string<T>>(bases[3]);
             }
@@ -328,7 +328,7 @@ namespace CC
         template <class T, class N>
         [[nodiscard]] static const T& NumberToCharacter(_In_ const N& n) noexcept
         {
-            return std::get<T>(GetNumberCharsTuple( ).at(static_cast<size_t>(n)));
+            return std::get<T>(GetNumberCharsTuple().at(static_cast<size_t>(n)));
         }
 
         // Returns the total number of digits of n, depending on Base representation.
@@ -337,31 +337,31 @@ namespace CC
         template <Base B, class N>
         [[nodiscard]] static size_t GetTotalDigits(_In_ const N& n) noexcept
         {
-            if constexpr ( B == Base::Binary )
+            if constexpr (B == Base::Binary)
             {
                 return sizeof(n) * 8;
             }
-            else if constexpr ( B == Base::Octal )
+            else if constexpr (B == Base::Octal)
             {
                 return sizeof(n) * 3;
             }
-            else if constexpr ( B == Base::Decimal )
+            else if constexpr (B == Base::Decimal)
             {
                 N absVal = n;
 
-                if constexpr ( std::is_signed_v<N> )
+                if constexpr (std::is_signed_v<N>)
                 {
                     const bool bNeg = (std::is_signed_v<N> && (n < 0));
-                    absVal = (bNeg && n == std::numeric_limits<N>::min( )) ? std::numeric_limits<N>::max( ) : (bNeg ? -n : n);
+                    absVal = (bNeg && n == std::numeric_limits<N>::min()) ? std::numeric_limits<N>::max() : (bNeg ? -n : n);
                 }
 
-                if ( absVal < 10 )
+                if (absVal < 10)
                 {
                     return 1;
                 }
                 else
                 {
-                    if ( absVal != std::numeric_limits<N>::max( ) )
+                    if (absVal != std::numeric_limits<N>::max())
                     {
                         absVal++;
                     }
@@ -369,7 +369,7 @@ namespace CC
                     return static_cast<size_t>(ceil(log10(absVal)));
                 }
             }
-            else if constexpr ( B == Base::Hexadecimal )
+            else if constexpr (B == Base::Hexadecimal)
             {
                 return sizeof(n) * 2;
             }
@@ -379,21 +379,21 @@ namespace CC
         // For Binary, Octal, and Hexadecimal, this will return the amount to shift by.
         // For Decimal, this will return the amount to divide by.
         template <Base B, class N>
-        [[nodiscard]] static constexpr N GetAdjuster( ) noexcept
+        [[nodiscard]] static constexpr N GetAdjuster() noexcept
         {
-            if constexpr ( B == Base::Binary )
+            if constexpr (B == Base::Binary)
             {
                 return 1;
             }
-            else if constexpr ( B == Base::Octal )
+            else if constexpr (B == Base::Octal)
             {
                 return 3;
             }
-            else if constexpr ( B == Base::Decimal )
+            else if constexpr (B == Base::Decimal)
             {
                 return 10;
             }
-            else if constexpr ( B == Base::Hexadecimal )
+            else if constexpr (B == Base::Hexadecimal)
             {
                 return 4;
             }
@@ -405,17 +405,17 @@ namespace CC
         template <Base B, class N>
         [[nodiscard]] static N GetDigit(_In_ const N& n) noexcept
         {
-            if constexpr ( B == Base::Binary )
+            if constexpr (B == Base::Binary)
             {
                 return n & 0b1;
             }
-            else if constexpr ( B == Base::Octal )
+            else if constexpr (B == Base::Octal)
             {
                 return n & 07;
             }
-            else if constexpr ( B == Base::Decimal )
+            else if constexpr (B == Base::Decimal)
             {
-                if constexpr ( std::is_signed_v<N> )
+                if constexpr (std::is_signed_v<N>)
                 {
                     return (n < 0) ? -(n % 10) : n % 10;
                 }
@@ -424,7 +424,7 @@ namespace CC
                     return n % 10;
                 }
             }
-            else if constexpr ( B == Base::Hexadecimal )
+            else if constexpr (B == Base::Hexadecimal)
             {
                 return n & 0xF;
             }
@@ -436,25 +436,25 @@ namespace CC
         template <Base B, class N>
         static void AdjustNumber(_Inout_ N& n) noexcept
         {
-            if constexpr ( B == Base::Binary || B == Base::Octal || B == Base::Hexadecimal )
+            if constexpr (B == Base::Binary || B == Base::Octal || B == Base::Hexadecimal)
             {
-                n >>= GetAdjuster<B, N>( );
+                n >>= GetAdjuster<B, N>();
             }
-            else if constexpr ( B == Base::Decimal )
+            else if constexpr (B == Base::Decimal)
             {
-                n /= GetAdjuster<B, N>( );
+                n /= GetAdjuster<B, N>();
             }
         }
 
         // Returns a pre-defined base-dependent separator that is placed between groups of digits.
         template <Base B, class T>
-        [[nodiscard]] static constexpr T GetSeparator( ) noexcept
+        [[nodiscard]] static constexpr T GetSeparator() noexcept
         {
-            if constexpr ( B == Base::Binary || B == Base::Octal || B == Base::Hexadecimal )
+            if constexpr (B == Base::Binary || B == Base::Octal || B == Base::Hexadecimal)
             {
                 return static_cast<T>('`');
             }
-            else if constexpr ( B == Base::Decimal )
+            else if constexpr (B == Base::Decimal)
             {
                 return static_cast<T>(',');
             }
@@ -462,13 +462,13 @@ namespace CC
 
         // Returns the base-dependent number of digits that occur between separators.
         template <Base B>
-        [[nodiscard]] static constexpr size_t GetSeparatorInterval( ) noexcept
+        [[nodiscard]] static constexpr size_t GetSeparatorInterval() noexcept
         {
-            if constexpr ( B == Base::Binary || B == Base::Hexadecimal )
+            if constexpr (B == Base::Binary || B == Base::Hexadecimal)
             {
                 return 4;
             }
-            else if constexpr ( B == Base::Octal || B == Base::Decimal )
+            else if constexpr (B == Base::Octal || B == Base::Decimal)
             {
                 return 3;
             }
@@ -478,11 +478,11 @@ namespace CC
         template <Base B, class T, class N>
         [[nodiscard]] static size_t GetRequiredLength(_In_ const N& n) noexcept
         {
-            const size_t prefixSize = GetBasePrefixString<B, T>( ).size( );
+            const size_t prefixSize = GetBasePrefixString<B, T>().size();
             const size_t digits = GetTotalDigits<B>(n);
-            size_t separators = (digits - 1) / GetSeparatorInterval<B>( );
+            size_t separators = (digits - 1) / GetSeparatorInterval<B>();
 
-            if constexpr ( B == Base::Decimal )
+            if constexpr (B == Base::Decimal)
             {
                 return prefixSize + digits + separators + ((n < 0) ? 1 : 0);
             }
@@ -497,7 +497,7 @@ namespace CC
         template <Base B, class T, class N>
         static void BuildNumberString(_In_ const N& n, _Inout_updates_(l) T* p, _In_ const size_t& l)
         {
-            if constexpr ( B != Base::Decimal && std::is_signed_v<N> )
+            if constexpr (B != Base::Decimal && std::is_signed_v<N>)
             {
                 // Single-time re-entry - Build using unsigned type for non-decimal base cases (makes logic easier).
                 BuildNumberString<B, T, std::make_unsigned_t<N>>(static_cast<std::make_unsigned_t<N>>(n), p, l);
@@ -505,44 +505,44 @@ namespace CC
             }
             else
             {
-                const std::basic_string<T>& prefixStr = GetBasePrefixString<B, T>( );
+                const std::basic_string<T>& prefixStr = GetBasePrefixString<B, T>();
                 N tmp = n;
                 size_t idx = l - 1;
                 size_t count = 0;
 
                 // Copy base prefix string to destination string.
-                memcpy_s(p, l * sizeof(T), prefixStr.c_str( ), prefixStr.length( ) * sizeof(T));
+                memcpy_s(p, l * sizeof(T), prefixStr.c_str(), prefixStr.length() * sizeof(T));
 
                 // Copy over the negative sign for negative decimal numbers.
-                if constexpr ( B == Base::Decimal )
+                if constexpr (B == Base::Decimal)
                 {
-                    if ( n < 0 )
+                    if (n < 0)
                     {
-                        p[prefixStr.length( )] = static_cast<T>('-');
+                        p[prefixStr.length()] = static_cast<T>('-');
                     }
                 }
 
                 // Convert and copy digits while tmp isn't zero.
                 do
                 {
-                    if ( count++ == GetSeparatorInterval<B>( ) )
+                    if (count++ == GetSeparatorInterval<B>())
                     {
-                        p[idx--] = GetSeparator<B, T>( );
+                        p[idx--] = GetSeparator<B, T>();
                         count = 1;
                     }
 
                     p[idx--] = NumberToCharacter<T, N>(GetDigit<B, N>(tmp));
                     AdjustNumber<B, N>(tmp);
-                } while ( tmp != 0 );
+                } while (tmp != 0);
 
-                if constexpr ( B != Base::Decimal )
+                if constexpr (B != Base::Decimal)
                 {
                     // Fill in the rest of the buffer with zeros as needed.
-                    while ( idx >= prefixStr.length( ) )
+                    while (idx >= prefixStr.length())
                     {
-                        if ( count++ == GetSeparatorInterval<B>( ) )
+                        if (count++ == GetSeparatorInterval<B>())
                         {
-                            p[idx--] = GetSeparator<B, T>( );
+                            p[idx--] = GetSeparator<B, T>();
                             count = 1;
                         }
 
@@ -559,14 +559,14 @@ namespace CC
         template <class T>
         [[nodiscard]] static size_t GetLength(_In_opt_z_ const T* src) noexcept
         {
-            static_assert(IsSupportedCharType<T>( ), __FUNCTION__": Invalid character type.");
+            static_assert(IsSupportedCharType<T>(), __FUNCTION__": Invalid character type.");
 
-            if ( !src )
+            if (!src)
             {
                 return 0;
             }
 
-            if constexpr ( std::is_same_v<T, utf8> )
+            if constexpr (std::is_same_v<T, utf8>)
             {
                 return strlen(src);
             }
@@ -582,7 +582,7 @@ namespace CC
         template <class T>
         [[nodiscard]] _Success_(return) static bool Compare(_In_ const std::basic_string<T>& lhs, _In_ const std::basic_string<T>& rhs, _In_ const bool& bCaseSensitive = true) noexcept
         {
-            return Compare(lhs.c_str( ), lhs.length( ), rhs.c_str( ), rhs.length( ), bCaseSensitive);
+            return Compare(lhs.c_str(), lhs.length(), rhs.c_str(), rhs.length(), bCaseSensitive);
         }
 
         // Calculates string length and forwards approriate arguments to Compare(const T*, const size_t&, const T*, const size_t&, const bool&)
@@ -596,10 +596,10 @@ namespace CC
         template <class T>
         [[nodiscard]] _Success_(return) static bool Compare(_In_ const T* lhs, _In_ const size_t& lhsLen, _In_ const T* rhs, _In_ const size_t& rhsLen, _In_ const bool& bCaseSensitive = true) noexcept
         {
-            static_assert(IsSupportedCharType<T>( ), __FUNCTION__": Invalid character type.");
+            static_assert(IsSupportedCharType<T>(), __FUNCTION__": Invalid character type.");
 
             auto fpCmp = (bCaseSensitive) ? CaseSensitiveCompare<T> : CaseInsensitiveCompare<T>;
-            switch ( CheckForComparisonEarlyExit(lhs, lhsLen, rhs, rhsLen) )
+            switch (CheckForComparisonEarlyExit(lhs, lhsLen, rhs, rhsLen))
             {
             case EarlyExitResult::NoExit:
                 return fpCmp(lhs, rhs, lhsLen);
@@ -618,7 +618,7 @@ namespace CC
         template <ReturnType RT, typename C>
         [[nodiscard]] static auto Copy(_In_ const std::basic_string<C>& src)
         {
-            return Copy<RT, C>(src.c_str( ), src.length( ));
+            return Copy<RT, C>(src.c_str(), src.length());
         }
 
         template <ReturnType RT, typename C>
@@ -630,19 +630,19 @@ namespace CC
         template <ReturnType RT, typename C>
         [[nodiscard]] static auto Copy(_In_reads_(len) const C* src, _In_ const size_t& len)
         {
-            static_assert(IsValidReturnType<RT>( ), __FUNCTION__": Invalid ReturnType template argument");
-            static_assert(IsSupportedCharType<C>( ), __FUNCTION__": Invalid character type template argument");
+            static_assert(IsValidReturnType<RT>(), __FUNCTION__": Invalid ReturnType template argument");
+            static_assert(IsSupportedCharType<C>(), __FUNCTION__": Invalid character type template argument");
 
             const EarlyExitResult eer = CheckForCopyEarlyExit<RT, C>(src, len);
 
-            if ( eer == EarlyExitResult::EmptyString )
+            if (eer == EarlyExitResult::EmptyString)
             {
-                return BuildEmptyString<RT, C>( );
+                return BuildEmptyString<RT, C>();
             }
 
             auto copy = BuildBuffer<RT, C>(len);
 
-            if ( eer == EarlyExitResult::NoExit )
+            if (eer == EarlyExitResult::NoExit)
             {
                 memcpy(GetRawDestinationPointer<C>(copy), src, len * sizeof(C));
             }
@@ -656,7 +656,7 @@ namespace CC
         template <ReturnType RT, typename CDst, typename CSrc>
         [[nodiscard]] static auto UTFConversion(_In_ const std::basic_string<CSrc>& src)
         {
-            return UTFConversion<RT, CDst>(src.c_str( ), src.length( ));
+            return UTFConversion<RT, CDst>(src.c_str(), src.length());
         }
 
         template <ReturnType RT, typename CDst, typename CSrc>
@@ -668,11 +668,11 @@ namespace CC
         template <ReturnType RT, typename CDst, typename CSrc>
         [[nodiscard]] static auto UTFConversion(_In_reads_(len) const CSrc* src, _In_ const size_t& len)
         {
-            static_assert(IsValidReturnType<RT>( ), __FUNCTION__": Invalid ReturnType template argument");
-            static_assert(IsSupportedCharType<CDst>( ), __FUNCTION__": Invalid destination character type.");
-            static_assert(IsSupportedCharType<CSrc>( ), __FUNCTION__": Invalid source character type.");
+            static_assert(IsValidReturnType<RT>(), __FUNCTION__": Invalid ReturnType template argument");
+            static_assert(IsSupportedCharType<CDst>(), __FUNCTION__": Invalid destination character type.");
+            static_assert(IsSupportedCharType<CSrc>(), __FUNCTION__": Invalid source character type.");
 
-            if constexpr ( std::is_same<CDst, CSrc>::value )
+            if constexpr (std::is_same<CDst, CSrc>::value)
             {
                 return Copy<RT, CDst>(src, len);
             }
@@ -680,14 +680,14 @@ namespace CC
             {
                 const EarlyExitResult eer = CheckForUTFConversionEarlyExit<RT, CSrc>(src, len);
 
-                if ( eer == EarlyExitResult::EmptyString )
+                if (eer == EarlyExitResult::EmptyString)
                 {
-                    return BuildEmptyString<RT, CDst>( );
+                    return BuildEmptyString<RT, CDst>();
                 }
 
                 auto conv = BuildBuffer<RT, CDst>(len);
 
-                if ( eer == EarlyExitResult::NoExit )
+                if (eer == EarlyExitResult::NoExit)
                 {
                     PerformConversion(GetRawDestinationPointer<CDst>(conv), src, len);
                 }
@@ -704,10 +704,10 @@ namespace CC
         template <ReturnType RT, Base B, class T, class N, _ENABLE_IF_NUMBER_CONVERT_SUPPORTED(T, N)>
         [[nodiscard]] static auto NumberConversion(_In_ const N& integral)
         {
-            static_assert(IsSupportedCharType<T>( ), __FUNCTION__": Invalid character type.");
-            static_assert(IsValidBaseType<B>( ), __FUNCTION__": Invalid Base Type");
+            static_assert(IsSupportedCharType<T>(), __FUNCTION__": Invalid character type.");
+            static_assert(IsValidBaseType<B>(), __FUNCTION__": Invalid Base Type");
 
-            if constexpr ( std::is_pointer_v<N> )
+            if constexpr (std::is_pointer_v<N>)
             {
                 return NumberConversion<RT, B, T, uintptr_t>(reinterpret_cast<uintptr_t>(integral));
             }
@@ -720,7 +720,7 @@ namespace CC
             }
         }
     #undef _ENABLE_IF_NUMBER_CONVERT_SUPPORTED
-    };    
+    };
 }
 
 #endif // _CC_STRING_UTIL_H_

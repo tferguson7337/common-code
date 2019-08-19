@@ -70,11 +70,14 @@
     <ClInclude Include="Headers\CCStringTests.h">
       <Filter>Tests\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\Headers\CCPointerHelpers.h">
+    <ClInclude Include="..\Headers\CCList.h">
       <Filter>CommonCode\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\CCPointerHelpersTests.h">
+    <ClInclude Include="Headers\CCPointerHelperTests.h">
       <Filter>Tests\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Headers\CCPointerHelper.h">
+      <Filter>CommonCode\Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -98,7 +101,7 @@
     <ClCompile Include="Source\CCStringTests.cpp">
       <Filter>Tests\Source</Filter>
     </ClCompile>
-    <ClCompile Include="Source\CCPointerHelpersTests.cpp">
+    <ClCompile Include="Source\CCPointerHelperTests.cpp">
       <Filter>Tests\Source</Filter>
     </ClCompile>
   </ItemGroup>

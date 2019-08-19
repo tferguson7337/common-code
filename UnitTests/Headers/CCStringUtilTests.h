@@ -14,10 +14,10 @@ namespace CC
 {
     class StringUtilTests
     {
-        StringUtilTests( ) = delete;
+        StringUtilTests() = delete;
         StringUtilTests(const StringUtilTests&) = delete;
         StringUtilTests(StringUtilTests&&) = delete;
-        ~StringUtilTests( ) = delete;
+        ~StringUtilTests() = delete;
         StringUtilTests& operator=(const StringUtilTests&) = delete;
         StringUtilTests& operator=(StringUtilTests&&) = delete;
 
@@ -41,18 +41,18 @@ namespace CC
         template <RT _RT, typename C>
         static const C* GetStringPointer(const void* obj)
         {
-            if ( !obj )
+            if (!obj)
             {
                 throw std::invalid_argument(__FUNCTION__": Received nullptr string object argument.");
             }
 
-            if constexpr ( _RT == RT::CCBuffer )
+            if constexpr (_RT == RT::CCBuffer)
             {
-                return reinterpret_cast<const Buffer<C>*>(obj)->Get( );
+                return reinterpret_cast<const Buffer<C>*>(obj)->Get();
             }
-            else if constexpr ( _RT == RT::CppString )
+            else if constexpr (_RT == RT::CppString)
             {
-                return reinterpret_cast<const std::basic_string<C>*>(obj)->c_str( );
+                return reinterpret_cast<const std::basic_string<C>*>(obj)->c_str();
             }
             else
             {
@@ -71,14 +71,14 @@ namespace CC
         using TestSetArray = std::array<TestStr<C>, 2>;
 
         template <typename C>
-        static const TestStr<C>& GetZeroLengthStr( )
+        static const TestStr<C>& GetZeroLengthStr()
         {
-            if constexpr ( std::is_same_v<C, char> )
+            if constexpr (std::is_same_v<C, char>)
             {
                 static const std::basic_string<C> str("");
                 return str;
             }
-            else if constexpr ( std::is_same_v<C, wchar_t> )
+            else if constexpr (std::is_same_v<C, wchar_t>)
             {
                 static const std::basic_string<C> str(L"");
                 return str;
@@ -86,20 +86,20 @@ namespace CC
             else
             {
                 throw std::logic_error(
-                    __FUNCTION__": Unknown character type[" + std::string(typeid(C).name( )) + "]."
+                    __FUNCTION__": Unknown character type[" + std::string(typeid(C).name()) + "]."
                 );
             }
         }
 
         template <typename C>
-        static const TestStr<C>& GetOneLengthStr( )
+        static const TestStr<C>& GetOneLengthStr()
         {
-            if constexpr ( std::is_same_v<C, char> )
+            if constexpr (std::is_same_v<C, char>)
             {
                 static const std::basic_string<C> str("1");
                 return str;
             }
-            else if constexpr ( std::is_same_v<C, wchar_t> )
+            else if constexpr (std::is_same_v<C, wchar_t>)
             {
                 static const std::basic_string<C> str(L"1");
                 return str;
@@ -107,20 +107,20 @@ namespace CC
             else
             {
                 throw std::logic_error(
-                    __FUNCTION__": Unknown character type[" + std::string(typeid(C).name( )) + "]."
+                    __FUNCTION__": Unknown character type[" + std::string(typeid(C).name()) + "]."
                 );
             }
         }
 
         template <typename C>
-        static const TestStr<C>& GetManyLengthStr( )
+        static const TestStr<C>& GetManyLengthStr()
         {
-            if constexpr ( std::is_same_v<C, char> )
+            if constexpr (std::is_same_v<C, char>)
             {
                 static const std::basic_string<C> str("Test String");
                 return str;
             }
-            else if constexpr ( std::is_same_v<C, wchar_t> )
+            else if constexpr (std::is_same_v<C, wchar_t>)
             {
                 static const std::basic_string<C> str(L"Test String");
                 return str;
@@ -128,20 +128,20 @@ namespace CC
             else
             {
                 throw std::logic_error(
-                    __FUNCTION__": Unknown character type[" + std::string(typeid(C).name( )) + "]."
+                    __FUNCTION__": Unknown character type[" + std::string(typeid(C).name()) + "]."
                 );
             }
         }
 
         template <typename C>
-        static const TestSetArray<C>& GetEmptyStrs( )
+        static const TestSetArray<C>& GetEmptyStrs()
         {
-            if constexpr ( std::is_same_v<C, char> )
+            if constexpr (std::is_same_v<C, char>)
             {
                 static const TestSetArray<C> arr = { "", "" };
                 return arr;
             }
-            else if constexpr ( std::is_same_v<C, wchar_t> )
+            else if constexpr (std::is_same_v<C, wchar_t>)
             {
                 static const TestSetArray<C> arr = { L"", L"" };
                 return arr;
@@ -149,20 +149,20 @@ namespace CC
             else
             {
                 throw std::logic_error(
-                    __FUNCTION__": Unknown character type[" + std::string(typeid(C).name( )) + "]."
+                    __FUNCTION__": Unknown character type[" + std::string(typeid(C).name()) + "]."
                 );
             }
         }
 
         template <typename C>
-        static const TestSetArray<C>& GetSameLengthStrs( )
+        static const TestSetArray<C>& GetSameLengthStrs()
         {
-            if constexpr ( std::is_same_v<C, char> )
+            if constexpr (std::is_same_v<C, char>)
             {
                 static const TestSetArray<C> arr = { "TestString1", "TestString2" };
                 return arr;
             }
-            else if constexpr ( std::is_same_v<C, wchar_t> )
+            else if constexpr (std::is_same_v<C, wchar_t>)
             {
                 static const TestSetArray<C> arr = { L"TestString1", L"TestString2" };
                 return arr;
@@ -170,20 +170,20 @@ namespace CC
             else
             {
                 throw std::logic_error(
-                    __FUNCTION__": Unknown character type[" + std::string(typeid(C).name( )) + "]."
+                    __FUNCTION__": Unknown character type[" + std::string(typeid(C).name()) + "]."
                 );
             }
         }
 
         template <typename C>
-        static const TestSetArray<C>& GetSameStrs( )
+        static const TestSetArray<C>& GetSameStrs()
         {
-            if constexpr ( std::is_same_v<C, char> )
+            if constexpr (std::is_same_v<C, char>)
             {
                 static const TestSetArray<C> arr = { "TestString", "TestString" };
                 return arr;
             }
-            else if constexpr ( std::is_same_v<C, wchar_t> )
+            else if constexpr (std::is_same_v<C, wchar_t>)
             {
                 static const TestSetArray<C> arr = { L"TestString", L"TestString" };
                 return arr;
@@ -191,20 +191,20 @@ namespace CC
             else
             {
                 throw std::logic_error(
-                    __FUNCTION__": Unknown character type[" + std::string(typeid(C).name( )) + "]."
+                    __FUNCTION__": Unknown character type[" + std::string(typeid(C).name()) + "]."
                 );
             }
         }
 
         template <typename C>
-        static const TestSetArray<C>& GetDifferentLengthStrs( )
+        static const TestSetArray<C>& GetDifferentLengthStrs()
         {
-            if constexpr ( std::is_same_v<C, char> )
+            if constexpr (std::is_same_v<C, char>)
             {
                 static const TestSetArray<C> arr = { "TestString1", "Test String 2" };
                 return arr;
             }
-            else if constexpr ( std::is_same_v<C, wchar_t> )
+            else if constexpr (std::is_same_v<C, wchar_t>)
             {
                 static const TestSetArray<C> arr = { L"TestString1", L"Test String 2" };
                 return arr;
@@ -212,20 +212,20 @@ namespace CC
             else
             {
                 throw std::logic_error(
-                    __FUNCTION__": Unknown character type[" + std::string(typeid(C).name( )) + "]."
+                    __FUNCTION__": Unknown character type[" + std::string(typeid(C).name()) + "]."
                 );
             }
         }
 
         template <typename C>
-        static const TestSetArray<C>& GetDifferentCaseStrs( )
+        static const TestSetArray<C>& GetDifferentCaseStrs()
         {
-            if constexpr ( std::is_same_v<C, char> )
+            if constexpr (std::is_same_v<C, char>)
             {
                 static const TestSetArray<C> arr = { "TestString", "TeStStRiNg" };
                 return arr;
             }
-            else if constexpr ( std::is_same_v<C, wchar_t> )
+            else if constexpr (std::is_same_v<C, wchar_t>)
             {
                 static const TestSetArray<C> arr = { L"TestString", L"TeStStRiNg" };
                 return arr;
@@ -233,14 +233,14 @@ namespace CC
             else
             {
                 throw std::logic_error(
-                    __FUNCTION__": Unknown character type[" + std::string(typeid(C).name( )) + "]."
+                    __FUNCTION__": Unknown character type[" + std::string(typeid(C).name()) + "]."
                 );
             }
         }
 
     public:
         // Return list of all StringUtil unit tests functions.
-        static std::list<UTFunc> GetTests( );
+        static std::list<UTFunc> GetTests();
 
         class EnumValidatorTests;
         class BuildBufferTests;
@@ -263,91 +263,91 @@ namespace CC
     class StringUtilTests::EnumValidatorTests
     {
     public:
-        static UTR InvalidOperationType( )
+        static UTR InvalidOperationType()
         {
-#pragma warning(suppress : 26454) // Intentional overflow - suppress warning.
+        #pragma warning(suppress : 26454) // Intentional overflow - suppress warning.
             constexpr OT invalidOT1 = static_cast<OT>(static_cast<OT_T>(OT::Begin) - 1);
             constexpr OT invalidOT2 = OT::End;
 
-            SUTL_TEST_ASSERT(!CC::StringUtil::IsValidOperationType<invalidOT1>( ));
-            SUTL_TEST_ASSERT(!CC::StringUtil::IsValidOperationType<invalidOT2>( ));
+            SUTL_TEST_ASSERT(!CC::StringUtil::IsValidOperationType<invalidOT1>());
+            SUTL_TEST_ASSERT(!CC::StringUtil::IsValidOperationType<invalidOT2>());
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
-        static UTR ValidOperationType( )
+        static UTR ValidOperationType()
         {
-            SUTL_TEST_ASSERT(CC::StringUtil::IsValidOperationType<OT::Comparison>( ));
-            SUTL_TEST_ASSERT(CC::StringUtil::IsValidOperationType<OT::Copy>( ));
-            SUTL_TEST_ASSERT(CC::StringUtil::IsValidOperationType<OT::UTFConversion>( ));
-            SUTL_TEST_ASSERT(CC::StringUtil::IsValidOperationType<OT::NumberConversion>( ));
+            SUTL_TEST_ASSERT(CC::StringUtil::IsValidOperationType<OT::Comparison>());
+            SUTL_TEST_ASSERT(CC::StringUtil::IsValidOperationType<OT::Copy>());
+            SUTL_TEST_ASSERT(CC::StringUtil::IsValidOperationType<OT::UTFConversion>());
+            SUTL_TEST_ASSERT(CC::StringUtil::IsValidOperationType<OT::NumberConversion>());
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
-        static UTR InvalidEarlyExitResult( )
+        static UTR InvalidEarlyExitResult()
         {
-#pragma warning(suppress : 26454) // Intentional overflow - suppress warning.
+        #pragma warning(suppress : 26454) // Intentional overflow - suppress warning.
             constexpr EER invalidEER1 = static_cast<EER>(static_cast<EER_T>(EER::Begin) - 1);
             constexpr EER invalidEER2 = EER::End;
 
-            SUTL_TEST_ASSERT(!CC::StringUtil::IsValidEarlyExitResult<invalidEER1>( ));
-            SUTL_TEST_ASSERT(!CC::StringUtil::IsValidEarlyExitResult<invalidEER2>( ));
+            SUTL_TEST_ASSERT(!CC::StringUtil::IsValidEarlyExitResult<invalidEER1>());
+            SUTL_TEST_ASSERT(!CC::StringUtil::IsValidEarlyExitResult<invalidEER2>());
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
-        static UTR ValidEarlyExitResult( )
+        static UTR ValidEarlyExitResult()
         {
-            SUTL_TEST_ASSERT(CC::StringUtil::IsValidEarlyExitResult<EER::NoExit>( ));
-            SUTL_TEST_ASSERT(CC::StringUtil::IsValidEarlyExitResult<EER::True>( ));
-            SUTL_TEST_ASSERT(CC::StringUtil::IsValidEarlyExitResult<EER::False>( ));
-            SUTL_TEST_ASSERT(CC::StringUtil::IsValidEarlyExitResult<EER::EmptyString>( ));
-            SUTL_TEST_ASSERT(CC::StringUtil::IsValidEarlyExitResult<EER::ZeroedBuffer>( ));
+            SUTL_TEST_ASSERT(CC::StringUtil::IsValidEarlyExitResult<EER::NoExit>());
+            SUTL_TEST_ASSERT(CC::StringUtil::IsValidEarlyExitResult<EER::True>());
+            SUTL_TEST_ASSERT(CC::StringUtil::IsValidEarlyExitResult<EER::False>());
+            SUTL_TEST_ASSERT(CC::StringUtil::IsValidEarlyExitResult<EER::EmptyString>());
+            SUTL_TEST_ASSERT(CC::StringUtil::IsValidEarlyExitResult<EER::ZeroedBuffer>());
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
-        static UTR InvalidReturnType( )
+        static UTR InvalidReturnType()
         {
-#pragma warning(suppress : 26454) // Intentional overflow - suppress warning.
+        #pragma warning(suppress : 26454) // Intentional overflow - suppress warning.
             constexpr RT invalidRT1 = static_cast<RT>(static_cast<RT_T>(RT::_Begin) - 1);
             constexpr RT invalidRT2 = RT::_End;
 
-            SUTL_TEST_ASSERT(!CC::StringUtil::IsValidReturnType<invalidRT1>( ));
-            SUTL_TEST_ASSERT(!CC::StringUtil::IsValidReturnType<invalidRT2>( ));
+            SUTL_TEST_ASSERT(!CC::StringUtil::IsValidReturnType<invalidRT1>());
+            SUTL_TEST_ASSERT(!CC::StringUtil::IsValidReturnType<invalidRT2>());
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
-        static UTR ValidReturnType( )
+        static UTR ValidReturnType()
         {
-            SUTL_TEST_ASSERT(CC::StringUtil::IsValidReturnType<RT::CCBuffer>( ));
-            SUTL_TEST_ASSERT(CC::StringUtil::IsValidReturnType<RT::CppString>( ));
+            SUTL_TEST_ASSERT(CC::StringUtil::IsValidReturnType<RT::CCBuffer>());
+            SUTL_TEST_ASSERT(CC::StringUtil::IsValidReturnType<RT::CppString>());
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
-        static UTR InvalidBaseType( )
+        static UTR InvalidBaseType()
         {
-#pragma warning(suppress : 26454) // Intentional overflow - suppress warning.
+        #pragma warning(suppress : 26454) // Intentional overflow - suppress warning.
             constexpr BT invalidBT1 = static_cast<BT>(static_cast<BT_T>(BT::_Begin) - 1);
             constexpr BT invalidBT2 = BT::_End;
 
-            SUTL_TEST_ASSERT(!CC::StringUtil::IsValidBaseType<invalidBT1>( ));
-            SUTL_TEST_ASSERT(!CC::StringUtil::IsValidBaseType<invalidBT2>( ));
+            SUTL_TEST_ASSERT(!CC::StringUtil::IsValidBaseType<invalidBT1>());
+            SUTL_TEST_ASSERT(!CC::StringUtil::IsValidBaseType<invalidBT2>());
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
-        static UTR ValidBaseType( )
+        static UTR ValidBaseType()
         {
-            SUTL_TEST_ASSERT(CC::StringUtil::IsValidBaseType<BT::Binary>( ));
-            SUTL_TEST_ASSERT(CC::StringUtil::IsValidBaseType<BT::Octal>( ));
-            SUTL_TEST_ASSERT(CC::StringUtil::IsValidBaseType<BT::Decimal>( ));
-            SUTL_TEST_ASSERT(CC::StringUtil::IsValidBaseType<BT::Hexadecimal>( ));
+            SUTL_TEST_ASSERT(CC::StringUtil::IsValidBaseType<BT::Binary>());
+            SUTL_TEST_ASSERT(CC::StringUtil::IsValidBaseType<BT::Octal>());
+            SUTL_TEST_ASSERT(CC::StringUtil::IsValidBaseType<BT::Decimal>());
+            SUTL_TEST_ASSERT(CC::StringUtil::IsValidBaseType<BT::Hexadecimal>());
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
     };
 
@@ -356,59 +356,59 @@ namespace CC
     {
     public:
         template <RT _RT, typename C>
-        static UTR ZeroLength( )
+        static UTR ZeroLength()
         {
             const auto str = CC::StringUtil::BuildBuffer<_RT, C>(0);
             const C* p = GetStringPointer<_RT, C>(&str);
 
-            if constexpr ( _RT == RT::CppString )
+            if constexpr (_RT == RT::CppString)
             {
-                SUTL_TEST_ASSERT(str.empty( ));
+                SUTL_TEST_ASSERT(str.empty());
             }
 
             SUTL_TEST_ASSERT(p);
             SUTL_TEST_ASSERT(p[0] == C('\0'));
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
 
         template <RT _RT, typename C>
-        static UTR OneLength( )
+        static UTR OneLength()
         {
             const auto str = CC::StringUtil::BuildBuffer<_RT, C>(1);
             const C* p = GetStringPointer<_RT, C>(&str);
 
-            if constexpr ( _RT == RT::CppString )
+            if constexpr (_RT == RT::CppString)
             {
-                SUTL_TEST_ASSERT(str.length( ) == 1);
+                SUTL_TEST_ASSERT(str.length() == 1);
             }
 
             SUTL_TEST_ASSERT(p);
             SUTL_TEST_ASSERT(p[0] == C('\0'));
             SUTL_TEST_ASSERT(p[1] == C('\0'));
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
 
         template <RT _RT, typename C>
-        static UTR ManyLength( )
+        static UTR ManyLength()
         {
             const size_t len = 64;
             const C cmpArr[len + 1] = { C('\0') };
             const auto str = CC::StringUtil::BuildBuffer<_RT, C>(len);
             const C* p = GetStringPointer<_RT, C>(&str);
 
-            if constexpr ( _RT == RT::CppString )
+            if constexpr (_RT == RT::CppString)
             {
-                SUTL_TEST_ASSERT(str.length( ) == len);
+                SUTL_TEST_ASSERT(str.length() == len);
             }
 
             SUTL_TEST_ASSERT(p);
             SUTL_TEST_ASSERT(memcmp(p, cmpArr, (len + 1) * sizeof(C)) == 0);
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
     };
 
@@ -417,37 +417,37 @@ namespace CC
     {
     public:
         template <typename C>
-        static UTR NullptrArg( )
+        static UTR NullptrArg()
         {
             SUTL_TEST_ASSERT(CC::StringUtil::GetLength<C>(nullptr) == 0);
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
 
         template <typename C>
-        static UTR ZeroLength( )
+        static UTR ZeroLength()
         {
-            const TestStr<C>& str = GetZeroLengthStr<C>( );
-            SUTL_TEST_ASSERT(CC::StringUtil::GetLength<C>(str.c_str( )) == str.length( ));
-            SUTL_TEST_SUCCESS( );
+            const TestStr<C>& str = GetZeroLengthStr<C>();
+            SUTL_TEST_ASSERT(CC::StringUtil::GetLength<C>(str.c_str()) == str.length());
+            SUTL_TEST_SUCCESS();
         }
 
 
         template <typename C>
-        static UTR OneLength( )
+        static UTR OneLength()
         {
-            const TestStr<C>& str = GetOneLengthStr<C>( );
-            SUTL_TEST_ASSERT(CC::StringUtil::GetLength<C>(str.c_str( )) == str.length( ));
-            SUTL_TEST_SUCCESS( );
+            const TestStr<C>& str = GetOneLengthStr<C>();
+            SUTL_TEST_ASSERT(CC::StringUtil::GetLength<C>(str.c_str()) == str.length());
+            SUTL_TEST_SUCCESS();
         }
 
 
         template <typename C>
-        static UTR ManyLength( )
+        static UTR ManyLength()
         {
-            const TestStr<C>& str = GetManyLengthStr<C>( );
-            SUTL_TEST_ASSERT(CC::StringUtil::GetLength<C>(str.c_str( )) == str.length( ));
-            SUTL_TEST_SUCCESS( );
+            const TestStr<C>& str = GetManyLengthStr<C>();
+            SUTL_TEST_ASSERT(CC::StringUtil::GetLength<C>(str.c_str()) == str.length());
+            SUTL_TEST_SUCCESS();
         }
     };
 
@@ -456,103 +456,103 @@ namespace CC
     {
     public:
         template <typename C>
-        static UTR SameLengthDifferentStrs( )
+        static UTR SameLengthDifferentStrs()
         {
-            const TestSetArray<C>& arr = GetSameLengthStrs<C>( );
+            const TestSetArray<C>& arr = GetSameLengthStrs<C>();
             const TestStr<C>& str1 = arr[0];
             const TestStr<C>& str2 = arr[1];
 
-            const EER eer = CC::StringUtil::CheckForComparisonEarlyExit<C>(str1.c_str( ), str1.length( ), str2.c_str( ), str2.length( ));
+            const EER eer = CC::StringUtil::CheckForComparisonEarlyExit<C>(str1.c_str(), str1.length(), str2.c_str(), str2.length());
 
             SUTL_TEST_ASSERT(eer == EER::NoExit);
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
         template <typename C>
-        static UTR SameStr( )
+        static UTR SameStr()
         {
-            const TestSetArray<C>& arr = GetSameStrs<C>( );
+            const TestSetArray<C>& arr = GetSameStrs<C>();
             const TestStr<C>& str1 = arr[0];
             const TestStr<C>& str2 = arr[1];
 
-            const EER eer = CC::StringUtil::CheckForComparisonEarlyExit<C>(str1.c_str( ), str1.length( ), str2.c_str( ), str2.length( ));
+            const EER eer = CC::StringUtil::CheckForComparisonEarlyExit<C>(str1.c_str(), str1.length(), str2.c_str(), str2.length());
 
             SUTL_TEST_ASSERT(eer == EER::NoExit);
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
         template <typename C>
-        static UTR LengthMismatch( )
+        static UTR LengthMismatch()
         {
-            const TestSetArray<C>& arr = GetDifferentLengthStrs<C>( );
+            const TestSetArray<C>& arr = GetDifferentLengthStrs<C>();
             const TestStr<C>& str1 = arr[0];
             const TestStr<C>& str2 = arr[1];
 
-            const EER eer = CC::StringUtil::CheckForComparisonEarlyExit<C>(str1.c_str( ), str1.length( ), str2.c_str( ), str2.length( ));
+            const EER eer = CC::StringUtil::CheckForComparisonEarlyExit<C>(str1.c_str(), str1.length(), str2.c_str(), str2.length());
 
             SUTL_TEST_ASSERT(eer == EER::False);
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
         template <typename C>
-        static UTR BothZeroLength( )
+        static UTR BothZeroLength()
         {
-            const TestSetArray<C>& arr = GetEmptyStrs<C>( );
+            const TestSetArray<C>& arr = GetEmptyStrs<C>();
             const TestStr<C>& str1 = arr[0];
             const TestStr<C>& str2 = arr[1];
 
-            const EER eer = CC::StringUtil::CheckForComparisonEarlyExit<C>(str1.c_str( ), str1.length( ), str2.c_str( ), str2.length( ));
+            const EER eer = CC::StringUtil::CheckForComparisonEarlyExit<C>(str1.c_str(), str1.length(), str2.c_str(), str2.length());
 
             SUTL_TEST_ASSERT(eer == EER::True);
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
 
         template <typename C>
-        static UTR OneNullptr( )
+        static UTR OneNullptr()
         {
-            const TestSetArray<C>& arr = GetSameLengthStrs<C>( );
+            const TestSetArray<C>& arr = GetSameLengthStrs<C>();
             const TestStr<C>& str1 = arr[0];
             const TestStr<C>& str2 = arr[1];
 
-            const EER eer = CC::StringUtil::CheckForComparisonEarlyExit<C>(nullptr, str1.length( ), str2.c_str( ), str2.length( ));
+            const EER eer = CC::StringUtil::CheckForComparisonEarlyExit<C>(nullptr, str1.length(), str2.c_str(), str2.length());
 
             SUTL_TEST_ASSERT(eer == EER::False);
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
 
         template <typename C>
-        static UTR BothNullptr( )
+        static UTR BothNullptr()
         {
-            const TestSetArray<C>& arr = GetSameLengthStrs<C>( );
+            const TestSetArray<C>& arr = GetSameLengthStrs<C>();
             const TestStr<C>& str1 = arr[0];
             const TestStr<C>& str2 = arr[1];
 
-            const EER eer = CC::StringUtil::CheckForComparisonEarlyExit<C>(nullptr, str1.length( ), nullptr, str2.length( ));
+            const EER eer = CC::StringUtil::CheckForComparisonEarlyExit<C>(nullptr, str1.length(), nullptr, str2.length());
 
             SUTL_TEST_ASSERT(eer == EER::True);
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
 
         template <typename C>
-        static UTR SamePtr( )
+        static UTR SamePtr()
         {
-            const TestSetArray<C>& arr = GetSameStrs<C>( );
+            const TestSetArray<C>& arr = GetSameStrs<C>();
             const TestStr<C>& str = arr[0];
 
-            const EER eer = CC::StringUtil::CheckForComparisonEarlyExit<C>(str.c_str( ), str.length( ), str.c_str( ), str.length( ));
+            const EER eer = CC::StringUtil::CheckForComparisonEarlyExit<C>(str.c_str(), str.length(), str.c_str(), str.length());
 
             SUTL_TEST_ASSERT(eer == EER::True);
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
     };
 
@@ -561,151 +561,151 @@ namespace CC
     {
     public:
         template <typename C>
-        static UTR LengthMismatch( )
+        static UTR LengthMismatch()
         {
-            const TestSetArray<C>& arr = GetDifferentLengthStrs<C>( );
+            const TestSetArray<C>& arr = GetDifferentLengthStrs<C>();
             const TestStr<C>& str1 = arr[0];
             const TestStr<C>& str2 = arr[1];
 
-            SUTL_TEST_ASSERT(CC::StringUtil::Compare(str1.c_str( ), str1.length( ), str2.c_str( ), str2.length( ), false) == false);
-            SUTL_TEST_ASSERT(CC::StringUtil::Compare(str1.c_str( ), str1.length( ), str2.c_str( ), str2.length( ), true) == false);
+            SUTL_TEST_ASSERT(CC::StringUtil::Compare(str1.c_str(), str1.length(), str2.c_str(), str2.length(), false) == false);
+            SUTL_TEST_ASSERT(CC::StringUtil::Compare(str1.c_str(), str1.length(), str2.c_str(), str2.length(), true) == false);
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
 
         template <typename C>
-        static UTR BothZeroLength( )
+        static UTR BothZeroLength()
         {
-            const TestSetArray<C>& arr = GetSameLengthStrs<C>( );
+            const TestSetArray<C>& arr = GetSameLengthStrs<C>();
             const TestStr<C>& str1 = arr[0];
             const TestStr<C>& str2 = arr[1];
 
-            SUTL_TEST_ASSERT(CC::StringUtil::Compare(str1.c_str( ), 0, str2.c_str( ), 0, false) == true);
-            SUTL_TEST_ASSERT(CC::StringUtil::Compare(str1.c_str( ), 0, str2.c_str( ), 0, true) == true);
+            SUTL_TEST_ASSERT(CC::StringUtil::Compare(str1.c_str(), 0, str2.c_str(), 0, false) == true);
+            SUTL_TEST_ASSERT(CC::StringUtil::Compare(str1.c_str(), 0, str2.c_str(), 0, true) == true);
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
 
         template <typename C>
-        static UTR OneNullptr( )
+        static UTR OneNullptr()
         {
-            const TestSetArray<C>& arr = GetSameLengthStrs<C>( );
+            const TestSetArray<C>& arr = GetSameLengthStrs<C>();
             const TestStr<C>& str1 = arr[0];
             const TestStr<C>& str2 = arr[1];
 
-            SUTL_TEST_ASSERT(CC::StringUtil::Compare<C>(nullptr, str1.length( ), str2.c_str( ), str2.length( ), false) == false);
-            SUTL_TEST_ASSERT(CC::StringUtil::Compare<C>(nullptr, str1.length( ), str2.c_str( ), str2.length( ), true) == false);
-            SUTL_TEST_ASSERT(CC::StringUtil::Compare<C>(str1.c_str( ), str1.length( ), nullptr, str2.length( ), false) == false);
-            SUTL_TEST_ASSERT(CC::StringUtil::Compare<C>(str1.c_str( ), str1.length( ), nullptr, str2.length( ), true) == false);
+            SUTL_TEST_ASSERT(CC::StringUtil::Compare<C>(nullptr, str1.length(), str2.c_str(), str2.length(), false) == false);
+            SUTL_TEST_ASSERT(CC::StringUtil::Compare<C>(nullptr, str1.length(), str2.c_str(), str2.length(), true) == false);
+            SUTL_TEST_ASSERT(CC::StringUtil::Compare<C>(str1.c_str(), str1.length(), nullptr, str2.length(), false) == false);
+            SUTL_TEST_ASSERT(CC::StringUtil::Compare<C>(str1.c_str(), str1.length(), nullptr, str2.length(), true) == false);
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
 
         template <typename C>
-        static UTR BothNullptr( )
+        static UTR BothNullptr()
         {
-            const TestSetArray<C>& arr = GetSameLengthStrs<C>( );
+            const TestSetArray<C>& arr = GetSameLengthStrs<C>();
             const TestStr<C>& str1 = arr[0];
             const TestStr<C>& str2 = arr[1];
 
-            SUTL_TEST_ASSERT(CC::StringUtil::Compare<C>(nullptr, str1.length( ), nullptr, str2.length( ), false) == true);
-            SUTL_TEST_ASSERT(CC::StringUtil::Compare<C>(nullptr, str1.length( ), nullptr, str2.length( ), true) == true);
+            SUTL_TEST_ASSERT(CC::StringUtil::Compare<C>(nullptr, str1.length(), nullptr, str2.length(), false) == true);
+            SUTL_TEST_ASSERT(CC::StringUtil::Compare<C>(nullptr, str1.length(), nullptr, str2.length(), true) == true);
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
 
         template <typename C>
-        static UTR SamePtr( )
+        static UTR SamePtr()
         {
-            const TestSetArray<C>& arr = GetSameStrs<C>( );
+            const TestSetArray<C>& arr = GetSameStrs<C>();
             const TestStr<C>& str = arr[0];
 
-            SUTL_TEST_ASSERT(CC::StringUtil::Compare(str.c_str( ), str.length( ), str.c_str( ), str.length( ), false) == true);
-            SUTL_TEST_ASSERT(CC::StringUtil::Compare(str.c_str( ), str.length( ), str.c_str( ), str.length( ), true) == true);
+            SUTL_TEST_ASSERT(CC::StringUtil::Compare(str.c_str(), str.length(), str.c_str(), str.length(), false) == true);
+            SUTL_TEST_ASSERT(CC::StringUtil::Compare(str.c_str(), str.length(), str.c_str(), str.length(), true) == true);
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
 
         template <typename C>
-        static UTR CaseInsensitiveNoMatch( )
+        static UTR CaseInsensitiveNoMatch()
         {
-            const TestSetArray<C>& arr = GetSameLengthStrs<C>( );
+            const TestSetArray<C>& arr = GetSameLengthStrs<C>();
             const TestStr<C>& str1 = arr[0];
             const TestStr<C>& str2 = arr[1];
 
-            SUTL_TEST_ASSERT(CC::StringUtil::Compare(str1.c_str( ), str1.length( ), str2.c_str( ), str2.length( ), false) == false);
+            SUTL_TEST_ASSERT(CC::StringUtil::Compare(str1.c_str(), str1.length(), str2.c_str(), str2.length(), false) == false);
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
 
         template <typename C>
-        static UTR CaseInsensitiveDifferentCasing( )
+        static UTR CaseInsensitiveDifferentCasing()
         {
-            const TestSetArray<C>& arr = GetDifferentCaseStrs<C>( );
+            const TestSetArray<C>& arr = GetDifferentCaseStrs<C>();
             const TestStr<C>& str1 = arr[0];
             const TestStr<C>& str2 = arr[1];
 
-            SUTL_TEST_ASSERT(CC::StringUtil::Compare(str1.c_str( ), str1.length( ), str2.c_str( ), str2.length( ), false) == true);
+            SUTL_TEST_ASSERT(CC::StringUtil::Compare(str1.c_str(), str1.length(), str2.c_str(), str2.length(), false) == true);
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
 
         template <typename C>
-        static UTR CaseInsensitiveMatch( )
+        static UTR CaseInsensitiveMatch()
         {
-            const TestSetArray<C>& arr = GetSameStrs<C>( );
+            const TestSetArray<C>& arr = GetSameStrs<C>();
             const TestStr<C>& str1 = arr[0];
             const TestStr<C>& str2 = arr[1];
 
-            SUTL_TEST_ASSERT(CC::StringUtil::Compare(str1.c_str( ), str1.length( ), str2.c_str( ), str2.length( ), false) == true);
+            SUTL_TEST_ASSERT(CC::StringUtil::Compare(str1.c_str(), str1.length(), str2.c_str(), str2.length(), false) == true);
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
 
         template <typename C>
-        static UTR CaseSensitiveNoMatch( )
+        static UTR CaseSensitiveNoMatch()
         {
-            const TestSetArray<C>& arr = GetSameLengthStrs<C>( );
+            const TestSetArray<C>& arr = GetSameLengthStrs<C>();
             const TestStr<C>& str1 = arr[0];
             const TestStr<C>& str2 = arr[1];
 
-            SUTL_TEST_ASSERT(CC::StringUtil::Compare(str1.c_str( ), str1.length( ), str2.c_str( ), str2.length( ), true) == false);
+            SUTL_TEST_ASSERT(CC::StringUtil::Compare(str1.c_str(), str1.length(), str2.c_str(), str2.length(), true) == false);
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
 
         template <typename C>
-        static UTR CaseSensitiveDifferentCasing( )
+        static UTR CaseSensitiveDifferentCasing()
         {
-            const TestSetArray<C>& arr = GetDifferentCaseStrs<C>( );
+            const TestSetArray<C>& arr = GetDifferentCaseStrs<C>();
             const TestStr<C>& str1 = arr[0];
             const TestStr<C>& str2 = arr[1];
 
-            SUTL_TEST_ASSERT(CC::StringUtil::Compare(str1.c_str( ), str1.length( ), str2.c_str( ), str2.length( ), true) == false);
+            SUTL_TEST_ASSERT(CC::StringUtil::Compare(str1.c_str(), str1.length(), str2.c_str(), str2.length(), true) == false);
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
 
         template <typename C>
-        static UTR CaseSensitiveMatch( )
+        static UTR CaseSensitiveMatch()
         {
-            const TestSetArray<C>& arr = GetSameStrs<C>( );
+            const TestSetArray<C>& arr = GetSameStrs<C>();
             const TestStr<C>& str1 = arr[0];
             const TestStr<C>& str2 = arr[1];
 
-            SUTL_TEST_ASSERT(CC::StringUtil::Compare(str1.c_str( ), str1.length( ), str2.c_str( ), str2.length( ), true) == true);
+            SUTL_TEST_ASSERT(CC::StringUtil::Compare(str1.c_str(), str1.length(), str2.c_str(), str2.length(), true) == true);
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
     };
 
@@ -714,54 +714,54 @@ namespace CC
     {
     public:
         template <RT _RT, typename C>
-        static UTR Nullptr( )
+        static UTR Nullptr()
         {
-            const TestStr<C>& str = GetManyLengthStr<C>( );
+            const TestStr<C>& str = GetManyLengthStr<C>();
 
-            const EER eer = CC::StringUtil::CheckForCopyEarlyExit<_RT, C>(nullptr, str.length( ));
+            const EER eer = CC::StringUtil::CheckForCopyEarlyExit<_RT, C>(nullptr, str.length());
 
             SUTL_TEST_ASSERT(eer == ((_RT == RT::CppString) ? EER::EmptyString : EER::ZeroedBuffer));
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
 
         template <RT _RT, typename C>
-        static UTR ZeroLength( )
+        static UTR ZeroLength()
         {
-            const TestStr<C>& str = GetZeroLengthStr<C>( );
+            const TestStr<C>& str = GetZeroLengthStr<C>();
 
-            const EER eer = CC::StringUtil::CheckForCopyEarlyExit<_RT, C>(str.c_str( ), str.length( ));
+            const EER eer = CC::StringUtil::CheckForCopyEarlyExit<_RT, C>(str.c_str(), str.length());
 
             SUTL_TEST_ASSERT(eer == ((_RT == RT::CppString) ? EER::EmptyString : EER::ZeroedBuffer));
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
 
         template <RT _RT, typename C>
-        static UTR OneLength( )
+        static UTR OneLength()
         {
-            const TestStr<C>& str = GetOneLengthStr<C>( );
+            const TestStr<C>& str = GetOneLengthStr<C>();
 
-            const EER eer = CC::StringUtil::CheckForCopyEarlyExit<_RT, C>(str.c_str( ), str.length( ));
+            const EER eer = CC::StringUtil::CheckForCopyEarlyExit<_RT, C>(str.c_str(), str.length());
 
             SUTL_TEST_ASSERT(eer == EER::NoExit);
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
 
         template <RT _RT, typename C>
-        static UTR ManyLength( )
+        static UTR ManyLength()
         {
-            const TestStr<C>& str = GetManyLengthStr<C>( );
+            const TestStr<C>& str = GetManyLengthStr<C>();
 
-            const EER eer = CC::StringUtil::CheckForCopyEarlyExit<_RT, C>(str.c_str( ), str.length( ));
+            const EER eer = CC::StringUtil::CheckForCopyEarlyExit<_RT, C>(str.c_str(), str.length());
 
             SUTL_TEST_ASSERT(eer == EER::NoExit);
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
     };
 
@@ -770,87 +770,87 @@ namespace CC
     {
     public:
         template <RT _RT, typename C>
-        static UTR Nullptr( )
+        static UTR Nullptr()
         {
-            const TestStr<C>& str = GetManyLengthStr<C>( );
-            const auto copy = CC::StringUtil::Copy<_RT, C>(nullptr, str.length( ));
+            const TestStr<C>& str = GetManyLengthStr<C>();
+            const auto copy = CC::StringUtil::Copy<_RT, C>(nullptr, str.length());
 
-            if constexpr ( _RT == RT::CppString )
+            if constexpr (_RT == RT::CppString)
             {
-                SUTL_TEST_ASSERT(copy.empty( ));
+                SUTL_TEST_ASSERT(copy.empty());
             }
-            else if constexpr ( _RT == RT::CCBuffer )
+            else if constexpr (_RT == RT::CCBuffer)
             {
                 const C* ptr = GetStringPointer<_RT, C>(&copy);
                 SUTL_TEST_ASSERT(ptr);
 
-                for ( size_t i = 0; i <= str.length( ); i++ )
+                for (size_t i = 0; i <= str.length(); i++)
                 {
                     SUTL_TEST_ASSERT(ptr[i] == C('\0'));
                 }
             }
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
 
         template <RT _RT, typename C>
-        static UTR ZeroLength( )
+        static UTR ZeroLength()
         {
-            const TestStr<C>& str = GetZeroLengthStr<C>( );
-            const auto copy = CC::StringUtil::Copy<_RT, C>(str.c_str( ), str.length( ));
+            const TestStr<C>& str = GetZeroLengthStr<C>();
+            const auto copy = CC::StringUtil::Copy<_RT, C>(str.c_str(), str.length());
             const C* ptr = GetStringPointer<_RT, C>(&copy);
 
             SUTL_TEST_ASSERT(ptr);
 
-            if constexpr ( _RT == RT::CppString )
+            if constexpr (_RT == RT::CppString)
             {
-                SUTL_TEST_ASSERT(copy.empty( ));
+                SUTL_TEST_ASSERT(copy.empty());
             }
 
-            SUTL_TEST_ASSERT(memcmp(ptr, str.c_str( ), (str.length( ) + 1) * sizeof(C)) == 0);
+            SUTL_TEST_ASSERT(memcmp(ptr, str.c_str(), (str.length() + 1) * sizeof(C)) == 0);
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
 
         template <RT _RT, typename C>
-        static UTR OneLength( )
+        static UTR OneLength()
         {
-            const TestStr<C>& str = GetOneLengthStr<C>( );
-            const auto copy = CC::StringUtil::Copy<_RT, C>(str.c_str( ), str.length( ));
+            const TestStr<C>& str = GetOneLengthStr<C>();
+            const auto copy = CC::StringUtil::Copy<_RT, C>(str.c_str(), str.length());
             const C* ptr = GetStringPointer<_RT, C>(&copy);
 
             SUTL_TEST_ASSERT(ptr);
 
-            if constexpr ( _RT == RT::CppString )
+            if constexpr (_RT == RT::CppString)
             {
-                SUTL_TEST_ASSERT(!copy.empty( ));
+                SUTL_TEST_ASSERT(!copy.empty());
             }
 
-            SUTL_TEST_ASSERT(memcmp(ptr, str.c_str( ), (str.length( ) + 1) * sizeof(C)) == 0);
+            SUTL_TEST_ASSERT(memcmp(ptr, str.c_str(), (str.length() + 1) * sizeof(C)) == 0);
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
 
         template <RT _RT, typename C>
-        static UTR ManyLength( )
+        static UTR ManyLength()
         {
-            const TestStr<C>& str = GetManyLengthStr<C>( );
-            const auto copy = CC::StringUtil::Copy<_RT, C>(str.c_str( ), str.length( ));
+            const TestStr<C>& str = GetManyLengthStr<C>();
+            const auto copy = CC::StringUtil::Copy<_RT, C>(str.c_str(), str.length());
             const C* ptr = GetStringPointer<_RT, C>(&copy);
 
             SUTL_TEST_ASSERT(ptr);
 
-            if constexpr ( _RT == RT::CppString )
+            if constexpr (_RT == RT::CppString)
             {
-                SUTL_TEST_ASSERT(!copy.empty( ));
+                SUTL_TEST_ASSERT(!copy.empty());
             }
 
-            SUTL_TEST_ASSERT(memcmp(ptr, str.c_str( ), (str.length( ) + 1) * sizeof(C)) == 0);
+            SUTL_TEST_ASSERT(memcmp(ptr, str.c_str(), (str.length() + 1) * sizeof(C)) == 0);
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
     };
 
@@ -859,54 +859,54 @@ namespace CC
     {
     public:
         template <RT _RT, typename C>
-        static UTR Nullptr( )
+        static UTR Nullptr()
         {
-            const TestStr<C>& str = GetManyLengthStr<C>( );
+            const TestStr<C>& str = GetManyLengthStr<C>();
 
-            const EER eer = CC::StringUtil::CheckForUTFConversionEarlyExit<_RT, C>(nullptr, str.length( ));
+            const EER eer = CC::StringUtil::CheckForUTFConversionEarlyExit<_RT, C>(nullptr, str.length());
 
             SUTL_TEST_ASSERT(eer == ((_RT == RT::CppString) ? EER::EmptyString : EER::ZeroedBuffer));
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
 
         template <RT _RT, typename C>
-        static UTR ZeroLength( )
+        static UTR ZeroLength()
         {
-            const TestStr<C>& str = GetZeroLengthStr<C>( );
+            const TestStr<C>& str = GetZeroLengthStr<C>();
 
-            const EER eer = CC::StringUtil::CheckForUTFConversionEarlyExit<_RT, C>(str.c_str( ), str.length( ));
+            const EER eer = CC::StringUtil::CheckForUTFConversionEarlyExit<_RT, C>(str.c_str(), str.length());
 
             SUTL_TEST_ASSERT(eer == ((_RT == RT::CppString) ? EER::EmptyString : EER::ZeroedBuffer));
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
 
         template <RT _RT, typename C>
-        static UTR OneLength( )
+        static UTR OneLength()
         {
-            const TestStr<C>& str = GetOneLengthStr<C>( );
+            const TestStr<C>& str = GetOneLengthStr<C>();
 
-            const EER eer = CC::StringUtil::CheckForUTFConversionEarlyExit<_RT, C>(str.c_str( ), str.length( ));
+            const EER eer = CC::StringUtil::CheckForUTFConversionEarlyExit<_RT, C>(str.c_str(), str.length());
 
             SUTL_TEST_ASSERT(eer == EER::NoExit);
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
 
         template <RT _RT, typename C>
-        static UTR ManyLength( )
+        static UTR ManyLength()
         {
-            const TestStr<C>& str = GetManyLengthStr<C>( );
+            const TestStr<C>& str = GetManyLengthStr<C>();
 
-            const EER eer = CC::StringUtil::CheckForUTFConversionEarlyExit<_RT, C>(str.c_str( ), str.length( ));
+            const EER eer = CC::StringUtil::CheckForUTFConversionEarlyExit<_RT, C>(str.c_str(), str.length());
 
             SUTL_TEST_ASSERT(eer == EER::NoExit);
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
     };
 
@@ -915,99 +915,99 @@ namespace CC
     {
     public:
         template <RT _RT, typename CDst, typename CSrc>
-        static UTR Nullptr( )
+        static UTR Nullptr()
         {
-            const TestStr<CSrc>& str = GetManyLengthStr<CSrc>( );
-            const auto conv = CC::StringUtil::UTFConversion<_RT, CDst, CSrc>(nullptr, str.length( ));
+            const TestStr<CSrc>& str = GetManyLengthStr<CSrc>();
+            const auto conv = CC::StringUtil::UTFConversion<_RT, CDst, CSrc>(nullptr, str.length());
 
-            if constexpr ( _RT == RT::CppString )
+            if constexpr (_RT == RT::CppString)
             {
-                SUTL_TEST_ASSERT(conv.empty( ));
+                SUTL_TEST_ASSERT(conv.empty());
             }
-            else if constexpr ( _RT == RT::CCBuffer )
+            else if constexpr (_RT == RT::CCBuffer)
             {
                 const CDst* ptr = GetStringPointer<_RT, CDst>(&conv);
                 SUTL_TEST_ASSERT(ptr);
 
-                for ( size_t i = 0; i <= str.length( ); i++ )
+                for (size_t i = 0; i <= str.length(); i++)
                 {
                     SUTL_TEST_ASSERT(ptr[i] == CDst('\0'));
                 }
             }
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
 
         template <RT _RT, typename CDst, typename CSrc>
-        static UTR ZeroLength( )
+        static UTR ZeroLength()
         {
-            const TestStr<CSrc>& str = GetZeroLengthStr<CSrc>( );
-            const auto conv = CC::StringUtil::UTFConversion<_RT, CDst, CSrc>(str.c_str( ), str.length( ));
-            const CSrc* srcPtr = str.c_str( );
+            const TestStr<CSrc>& str = GetZeroLengthStr<CSrc>();
+            const auto conv = CC::StringUtil::UTFConversion<_RT, CDst, CSrc>(str.c_str(), str.length());
+            const CSrc* srcPtr = str.c_str();
             const CDst* ptr = GetStringPointer<_RT, CDst>(&conv);
 
             SUTL_TEST_ASSERT(ptr);
 
-            if constexpr ( _RT == RT::CppString )
+            if constexpr (_RT == RT::CppString)
             {
-                SUTL_TEST_ASSERT(conv.length( ) == str.length( ));
+                SUTL_TEST_ASSERT(conv.length() == str.length());
             }
 
-            for ( size_t i = 0; i <= str.length( ); i++ )
+            for (size_t i = 0; i <= str.length(); i++)
             {
                 SUTL_TEST_ASSERT(ptr[i] == static_cast<CDst>(srcPtr[i]));
             }
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
 
         template <RT _RT, typename CDst, typename CSrc>
-        static UTR OneLength( )
+        static UTR OneLength()
         {
-            const TestStr<CSrc>& str = GetOneLengthStr<CSrc>( );
-            const auto conv = CC::StringUtil::UTFConversion<_RT, CDst, CSrc>(str.c_str( ), str.length( ));
-            const CSrc* srcPtr = str.c_str( );
+            const TestStr<CSrc>& str = GetOneLengthStr<CSrc>();
+            const auto conv = CC::StringUtil::UTFConversion<_RT, CDst, CSrc>(str.c_str(), str.length());
+            const CSrc* srcPtr = str.c_str();
             const CDst* ptr = GetStringPointer<_RT, CDst>(&conv);
 
             SUTL_TEST_ASSERT(ptr);
 
-            if constexpr ( _RT == RT::CppString )
+            if constexpr (_RT == RT::CppString)
             {
-                SUTL_TEST_ASSERT(conv.length( ) == str.length( ));
+                SUTL_TEST_ASSERT(conv.length() == str.length());
             }
 
-            for ( size_t i = 0; i <= str.length( ); i++ )
+            for (size_t i = 0; i <= str.length(); i++)
             {
                 SUTL_TEST_ASSERT(ptr[i] == static_cast<CDst>(srcPtr[i]));
             }
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
 
 
         template <RT _RT, typename CDst, typename CSrc>
-        static UTR ManyLength( )
+        static UTR ManyLength()
         {
-            const TestStr<CSrc>& str = GetManyLengthStr<CSrc>( );
-            const auto conv = CC::StringUtil::UTFConversion<_RT, CDst, CSrc>(str.c_str( ), str.length( ));
-            const CSrc* srcPtr = str.c_str( );
+            const TestStr<CSrc>& str = GetManyLengthStr<CSrc>();
+            const auto conv = CC::StringUtil::UTFConversion<_RT, CDst, CSrc>(str.c_str(), str.length());
+            const CSrc* srcPtr = str.c_str();
             const CDst* ptr = GetStringPointer<_RT, CDst>(&conv);
 
             SUTL_TEST_ASSERT(ptr);
 
-            if constexpr ( _RT == RT::CppString )
+            if constexpr (_RT == RT::CppString)
             {
-                SUTL_TEST_ASSERT(conv.length( ) == str.length( ));
+                SUTL_TEST_ASSERT(conv.length() == str.length());
             }
 
-            for ( size_t i = 0; i <= str.length( ); i++ )
+            for (size_t i = 0; i <= str.length(); i++)
             {
                 SUTL_TEST_ASSERT(ptr[i] == static_cast<CDst>(srcPtr[i]));
             }
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
     };
 
@@ -1030,19 +1030,19 @@ namespace CC
 
 
         template <BT _BT, typename C>
-        static NCTestArray<int8_t, C> GetSigned8BitTestArray( )
+        static NCTestArray<int8_t, C> GetSigned8BitTestArray()
         {
             NCTestArray<int8_t, C> arr;
 
-            arr[0].first = std::numeric_limits<int8_t>::min( );
+            arr[0].first = std::numeric_limits<int8_t>::min();
             arr[1].first = -50;
             arr[2].first = -1;
             arr[3].first = 0;
             arr[4].first = 1;
             arr[5].first = 105;
-            arr[6].first = std::numeric_limits<int8_t>::max( );
+            arr[6].first = std::numeric_limits<int8_t>::max();
 
-            if constexpr ( _BT == BT::Binary )
+            if constexpr (_BT == BT::Binary)
             {
                 _ASSIGN_TEST_STR_(arr[0].second, C, "0b1000`0000");
                 _ASSIGN_TEST_STR_(arr[1].second, C, "0b1100`1110");
@@ -1052,7 +1052,7 @@ namespace CC
                 _ASSIGN_TEST_STR_(arr[5].second, C, "0b0110`1001");
                 _ASSIGN_TEST_STR_(arr[6].second, C, "0b0111`1111");
             }
-            else if constexpr ( _BT == BT::Octal )
+            else if constexpr (_BT == BT::Octal)
             {
                 _ASSIGN_TEST_STR_(arr[0].second, C, "0200");
                 _ASSIGN_TEST_STR_(arr[1].second, C, "0316");
@@ -1062,7 +1062,7 @@ namespace CC
                 _ASSIGN_TEST_STR_(arr[5].second, C, "0151");
                 _ASSIGN_TEST_STR_(arr[6].second, C, "0177");
             }
-            else if constexpr ( _BT == BT::Decimal )
+            else if constexpr (_BT == BT::Decimal)
             {
                 _ASSIGN_TEST_STR_(arr[0].second, C, "0n-128");
                 _ASSIGN_TEST_STR_(arr[1].second, C, "0n-50");
@@ -1072,7 +1072,7 @@ namespace CC
                 _ASSIGN_TEST_STR_(arr[5].second, C, "0n105");
                 _ASSIGN_TEST_STR_(arr[6].second, C, "0n127");
             }
-            else if constexpr ( _BT == BT::Hexadecimal )
+            else if constexpr (_BT == BT::Hexadecimal)
             {
                 _ASSIGN_TEST_STR_(arr[0].second, C, "0x80");
                 _ASSIGN_TEST_STR_(arr[1].second, C, "0xCE");
@@ -1087,7 +1087,7 @@ namespace CC
         }
 
         template <BT _BT, typename C>
-        static NCTestArray<uint8_t, C> GetUnsigned8BitTestArray( )
+        static NCTestArray<uint8_t, C> GetUnsigned8BitTestArray()
         {
             NCTestArray<uint8_t, C> arr;
 
@@ -1097,9 +1097,9 @@ namespace CC
             arr[3].first = 54;
             arr[4].first = 105;
             arr[5].first = 180;
-            arr[6].first = std::numeric_limits<uint8_t>::max( );
+            arr[6].first = std::numeric_limits<uint8_t>::max();
 
-            if constexpr ( _BT == BT::Binary )
+            if constexpr (_BT == BT::Binary)
             {
                 _ASSIGN_TEST_STR_(arr[0].second, C, "0b0000`0000");
                 _ASSIGN_TEST_STR_(arr[1].second, C, "0b0000`0001");
@@ -1109,7 +1109,7 @@ namespace CC
                 _ASSIGN_TEST_STR_(arr[5].second, C, "0b1011`0100");
                 _ASSIGN_TEST_STR_(arr[6].second, C, "0b1111`1111");
             }
-            else if constexpr ( _BT == BT::Octal )
+            else if constexpr (_BT == BT::Octal)
             {
                 _ASSIGN_TEST_STR_(arr[0].second, C, "0000");
                 _ASSIGN_TEST_STR_(arr[1].second, C, "0001");
@@ -1119,7 +1119,7 @@ namespace CC
                 _ASSIGN_TEST_STR_(arr[5].second, C, "0264");
                 _ASSIGN_TEST_STR_(arr[6].second, C, "0377");
             }
-            else if constexpr ( _BT == BT::Decimal )
+            else if constexpr (_BT == BT::Decimal)
             {
                 _ASSIGN_TEST_STR_(arr[0].second, C, "0n0");
                 _ASSIGN_TEST_STR_(arr[1].second, C, "0n1");
@@ -1129,7 +1129,7 @@ namespace CC
                 _ASSIGN_TEST_STR_(arr[5].second, C, "0n180");
                 _ASSIGN_TEST_STR_(arr[6].second, C, "0n255");
             }
-            else if constexpr ( _BT == BT::Hexadecimal )
+            else if constexpr (_BT == BT::Hexadecimal)
             {
                 _ASSIGN_TEST_STR_(arr[0].second, C, "0x00");
                 _ASSIGN_TEST_STR_(arr[1].second, C, "0x01");
@@ -1144,19 +1144,19 @@ namespace CC
         }
 
         template <BT _BT, typename C>
-        static NCTestArray<int16_t, C> GetSigned16BitTestArray( )
+        static NCTestArray<int16_t, C> GetSigned16BitTestArray()
         {
             NCTestArray<int16_t, C> arr;
 
-            arr[0].first = std::numeric_limits<int16_t>::min( );
+            arr[0].first = std::numeric_limits<int16_t>::min();
             arr[1].first = -23881;
             arr[2].first = -1;
             arr[3].first = 0;
             arr[4].first = 1;
             arr[5].first = 11663;
-            arr[6].first = std::numeric_limits<int16_t>::max( );
+            arr[6].first = std::numeric_limits<int16_t>::max();
 
-            if constexpr ( _BT == BT::Binary )
+            if constexpr (_BT == BT::Binary)
             {
                 _ASSIGN_TEST_STR_(arr[0].second, C, "0b1000`0000`0000`0000");
                 _ASSIGN_TEST_STR_(arr[1].second, C, "0b1010`0010`1011`0111");
@@ -1166,7 +1166,7 @@ namespace CC
                 _ASSIGN_TEST_STR_(arr[5].second, C, "0b0010`1101`1000`1111");
                 _ASSIGN_TEST_STR_(arr[6].second, C, "0b0111`1111`1111`1111");
             }
-            else if constexpr ( _BT == BT::Octal )
+            else if constexpr (_BT == BT::Octal)
             {
                 _ASSIGN_TEST_STR_(arr[0].second, C, "0100`000");
                 _ASSIGN_TEST_STR_(arr[1].second, C, "0121`267");
@@ -1176,7 +1176,7 @@ namespace CC
                 _ASSIGN_TEST_STR_(arr[5].second, C, "0026`617");
                 _ASSIGN_TEST_STR_(arr[6].second, C, "0077`777");
             }
-            else if constexpr ( _BT == BT::Decimal )
+            else if constexpr (_BT == BT::Decimal)
             {
                 _ASSIGN_TEST_STR_(arr[0].second, C, "0n-32,768");
                 _ASSIGN_TEST_STR_(arr[1].second, C, "0n-23,881");
@@ -1186,7 +1186,7 @@ namespace CC
                 _ASSIGN_TEST_STR_(arr[5].second, C, "0n11,663");
                 _ASSIGN_TEST_STR_(arr[6].second, C, "0n32,767");
             }
-            else if constexpr ( _BT == BT::Hexadecimal )
+            else if constexpr (_BT == BT::Hexadecimal)
             {
                 _ASSIGN_TEST_STR_(arr[0].second, C, "0x8000");
                 _ASSIGN_TEST_STR_(arr[1].second, C, "0xA2B7");
@@ -1201,7 +1201,7 @@ namespace CC
         }
 
         template <BT _BT, typename C>
-        static NCTestArray<uint16_t, C> GetUnsigned16BitTestArray( )
+        static NCTestArray<uint16_t, C> GetUnsigned16BitTestArray()
         {
             NCTestArray<uint16_t, C> arr;
 
@@ -1211,9 +1211,9 @@ namespace CC
             arr[3].first = 32738;
             arr[4].first = 40194;
             arr[5].first = 56814;
-            arr[6].first = std::numeric_limits<uint16_t>::max( );
+            arr[6].first = std::numeric_limits<uint16_t>::max();
 
-            if constexpr ( _BT == BT::Binary )
+            if constexpr (_BT == BT::Binary)
             {
                 _ASSIGN_TEST_STR_(arr[0].second, C, "0b0000`0000`0000`0000");
                 _ASSIGN_TEST_STR_(arr[1].second, C, "0b0000`0000`0000`0001");
@@ -1223,7 +1223,7 @@ namespace CC
                 _ASSIGN_TEST_STR_(arr[5].second, C, "0b1101`1101`1110`1110");
                 _ASSIGN_TEST_STR_(arr[6].second, C, "0b1111`1111`1111`1111");
             }
-            else if constexpr ( _BT == BT::Octal )
+            else if constexpr (_BT == BT::Octal)
             {
                 _ASSIGN_TEST_STR_(arr[0].second, C, "0000`000");
                 _ASSIGN_TEST_STR_(arr[1].second, C, "0000`001");
@@ -1233,7 +1233,7 @@ namespace CC
                 _ASSIGN_TEST_STR_(arr[5].second, C, "0156`756");
                 _ASSIGN_TEST_STR_(arr[6].second, C, "0177`777");
             }
-            else if constexpr ( _BT == BT::Decimal )
+            else if constexpr (_BT == BT::Decimal)
             {
                 _ASSIGN_TEST_STR_(arr[0].second, C, "0n0");
                 _ASSIGN_TEST_STR_(arr[1].second, C, "0n1");
@@ -1243,7 +1243,7 @@ namespace CC
                 _ASSIGN_TEST_STR_(arr[5].second, C, "0n56,814");
                 _ASSIGN_TEST_STR_(arr[6].second, C, "0n65,535");
             }
-            else if constexpr ( _BT == BT::Hexadecimal )
+            else if constexpr (_BT == BT::Hexadecimal)
             {
                 _ASSIGN_TEST_STR_(arr[0].second, C, "0x0000");
                 _ASSIGN_TEST_STR_(arr[1].second, C, "0x0001");
@@ -1258,19 +1258,19 @@ namespace CC
         }
 
         template <BT _BT, typename C>
-        static NCTestArray<int32_t, C> GetSigned32BitTestArray( )
+        static NCTestArray<int32_t, C> GetSigned32BitTestArray()
         {
             NCTestArray<int32_t, C> arr;
 
-            arr[0].first = std::numeric_limits<int32_t>::min( );
+            arr[0].first = std::numeric_limits<int32_t>::min();
             arr[1].first = -625183928;
             arr[2].first = -1;
             arr[3].first = 0;
             arr[4].first = 1;
             arr[5].first = 1873574107;
-            arr[6].first = std::numeric_limits<int32_t>::max( );
+            arr[6].first = std::numeric_limits<int32_t>::max();
 
-            if constexpr ( _BT == BT::Binary )
+            if constexpr (_BT == BT::Binary)
             {
                 _ASSIGN_TEST_STR_(arr[0].second, C, "0b1000`0000`0000`0000`0000`0000`0000`0000");
                 _ASSIGN_TEST_STR_(arr[1].second, C, "0b1101`1010`1011`1100`0111`0011`0100`1000");
@@ -1280,7 +1280,7 @@ namespace CC
                 _ASSIGN_TEST_STR_(arr[5].second, C, "0b0110`1111`1010`1100`0111`1000`1101`1011");
                 _ASSIGN_TEST_STR_(arr[6].second, C, "0b0111`1111`1111`1111`1111`1111`1111`1111");
             }
-            else if constexpr ( _BT == BT::Octal )
+            else if constexpr (_BT == BT::Octal)
             {
                 _ASSIGN_TEST_STR_(arr[0].second, C, "0020`000`000`000");
                 _ASSIGN_TEST_STR_(arr[1].second, C, "0033`257`071`510");
@@ -1290,7 +1290,7 @@ namespace CC
                 _ASSIGN_TEST_STR_(arr[5].second, C, "0015`753`074`333");
                 _ASSIGN_TEST_STR_(arr[6].second, C, "0017`777`777`777");
             }
-            else if constexpr ( _BT == BT::Decimal )
+            else if constexpr (_BT == BT::Decimal)
             {
                 _ASSIGN_TEST_STR_(arr[0].second, C, "0n-2,147,483,648");
                 _ASSIGN_TEST_STR_(arr[1].second, C, "0n-625,183,928");
@@ -1300,7 +1300,7 @@ namespace CC
                 _ASSIGN_TEST_STR_(arr[5].second, C, "0n1,873,574,107");
                 _ASSIGN_TEST_STR_(arr[6].second, C, "0n2,147,483,647");
             }
-            else if constexpr ( _BT == BT::Hexadecimal )
+            else if constexpr (_BT == BT::Hexadecimal)
             {
                 _ASSIGN_TEST_STR_(arr[0].second, C, "0x8000`0000");
                 _ASSIGN_TEST_STR_(arr[1].second, C, "0xDABC`7348");
@@ -1315,7 +1315,7 @@ namespace CC
         }
 
         template <BT _BT, typename C>
-        static NCTestArray<uint32_t, C> GetUnsigned32BitTestArray( )
+        static NCTestArray<uint32_t, C> GetUnsigned32BitTestArray()
         {
             NCTestArray<uint32_t, C> arr;
 
@@ -1325,9 +1325,9 @@ namespace CC
             arr[3].first = 1879067553;
             arr[4].first = 2863092254;
             arr[5].first = 3434837845;
-            arr[6].first = std::numeric_limits<uint32_t>::max( );
+            arr[6].first = std::numeric_limits<uint32_t>::max();
 
-            if constexpr ( _BT == BT::Binary )
+            if constexpr (_BT == BT::Binary)
             {
                 _ASSIGN_TEST_STR_(arr[0].second, C, "0b0000`0000`0000`0000`0000`0000`0000`0000");
                 _ASSIGN_TEST_STR_(arr[1].second, C, "0b0000`0000`0000`0000`0000`0000`0000`0001");
@@ -1337,7 +1337,7 @@ namespace CC
                 _ASSIGN_TEST_STR_(arr[5].second, C, "0b1100`1100`1011`1011`0111`0111`0101`0101");
                 _ASSIGN_TEST_STR_(arr[6].second, C, "0b1111`1111`1111`1111`1111`1111`1111`1111");
             }
-            else if constexpr ( _BT == BT::Octal )
+            else if constexpr (_BT == BT::Octal)
             {
                 _ASSIGN_TEST_STR_(arr[0].second, C, "0000`000`000`000");
                 _ASSIGN_TEST_STR_(arr[1].second, C, "0000`000`000`001");
@@ -1347,7 +1347,7 @@ namespace CC
                 _ASSIGN_TEST_STR_(arr[5].second, C, "0031`456`673`525");
                 _ASSIGN_TEST_STR_(arr[6].second, C, "0037`777`777`777");
             }
-            else if constexpr ( _BT == BT::Decimal )
+            else if constexpr (_BT == BT::Decimal)
             {
                 _ASSIGN_TEST_STR_(arr[0].second, C, "0n0");
                 _ASSIGN_TEST_STR_(arr[1].second, C, "0n1");
@@ -1357,7 +1357,7 @@ namespace CC
                 _ASSIGN_TEST_STR_(arr[5].second, C, "0n3,434,837,845");
                 _ASSIGN_TEST_STR_(arr[6].second, C, "0n4,294,967,295");
             }
-            else if constexpr ( _BT == BT::Hexadecimal )
+            else if constexpr (_BT == BT::Hexadecimal)
             {
                 _ASSIGN_TEST_STR_(arr[0].second, C, "0x0000`0000");
                 _ASSIGN_TEST_STR_(arr[1].second, C, "0x0000`0001");
@@ -1372,19 +1372,19 @@ namespace CC
         }
 
         template <BT _BT, typename C>
-        static NCTestArray<int64_t, C> GetSigned64BitTestArray( )
+        static NCTestArray<int64_t, C> GetSigned64BitTestArray()
         {
             NCTestArray<int64_t, C> arr;
 
-            arr[0].first = std::numeric_limits<int64_t>::min( );
+            arr[0].first = std::numeric_limits<int64_t>::min();
             arr[1].first = -3786109484092722936;
             arr[2].first = -1;
             arr[3].first = 0;
             arr[4].first = 1;
             arr[5].first = 485820086583038111;
-            arr[6].first = std::numeric_limits<int64_t>::max( );
+            arr[6].first = std::numeric_limits<int64_t>::max();
 
-            if constexpr ( _BT == BT::Binary )
+            if constexpr (_BT == BT::Binary)
             {
                 _ASSIGN_TEST_STR_(arr[0].second, C, "0b1000`0000`0000`0000`0000`0000`0000`0000`0000`0000`0000`0000`0000`0000`0000`0000");
                 _ASSIGN_TEST_STR_(arr[1].second, C, "0b1100`1011`0111`0101`0000`1001`0111`1011`1101`1111`1110`1010`0111`0001`0000`1000");
@@ -1394,7 +1394,7 @@ namespace CC
                 _ASSIGN_TEST_STR_(arr[5].second, C, "0b0000`0110`1011`1101`1111`1010`1100`1011`0111`0101`1000`1000`0001`0000`1001`1111");
                 _ASSIGN_TEST_STR_(arr[6].second, C, "0b0111`1111`1111`1111`1111`1111`1111`1111`1111`1111`1111`1111`1111`1111`1111`1111");
             }
-            else if constexpr ( _BT == BT::Octal )
+            else if constexpr (_BT == BT::Octal)
             {
                 _ASSIGN_TEST_STR_(arr[0].second, C, "0001`000`000`000`000`000`000`000");
                 _ASSIGN_TEST_STR_(arr[1].second, C, "0001`455`650`227`573`772`470`410");
@@ -1404,7 +1404,7 @@ namespace CC
                 _ASSIGN_TEST_STR_(arr[5].second, C, "0000`032`757`654`556`542`010`237");
                 _ASSIGN_TEST_STR_(arr[6].second, C, "0000`777`777`777`777`777`777`777");
             }
-            else if constexpr ( _BT == BT::Decimal )
+            else if constexpr (_BT == BT::Decimal)
             {
                 _ASSIGN_TEST_STR_(arr[0].second, C, "0n-9,223,372,036,854,775,808");
                 _ASSIGN_TEST_STR_(arr[1].second, C, "0n-3,786,109,484,092,722,936");
@@ -1414,7 +1414,7 @@ namespace CC
                 _ASSIGN_TEST_STR_(arr[5].second, C, "0n485,820,086,583,038,111");
                 _ASSIGN_TEST_STR_(arr[6].second, C, "0n9,223,372,036,854,775,807");
             }
-            else if constexpr ( _BT == BT::Hexadecimal )
+            else if constexpr (_BT == BT::Hexadecimal)
             {
                 _ASSIGN_TEST_STR_(arr[0].second, C, "0x8000`0000`0000`0000");
                 _ASSIGN_TEST_STR_(arr[1].second, C, "0xCB75`097B`DFEA`7108");
@@ -1429,7 +1429,7 @@ namespace CC
         }
 
         template <BT _BT, typename C>
-        static NCTestArray<uint64_t, C> GetUnsigned64BitTestArray( )
+        static NCTestArray<uint64_t, C> GetUnsigned64BitTestArray()
         {
             NCTestArray<uint64_t, C> arr;
 
@@ -1439,9 +1439,9 @@ namespace CC
             arr[3].first = 6625083791587863114;
             arr[4].first = 9221709922292305978;
             arr[5].first = 14524601349428068613;
-            arr[6].first = std::numeric_limits<uint64_t>::max( );
+            arr[6].first = std::numeric_limits<uint64_t>::max();
 
-            if constexpr ( _BT == BT::Binary )
+            if constexpr (_BT == BT::Binary)
             {
                 _ASSIGN_TEST_STR_(arr[0].second, C, "0b0000`0000`0000`0000`0000`0000`0000`0000`0000`0000`0000`0000`0000`0000`0000`0000");
                 _ASSIGN_TEST_STR_(arr[1].second, C, "0b0000`0000`0000`0000`0000`0000`0000`0000`0000`0000`0000`0000`0000`0000`0000`0001");
@@ -1451,7 +1451,7 @@ namespace CC
                 _ASSIGN_TEST_STR_(arr[5].second, C, "0b1100`1001`1001`0001`1011`1111`1111`1001`0000`0000`1101`0001`1100`0001`0000`0101");
                 _ASSIGN_TEST_STR_(arr[6].second, C, "0b1111`1111`1111`1111`1111`1111`1111`1111`1111`1111`1111`1111`1111`1111`1111`1111");
             }
-            else if constexpr ( _BT == BT::Octal )
+            else if constexpr (_BT == BT::Octal)
             {
                 _ASSIGN_TEST_STR_(arr[0].second, C, "0000`000`000`000`000`000`000`000");
                 _ASSIGN_TEST_STR_(arr[1].second, C, "0000`000`000`000`000`000`000`001");
@@ -1461,7 +1461,7 @@ namespace CC
                 _ASSIGN_TEST_STR_(arr[5].second, C, "0001`446`215`777`440`064`340`405");
                 _ASSIGN_TEST_STR_(arr[6].second, C, "0001`777`777`777`777`777`777`777");
             }
-            else if constexpr ( _BT == BT::Decimal )
+            else if constexpr (_BT == BT::Decimal)
             {
                 _ASSIGN_TEST_STR_(arr[0].second, C, "0n0");
                 _ASSIGN_TEST_STR_(arr[1].second, C, "0n1");
@@ -1471,7 +1471,7 @@ namespace CC
                 _ASSIGN_TEST_STR_(arr[5].second, C, "0n14,524,601,349,428,068,613");
                 _ASSIGN_TEST_STR_(arr[6].second, C, "0n18,446,744,073,709,551,615");
             }
-            else if constexpr ( _BT == BT::Hexadecimal )
+            else if constexpr (_BT == BT::Hexadecimal)
             {
                 _ASSIGN_TEST_STR_(arr[0].second, C, "0x0000`0000`0000`0000");
                 _ASSIGN_TEST_STR_(arr[1].second, C, "0x0000`0000`0000`0001");
@@ -1486,11 +1486,11 @@ namespace CC
         }
 
         template <BT _BT, typename C>
-        static NCTestArray<void*, C> GetPointerTestArray( )
+        static NCTestArray<void*, C> GetPointerTestArray()
         {
             NCTestArray<void*, C> arr;
 
-            if constexpr ( sizeof(void*) == 4 )
+            if constexpr (sizeof(void*) == 4)
             {
                 arr[0].first = reinterpret_cast<void*>(0);
                 arr[1].first = reinterpret_cast<void*>(1);
@@ -1498,9 +1498,9 @@ namespace CC
                 arr[3].first = reinterpret_cast<void*>(1879067553);
                 arr[4].first = reinterpret_cast<void*>(2863092254);
                 arr[5].first = reinterpret_cast<void*>(3434837845);
-                arr[6].first = reinterpret_cast<void*>(std::numeric_limits<uint32_t>::max( ));
+                arr[6].first = reinterpret_cast<void*>(std::numeric_limits<uint32_t>::max());
 
-                if constexpr ( _BT == BT::Binary )
+                if constexpr (_BT == BT::Binary)
                 {
                     _ASSIGN_TEST_STR_(arr[0].second, C, "0b0000`0000`0000`0000`0000`0000`0000`0000");
                     _ASSIGN_TEST_STR_(arr[1].second, C, "0b0000`0000`0000`0000`0000`0000`0000`0001");
@@ -1510,7 +1510,7 @@ namespace CC
                     _ASSIGN_TEST_STR_(arr[5].second, C, "0b1100`1100`1011`1011`0111`0111`0101`0101");
                     _ASSIGN_TEST_STR_(arr[6].second, C, "0b1111`1111`1111`1111`1111`1111`1111`1111");
                 }
-                else if constexpr ( _BT == BT::Octal )
+                else if constexpr (_BT == BT::Octal)
                 {
                     _ASSIGN_TEST_STR_(arr[0].second, C, "0000`000`000`000");
                     _ASSIGN_TEST_STR_(arr[1].second, C, "0000`000`000`001");
@@ -1520,7 +1520,7 @@ namespace CC
                     _ASSIGN_TEST_STR_(arr[5].second, C, "0031`456`673`525");
                     _ASSIGN_TEST_STR_(arr[6].second, C, "0037`777`777`777");
                 }
-                else if constexpr ( _BT == BT::Decimal )
+                else if constexpr (_BT == BT::Decimal)
                 {
                     _ASSIGN_TEST_STR_(arr[0].second, C, "0n0");
                     _ASSIGN_TEST_STR_(arr[1].second, C, "0n1");
@@ -1530,7 +1530,7 @@ namespace CC
                     _ASSIGN_TEST_STR_(arr[5].second, C, "0n3,434,837,845");
                     _ASSIGN_TEST_STR_(arr[6].second, C, "0n4,294,967,295");
                 }
-                else if constexpr ( _BT == BT::Hexadecimal )
+                else if constexpr (_BT == BT::Hexadecimal)
                 {
                     _ASSIGN_TEST_STR_(arr[0].second, C, "0x0000`0000");
                     _ASSIGN_TEST_STR_(arr[1].second, C, "0x0000`0001");
@@ -1541,7 +1541,7 @@ namespace CC
                     _ASSIGN_TEST_STR_(arr[6].second, C, "0xFFFF`FFFF");
                 }
             }
-            else if constexpr ( sizeof(void*) == 8 )
+            else if constexpr (sizeof(void*) == 8)
             {
                 arr[0].first = reinterpret_cast<void*>(0);
                 arr[1].first = reinterpret_cast<void*>(1);
@@ -1549,9 +1549,9 @@ namespace CC
                 arr[3].first = reinterpret_cast<void*>(6625083791587863114);
                 arr[4].first = reinterpret_cast<void*>(9221709922292305978);
                 arr[5].first = reinterpret_cast<void*>(14524601349428068613);
-                arr[6].first = reinterpret_cast<void*>(std::numeric_limits<uint64_t>::max( ));
+                arr[6].first = reinterpret_cast<void*>(std::numeric_limits<uint64_t>::max());
 
-                if constexpr ( _BT == BT::Binary )
+                if constexpr (_BT == BT::Binary)
                 {
                     _ASSIGN_TEST_STR_(arr[0].second, C, "0b0000`0000`0000`0000`0000`0000`0000`0000`0000`0000`0000`0000`0000`0000`0000`0000");
                     _ASSIGN_TEST_STR_(arr[1].second, C, "0b0000`0000`0000`0000`0000`0000`0000`0000`0000`0000`0000`0000`0000`0000`0000`0001");
@@ -1561,7 +1561,7 @@ namespace CC
                     _ASSIGN_TEST_STR_(arr[5].second, C, "0b1100`1001`1001`0001`1011`1111`1111`1001`0000`0000`1101`0001`1100`0001`0000`0101");
                     _ASSIGN_TEST_STR_(arr[6].second, C, "0b1111`1111`1111`1111`1111`1111`1111`1111`1111`1111`1111`1111`1111`1111`1111`1111");
                 }
-                else if constexpr ( _BT == BT::Octal )
+                else if constexpr (_BT == BT::Octal)
                 {
                     _ASSIGN_TEST_STR_(arr[0].second, C, "0000`000`000`000`000`000`000`000");
                     _ASSIGN_TEST_STR_(arr[1].second, C, "0000`000`000`000`000`000`000`001");
@@ -1571,7 +1571,7 @@ namespace CC
                     _ASSIGN_TEST_STR_(arr[5].second, C, "0001`446`215`777`440`064`340`405");
                     _ASSIGN_TEST_STR_(arr[6].second, C, "0001`777`777`777`777`777`777`777");
                 }
-                else if constexpr ( _BT == BT::Decimal )
+                else if constexpr (_BT == BT::Decimal)
                 {
                     _ASSIGN_TEST_STR_(arr[0].second, C, "0n0");
                     _ASSIGN_TEST_STR_(arr[1].second, C, "0n1");
@@ -1581,7 +1581,7 @@ namespace CC
                     _ASSIGN_TEST_STR_(arr[5].second, C, "0n14,524,601,349,428,068,613");
                     _ASSIGN_TEST_STR_(arr[6].second, C, "0n18,446,744,073,709,551,615");
                 }
-                else if constexpr ( _BT == BT::Hexadecimal )
+                else if constexpr (_BT == BT::Hexadecimal)
                 {
                     _ASSIGN_TEST_STR_(arr[0].second, C, "0x0000`0000`0000`0000");
                     _ASSIGN_TEST_STR_(arr[1].second, C, "0x0000`0000`0000`0001");
@@ -1599,58 +1599,58 @@ namespace CC
     #undef _ASSIGN_TEST_STR_
 
         template <BT _BT, typename N, typename C>
-        static NCTestArray<N, C> GetTestArray( )
+        static NCTestArray<N, C> GetTestArray()
         {
-            if constexpr ( std::is_same_v<N, int8_t> )
+            if constexpr (std::is_same_v<N, int8_t>)
             {
-                return GetSigned8BitTestArray<_BT, C>( );
+                return GetSigned8BitTestArray<_BT, C>();
             }
-            else if constexpr ( std::is_same_v<N, uint8_t> )
+            else if constexpr (std::is_same_v<N, uint8_t>)
             {
-                return GetUnsigned8BitTestArray<_BT, C>( );
+                return GetUnsigned8BitTestArray<_BT, C>();
             }
-            else if constexpr ( std::is_same_v<N, int16_t> )
+            else if constexpr (std::is_same_v<N, int16_t>)
             {
-                return GetSigned16BitTestArray<_BT, C>( );
+                return GetSigned16BitTestArray<_BT, C>();
             }
-            else if constexpr ( std::is_same_v<N, uint16_t> )
+            else if constexpr (std::is_same_v<N, uint16_t>)
             {
-                return GetUnsigned16BitTestArray<_BT, C>( );
+                return GetUnsigned16BitTestArray<_BT, C>();
             }
-            else if constexpr ( std::is_same_v<N, int32_t> )
+            else if constexpr (std::is_same_v<N, int32_t>)
             {
-                return GetSigned32BitTestArray<_BT, C>( );
+                return GetSigned32BitTestArray<_BT, C>();
             }
-            else if constexpr ( std::is_same_v<N, uint32_t> )
+            else if constexpr (std::is_same_v<N, uint32_t>)
             {
-                return GetUnsigned32BitTestArray<_BT, C>( );
+                return GetUnsigned32BitTestArray<_BT, C>();
             }
-            else if constexpr ( std::is_same_v<N, int64_t> )
+            else if constexpr (std::is_same_v<N, int64_t>)
             {
-                return GetSigned64BitTestArray<_BT, C>( );
+                return GetSigned64BitTestArray<_BT, C>();
             }
-            else if constexpr ( std::is_same_v<N, uint64_t> )
+            else if constexpr (std::is_same_v<N, uint64_t>)
             {
-                return GetUnsigned64BitTestArray<_BT, C>( );
+                return GetUnsigned64BitTestArray<_BT, C>();
             }
-            else if constexpr ( std::is_same_v<N, void*> )
+            else if constexpr (std::is_same_v<N, void*>)
             {
-                return GetPointerTestArray<_BT, C>( );
+                return GetPointerTestArray<_BT, C>();
             }
             else
             {
-                throw std::logic_error(__FUNCTION__": Unknown integral type[" + std::string(typeid(N).name( )) + "].");
+                throw std::logic_error(__FUNCTION__": Unknown integral type[" + std::string(typeid(N).name()) + "].");
             }
         }
 
     public:
 
         template <RT _RT, BT _BT, typename N, typename C>
-        static UTR NumberType( )
+        static UTR NumberType()
         {
-            NCTestArray<N, C> arr = GetTestArray<_BT, N, C>( );
+            NCTestArray<N, C> arr = GetTestArray<_BT, N, C>();
 
-            for ( size_t i = 0; i < arr.size( ); i++ )
+            for (size_t i = 0; i < arr.size(); i++)
             {
                 const N& num = arr[i].first;
                 const std::basic_string<C>& expected = arr[i].second;
@@ -1659,10 +1659,10 @@ namespace CC
                 const C* ptr = GetStringPointer<_RT, C>(&str);
 
                 SUTL_TEST_ASSERT(ptr);
-                SUTL_TEST_ASSERT(memcmp(ptr, expected.c_str( ), (expected.length( ) + 1) * sizeof(C)) == 0);
+                SUTL_TEST_ASSERT(memcmp(ptr, expected.c_str(), (expected.length() + 1) * sizeof(C)) == 0);
             }
 
-            SUTL_TEST_SUCCESS( );
+            SUTL_TEST_SUCCESS();
         }
     };
 }

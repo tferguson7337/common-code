@@ -21,7 +21,7 @@
   <ItemGroup>
     <ClCompile Include="Source\CCBufferTests.cpp" />
     <ClCompile Include="Source\CCDynamicBufferTests.cpp" />
-    <ClCompile Include="Source\CCPointerHelpersTests.cpp" />
+    <ClCompile Include="Source\CCPointerHelperTests.cpp" />
     <ClCompile Include="Source\CCPointerTests.cpp" />
     <ClCompile Include="Source\CCSharedPointerTests.cpp" />
     <ClCompile Include="Source\CCStringTests.cpp" />
@@ -33,9 +33,10 @@
     <ClInclude Include="..\Headers\CCBuffer.h" />
     <ClInclude Include="..\Headers\CCDynamicBuffer.h" />
     <ClInclude Include="..\Headers\CCIBuffer.h" />
+    <ClInclude Include="..\Headers\CCList.h" />
     <ClInclude Include="..\Headers\CCMacros.h" />
     <ClInclude Include="..\Headers\CCPointer.h" />
-    <ClInclude Include="..\Headers\CCPointerHelpers.h" />
+    <ClInclude Include="..\Headers\CCPointerHelper.h" />
     <ClInclude Include="..\Headers\CCSharedPointer.h" />
     <ClInclude Include="..\Headers\CCString.h" />
     <ClInclude Include="..\Headers\CCStringUtil.h" />
@@ -43,7 +44,7 @@
     <ClInclude Include="Headers\CCBufferTests.h" />
     <ClInclude Include="Headers\CCDynamicBufferTests.h" />
     <ClInclude Include="Headers\CCIPointer.h" />
-    <ClInclude Include="Headers\CCPointerHelpersTests.h" />
+    <ClInclude Include="Headers\CCPointerHelperTests.h" />
     <ClInclude Include="Headers\CCPointerTests.h" />
     <ClInclude Include="Headers\CCSharedPointerTests.h" />
     <ClInclude Include="Headers\CCStringTests.h" />

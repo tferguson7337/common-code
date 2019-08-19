@@ -1,6 +1,6 @@
 #include <CCPointerTests.h>
 
-CC::PointerTests::UTList CC::PointerTests::GetTests( )
+CC::PointerTests::UTList CC::PointerTests::GetTests()
 {
     using TQ = TestQuantity;
 
