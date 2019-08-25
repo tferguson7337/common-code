@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <string>
 #include <tuple>
+#include <type_traits>
 
 // SAL
 #include <sal.h>
