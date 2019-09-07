@@ -30,10 +30,6 @@ namespace CC
     private:
 
         // Type aliases
-        using PHT = PointerHelperTests;
-        using TestQuantity = PHT::TestQuantity;
-        using Helper = PHT::Helper;
-
         using UTR = UnitTestResult;
         using UTFunc = std::function<UTR(void)>;
         using UTList = std::list<UTFunc>;
@@ -158,7 +154,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR LengthCtor()
         {
-            constexpr size_t len = PHT::GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             SharedPointer<T> p(len);
 
             if constexpr (len == 0)
@@ -181,8 +177,8 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR RawPointerCopyCtor()
         {
-            constexpr size_t len = PHT::GetTQNum<TQ>();
-            std::vector<T> testData(PHT::GetTestData<T, TQ>());
+            constexpr size_t len = GetTQLength<TQ>();
+            std::vector<T> testData(GetTestData<T, TQ>());
             SharedPointer<T> p(testData.data(), len);
 
             if constexpr (len == 0)
@@ -219,8 +215,8 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR RawPointerStealCtor()
         {
-            constexpr size_t len = PHT::GetTQNum<TQ>();
-            std::vector<T> testData(PHT::GetTestData<T, TQ>());
+            constexpr size_t len = GetTQLength<TQ>();
+            std::vector<T> testData(GetTestData<T, TQ>());
             T* pRawPtrCopy = PointerHelper<T>::AllocateFromRawPointer(testData.data(), len);
             T* pStealPtr = pRawPtrCopy;
             SharedPointer<T> p(pStealPtr, len);
@@ -264,7 +260,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR CopyCtor()
         {
-            constexpr size_t len = PHT::GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             SharedPointer<T> p1(len);
             SharedPointer<T> p2(p1);
 
@@ -292,7 +288,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR MoveCtor()
         {
-            constexpr size_t len = PHT::GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             SharedPointer<T> p1(len);
             T* pOrigPtr = p1.m_pPtr;
             auto pOrigRefCounter = p1.m_pRefCount;
@@ -333,8 +329,8 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR Dtor()
         {
-            constexpr size_t len = PHT::GetTQNum<TQ>();
-            constexpr size_t arrLen = PHT::GetTQNum<TestQuantity::Many>();
+            constexpr size_t len = GetTQLength<TQ>();
+            constexpr size_t arrLen = GetTQLength<TestQuantity::High>();
 
             CleanupHelper<T>::GetDestructionCounter() = 0;
             SharedPointer<CleanupHelper<T>> p(len);
@@ -394,7 +390,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR CopyAssignment()
         {
-            constexpr size_t len = PHT::GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             SharedPointer<CleanupHelper<T>> p1(len);
             SharedPointer<CleanupHelper<T>> p2;
             SharedPointer<CleanupHelper<T>> p3;
@@ -489,7 +485,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR MoveAssignment()
         {
-            constexpr size_t len = PHT::GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             SharedPointer<CleanupHelper<T>> p1(len);
             SharedPointer<CleanupHelper<T>> p2;
             SharedPointer<CleanupHelper<T>> p3;
@@ -612,7 +608,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR MTIncrement()
         {
-            constexpr size_t ptrLen = PHT::GetTQNum<TQ>();
+            constexpr size_t ptrLen = GetTQLength<TQ>();
             constexpr size_t iterations = 16;
             constexpr size_t arrLen = 8;
 
@@ -714,7 +710,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR MTDecrement()
         {
-            constexpr size_t ptrLen = PHT::GetTQNum<TQ>();
+            constexpr size_t ptrLen = GetTQLength<TQ>();
             constexpr size_t iterations = 8;
             constexpr size_t arrLen = 8;
 
@@ -820,7 +816,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR MTIncrementAndDecrement()
         {
-            constexpr size_t ptrLen = PHT::GetTQNum<TQ>();
+            constexpr size_t ptrLen = GetTQLength<TQ>();
             constexpr size_t iterations = 8;
             constexpr size_t arrLen = 8;
 

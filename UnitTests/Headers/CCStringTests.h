@@ -64,8 +64,6 @@ namespace CC
         using UTFunc = std::function<UTR(void)>;
         using UTList = std::list<UTFunc>;
 
-        using TestQuantity = PointerHelperTests::TestQuantity;
-
         /// Test Helpers \\\
 
         static const std::vector<SupportedStringTuple> ms_TestStrings;
@@ -74,38 +72,17 @@ namespace CC
         static const std::vector<SupportedStringTuple> ms_LongerTestStrings;
 
         template <TestQuantity TQ>
-        [[nodiscard]] static constexpr size_t GetTQNum() noexcept
-        {
-            if constexpr (TQ == TestQuantity::Zero)
-            {
-                return 0;
-            }
-            else if constexpr (TQ == TestQuantity::One)
-            {
-                return 16;
-            }
-            else if constexpr (TQ == TestQuantity::Many)
-            {
-                return 64;
-            }
-            else
-            {
-                static_assert(false, __FUNCSIG__": Unknown TestQuantity value.");
-            }
-        }
-
-        template <TestQuantity TQ>
         [[nodiscard]] static constexpr size_t TQToTestCStrIdx() noexcept
         {
-            if constexpr (TQ == TestQuantity::Zero)
+            if constexpr (TQ == TestQuantity::None)
             {
                 return 0;
             }
-            else if constexpr (TQ == TestQuantity::One)
+            else if constexpr (TQ == TestQuantity::MidLow)
             {
                 return 1;
             }
-            else if constexpr (TQ == TestQuantity::Many)
+            else if constexpr (TQ == TestQuantity::Mid)
             {
                 return 2;
             }
@@ -282,16 +259,16 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR LenAndCharCtor()
         {
-            constexpr size_t len = GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             String<T> str(len, static_cast<T>('x'));
 
             SUTL_TEST_ASSERT(str.m_Len == len);
 
-            if constexpr (TQ != TestQuantity::Many)
+            if constexpr (TQ != TestQuantity::Mid)
             {
                 SUTL_TEST_ASSERT(str.m_pStr == str.m_SSOArr);
                 SUTL_TEST_ASSERT(str.m_Cap == String<T>::ms_SSOCap);
-                SUTL_TEST_ASSERT((str.m_pStr[0] == static_cast<T>('x')) == (TQ == TestQuantity::One));
+                SUTL_TEST_ASSERT((str.m_pStr[0] == static_cast<T>('x')) == (TQ == TestQuantity::MidLow));
                 SUTL_TEST_ASSERT(str.m_pStr[len] == String<T>::ms_NullTerminator);
             }
             else
@@ -327,12 +304,12 @@ namespace CC
         [[nodiscard]] static UTR CStrCtor()
         {
             const T* const testCStr = GetTestCStr<T, TQ>();
-            constexpr size_t len = GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             String<T> str(testCStr);
 
             SUTL_TEST_ASSERT(str.m_Len == len);
 
-            if constexpr (TQ != TestQuantity::Many)
+            if constexpr (TQ != TestQuantity::Mid)
             {
                 SUTL_TEST_ASSERT(str.m_pStr == str.m_SSOArr);
                 SUTL_TEST_ASSERT(str.m_Cap == String<T>::ms_SSOCap);
@@ -352,7 +329,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR PtrAndLenCtorNullptr()
         {
-            constexpr size_t len = GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             String<T> str(nullptr, len);
 
             SUTL_TEST_ASSERT(str.m_pStr == str.m_SSOArr);
@@ -367,12 +344,12 @@ namespace CC
         [[nodiscard]] static UTR PtrAndLenCtor()
         {
             const T* const testCStr = GetTestCStr<T, TQ>();
-            constexpr size_t len = GetTQNum<TQ>() >> ((TQ == TestQuantity::Many) ? 1 : 0);
+            constexpr size_t len = GetTQLength<TQ>() >> ((TQ == TestQuantity::Mid) ? 1 : 0);
             String<T> str(testCStr, len);
 
             SUTL_TEST_ASSERT(str.m_Len == len);
 
-            if constexpr (TQ != TestQuantity::Many)
+            if constexpr (TQ != TestQuantity::Mid)
             {
                 SUTL_TEST_ASSERT(str.m_pStr == str.m_SSOArr);
                 SUTL_TEST_ASSERT(str.m_Cap == String<T>::ms_SSOCap);
@@ -394,12 +371,12 @@ namespace CC
         [[nodiscard]] static UTR CopyCtor()
         {
             const T* const testCStr = GetTestCStr<T, TQ>();
-            constexpr size_t len = GetTQNum<TQ>() >> ((TQ == TestQuantity::Many) ? 1 : 0);
+            constexpr size_t len = GetTQLength<TQ>() >> ((TQ == TestQuantity::Mid) ? 1 : 0);
             String<T> str(testCStr, len);
 
             SUTL_SETUP_ASSERT(str.m_Len == len);
 
-            if constexpr (TQ != TestQuantity::Many)
+            if constexpr (TQ != TestQuantity::Mid)
             {
                 SUTL_SETUP_ASSERT(str.m_pStr == str.m_SSOArr);
                 SUTL_SETUP_ASSERT(str.m_Cap == String<T>::ms_SSOCap);
@@ -419,7 +396,7 @@ namespace CC
             SUTL_TEST_ASSERT(copyStr.m_Len == len);
 
             // Compare with test string.
-            if constexpr (TQ != TestQuantity::Many)
+            if constexpr (TQ != TestQuantity::Mid)
             {
                 SUTL_TEST_ASSERT(copyStr.m_pStr == copyStr.m_SSOArr);
                 SUTL_TEST_ASSERT(copyStr.m_Cap == String<T>::ms_SSOCap);
@@ -446,12 +423,12 @@ namespace CC
         [[nodiscard]] static UTR MoveCtor()
         {
             const T* const testCStr = GetTestCStr<T, TQ>();
-            constexpr size_t len = GetTQNum<TQ>() >> ((TQ == TestQuantity::Many) ? 1 : 0);
+            constexpr size_t len = GetTQLength<TQ>() >> ((TQ == TestQuantity::Mid) ? 1 : 0);
             String<T> str(testCStr, len);
 
             const T* origSrcPtr = str.m_pStr;
             SUTL_SETUP_ASSERT(str.m_Len == len);
-            if constexpr (TQ != TestQuantity::Many)
+            if constexpr (TQ != TestQuantity::Mid)
             {
                 SUTL_SETUP_ASSERT(str.m_pStr == str.m_SSOArr);
                 SUTL_SETUP_ASSERT(str.m_Cap == String<T>::ms_SSOCap);
@@ -468,7 +445,7 @@ namespace CC
             String<T> moveStr(std::move(str));
 
             // Compare with test string.
-            if constexpr (TQ != TestQuantity::Many)
+            if constexpr (TQ != TestQuantity::Mid)
             {
                 SUTL_TEST_ASSERT(moveStr.m_pStr != origSrcPtr);
                 SUTL_TEST_ASSERT(moveStr.m_pStr == moveStr.m_SSOArr);
@@ -503,13 +480,13 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR CStrAssignOpNullptr()
         {
-            constexpr size_t len = GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             const T* const testCStr = GetTestCStr<T, TQ>();
             String<T> str(testCStr);
 
             SUTL_SETUP_ASSERT(str.m_Len == len);
 
-            if constexpr (TQ != TestQuantity::Many)
+            if constexpr (TQ != TestQuantity::Mid)
             {
                 SUTL_SETUP_ASSERT(str.m_pStr == str.m_SSOArr);
                 SUTL_SETUP_ASSERT(str.m_Cap == String<T>::ms_SSOCap);
@@ -536,7 +513,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR CStrAssignOp()
         {
-            constexpr size_t len = GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             const T* const testCStr = GetTestCStr<T, TQ>();
             String<T> str;
 
@@ -549,7 +526,7 @@ namespace CC
 
             SUTL_TEST_ASSERT(str.m_Len == len);
 
-            if constexpr (TQ != TestQuantity::Many)
+            if constexpr (TQ != TestQuantity::Mid)
             {
                 SUTL_TEST_ASSERT(str.m_pStr == str.m_SSOArr);
                 SUTL_TEST_ASSERT(str.m_Cap == String<T>::ms_SSOCap);
@@ -568,7 +545,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR CopyAssignOp()
         {
-            constexpr size_t len = GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             const T* const testCStr = GetTestCStr<T, TQ>();
             String<T> str;
             String<T> copyStr;
@@ -577,7 +554,7 @@ namespace CC
 
             SUTL_SETUP_ASSERT(str.m_Len == len);
 
-            if constexpr (TQ != TestQuantity::Many)
+            if constexpr (TQ != TestQuantity::Mid)
             {
                 SUTL_SETUP_ASSERT(str.m_pStr == str.m_SSOArr);
                 SUTL_SETUP_ASSERT(str.m_Cap == String<T>::ms_SSOCap);
@@ -594,7 +571,7 @@ namespace CC
             copyStr = str;
 
             // Ensure str wasn't changed when copied.
-            if constexpr (TQ != TestQuantity::Many)
+            if constexpr (TQ != TestQuantity::Mid)
             {
                 SUTL_TEST_ASSERT(str.m_pStr == str.m_SSOArr);
                 SUTL_TEST_ASSERT(str.m_Cap == String<T>::ms_SSOCap);
@@ -617,7 +594,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR MoveAssignOp()
         {
-            constexpr size_t len = GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             const T* const testCStr = GetTestCStr<T, TQ>();
             String<T> str;
             String<T> moveStr;
@@ -628,7 +605,7 @@ namespace CC
 
             SUTL_SETUP_ASSERT(str.m_Len == len);
 
-            if constexpr (TQ != TestQuantity::Many)
+            if constexpr (TQ != TestQuantity::Mid)
             {
                 SUTL_SETUP_ASSERT(str.m_pStr == str.m_SSOArr);
                 SUTL_SETUP_ASSERT(str.m_Cap == String<T>::ms_SSOCap);
@@ -653,7 +630,7 @@ namespace CC
             // Ensure move was successful.
             SUTL_TEST_ASSERT(moveStr.m_Len == len);
 
-            if constexpr (TQ != TestQuantity::Many)
+            if constexpr (TQ != TestQuantity::Mid)
             {
                 SUTL_TEST_ASSERT(moveStr.m_pStr != pOrigStr);
                 SUTL_TEST_ASSERT(moveStr.m_pStr == moveStr.m_SSOArr);
@@ -681,14 +658,14 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR CStrAddAssignOpNullptr()
         {
-            constexpr size_t len = GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             const T* const testCStr = GetTestCStr<T, TQ>();
 
             String<T> str(testCStr);
 
             SUTL_SETUP_ASSERT(str.m_Len == len);
 
-            if constexpr (TQ != TestQuantity::Many)
+            if constexpr (TQ != TestQuantity::Mid)
             {
                 SUTL_SETUP_ASSERT(str.m_pStr == str.m_SSOArr);
                 SUTL_SETUP_ASSERT(str.m_Cap == String<T>::ms_SSOCap);
@@ -706,7 +683,7 @@ namespace CC
 
             SUTL_TEST_ASSERT(str.m_Len == len);
 
-            if constexpr (TQ != TestQuantity::Many)
+            if constexpr (TQ != TestQuantity::Mid)
             {
                 SUTL_TEST_ASSERT(str.m_pStr == str.m_SSOArr);
                 SUTL_TEST_ASSERT(str.m_Cap == String<T>::ms_SSOCap);
@@ -726,14 +703,14 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR CStrAddAssignOp()
         {
-            constexpr size_t len = GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             const T* const testCStr = GetTestCStr<T, TQ>();
 
             String<T> str(testCStr);
 
             SUTL_SETUP_ASSERT(str.m_Len == len);
 
-            if constexpr (TQ != TestQuantity::Many)
+            if constexpr (TQ != TestQuantity::Mid)
             {
                 SUTL_SETUP_ASSERT(str.m_pStr == str.m_SSOArr);
                 SUTL_SETUP_ASSERT(str.m_Cap == String<T>::ms_SSOCap);
@@ -751,7 +728,7 @@ namespace CC
 
             SUTL_TEST_ASSERT(str.m_Len == (2 * len));
 
-            if constexpr (TQ == TestQuantity::Zero)
+            if constexpr (TQ == TestQuantity::None)
             {
                 SUTL_TEST_ASSERT(str.m_pStr == str.m_SSOArr);
                 SUTL_TEST_ASSERT(str.m_Cap == String<T>::ms_SSOCap);
@@ -761,7 +738,7 @@ namespace CC
             else
             {
                 SUTL_TEST_ASSERT(str.m_pStr != str.m_SSOArr);
-                if constexpr (TQ == TestQuantity::One)
+                if constexpr (TQ == TestQuantity::MidLow)
                 {
                     SUTL_TEST_ASSERT(str.m_Cap == (len + String<T>::ms_SSOCap + 16));
                 }
@@ -780,14 +757,14 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR StrObjAddAssignOp()
         {
-            constexpr size_t len = GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             const T* const testCStr = GetTestCStr<T, TQ>();
 
             String<T> str(testCStr);
 
             SUTL_SETUP_ASSERT(str.m_Len == len);
 
-            if constexpr (TQ != TestQuantity::Many)
+            if constexpr (TQ != TestQuantity::Mid)
             {
                 SUTL_SETUP_ASSERT(str.m_pStr == str.m_SSOArr);
                 SUTL_SETUP_ASSERT(str.m_Cap == String<T>::ms_SSOCap);
@@ -805,7 +782,7 @@ namespace CC
 
             SUTL_TEST_ASSERT(str.m_Len == (2 * len));
 
-            if constexpr (TQ == TestQuantity::Zero)
+            if constexpr (TQ == TestQuantity::None)
             {
                 SUTL_TEST_ASSERT(str.m_pStr == str.m_SSOArr);
                 SUTL_TEST_ASSERT(str.m_Cap == String<T>::ms_SSOCap);
@@ -815,7 +792,7 @@ namespace CC
             else
             {
                 SUTL_TEST_ASSERT(str.m_pStr != str.m_SSOArr);
-                if constexpr (TQ == TestQuantity::One)
+                if constexpr (TQ == TestQuantity::MidLow)
                 {
                     SUTL_TEST_ASSERT(str.m_Cap == (len + String<T>::ms_SSOCap + 16));
                 }
@@ -841,7 +818,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR SubscriptOp()
         {
-            constexpr size_t len = GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
 
             String<T> str;
             bool bThrew = false;
@@ -891,7 +868,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR CStrEquivOp()
         {
-            constexpr size_t len = GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             const std::vector<std::pair<const T*, bool>> testStrPairs
             {
                 std::pair<const T*, bool>(GetTestCStr<T, TQ>(), true),
@@ -912,7 +889,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR StrObjEquivOp()
         {
-            constexpr size_t len = GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             const std::vector<std::pair<String<T>, bool>> testStrPairs
             {
                 std::pair<String<T>, bool>(GetTestCStr<T, TQ>(), true),
@@ -942,7 +919,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR CStr()
         {
-            constexpr size_t len = GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             const T* const testCStr = GetTestCStr<T, TQ>();
 
             String<T> str;
@@ -968,7 +945,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR Length()
         {
-            constexpr size_t len = GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             const T* const testCStr = GetTestCStr<T, TQ>();
 
             String<T> str;
@@ -989,7 +966,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR Capacity()
         {
-            constexpr size_t len = GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
 
             String<T> str;
             if constexpr (len > 0)
@@ -1019,7 +996,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR Front()
         {
-            constexpr size_t len = GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             bool bThrew = false;
 
             String<T> str;
@@ -1058,7 +1035,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR Back()
         {
-            constexpr size_t len = GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             bool bThrew = false;
 
             String<T> str;
@@ -1104,7 +1081,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR ChAssign()
         {
-            constexpr size_t len = GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
 
             String<T> str;
             if constexpr (len > 0)
@@ -1128,7 +1105,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR CStrAssign()
         {
-            constexpr size_t len = GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             const T* const testCStr = GetTestCStr<T, TQ>();
 
             String<T> str;
@@ -1141,13 +1118,13 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR PtrAndLenAssign()
         {
-            constexpr size_t len1 = (TQ != TestQuantity::Many) ? GetTQNum<TQ>() : (GetTQNum<TQ>() >> 1);
-            constexpr size_t len2 = GetTQNum<TQ>();
+            constexpr size_t len1 = (TQ != TestQuantity::Mid) ? GetTQLength<TQ>() : (GetTQLength<TQ>() >> 1);
+            constexpr size_t len2 = GetTQLength<TQ>();
             const T* const testCStr = GetTestCStr<T, TQ>();
 
             String<T> str;
             SUTL_TEST_ASSERT(str.Assign(testCStr, len1));
-            if constexpr (TQ != TestQuantity::Many)
+            if constexpr (TQ != TestQuantity::Mid)
             {
                 SUTL_TEST_ASSERT(memcmp(str.CStr(), testCStr, sizeof(T) * (len1 + 1)) == 0);
             }
@@ -1166,7 +1143,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR StrObjCopyAssign()
         {
-            constexpr size_t len = GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             const T* const testCStr = GetTestCStr<T, TQ>();
 
             String<T> str1;
@@ -1186,7 +1163,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR StrObjAndLenCopyAssign()
         {
-            constexpr size_t len1 = GetTQNum<TQ>();
+            constexpr size_t len1 = GetTQLength<TQ>();
             constexpr size_t len2 = len1 >> 1;
             constexpr size_t len3 = std::numeric_limits<size_t>::max();
             const T* const testCStr = GetTestCStr<T, TQ>();
@@ -1222,7 +1199,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR StrObjMoveAssign()
         {
-            constexpr size_t len = GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             const T* const testCStr = GetTestCStr<T, TQ>();
 
             String<T> str1;
@@ -1249,7 +1226,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR ChAppend()
         {
-            constexpr size_t len = GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             const T* const testCStr = GetTestCStr<T, TQ>();
 
             String<T> str;
@@ -1276,7 +1253,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR CStrAppend()
         {
-            constexpr size_t len = GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             const T* const testCStr = GetTestCStr<T, TQ>();
 
             String<T> str;
@@ -1302,8 +1279,8 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR PtrAndLenAppend()
         {
-            constexpr size_t len1 = GetTQNum<TQ>();
-            constexpr size_t len2 = GetTQNum<TQ>() >> 1;
+            constexpr size_t len1 = GetTQLength<TQ>();
+            constexpr size_t len2 = GetTQLength<TQ>() >> 1;
             const T* const testCStr = GetTestCStr<T, TQ>();
 
             String<T> str;
@@ -1330,7 +1307,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR StrObjAppend()
         {
-            constexpr size_t len = GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             const T* const testCStr = GetTestCStr<T, TQ>();
 
             String<T> str1;
@@ -1351,7 +1328,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR StrObjAndLenAppend()
         {
-            constexpr size_t len1 = GetTQNum<TQ>();
+            constexpr size_t len1 = GetTQLength<TQ>();
             constexpr size_t len2 = len1 >> 1;
             constexpr size_t len3 = std::numeric_limits<size_t>::max();
             const T* const testCStr = GetTestCStr<T, TQ>();
@@ -1394,11 +1371,11 @@ namespace CC
         {
             size_t len = 0;
 
-            if constexpr ((TQ1 != TestQuantity::Zero) && (TQ2 != TestQuantity::Zero))
+            if constexpr ((TQ1 != TestQuantity::None) && (TQ2 != TestQuantity::None))
             {
                 len = GetTestCppStringByType<T, TQ1, Type>().size();
 
-                if constexpr (TQ2 == TestQuantity::One)
+                if constexpr (TQ2 == TestQuantity::MidLow)
                 {
                     len >>= 1;
                 }
@@ -1412,7 +1389,7 @@ namespace CC
         template <typename T, TestQuantity TQ, bool bCaseInsensitive>
         [[nodiscard]] static UTR CStrCompare()
         {
-            constexpr size_t len = GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             std::vector<std::pair<const T*, bool>> testStrPairs
             {
                 std::pair<const T*, bool>(GetTestCStr<T, TQ>(), true),
@@ -1440,7 +1417,7 @@ namespace CC
             const size_t compLenShorter = GetCompLen<T, TQ1, TQ2, TestStrType::Shorter>();
             const size_t compLenLonger = GetCompLen<T, TQ1, TQ2, TestStrType::Longer>();
 
-            constexpr size_t len = GetTQNum<TQ1>();
+            constexpr size_t len = GetTQLength<TQ1>();
             const std::vector<std::tuple<const T*, size_t, bool>> testStrTuples
             {
                 {GetTestCStr<T, TQ1>(), compLenReg, (compLenReg <= len)},
@@ -1464,7 +1441,7 @@ namespace CC
         template <typename T, TestQuantity TQ, bool bCaseInsensitive>
         [[nodiscard]] static UTR StrObjCompare()
         {
-            constexpr size_t len = GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             std::vector<std::pair<String<T>, bool>> testStrPairs
             {
                 std::pair<String<T>, bool>(GetTestCStr<T, TQ>(), true),
@@ -1492,7 +1469,7 @@ namespace CC
             const size_t compLenShorter = GetCompLen<T, TQ1, TQ2, TestStrType::Shorter>();
             const size_t compLenLonger = GetCompLen<T, TQ1, TQ2, TestStrType::Longer>();
 
-            constexpr size_t len = GetTQNum<TQ1>();
+            constexpr size_t len = GetTQLength<TQ1>();
             using TestTuple = std::tuple<String<T>, size_t, bool>;
             const std::vector<TestTuple> testStrTuples
             {
@@ -1524,7 +1501,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR Clear()
         {
-            constexpr size_t len = GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             const T* const testCStr = GetTestCStr<T, TQ>();
 
             String<T> str(testCStr, len);
@@ -1555,7 +1532,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR IsEmpty()
         {
-            constexpr size_t len = GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             const T* const testCStr = GetTestCStr<T, TQ>();
 
             String<T> str;

@@ -35,7 +35,7 @@ namespace CC
         // Otherwise, the new length will be std::max(16, m_Len + minInc).
         [[nodiscard]] static size_t CalculateNewLength(_In_ const size_t& oldLen, _In_ const size_t& minInc) noexcept
         {
-            static const size_t minNewLen = 16;
+            static constexpr size_t minNewLen = 16;
             return std::max(minNewLen, std::max(oldLen + (oldLen >> 1), oldLen + minInc));
         }
 

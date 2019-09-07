@@ -13,7 +13,7 @@
 #include <CCBuffer.h>
 
 // Test Helper Utils
-#include <CCPointerHelperTests.h>
+#include <TestHelpers.hpp>
 
 namespace CC
 {
@@ -30,26 +30,10 @@ namespace CC
 
     private:
 
-        // Type aliases
-        using PHT = PointerHelperTests;
-        using TestQuantity = PHT::TestQuantity;
-        using Helper = PHT::Helper;
-
+        // Test aliases
         using UTR = UnitTestResult;
         using UTFunc = std::function<UTR(void)>;
         using UTList = std::list<UTFunc>;
-
-        template <TestQuantity TQ>
-        static constexpr const size_t GetTQNum()
-        {
-            return PHT::GetTQNum<TQ>();
-        }
-
-        template <typename T, TestQuantity TQ>
-        static std::vector<T> GetTestData()
-        {
-            return PHT::GetTestData<T, TQ>();
-        }
 
         /// Test Subclasses \\\
 
@@ -103,9 +87,9 @@ namespace CC
         template <typename T, TestQuantity TQ>
         static UTR LengthConstructor()
         {
-            Buffer<T> buffer(GetTQNum<TQ>());
+            Buffer<T> buffer(GetTQLength<TQ>());
 
-            if constexpr (TQ == TestQuantity::Zero)
+            if constexpr (TQ == TestQuantity::None)
             {
                 SUTL_TEST_ASSERT(buffer.Get() == nullptr);
                 SUTL_TEST_ASSERT(buffer.Length() == 0);
@@ -115,8 +99,8 @@ namespace CC
             else
             {
                 SUTL_TEST_ASSERT(buffer.Get() != nullptr);
-                SUTL_TEST_ASSERT(buffer.Length() == GetTQNum<TQ>());
-                SUTL_TEST_ASSERT(buffer.Size() == sizeof(T) * GetTQNum<TQ>());
+                SUTL_TEST_ASSERT(buffer.Length() == GetTQLength<TQ>());
+                SUTL_TEST_ASSERT(buffer.Size() == sizeof(T) * GetTQLength<TQ>());
                 SUTL_TEST_ASSERT(buffer.WritePosition() == 0);
             }
 
@@ -130,7 +114,7 @@ namespace CC
 
             try
             {
-                pBuffer = new Buffer<T>(nullptr, GetTQNum<TQ>());
+                pBuffer = new Buffer<T>(nullptr, GetTQLength<TQ>());
             }
             catch (const std::exception& e)
             {
@@ -166,7 +150,7 @@ namespace CC
             }
 
             SUTL_TEST_ASSERT(pBuffer);
-            if constexpr (TQ == TestQuantity::Zero)
+            if constexpr (TQ == TestQuantity::None)
             {
                 SUTL_TEST_ASSERT(pBuffer->Get() == nullptr);
                 SUTL_TEST_ASSERT(pBuffer->Length() == 0);
@@ -211,7 +195,7 @@ namespace CC
 
             try
             {
-                pBuffer = new Buffer<T>(p, GetTQNum<TQ>());
+                pBuffer = new Buffer<T>(p, GetTQLength<TQ>());
             }
             catch (const std::exception& e)
             {
@@ -238,7 +222,7 @@ namespace CC
             Buffer<T>* pBuffer = nullptr;
             std::vector<T> testData = GetTestData<T, TQ>();
 
-            constexpr const size_t len = GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             T* p = (len == 0) ? nullptr : (len == 1) ? new T : new T[len];
             if (p)
             {
@@ -257,7 +241,7 @@ namespace CC
             SUTL_TEST_ASSERT(pBuffer);
             SUTL_TEST_ASSERT(!p);
 
-            if constexpr (TQ == TestQuantity::Zero)
+            if constexpr (TQ == TestQuantity::None)
             {
                 SUTL_TEST_ASSERT(pBuffer->Get() == nullptr);
                 SUTL_TEST_ASSERT(pBuffer->Length() == 0);
@@ -283,7 +267,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         static UTR CopyConstructor()
         {
-            Buffer<T> srcBuffer(GetTQNum<TQ>());
+            Buffer<T> srcBuffer(GetTQLength<TQ>());
             std::vector<T> testData = GetTestData<T, TQ>();
             Buffer<T>* pBuffer = nullptr;
 
@@ -307,7 +291,7 @@ namespace CC
             SUTL_TEST_ASSERT(pBuffer->Size() == srcBuffer.Size());
             SUTL_TEST_ASSERT(pBuffer->WritePosition() == srcBuffer.WritePosition());
 
-            if constexpr (TQ == TestQuantity::Zero)
+            if constexpr (TQ == TestQuantity::None)
             {
                 SUTL_TEST_ASSERT(pBuffer->Get() == nullptr);
                 SUTL_TEST_ASSERT(pBuffer->Get() == srcBuffer.Get());
@@ -341,7 +325,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         static UTR MoveConstructor()
         {
-            Buffer<T> srcBuffer(GetTQNum<TQ>());
+            Buffer<T> srcBuffer(GetTQLength<TQ>());
             std::vector<T> testData = GetTestData<T, TQ>();
             Buffer<T>* pBuffer = nullptr;
 
@@ -375,7 +359,7 @@ namespace CC
             SUTL_TEST_ASSERT(pBuffer->Size() == srcSize);
             SUTL_TEST_ASSERT(pBuffer->WritePosition() == srcWritePos);
 
-            if constexpr (TQ == TestQuantity::Zero)
+            if constexpr (TQ == TestQuantity::None)
             {
                 SUTL_TEST_ASSERT(pBuffer->Get() == nullptr);
             }
@@ -399,7 +383,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         static UTR CopyAllBufferDataMembers()
         {
-            constexpr const size_t len = GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             Buffer<T> buffer(len);
             Buffer<T> dst;
 
@@ -418,7 +402,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         static UTR CopyNonPointerBufferDataMembers()
         {
-            constexpr const size_t len = GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             Buffer<T> buffer(len);
             Buffer<T> dst;
 
@@ -435,7 +419,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         static UTR CopyBuffer()
         {
-            constexpr const size_t len = GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             Buffer<T> buffer(GetTestData<T, TQ>().data(), len);
             Buffer<T> dst;
 
@@ -475,7 +459,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         static UTR CopyAssignment()
         {
-            constexpr const size_t len = GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             Buffer<T> buffer(GetTestData<T, TQ>().data(), len);
             Buffer<T> dst;
 
@@ -521,7 +505,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         static UTR TransferBuffer()
         {
-            Buffer<T> buffer(GetTestData<T, TQ>().data(), GetTQNum<TQ>());
+            Buffer<T> buffer(GetTestData<T, TQ>().data(), GetTQLength<TQ>());
             Buffer<T> dst;
 
             const T* ptr = buffer.Get();
@@ -549,7 +533,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         static UTR MoveAssignment()
         {
-            Buffer<T> buffer(GetTestData<T, TQ>().data(), GetTQNum<TQ>());
+            Buffer<T> buffer(GetTestData<T, TQ>().data(), GetTQLength<TQ>());
             Buffer<T> dst;
 
             const T* ptr = buffer.Get();
@@ -582,7 +566,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         static UTR SubscriptOperator()
         {
-            constexpr const size_t len = GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             bool bThrew = false;
             std::vector<T> testData(GetTestData<T, TQ>());
             Buffer<T> buffer(testData.data(), len);
@@ -641,7 +625,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         static UTR DereferenceOperator()
         {
-            constexpr const size_t len = GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
             bool bThrew = false;
             std::vector<T> testData(GetTestData<T, TQ>());
             Buffer<T> buffer(testData.data(), len);
@@ -682,9 +666,9 @@ namespace CC
         template <typename T, TestQuantity TQ1, TestQuantity TQ2>
         static UTR ComparisonPtrNull()
         {
-            constexpr const size_t len1 = GetTQNum<TQ1>();
-            constexpr const size_t len2 = GetTQNum<TQ2>();
-            constexpr const bool bMatchExpected = (len1 == 0);
+            constexpr size_t len1 = GetTQLength<TQ1>();
+            constexpr size_t len2 = GetTQLength<TQ2>();
+            constexpr bool bMatchExpected = (len1 == 0);
 
             Buffer<T> buffer(len1);
 
@@ -703,11 +687,11 @@ namespace CC
         template <typename T, TestQuantity TQ1, TestQuantity TQ2>
         static UTR ComparisonPtr()
         {
-            constexpr const size_t len1 = GetTQNum<TQ1>();
-            constexpr const size_t len2 = GetTQNum<TQ2>();
-            constexpr const bool bBothNull = (len1 == 0 && len2 == 0);
-            constexpr const bool bNeitherNull = (len1 != 0 && len2 != 0);
-            constexpr const bool bMatchExpected = (bBothNull || (bNeitherNull && len1 >= len2));
+            constexpr size_t len1 = GetTQLength<TQ1>();
+            constexpr size_t len2 = GetTQLength<TQ2>();
+            constexpr bool bBothNull = (len1 == 0 && len2 == 0);
+            constexpr bool bNeitherNull = (len1 != 0 && len2 != 0);
+            constexpr bool bMatchExpected = (bBothNull || (bNeitherNull && len1 >= len2));
 
             Buffer<T> buffer(GetTestData<T, TQ1>().data(), len1);
             std::vector<T> testData(GetTestData<T, TQ2>());
@@ -758,11 +742,11 @@ namespace CC
         template <typename T, TestQuantity TQ1, TestQuantity TQ2>
         static UTR Comparison()
         {
-            constexpr const size_t len1 = GetTQNum<TQ1>();
-            constexpr const size_t len2 = GetTQNum<TQ2>();
-            constexpr const bool bBothNull = (len1 == 0 && len2 == 0);
-            constexpr const bool bNeitherNull = (len1 != 0 && len2 != 0);
-            constexpr const bool bMatchExpected = (bBothNull || (bNeitherNull && len1 >= len2));
+            constexpr size_t len1 = GetTQLength<TQ1>();
+            constexpr size_t len2 = GetTQLength<TQ2>();
+            constexpr bool bBothNull = (len1 == 0 && len2 == 0);
+            constexpr bool bNeitherNull = (len1 != 0 && len2 != 0);
+            constexpr bool bMatchExpected = (bBothNull || (bNeitherNull && len1 >= len2));
 
             Buffer<T> buffer1(GetTestData<T, TQ1>().data(), len1);
             Buffer<T> buffer2(GetTestData<T, TQ2>().data(), len2);
@@ -813,11 +797,11 @@ namespace CC
         template <typename T, TestQuantity TQ1, TestQuantity TQ2>
         static UTR ComparisonOperator()
         {
-            constexpr const size_t len1 = GetTQNum<TQ1>();
-            constexpr const size_t len2 = GetTQNum<TQ2>();
-            constexpr const bool bBothNull = (len1 == 0 && len2 == 0);
-            constexpr const bool bNeitherNull = (len1 != 0 && len2 != 0);
-            constexpr const bool bMatchExpected = (bBothNull || (bNeitherNull && len1 >= len2));
+            constexpr size_t len1 = GetTQLength<TQ1>();
+            constexpr size_t len2 = GetTQLength<TQ2>();
+            constexpr bool bBothNull = (len1 == 0 && len2 == 0);
+            constexpr bool bNeitherNull = (len1 != 0 && len2 != 0);
+            constexpr bool bMatchExpected = (bBothNull || (bNeitherNull && len1 >= len2));
 
             Buffer<T> buffer1(GetTestData<T, TQ1>().data(), len1);
             Buffer<T> buffer2(GetTestData<T, TQ2>().data(), len2);
@@ -873,7 +857,7 @@ namespace CC
         template <typename T, TestQuantity TQ>
         static UTR SetWritePosition()
         {
-            constexpr const size_t len = GetTQNum<TQ>();
+            constexpr size_t len = GetTQLength<TQ>();
 
             Buffer<T> buffer(len);
 
@@ -933,11 +917,11 @@ namespace CC
         template <typename T, TestQuantity TQ, bool Move>
         static UTR WriteElement()
         {
-            constexpr const size_t len = GetTQNum<TQ>();
-            constexpr const bool bFirstWriteResult = (len == 0) ? false : true;
-            constexpr const bool bSecondWriteResult = (len <= 1) ? false : true;
+            constexpr size_t len = GetTQLength<TQ>();
+            constexpr bool bFirstWriteResult = (len == 0) ? false : true;
+            constexpr bool bSecondWriteResult = (len <= 1) ? false : true;
 
-            std::vector<T> testData(GetTestData<T, TestQuantity::Many>());
+            std::vector<T> testData(GetTestData<T, TestQuantity::High>());
             Buffer<T> buffer(len);
 
             try
@@ -1015,12 +999,12 @@ namespace CC
         template <typename T, TestQuantity TQ1, TestQuantity TQ2>
         static UTR WritePtrNull()
         {
-            constexpr const size_t len = GetTQNum<TQ1>();
+            constexpr size_t len = GetTQLength<TQ1>();
             Buffer<T> buffer(len);
 
             try
             {
-                SUTL_TEST_ASSERT(buffer.Write(nullptr, GetTQNum<TQ2>()) == false);
+                SUTL_TEST_ASSERT(buffer.Write(nullptr, GetTQLength<TQ2>()) == false);
             }
             catch (const std::exception& e)
             {
@@ -1033,12 +1017,12 @@ namespace CC
         template <typename T, TestQuantity TQ1, TestQuantity TQ2, bool Move>
         static UTR WritePtr()
         {
-            constexpr const size_t len1 = GetTQNum<TQ1>();
-            constexpr const size_t len2 = GetTQNum<TQ2>();
-            constexpr const bool bNullBuffer = (len1 == 0);
-            constexpr const bool bNullSource = (len2 == 0);
-            constexpr const bool bFirstWriteResult = (bNullBuffer || bNullSource || len2 > len1) ? false : true;
-            constexpr const bool bSecondWriteResult = (bNullBuffer || bNullSource || (2 * len2) > len1) ? false : true;
+            constexpr size_t len1 = GetTQLength<TQ1>();
+            constexpr size_t len2 = GetTQLength<TQ2>();
+            constexpr bool bNullBuffer = (len1 == 0);
+            constexpr bool bNullSource = (len2 == 0);
+            constexpr bool bFirstWriteResult = (bNullBuffer || bNullSource || len2 > len1) ? false : true;
+            constexpr bool bSecondWriteResult = (bNullBuffer || bNullSource || (2 * len2) > len1) ? false : true;
 
             static_assert(((bFirstWriteResult == false) && (bSecondWriteResult == true)) != true, __FUNCSIG__": Invalid expected-write-result configuration logic.");
 
@@ -1139,15 +1123,15 @@ namespace CC
         template <typename T, TestQuantity TQ1, TestQuantity TQ2, bool Move>
         static UTR WriteToWritePosition()
         {
-            constexpr const size_t len1 = GetTQNum<TQ1>();
-            constexpr const size_t len2 = GetTQNum<TQ2>();
-            constexpr const size_t writeLen = (len2 == 1) ? len2 : len2 >> 1;
-            constexpr const bool bNullBuffer = (len1 == 0);
-            constexpr const bool bNullSource = (len2 == 0);
+            constexpr size_t len1 = GetTQLength<TQ1>();
+            constexpr size_t len2 = GetTQLength<TQ2>();
+            constexpr size_t writeLen = (len2 == 1) ? len2 : len2 >> 1;
+            constexpr bool bNullBuffer = (len1 == 0);
+            constexpr bool bNullSource = (len2 == 0);
 
-            constexpr const bool bSetupWriteResult = (bNullSource) ? false : true;
-            constexpr const bool bFirstWriteResult = ((bSetupWriteResult == false) || bNullBuffer || writeLen > len1) ? false : true;
-            constexpr const bool bSecondWriteResult = ((bSetupWriteResult == false) || bNullBuffer || (2 * writeLen) > len1) ? false : true;
+            constexpr bool bSetupWriteResult = (bNullSource) ? false : true;
+            constexpr bool bFirstWriteResult = ((bSetupWriteResult == false) || bNullBuffer || writeLen > len1) ? false : true;
+            constexpr bool bSecondWriteResult = ((bSetupWriteResult == false) || bNullBuffer || (2 * writeLen) > len1) ? false : true;
 
             static_assert(((bFirstWriteResult == false) && (bSecondWriteResult == true)) != true, __FUNCSIG__": Invalid expected-write-result configuration logic.");
 
@@ -1270,14 +1254,14 @@ namespace CC
         template <typename T, TestQuantity TQ1, TestQuantity TQ2, bool Move>
         static UTR WriteToEnd()
         {
-            constexpr const size_t len1 = GetTQNum<TQ1>();
-            constexpr const size_t len2 = GetTQNum<TQ2>();
-            constexpr const bool bNullBuffer = (len1 == 0);
-            constexpr const bool bNullSource = (len2 == 0);
+            constexpr size_t len1 = GetTQLength<TQ1>();
+            constexpr size_t len2 = GetTQLength<TQ2>();
+            constexpr bool bNullBuffer = (len1 == 0);
+            constexpr bool bNullSource = (len2 == 0);
 
-            constexpr const bool bSetupWriteResult = (bNullSource) ? false : true;
-            constexpr const bool bFirstWriteResult = ((bSetupWriteResult == false) || bNullBuffer || len2 > len1) ? false : true;
-            constexpr const bool bSecondWriteResult = ((bSetupWriteResult == false) || bNullBuffer || (2 * len2) > len1) ? false : true;
+            constexpr bool bSetupWriteResult = (bNullSource) ? false : true;
+            constexpr bool bFirstWriteResult = ((bSetupWriteResult == false) || bNullBuffer || len2 > len1) ? false : true;
+            constexpr bool bSecondWriteResult = ((bSetupWriteResult == false) || bNullBuffer || (2 * len2) > len1) ? false : true;
 
             const std::vector<T> testData(GetTestData<T, TQ2>());
             Buffer<T> buffer(len1);

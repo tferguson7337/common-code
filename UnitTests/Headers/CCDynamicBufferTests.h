@@ -13,14 +13,20 @@
 #include <CCDynamicBuffer.h>
 
 // Test Helper Utils
-#include <CCPointerHelperTests.h>
-#include <CCBufferTests.h>
+#include <TestHelpers.hpp>
 
 
 namespace CC
 {
     class DynamicBufferTests
     {
+        // Type aliases
+        using UTR = UnitTestResult;
+        using UTFunc = std::function<UTR(void)>;
+        using UTList = std::list<UTFunc>;
+
+        using TQ = TestQuantity;
+
         DynamicBufferTests() = delete;
         DynamicBufferTests(const DynamicBufferTests&) = delete;
         DynamicBufferTests(DynamicBufferTests&&) = delete;
@@ -30,64 +36,7 @@ namespace CC
 
     private:
 
-        // Type aliases
-        using PHT = PointerHelperTests;
-        using Helper = PHT::Helper;
-        using TQ = PHT::TestQuantity;
-
-        using UTR = UnitTestResult;
-        using UTFunc = std::function<UTR(void)>;
-        using UTList = std::list<UTFunc>;
-
-        template <TQ _TQ>
-        static constexpr const size_t GetTQNum()
-        {
-            static_assert(PHT::IsValidTestQuantity<_TQ>(), __FUNCSIG__": Invalid TestQuantity Template Argument.");
-
-            if constexpr (_TQ == TQ::Zero)
-            {
-                return 0;
-            }
-            else if constexpr (_TQ == TQ::One)
-            {
-                return 1;
-            }
-            else
-            {
-                return 16;
-            }
-        }
-
-        template <TQ OrigBufLen, TQ MinInc>
-        static constexpr const size_t GetExpectedNewLen()
-        {
-            static_assert(PHT::IsValidTestQuantity<OrigBufLen>(), __FUNCTION__": Invalid test quantity.");
-            static_assert(PHT::IsValidTestQuantity<MinInc>(), __FUNCTION__": Invalid test quantity.");
-
-            if constexpr (OrigBufLen != TQ::Many)
-            {
-                constexpr const size_t origLen = GetTQNum<OrigBufLen>();
-                constexpr const size_t minInc = GetTQNum<MinInc>();
-                return (MinInc != TQ::Many) ? 16 : (origLen + minInc);
-            }
-            else if constexpr (OrigBufLen == TQ::Many)
-            {
-                constexpr const size_t origLen = GetTQNum<OrigBufLen>();
-                constexpr const size_t minInc = GetTQNum<MinInc>();
-                return (MinInc != TQ::Many) ? ((origLen * 3) >> 1) : (origLen + minInc);
-            }
-        }
-
-        template <typename T, TQ _TQ>
-        static std::vector<T> GetTestData()
-        {
-            return BufferTests::GetTestData<T, _TQ>();
-        }
-
         /// Test Subclasses \\\
-
-        // Tests methods related to calculating new length for buffer growth.
-        class CalculateNewLengthTests;
 
         // Tests methods related to write operations.
         class WriteTests;
@@ -98,145 +47,32 @@ namespace CC
         static UTList GetTests();
     };
 
-    class DynamicBufferTests::CalculateNewLengthTests
-    {
-    public:
-
-        template <typename T, TQ OrigBufferLen, TQ MinInc>
-        static UTR CalcNewLen()
-        {
-            constexpr const size_t origBufLen = GetTQNum<OrigBufferLen>();
-            constexpr const size_t minInc = GetTQNum<MinInc>();
-            constexpr const size_t expNewLen = GetExpectedNewLen<OrigBufferLen, MinInc>();
-            const size_t newLen = DynamicBuffer<T>::CalculateNewLength(origBufLen, minInc);
-            SUTL_TEST_ASSERT(expNewLen == newLen);
-            SUTL_TEST_SUCCESS();
-        }
-    };
-
     class DynamicBufferTests::WriteTests
     {
     private:
 
-        template <TQ DstLen, TQ SrcLen>
-        static constexpr const size_t GetExpectedFirstPtrWriteLen()
+        // Constant-Time Test Helper - Duplicate Logic of DynamicBuffer<T>::CalculateNewLength
+        // Calculates new length for growing buffer.
+        // If geometric increase is sufficent, then new length will be (m_Len + (m_Len >> 1)) (i.e., +50%)
+        // Otherwise, the new length will be std::max(16, m_Len + minInc).
+        template <size_t OldLen, size_t MinInc>
+        [[nodiscard]] constexpr static size_t CalculateNewLengthCE() noexcept
         {
-            constexpr const size_t dst = GetTQNum<DstLen>();
-            constexpr const size_t src = BufferTests::GetTQNum<SrcLen>();
+            constexpr size_t minNewLen = 16;
+            constexpr size_t geoNewLen = OldLen + (OldLen >> 1);
+            constexpr size_t linearLen = OldLen + MinInc;
 
-            static_assert(PHT::IsValidTestQuantity<DstLen>(), __FUNCTION__": Invalid test quantity.");
-            static_assert(PHT::IsValidTestQuantity<SrcLen>(), __FUNCTION__": Invalid test quantity.");
-
-            if constexpr (SrcLen == TQ::Zero)
+            if constexpr (minNewLen >= geoNewLen && minNewLen >= linearLen)
             {
-                return dst;
+                return minNewLen;
             }
-            else if constexpr (SrcLen == TQ::One)
+            else if constexpr (geoNewLen >= linearLen)
             {
-                return (DstLen == TQ::Zero) ? 16 : dst;
-            }
-            else if constexpr (SrcLen == TQ::Many)
-            {
-                return dst + src;
-            }
-        }
-
-        template <TQ DstLen, TQ SrcLen>
-        static constexpr const size_t GetExpectedSecondPtrWriteLen()
-        {
-            constexpr const size_t dst = GetExpectedFirstPtrWriteLen<DstLen, SrcLen>();
-            constexpr const size_t src = BufferTests::GetTQNum<SrcLen>();
-
-            static_assert(PHT::IsValidTestQuantity<DstLen>(), __FUNCTION__": Invalid test quantity.");
-            static_assert(PHT::IsValidTestQuantity<SrcLen>(), __FUNCTION__": Invalid test quantity.");
-
-            if constexpr (SrcLen == TQ::Zero)
-            {
-                return dst;
-            }
-            else if constexpr (SrcLen == TQ::One)
-            {
-                return 16;
-            }
-            else if constexpr (SrcLen == TQ::Many)
-            {
-                return dst + src;
-            }
-        }
-
-        template <TQ DstLen, TQ SrcWritePos, bool bWriteToWritePos>
-        static constexpr const size_t GetExpectedFirstBufWriteLen()
-        {
-            constexpr const size_t dst = GetTQNum<DstLen>();
-            constexpr const size_t src = bWriteToWritePos ? GetTQNum<SrcWritePos>() : (GetTQNum<SrcWritePos>() + BufferTests::GetTQNum<SrcWritePos>());
-
-            if constexpr (bWriteToWritePos)
-            {
-                if constexpr (SrcWritePos == TQ::Zero)
-                {
-                    return dst;
-                }
-                else if constexpr (SrcWritePos == TQ::One)
-                {
-                    return (DstLen == TQ::Zero) ? 16 : dst;
-                }
-                else if constexpr (SrcWritePos == TQ::Many)
-                {
-                    return (DstLen == TQ::Many) ? dst : dst + src;
-                }
+                return geoNewLen;
             }
             else
             {
-                if constexpr (SrcWritePos == TQ::Zero)
-                {
-                    return dst;
-                }
-                else if constexpr (SrcWritePos == TQ::One)
-                {
-                    return (DstLen == TQ::Zero) ? 16 : dst;
-                }
-                else if constexpr (SrcWritePos == TQ::Many)
-                {
-                    return dst + src;
-                }
-            }
-        }
-
-        template <TQ DstLen, TQ SrcWritePos, bool bWriteToWritePos>
-        static constexpr const size_t GetExpectedSecondBufWriteLen()
-        {
-            constexpr const size_t dst = GetExpectedFirstBufWriteLen<DstLen, SrcWritePos, bWriteToWritePos>();
-            constexpr const size_t src = bWriteToWritePos ? GetTQNum<SrcWritePos>() : (GetTQNum<SrcWritePos>() + BufferTests::GetTQNum<SrcWritePos>());
-
-            if constexpr (bWriteToWritePos)
-            {
-                if constexpr (SrcWritePos == TQ::Zero)
-                {
-                    return dst;
-                }
-                else if constexpr (SrcWritePos == TQ::One)
-                {
-                    return (DstLen != TQ::Many) ? 16 : dst;
-                }
-                else if constexpr (SrcWritePos == TQ::Many)
-                {
-                    return dst + src;
-                }
-            }
-            else
-            {
-                if constexpr (SrcWritePos == TQ::Zero)
-                {
-                    return dst;
-                }
-                else if constexpr (SrcWritePos == TQ::One)
-                {
-                    return (DstLen != TQ::Many) ? 16 : dst;
-                }
-                else if constexpr (SrcWritePos == TQ::Many)
-                {
-                    return dst + src;
-                }
+                return linearLen;
             }
         }
 
@@ -245,11 +81,11 @@ namespace CC
         template <typename T, TQ BufLen, bool Move>
         static UTR WriteElement()
         {
-            constexpr const size_t origBufLen = GetTQNum<BufLen>();
-            constexpr const bool bExpectFirstWriteGrow = (origBufLen == 0);
-            constexpr const bool bExpectSecondWriteGrow = (origBufLen == 1);
+            constexpr size_t origBufLen = GetTQLength<BufLen>();
+            constexpr bool bExpectFirstWriteGrow = (origBufLen == 0);
+            constexpr bool bExpectSecondWriteGrow = (origBufLen == 1);
 
-            std::vector<T> testData = GetTestData<T, TQ::Many>();
+            std::vector<T> testData = GetTestData<T, TQ::Low>();
 
             DynamicBuffer<T> dynBuf(origBufLen);
             const T* pBufPtr = dynBuf.Get();
@@ -335,8 +171,8 @@ namespace CC
         template <typename T, TQ DstBufLen, TQ SrcBufLen>
         static UTR WritePtrNull()
         {
-            constexpr const size_t dstLen = GetTQNum<DstBufLen>();
-            constexpr const size_t srcLen = GetTQNum<SrcBufLen>();
+            constexpr size_t dstLen = GetTQLength<DstBufLen>();
+            constexpr size_t srcLen = GetTQLength<SrcBufLen>();
 
             DynamicBuffer<T> dynBuf(dstLen);
 
@@ -355,12 +191,14 @@ namespace CC
         template <typename T, TQ DstBufLen, TQ SrcBufLen, bool Move>
         static UTR WritePtr()
         {
-            constexpr const size_t dstLen = GetTQNum<DstBufLen>();
-            constexpr const size_t srcLen = BufferTests::GetTQNum<SrcBufLen>();
+            constexpr size_t dstLen = GetTQLength<DstBufLen>();
+            constexpr size_t srcLen = GetTQLength<SrcBufLen>();
 
-            constexpr const bool bWriteResult = (srcLen == 0) ? false : true;
-            constexpr const size_t firstWriteLen = GetExpectedFirstPtrWriteLen<DstBufLen, SrcBufLen>();
-            constexpr const size_t secondWriteLen = GetExpectedSecondPtrWriteLen<DstBufLen, SrcBufLen>();
+            constexpr bool bWriteResult = (srcLen == 0) ? false : true;
+            constexpr bool bExpectFirstWriteGrow = (dstLen < srcLen);
+            constexpr size_t firstWriteLen = (!bExpectFirstWriteGrow) ? dstLen : CalculateNewLengthCE<dstLen, srcLen>();
+            constexpr bool bExpectSecondWriteGrow = (firstWriteLen < (2 * srcLen));
+            constexpr size_t secondWriteLen = (!bExpectSecondWriteGrow) ? firstWriteLen : CalculateNewLengthCE<firstWriteLen, srcLen>();
 
             std::vector<T> testData = GetTestData<T, SrcBufLen>();
             T* pData = testData.data();
@@ -386,7 +224,7 @@ namespace CC
                 SUTL_TEST_EXCEPTION(e.what());
             }
 
-            SUTL_TEST_ASSERT((dstLen != firstWriteLen) == (pFirstBufPtr != dynBuf.Get()));
+            SUTL_TEST_ASSERT(bExpectFirstWriteGrow == (pFirstBufPtr != dynBuf.Get()));
             SUTL_TEST_ASSERT(dynBuf.Length() == firstWriteLen);
             SUTL_TEST_ASSERT(dynBuf.WritePosition() == srcLen);
             if constexpr (srcLen > 0)
@@ -475,16 +313,18 @@ namespace CC
         template <typename T, TQ DstBufLen, TQ SrcWritePos, bool Move>
         static UTR WriteToWritePos()
         {
-            constexpr const size_t dstLen = GetTQNum<DstBufLen>();
-            constexpr const size_t srcLen = GetTQNum<TQ::Many>();
-            constexpr const size_t srcWritePos = GetTQNum<SrcWritePos>();
-            constexpr const size_t firstWriteLen = GetExpectedFirstBufWriteLen<DstBufLen, SrcWritePos, true>();
-            constexpr const size_t secondWriteLen = GetExpectedSecondBufWriteLen<DstBufLen, SrcWritePos, true>();
-            constexpr const bool bExpectWrite = (SrcWritePos != TQ::Zero);
+            constexpr size_t dstLen = GetTQLength<DstBufLen>();
+            constexpr size_t srcWritePos = GetTQLength<SrcWritePos>(); 
+            constexpr bool bExpectWrite = (SrcWritePos != TQ::None);
+
+            constexpr bool bExpectFirstWriteGrow = bExpectWrite && (dstLen < srcWritePos);
+            constexpr size_t firstWriteLen = (!bExpectFirstWriteGrow) ? dstLen : CalculateNewLengthCE<dstLen, srcWritePos>();
+            constexpr bool bExpectSecondWriteGrow = bExpectWrite && (firstWriteLen < (2 * srcWritePos));
+            constexpr size_t secondWriteLen = (!bExpectSecondWriteGrow) ? firstWriteLen : CalculateNewLengthCE<firstWriteLen, srcWritePos>();
 
             std::vector<T> testData(GetTestData<T, SrcWritePos>());
             DynamicBuffer<T> dstBuf(dstLen);
-            DynamicBuffer<T> srcBuf(srcLen);
+            DynamicBuffer<T> srcBuf(srcWritePos);
 
             const T* pFirstBufPtr = nullptr;
             const T* pSecondBufPtr = nullptr;
@@ -585,12 +425,14 @@ namespace CC
         template <typename T, TQ DstBufLen, TQ SrcBufLen, bool Move>
         static UTR WriteToEnd()
         {
-            constexpr const size_t dstLen = GetTQNum<DstBufLen>();
-            constexpr const size_t srcLen = GetTQNum<SrcBufLen>();
-            constexpr const size_t srcWritePos = BufferTests::GetTQNum<SrcBufLen>();
-            constexpr const size_t firstWriteLen = GetExpectedFirstBufWriteLen<DstBufLen, SrcBufLen, false>();
-            constexpr const size_t secondWriteLen = GetExpectedSecondBufWriteLen<DstBufLen, SrcBufLen, false>();
-            constexpr const bool bExpectWrite = (SrcBufLen != TQ::Zero);
+            constexpr size_t dstLen = GetTQLength<DstBufLen>();
+            constexpr size_t srcLen = GetTQLength<SrcBufLen>();
+            constexpr size_t srcWritePos = GetTQLength<SrcBufLen>();
+            constexpr bool bExpectFirstWriteGrow = (dstLen < srcLen);
+            constexpr size_t firstWriteLen = (!bExpectFirstWriteGrow) ? dstLen : CalculateNewLengthCE<dstLen, srcLen>();
+            constexpr bool bExpectSecondWriteGrow = (firstWriteLen < (2 * srcLen));
+            constexpr size_t secondWriteLen = (!bExpectSecondWriteGrow) ? firstWriteLen : CalculateNewLengthCE<firstWriteLen, srcLen>();
+            constexpr bool bExpectWrite = (SrcBufLen != TQ::None);
 
             std::vector<T> testData(GetTestData<T, SrcBufLen>());
             DynamicBuffer<T> dstBuf(dstLen);

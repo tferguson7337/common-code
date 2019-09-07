@@ -2,6 +2,7 @@
 
 // SUTL
 #include <UnitTestResult.h>
+#include <TestQuantity.h>
 
 // STL
 #include <algorithm>
@@ -12,8 +13,9 @@
 // Target Class
 #include <CCPointerHelper.h>
 
-// Test Helper
+// Test Helpers
 #include <CCPointer.h>
+#include <TestHelpers.hpp>
 
 
 namespace CC
@@ -34,189 +36,6 @@ namespace CC
         PointerHelperTests& operator=(PointerHelperTests&&) = delete;
 
     private:
-
-        /// Test Helpers \\\
-
-        struct Helper
-        {
-            static constexpr size_t s_ArrSize = 21;
-
-            uint8_t m_u8;
-            uint16_t m_u16;
-            uint32_t m_u32;
-            uint64_t m_u64;
-            uint8_t m_u8Arr[s_ArrSize];
-
-            bool m_bCopied;
-            bool m_bMoved;
-
-            Helper() noexcept :
-                m_u8(0), m_u16(0), m_u32(0), m_u64(0),
-                m_bCopied(false), m_bMoved(false)
-            {
-                memset(m_u8Arr, 0, sizeof(m_u8Arr));
-            }
-
-            Helper(const uint8_t u8, const uint16_t u16, const uint32_t u32, const uint64_t u64, const uint8_t u8ArrVals) noexcept :
-                m_u8(u8), m_u16(u16), m_u32(u32), m_u64(u64)
-            {
-                memset(m_u8Arr, u8ArrVals, sizeof(uint8_t) * s_ArrSize);
-            }
-
-            Helper(const Helper& src) :
-                Helper()
-            {
-                *this = src;
-            }
-
-            Helper(Helper&& src) noexcept :
-                Helper()
-            {
-                *this = std::move(src);
-            }
-
-            ~Helper() noexcept = default;
-
-            Helper& operator=(const Helper& src)
-            {
-                if (this != &src)
-                {
-                    m_u8 = src.m_u8;
-                    m_u16 = src.m_u16;
-                    m_u32 = src.m_u32;
-                    m_u64 = src.m_u64;
-                    memcpy(m_u8Arr, src.m_u8Arr, sizeof(m_u8Arr));
-
-                    m_bCopied = true;
-                    m_bMoved = false;
-                }
-
-                return *this;
-            }
-
-            Helper& operator=(Helper&& src) noexcept
-            {
-                if (this != &src)
-                {
-                    m_u8 = src.m_u8;
-                    m_u16 = src.m_u16;
-                    m_u32 = src.m_u32;
-                    m_u64 = src.m_u64;
-                    memcpy(m_u8Arr, src.m_u8Arr, sizeof(m_u8Arr));
-
-                    m_bCopied = false;
-                    m_bMoved = true;
-                }
-
-                return *this;
-            }
-
-            bool operator==(const Helper& rhs) const noexcept
-            {
-                return m_u8 == rhs.m_u8
-                    && m_u16 == rhs.m_u16
-                    && m_u32 == rhs.m_u32
-                    && m_u64 == rhs.m_u64
-                    && memcmp(m_u8Arr, rhs.m_u8Arr, sizeof(m_u8Arr)) == 0;
-            }
-
-            bool operator!=(const Helper& rhs) const noexcept
-            {
-                return !operator==(rhs);
-            }
-
-            bool Copied() const noexcept
-            {
-                return m_bCopied;
-            }
-
-            bool Moved() const noexcept
-            {
-                return m_bMoved;
-            }
-        };
-
-        template <typename T>
-        static constexpr bool IsValidTestType()
-        {
-            return std::is_same_v<T, uint8_t>
-                || std::is_same_v<T, uint16_t>
-                || std::is_same_v<T, uint32_t>
-                || std::is_same_v<T, uint64_t>
-                || std::is_same_v<T, Helper>;
-        }
-
-        enum class TestQuantity : size_t
-        {
-            Zero = 0,
-            One,
-            Many,
-
-            _End,
-            _Begin = 0
-        };
-
-        template <TestQuantity TQ>
-        static constexpr bool IsValidTestQuantity()
-        {
-            return TQ >= TestQuantity::_Begin && TQ < TestQuantity::_End;
-        }
-
-        template <TestQuantity TQ>
-        static constexpr const size_t GetTQNum()
-        {
-            static_assert(IsValidTestQuantity<TQ>(), __FUNCSIG__": Invalid TestQuantity Template Argument.");
-
-            if constexpr (TQ == TestQuantity::Zero)
-            {
-                return 0;
-            }
-            else if constexpr (TQ == TestQuantity::One)
-            {
-                return 1;
-            }
-            else
-            {
-                return 128;
-            }
-        }
-
-        template <typename T, TestQuantity TQ>
-        static std::vector<T> GetTestData()
-        {
-            static_assert(IsValidTestType<T>(), __FUNCSIG__": Invalid Template Type Argument");
-            static_assert(IsValidTestQuantity<TQ>(), __FUNCSIG__": Invalid TestQuantity Template Argument.");
-
-            std::vector<T> testData;
-
-            if constexpr (TQ != TestQuantity::Zero)
-            {
-                for (size_t i = 0; i < GetTQNum<TQ>(); i++)
-                {
-                    if constexpr (!std::is_same_v<T, Helper>)
-                    {
-                        testData.push_back(static_cast<T>(i));
-                    }
-                    else
-                    {
-                        size_t val = i;
-                        Helper h;
-                        h.m_u8 = static_cast<uint8_t>(val++);
-                        h.m_u16 = static_cast<uint16_t>(val++);
-                        h.m_u32 = static_cast<uint32_t>(val++);
-                        h.m_u64 = static_cast<uint64_t>(val++);
-                        for (size_t j = 0; j < Helper::s_ArrSize; j++)
-                        {
-                            h.m_u8Arr[j] = static_cast<uint8_t>(val++);
-                        }
-
-                        testData.push_back(h);
-                    }
-                }
-            }
-
-            return testData;
-        }
 
         // Type aliases
         template <typename T>

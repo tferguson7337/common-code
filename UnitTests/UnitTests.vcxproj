@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="Source\CCBufferTests.cpp" />
     <ClCompile Include="Source\CCDynamicBufferTests.cpp" />
+    <ClCompile Include="Source\CCListTests.cpp" />
     <ClCompile Include="Source\CCPointerHelperTests.cpp" />
     <ClCompile Include="Source\CCPointerTests.cpp" />
     <ClCompile Include="Source\CCSharedPointerTests.cpp" />
@@ -44,11 +45,13 @@
     <ClInclude Include="Headers\CCBufferTests.h" />
     <ClInclude Include="Headers\CCDynamicBufferTests.h" />
     <ClInclude Include="Headers\CCIPointer.h" />
+    <ClInclude Include="Headers\CCListTests.h" />
     <ClInclude Include="Headers\CCPointerHelperTests.h" />
     <ClInclude Include="Headers\CCPointerTests.h" />
     <ClInclude Include="Headers\CCSharedPointerTests.h" />
     <ClInclude Include="Headers\CCStringTests.h" />
     <ClInclude Include="Headers\CCStringUtilTests.h" />
+    <ClInclude Include="Headers\TestHelpers.hpp" />
     <ClInclude Include="Headers\TestSets.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -150,6 +153,7 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <TreatWarningAsError>true</TreatWarningAsError>
       <DisableSpecificWarnings>4127;6387</DisableSpecificWarnings>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -183,6 +187,7 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <TreatWarningAsError>true</TreatWarningAsError>
       <DisableSpecificWarnings>4127;6387</DisableSpecificWarnings>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -220,6 +225,7 @@
       <DisableSpecificWarnings>4127;6387</DisableSpecificWarnings>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -259,6 +265,7 @@
       <DisableSpecificWarnings>4127;6387</DisableSpecificWarnings>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
