@@ -6,6 +6,7 @@
 #include "CCPointerHelper.h"
 
 // STL
+#include <algorithm>
 #include <stdexcept>
 
 

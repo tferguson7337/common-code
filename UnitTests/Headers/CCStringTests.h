@@ -2,6 +2,7 @@
 
 // SUTL
 #include <UnitTestResult.h>
+#include <TestQuantity.h>
 
 // STL
 #include <functional>
@@ -12,8 +13,8 @@
 #include <CCString.h>
 
 // Test Helper Utils
-#include <CCPointerHelperTests.h>
 #include <CCStringUtil.h>
+#include <TestHelpers.hpp>
 
 
 namespace CC

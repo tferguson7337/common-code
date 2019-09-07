@@ -1,6 +1,8 @@
 #pragma once
 
+// SUTL
 #include <UnitTestResult.h>
+#include <TestQuantity.h>
 
 // STL
 #include <algorithm>
