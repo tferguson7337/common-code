@@ -3,6 +3,8 @@
 CC::SharedPointerTests::UTList CC::SharedPointerTests::GetTests()
 {
     using TQ = TestQuantity;
+
+#pragma warning(suppress : 6262) // Suppress high stack memory usage warning.
     static const UTList tests
     {
         ConstructorTests::DefaultCtor<uint8_t>,
