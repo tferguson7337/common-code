@@ -3,6 +3,7 @@
 // CC Tests
 #include <CCBufferTests.h>
 #include <CCDynamicBufferTests.h>
+#include <CCListTests.h>
 #include <CCPointerTests.h>
 #include <CCPointerHelperTests.h>
 #include <CCSharedPointerTests.h>
@@ -21,6 +22,7 @@ static bool RunAllTests(_Inout_ UnitTestRunner<char>& utr)
     utr.AddUnitTests(CC::DynamicBufferTests::GetTests());
     utr.AddUnitTests(CC::StringTests::GetTests());
     utr.AddUnitTests(CC::StringUtilTests::GetTests());
+    utr.AddUnitTests(CC::ListTests::GetTests());
     return utr.RunUnitTests();
 }
 
@@ -80,6 +82,14 @@ static bool RunStringTests(_Inout_ UnitTestRunner<char>& utr)
     return utr.RunUnitTests();
 }
 
+static bool RunListTests(_Inout_ UnitTestRunner<char>& utr)
+{
+    utr.ClearUnitTests();
+    utr.GetTestSetData().SetTestSetName("CommonCode - List");
+    utr.AddUnitTests(CC::ListTests::GetTests());
+    return utr.RunUnitTests();
+}
+
 
 // Test-Set-Name To Run-Test-Function Mapping
 const TestFuncMap s_TestFuncMap
@@ -91,7 +101,8 @@ const TestFuncMap s_TestFuncMap
     TestPair("Buffer", RunBufferTests),
     TestPair("DynamicBuffer", RunDynamicBufferTests),
     TestPair("StringUtil", RunStringUtilTests),
-    TestPair("String", RunStringTests)
+    TestPair("String", RunStringTests),
+    TestPair("List", RunListTests)
 };
 
 

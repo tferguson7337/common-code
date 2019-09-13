@@ -2,8 +2,6 @@
 
 #include "CCPointerHelper.h"
 
-#include <list>
-
 namespace CC
 {
     // Local macro helpers for targeted universal forwarders.
@@ -71,7 +69,7 @@ namespace CC
             [[nodiscard]] _Success_(return) bool Prepend(_In_ U&& obj) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T))
             {
                 // DNode<T> ctor handles link adjustments.
-                return !!PointerHelper<DNode>::Allocate(std::forward<U>(obj), pPrev, this);
+                return !!PointerHelper<DNode<T>>::Allocate(std::forward<U>(obj), pPrev, this);
             }
 
             // Append with targeted universal forwarder
@@ -79,7 +77,7 @@ namespace CC
             [[nodiscard]] _Success_(return) bool Append(_In_ U&& obj) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T))
             {
                 // DNode<T> ctor handles link adjustments.
-                return !!PointerHelper<DNode>::Allocate(std::forward<U>(obj), this, pNext);
+                return !!PointerHelper<DNode<T>>::Allocate(std::forward<U>(obj), this, pNext);
             }
         };
 
@@ -250,7 +248,7 @@ namespace CC
             }
 
             // Copy first element to tmp list.
-            tmp.m_pHead = tmp.m_pTail = PointerHelper<DNode>::Allocate(pSrc->data);
+            tmp.m_pHead = tmp.m_pTail = PointerHelper<DNode<T>>::Allocate(pSrc->data);
             if (!tmp.m_pHead)
             {
                 return false;
@@ -300,7 +298,7 @@ namespace CC
         [[nodiscard]] _Success_(return) bool AssignElementObj(_In_ U&& elem) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T))
         {
             // Allocate new list element.
-            DNode<T>* p = PointerHelper<DNode>::Allocate(std::forward<U>(elem));
+            DNode<T>* p = PointerHelper<DNode<T>>::Allocate(std::forward<U>(elem));
             if (!p)
             {
                 return false;
@@ -390,13 +388,19 @@ namespace CC
                 return PrependElementObj(std::forward<U>(elem));
             }
 
-            if (pos >= (m_Len - 1))
+            if (pos >= m_Len)
             {
                 // Insert at back of list is same as append.
                 return AppendElementObj(std::forward<U>(elem));
             }
 
-            return GetNodeAtPosition(pos)->Prepend(std::forward<U>(elem));
+            if (GetNodeAtPosition(pos)->Prepend(std::forward<U>(elem)))
+            {
+                m_Len++;
+                return true;
+            }
+
+            return false;
         }
 
         // Adds copy of src list to the front of this list.
@@ -412,7 +416,7 @@ namespace CC
                 return true;
             }
 
-            return !!tmp && PrependListObj(std::move(src));
+            return !!tmp && PrependListObj(std::move(tmp));
         }
 
         // Transfers src list to the front of this list.
@@ -447,7 +451,7 @@ namespace CC
             }
 
             // Prepend new element to current head.
-            if (!m_pHead->Append(std::forward<U>(elem)))
+            if (!m_pHead->Prepend(std::forward<U>(elem)))
             {
                 return false;
             }
@@ -470,9 +474,23 @@ namespace CC
             m_Len(0)
         { }
 
+        // Copy constructor
+        List(_In_ const List<T>& src) :
+            List()
+        {
+            *this = src;
+        }
+
+        // Move constructor
+        List(_Inout_ List<T>&& src) :
+            List()
+        {
+            *this = std::move(src);
+        }
+
         // Forwarding constructor
         // Can handle single element/list copy/move.
-        template <typename U, CC_ENABLE_IF_LIST_OR_ELEMENT(T, U)>
+        template <typename U, CC_ENABLE_IF_ELEMENT(T, U)>
         List(_In_ U&& src) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T)) :
             List<T>()
         {
@@ -490,8 +508,30 @@ namespace CC
 
         /// Assignment Overloads \\\
 
+        // Copy assignment
+        List<T>& operator=(_In_ const List<T>& src) noexcept(CC_IS_NOTHROW_COPY(T))
+        {
+            if (!Assign(src))
+            {
+                ResetList<true>();
+            }
+
+            return *this;
+        }
+
+        // Move assignment
+        List<T>& operator=(_Inout_ List<T>&& src) noexcept(CC_IS_NOTHROW_MOVE(T))
+        {
+            if (!Assign(std::move(src)))
+            {
+                ResetList<true>();
+            }
+
+            return *this;
+        }
+
         // Targeted Universal Forwarder to Assign
-        template <typename U, CC_ENABLE_IF_LIST_OR_ELEMENT(T, U)>
+        template <typename U, CC_ENABLE_IF_ELEMENT(T, U)>
         List<T>& operator=(_In_ U&& obj) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T))
         {
             if (!Assign(std::forward<U>(obj)))
@@ -604,7 +644,7 @@ namespace CC
 
             if constexpr (CC_IS_LIST(T, U))
             {
-                return (this == std::addressof<List<T>>(obj)) ? AppendListObj(obj) : AppendListObj(std::forward<U>(obj));
+                return (this == &obj) ? AppendListObj(obj) : AppendListObj(std::forward<U>(obj));
             }
             else if constexpr (CC_IS_ELEMENT(T, U))
             {
@@ -623,7 +663,7 @@ namespace CC
         {
             if constexpr (CC_IS_LIST(T, U))
             {
-                return (this == std::addressof<List<T>>(obj)) || AssignListObj(std::forward<U>(obj));
+                return (this == &obj) || AssignListObj(std::forward<U>(obj));
             }
             else if constexpr (CC_IS_ELEMENT(T, U))
             {
@@ -643,7 +683,7 @@ namespace CC
 
         // Compares this list's elements against src's list elements.
         // Returns true if lists are same length all elements match, false otherwise.
-        [[nodiscard]] _Success_(return) bool Compare(_In_ const List<T>& rhs) noexcept
+        [[nodiscard]] _Success_(return) bool Compare(_In_ const List<T>& rhs) const noexcept
         {
             DNode<T>* pL = m_pHead;
             DNode<T>* pR = rhs.m_pHead;
@@ -698,7 +738,7 @@ namespace CC
             if (IsEmpty())
             {
                 // Insert on empty list is same as assign.
-                return Assign(std::forwad<U>(obj));
+                return Assign(std::forward<U>(obj));
             }
 
             if (pos == 0)
@@ -707,7 +747,7 @@ namespace CC
                 return Prepend(std::forward<U>(obj));
             }
 
-            if (pos >= (m_Len - 1))
+            if (pos >= m_Len)
             {
                 // Insert at last position (or beyond) is same as append.
                 return Append(std::forward<U>(obj));
@@ -715,7 +755,7 @@ namespace CC
 
             if constexpr (CC_IS_LIST(T, U))
             {
-                return (this == std::addressof<List<T>>(obj)) ? InsertListObj(obj, pos) : InsertListObj(std::forward<U>(obj), pos);
+                return (this == &obj) ? InsertListObj(obj, pos) : InsertListObj(std::forward<U>(obj), pos);
             }
             else if constexpr (CC_IS_ELEMENT(T, U))
             {
@@ -746,7 +786,7 @@ namespace CC
 
             if constexpr (CC_IS_LIST(T, U))
             {
-                return (this == std::addressof<List<T>>(obj)) ? PrependListObj(obj) : PrependListObj(std::forward<U>(obj));
+                return (this == &obj) ? PrependListObj(obj) : PrependListObj(std::forward<U>(obj));
             }
             else if constexpr (CC_IS_ELEMENT(T, U))
             {
@@ -759,15 +799,15 @@ namespace CC
         }
 
         // Removes last element from list.
-        // Note: Does nothing if list is currently empty.
-        void PopBack() noexcept
+        // Returns true if element is removed, false otherwise (e.g., list is empty).
+        bool PopBack() noexcept
         {
             DNode<T>* p = m_pTail;
 
             if (!p)
             {
                 // List must be empty - exit early.
-                return;
+                return false;
             }
 
             // Adjust pointers.
@@ -788,17 +828,19 @@ namespace CC
 
             // Free memory.
             delete p;
+
+            return true;
         }
 
         // Removes first element from list.
-        // Note: Does nothing if list is currently empty.
-        void PopFront() noexcept
+        // Returns true if element is removed, false otherwise (e.g., list is empty).
+        bool PopFront() noexcept
         {
             DNode<T>* p = m_pHead;
             if (!p)
             {
                 // List must be empty - exit early.
-                return;
+                return false;
             }
 
             // Adjust pointers.
@@ -819,38 +861,44 @@ namespace CC
 
             // Free memory.
             delete p;
+
+            return true;
         }
 
         // Removes specified element from list.
         // Note: If the list empty, then this does nothing.
         // Note: If the list is not empty and pos exceeds list length, then the last element is removed.
-        void RemoveAt(_In_ const size_t pos) noexcept
+        bool RemoveAt(_In_ const size_t pos) noexcept
         {
-            if (!IsEmpty())
+            if (IsEmpty())
             {
-                if (pos == 0)
-                {
-                    PopFront();
-                }
-                else if (pos >= (m_Len - 1))
-                {
-                    PopBack();
-                }
-                else
-                {
-                    // Get node to delete.
-                    DNode<T>* p = GetNodeAtPosition(pos);
+                return false;
+            }
 
-                    // Adjust pointers.
-                    p->pPrev->pNext = p->pNext;
-                    p->pNext->pPrev = p->pPrev;
+            if (pos == 0)
+            {
+                return PopFront();
+            }
+            else if (pos >= (m_Len - 1))
+            {
+                return PopBack();
+            }
+            else
+            {
+                // Get node to delete.
+                DNode<T>* p = GetNodeAtPosition(pos);
 
-                    // Adjust length.
-                    m_Len--;
+                // Adjust pointers.
+                p->pPrev->pNext = p->pNext;
+                p->pNext->pPrev = p->pPrev;
 
-                    // Free memory.
-                    delete p;
-                }
+                // Adjust length.
+                m_Len--;
+
+                // Free memory.
+                delete p;
+
+                return true;
             }
         }
     };
