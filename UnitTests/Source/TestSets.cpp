@@ -155,5 +155,10 @@ std::list<TestSetFunc> GetTestSetFunctions(_In_ const int& argc, _In_count_(argc
         }
     }
 
+    if (testFuncList.empty())
+    {
+        printf(__FUNCTION__": No tests selected.\r\n");
+    }
+
     return testFuncList;
 }
