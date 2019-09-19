@@ -16,8 +16,9 @@ int main(const int argc, const char* argv[])
 
     Duration totalDelta(0);
     UnitTestRunner<char> utr;
+    std::list<TestSetFunc> testList(GetTestSetFunctions(argc, argv));
 
-    for (const TestSetFunc& f : GetTestSetFunctions(argc, argv))
+    for (const TestSetFunc& f : testList)
     {
         bool bTestSetResult = false;
         const char* pSetName = nullptr;
@@ -39,7 +40,10 @@ int main(const int argc, const char* argv[])
         printf("  Test set[%s] complete - %lld ms\r\n", pSetName, delta.count());
     }
 
-    printf("\r\n  All test(s) complete - %lld ms\r\n", totalDelta.count());
+    if (testList.size() > 1)
+    {
+        printf("\r\n  All test(s) complete - %lld ms\r\n", totalDelta.count());
+    }
 
     return static_cast<int>(utr.GetTestSetData().GetTotalFailureCount());
 }
