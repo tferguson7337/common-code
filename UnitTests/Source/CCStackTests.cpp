@@ -34,7 +34,9 @@ CC::StackTests::UTList CC::StackTests::GetTests()
         // PushPop Tests
         ADD_TESTS_T_TQ1(PushPopTests::Push),
         ADD_TESTS_T_TQ1(PushPopTests::Pop),
-        ADD_TESTS_T_TQ1(PushPopTests::PushPopStagger)
+        ADD_TESTS_T_TQ1(PushPopTests::PopAndCopy),
+        ADD_TESTS_T_TQ1(PushPopTests::PushPopStagger),
+        ADD_TESTS_T_TQ1(PushPopTests::PushPopAndCopyStagger),
     };
 
     return tests;
