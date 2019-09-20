@@ -130,7 +130,7 @@ namespace CC
             }
         }
 
-        // Frees all list nodes and resets all data members to default values.
+        // If specified, frees all list nodes. Always resets all data members to default values.
         template <bool bDestroy>
         inline void ResetList() noexcept
         {
@@ -211,7 +211,7 @@ namespace CC
         // Append-element forwarder.
         // Appends an element to the end of this list via copy or move.
         // Returns true if operation succeeds, false otherwise.
-        template <typename U>
+        template <typename U, CC_ENABLE_IF_ELEMENT(T, U)>
         [[nodiscard]] _Success_(return) bool AppendElementObj(_In_ U&& elem) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T))
         {
             if (IsEmpty())
@@ -475,21 +475,21 @@ namespace CC
         { }
 
         // Copy constructor
-        List(_In_ const List<T>& src) :
+        List(_In_ const List<T>& src) noexcept(CC_IS_NOTHROW_CTOR(T)) :
             List()
         {
             *this = src;
         }
 
         // Move constructor
-        List(_Inout_ List<T>&& src) :
+        List(_Inout_ List<T>&& src) noexcept :
             List()
         {
             *this = std::move(src);
         }
 
         // Forwarding constructor
-        // Can handle single element/list copy/move.
+        // Can handle single element copy/move.
         template <typename U, CC_ENABLE_IF_ELEMENT(T, U)>
         List(_In_ U&& src) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T)) :
             List<T>()
@@ -551,11 +551,11 @@ namespace CC
             return !IsEmpty();
         }
 
-        // Compares this list's elements against src's list elements.
+        // Compares this list's elements against rhs' list elements.
         // Returns true if lists are same length all elements match, false otherwise.
         [[nodiscard]] bool operator==(_In_ const List<T>& rhs) const noexcept
         {
-            return this->Compare(rhs);
+            return Compare(rhs);
         }
 
         // Targeted Universal Forwarder to Append
@@ -652,7 +652,7 @@ namespace CC
             }
             else
             {
-                static_assert(false, __FUNCSIG__": Unsupported append type.");
+                static_assert(false, __FUNCSIG__ ": Unsupported append type.");
             }
         }
 
@@ -671,7 +671,7 @@ namespace CC
             }
             else
             {
-                static_assert(false, __FUNCSIG__": Unsupported assignment type.");
+                static_assert(false, __FUNCSIG__ ": Unsupported assignment type.");
             }
         }
 
@@ -683,7 +683,7 @@ namespace CC
 
         // Compares this list's elements against src's list elements.
         // Returns true if lists are same length all elements match, false otherwise.
-        [[nodiscard]] _Success_(return) bool Compare(_In_ const List<T>& rhs) const noexcept
+        [[nodiscard]] bool Compare(_In_ const List<T>& rhs) const noexcept
         {
             DNode<T>* pL = m_pHead;
             DNode<T>* pR = rhs.m_pHead;
@@ -697,18 +697,6 @@ namespace CC
             if (m_Len != rhs.m_Len)
             {
                 // Length mismatch - not equal.
-                return false;
-            }
-
-            if (!pL)
-            {
-                // In this case, equivalency is dependent on src being empty.
-                return !pR;
-            }
-
-            if (!pR)
-            {
-                // We're not empty, but src is - not equal.
                 return false;
             }
 
@@ -763,7 +751,7 @@ namespace CC
             }
             else
             {
-                static_assert(false, __FUNCSIG__": Unsupported insert type.");
+                static_assert(false, __FUNCSIG__ ": Unsupported insert type.");
             }
         }
 
@@ -794,7 +782,7 @@ namespace CC
             }
             else
             {
-                static_assert(false, __FUNCSIG__": Unsupported prepend type.");
+                static_assert(false, __FUNCSIG__ ": Unsupported prepend type.");
             }
         }
 

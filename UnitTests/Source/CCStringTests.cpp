@@ -32,6 +32,47 @@ const std::vector<CC::SupportedStringTuple> CC::StringTests::ms_LongerTestString
 };
 
 
+/// Add-String-Test Helper Macros \\\
+
+// Add 2 Tests (2 Char types)
+#define ADD_STR_TESTS_C(_fn_)\
+    _fn_<char>, _fn_<wchar_t>
+
+// Add 6 Tests (2 Char types x 3 TQ)
+#define ADD_STR_TESTS_C_TQ1(_fn_)\
+    _fn_<char,    TestQuantity::None>, _fn_<char,    TestQuantity::MidLow>, _fn_<char,    TestQuantity::Mid>,\
+    _fn_<wchar_t, TestQuantity::None>, _fn_<wchar_t, TestQuantity::MidLow>, _fn_<wchar_t, TestQuantity::Mid>
+
+// Add 12 Tests (2 Char types x 3 TQ x T/F)
+#define ADD_STR_TESTS_C_TQ1_B(_fn_)\
+    _fn_<char,    TestQuantity::None,   false>, _fn_<char,    TestQuantity::None,   true>,\
+    _fn_<char,    TestQuantity::MidLow, false>, _fn_<char,    TestQuantity::MidLow, true>,\
+    _fn_<char,    TestQuantity::Mid,    false>, _fn_<char,    TestQuantity::Mid,    true>,\
+    _fn_<wchar_t, TestQuantity::None,   false>, _fn_<wchar_t, TestQuantity::None,   true>,\
+    _fn_<wchar_t, TestQuantity::MidLow, false>, _fn_<wchar_t, TestQuantity::MidLow, true>,\
+    _fn_<wchar_t, TestQuantity::Mid,    false>, _fn_<wchar_t, TestQuantity::Mid,    true>
+
+// Add 36 Tests (2 Char Types x 3 TQ x 3 TQ x T/F)
+#define ADD_STR_TESTS_C_TQ2_B(_fn_)\
+    _fn_<char,    TestQuantity::None,   TestQuantity::None,   false>, _fn_<char,     TestQuantity::None,   TestQuantity::None,   true>,\
+    _fn_<char,    TestQuantity::None,   TestQuantity::MidLow, false>, _fn_<char,     TestQuantity::None,   TestQuantity::MidLow, true>,\
+    _fn_<char,    TestQuantity::None,   TestQuantity::Mid,    false>, _fn_<char,     TestQuantity::None,   TestQuantity::Mid,    true>,\
+    _fn_<char,    TestQuantity::MidLow, TestQuantity::None,   false>, _fn_<char,     TestQuantity::MidLow, TestQuantity::None,   true>,\
+    _fn_<char,    TestQuantity::MidLow, TestQuantity::MidLow, false>, _fn_<char,     TestQuantity::MidLow, TestQuantity::MidLow, true>,\
+    _fn_<char,    TestQuantity::MidLow, TestQuantity::Mid,    false>, _fn_<char,     TestQuantity::MidLow, TestQuantity::Mid,    true>,\
+    _fn_<char,    TestQuantity::Mid,    TestQuantity::None,   false>, _fn_<char,     TestQuantity::Mid,    TestQuantity::None,   true>,\
+    _fn_<char,    TestQuantity::Mid,    TestQuantity::MidLow, false>, _fn_<char,     TestQuantity::Mid,    TestQuantity::MidLow, true>,\
+    _fn_<char,    TestQuantity::Mid,    TestQuantity::Mid,    false>, _fn_<char,     TestQuantity::Mid,    TestQuantity::Mid,    true>,\
+    _fn_<wchar_t, TestQuantity::None,   TestQuantity::None,   false>, _fn_<wchar_t,  TestQuantity::None,   TestQuantity::None,   true>,\
+    _fn_<wchar_t, TestQuantity::None,   TestQuantity::MidLow, false>, _fn_<wchar_t,  TestQuantity::None,   TestQuantity::MidLow, true>,\
+    _fn_<wchar_t, TestQuantity::None,   TestQuantity::Mid,    false>, _fn_<wchar_t,  TestQuantity::None,   TestQuantity::Mid,    true>,\
+    _fn_<wchar_t, TestQuantity::MidLow, TestQuantity::None,   false>, _fn_<wchar_t,  TestQuantity::MidLow, TestQuantity::None,   true>,\
+    _fn_<wchar_t, TestQuantity::MidLow, TestQuantity::MidLow, false>, _fn_<wchar_t,  TestQuantity::MidLow, TestQuantity::MidLow, true>,\
+    _fn_<wchar_t, TestQuantity::MidLow, TestQuantity::Mid,    false>, _fn_<wchar_t,  TestQuantity::MidLow, TestQuantity::Mid,    true>,\
+    _fn_<wchar_t, TestQuantity::Mid,    TestQuantity::None,   false>, _fn_<wchar_t,  TestQuantity::Mid,    TestQuantity::None,   true>,\
+    _fn_<wchar_t, TestQuantity::Mid,    TestQuantity::MidLow, false>, _fn_<wchar_t,  TestQuantity::Mid,    TestQuantity::MidLow, true>,\
+    _fn_<wchar_t, TestQuantity::Mid,    TestQuantity::Mid,    false>, _fn_<wchar_t,  TestQuantity::Mid,    TestQuantity::Mid,    true>
+
 // Return list of String unit tests.
 CC::StringTests::UTList CC::StringTests::GetTests()
 {
@@ -40,349 +81,68 @@ CC::StringTests::UTList CC::StringTests::GetTests()
 #pragma warning(suppress : 6262) // Suppress Mid stack memory usage warning.
     static const UTList tests
     {
-        ConstructorTests::DefaultCtor<utf8>,
-        ConstructorTests::DefaultCtor<utf16>,
+        // Constructor Tests
+        ADD_STR_TESTS_C(ConstructorTests::DefaultCtor),
+        ADD_STR_TESTS_C_TQ1(ConstructorTests::LenAndCharCtor),
+        ADD_STR_TESTS_C(ConstructorTests::CStrCtorNullptr),
+        ADD_STR_TESTS_C_TQ1(ConstructorTests::CStrCtor),
+        ADD_STR_TESTS_C_TQ1(ConstructorTests::PtrAndLenCtorNullptr),
+        ADD_STR_TESTS_C_TQ1(ConstructorTests::PtrAndLenCtor),
+        ADD_STR_TESTS_C_TQ1(ConstructorTests::CopyCtor),
+        ADD_STR_TESTS_C_TQ1(ConstructorTests::MoveCtor),
 
-        ConstructorTests::LenAndCharCtor<utf8, TQ::None>,
-        ConstructorTests::LenAndCharCtor<utf8, TQ::MidLow>,
-        ConstructorTests::LenAndCharCtor<utf8, TQ::Mid>,
-        ConstructorTests::LenAndCharCtor<utf16, TQ::None>,
-        ConstructorTests::LenAndCharCtor<utf16, TQ::MidLow>,
-        ConstructorTests::LenAndCharCtor<utf16, TQ::Mid>,
+        // Assignment Operator Tests
+        ADD_STR_TESTS_C_TQ1(AssignmentOperatorTests::CStrAssignOpNullptr),
+        ADD_STR_TESTS_C_TQ1(AssignmentOperatorTests::CStrAssignOp),
+        ADD_STR_TESTS_C_TQ1(AssignmentOperatorTests::CopyAssignOp),
+        ADD_STR_TESTS_C_TQ1(AssignmentOperatorTests::MoveAssignOp),
 
-        ConstructorTests::CStrCtorNullptr<utf8>,
-        ConstructorTests::CStrCtorNullptr<utf16>,
+        // Add-Assignment Operator Tests
+        ADD_STR_TESTS_C_TQ1(AddAssignmentOperatorTests::CStrAddAssignOpNullptr),
+        ADD_STR_TESTS_C_TQ1(AddAssignmentOperatorTests::CStrAddAssignOp),
+        ADD_STR_TESTS_C_TQ1(AddAssignmentOperatorTests::StrObjAddAssignOp),
 
-        ConstructorTests::CStrCtor<utf8, TQ::None>,
-        ConstructorTests::CStrCtor<utf8, TQ::MidLow>,
-        ConstructorTests::CStrCtor<utf8, TQ::Mid>,
-        ConstructorTests::CStrCtor<utf16, TQ::None>,
-        ConstructorTests::CStrCtor<utf16, TQ::MidLow>,
-        ConstructorTests::CStrCtor<utf16, TQ::Mid>,
+        // Subscript Operator Tests
+        ADD_STR_TESTS_C_TQ1(SubscriptOperatorTests::SubscriptOp),
+        ADD_STR_TESTS_C_TQ1(SubscriptOperatorTests::SubscriptOp),
 
-        ConstructorTests::PtrAndLenCtorNullptr<utf8, TQ::None>,
-        ConstructorTests::PtrAndLenCtorNullptr<utf8, TQ::MidLow>,
-        ConstructorTests::PtrAndLenCtorNullptr<utf8, TQ::Mid>,
-        ConstructorTests::PtrAndLenCtorNullptr<utf16, TQ::None>,
-        ConstructorTests::PtrAndLenCtorNullptr<utf16, TQ::MidLow>,
-        ConstructorTests::PtrAndLenCtorNullptr<utf16, TQ::Mid>,
+        // Equivalency Operator Tests
+        ADD_STR_TESTS_C_TQ1(EquivalencyOperatorTests::CStrEquivOp),
+        ADD_STR_TESTS_C_TQ1(EquivalencyOperatorTests::StrObjEquivOp),
 
-        ConstructorTests::PtrAndLenCtor<utf8, TQ::None>,
-        ConstructorTests::PtrAndLenCtor<utf8, TQ::MidLow>,
-        ConstructorTests::PtrAndLenCtor<utf8, TQ::Mid>,
-        ConstructorTests::PtrAndLenCtor<utf16, TQ::None>,
-        ConstructorTests::PtrAndLenCtor<utf16, TQ::MidLow>,
-        ConstructorTests::PtrAndLenCtor<utf16, TQ::Mid>,
+        // Getter Tests
+        ADD_STR_TESTS_C_TQ1(GetterTests::CStr),
+        ADD_STR_TESTS_C_TQ1(GetterTests::Length),
+        ADD_STR_TESTS_C_TQ1(GetterTests::Capacity),
+        ADD_STR_TESTS_C_TQ1(GetterTests::Front),
+        ADD_STR_TESTS_C_TQ1(GetterTests::Back),
 
-        ConstructorTests::CopyCtor<utf8, TQ::None>,
-        ConstructorTests::CopyCtor<utf8, TQ::MidLow>,
-        ConstructorTests::CopyCtor<utf8, TQ::Mid>,
-        ConstructorTests::CopyCtor<utf16, TQ::None>,
-        ConstructorTests::CopyCtor<utf16, TQ::MidLow>,
-        ConstructorTests::CopyCtor<utf16, TQ::Mid>,
+        // Assignment Tests
+        ADD_STR_TESTS_C_TQ1(Assign::ChAssign),
+        ADD_STR_TESTS_C_TQ1(Assign::CStrAssign),
+        ADD_STR_TESTS_C_TQ1(Assign::PtrAndLenAssign),
+        ADD_STR_TESTS_C_TQ1(Assign::StrObjCopyAssign),
+        ADD_STR_TESTS_C_TQ1(Assign::StrObjAndLenCopyAssign),
+        ADD_STR_TESTS_C_TQ1(Assign::StrObjMoveAssign),
 
-        ConstructorTests::MoveCtor<utf8, TQ::None>,
-        ConstructorTests::MoveCtor<utf8, TQ::MidLow>,
-        ConstructorTests::MoveCtor<utf8, TQ::Mid>,
-        ConstructorTests::MoveCtor<utf16, TQ::None>,
-        ConstructorTests::MoveCtor<utf16, TQ::MidLow>,
-        ConstructorTests::MoveCtor<utf16, TQ::Mid>,
+        // Append Tests
+        ADD_STR_TESTS_C_TQ1(Append::ChAppend),
+        ADD_STR_TESTS_C_TQ1(Append::CStrAppend),
+        ADD_STR_TESTS_C_TQ1(Append::PtrAndLenAppend),
+        ADD_STR_TESTS_C_TQ1(Append::StrObjAppend),
+        ADD_STR_TESTS_C_TQ1(Append::StrObjAndLenAppend),
 
-        AssignmentOperatorTests::CStrAssignOpNullptr<utf8, TQ::None>,
-        AssignmentOperatorTests::CStrAssignOpNullptr<utf8, TQ::MidLow>,
-        AssignmentOperatorTests::CStrAssignOpNullptr<utf8, TQ::Mid>,
-        AssignmentOperatorTests::CStrAssignOpNullptr<utf16, TQ::None>,
-        AssignmentOperatorTests::CStrAssignOpNullptr<utf16, TQ::MidLow>,
-        AssignmentOperatorTests::CStrAssignOpNullptr<utf16, TQ::Mid>,
+        // Compare Tests
+        ADD_STR_TESTS_C_TQ1_B(CompareTests::CStrCompare),
+        ADD_STR_TESTS_C_TQ2_B(CompareTests::StrAndLenCompare),
+        ADD_STR_TESTS_C_TQ1_B(CompareTests::StrObjCompare),
+        ADD_STR_TESTS_C_TQ2_B(CompareTests::StrObjAndLenCompare),
 
-        AssignmentOperatorTests::CStrAssignOp<utf8, TQ::None>,
-        AssignmentOperatorTests::CStrAssignOp<utf8, TQ::MidLow>,
-        AssignmentOperatorTests::CStrAssignOp<utf8, TQ::Mid>,
-        AssignmentOperatorTests::CStrAssignOp<utf16, TQ::None>,
-        AssignmentOperatorTests::CStrAssignOp<utf16, TQ::MidLow>,
-        AssignmentOperatorTests::CStrAssignOp<utf16, TQ::Mid>,
+        // Clear Tests
+        ADD_STR_TESTS_C_TQ1(ClearTests::Clear),
 
-        AssignmentOperatorTests::CopyAssignOp<utf8, TQ::None>,
-        AssignmentOperatorTests::CopyAssignOp<utf8, TQ::MidLow>,
-        AssignmentOperatorTests::CopyAssignOp<utf8, TQ::Mid>,
-        AssignmentOperatorTests::CopyAssignOp<utf16, TQ::None>,
-        AssignmentOperatorTests::CopyAssignOp<utf16, TQ::MidLow>,
-        AssignmentOperatorTests::CopyAssignOp<utf16, TQ::Mid>,
-
-        AssignmentOperatorTests::MoveAssignOp<utf8, TQ::None>,
-        AssignmentOperatorTests::MoveAssignOp<utf8, TQ::MidLow>,
-        AssignmentOperatorTests::MoveAssignOp<utf8, TQ::Mid>,
-        AssignmentOperatorTests::MoveAssignOp<utf16, TQ::None>,
-        AssignmentOperatorTests::MoveAssignOp<utf16, TQ::MidLow>,
-        AssignmentOperatorTests::MoveAssignOp<utf16, TQ::Mid>,
-
-        AddAssignmentOperatorTests::CStrAddAssignOpNullptr<utf8, TQ::None>,
-        AddAssignmentOperatorTests::CStrAddAssignOpNullptr<utf8, TQ::MidLow>,
-        AddAssignmentOperatorTests::CStrAddAssignOpNullptr<utf8, TQ::Mid>,
-        AddAssignmentOperatorTests::CStrAddAssignOpNullptr<utf16, TQ::None>,
-        AddAssignmentOperatorTests::CStrAddAssignOpNullptr<utf16, TQ::MidLow>,
-        AddAssignmentOperatorTests::CStrAddAssignOpNullptr<utf16, TQ::Mid>,
-
-        AddAssignmentOperatorTests::CStrAddAssignOp<utf8, TQ::None>,
-        AddAssignmentOperatorTests::CStrAddAssignOp<utf8, TQ::MidLow>,
-        AddAssignmentOperatorTests::CStrAddAssignOp<utf8, TQ::Mid>,
-        AddAssignmentOperatorTests::CStrAddAssignOp<utf16, TQ::None>,
-        AddAssignmentOperatorTests::CStrAddAssignOp<utf16, TQ::MidLow>,
-        AddAssignmentOperatorTests::CStrAddAssignOp<utf16, TQ::Mid>,
-
-        AddAssignmentOperatorTests::StrObjAddAssignOp<utf8, TQ::None>,
-        AddAssignmentOperatorTests::StrObjAddAssignOp<utf8, TQ::MidLow>,
-        AddAssignmentOperatorTests::StrObjAddAssignOp<utf8, TQ::Mid>,
-        AddAssignmentOperatorTests::StrObjAddAssignOp<utf16, TQ::None>,
-        AddAssignmentOperatorTests::StrObjAddAssignOp<utf16, TQ::MidLow>,
-        AddAssignmentOperatorTests::StrObjAddAssignOp<utf16, TQ::Mid>,
-
-        SubscriptOperatorTests::SubscriptOp<utf8, TQ::None>,
-        SubscriptOperatorTests::SubscriptOp<utf8, TQ::MidLow>,
-        SubscriptOperatorTests::SubscriptOp<utf8, TQ::Mid>,
-        SubscriptOperatorTests::SubscriptOp<utf16, TQ::None>,
-        SubscriptOperatorTests::SubscriptOp<utf16, TQ::MidLow>,
-        SubscriptOperatorTests::SubscriptOp<utf16, TQ::Mid>,
-
-        EquivalencyOperatorTests::CStrEquivOp<utf8, TQ::None>,
-        EquivalencyOperatorTests::CStrEquivOp<utf8, TQ::MidLow>,
-        EquivalencyOperatorTests::CStrEquivOp<utf8, TQ::Mid>,
-        EquivalencyOperatorTests::CStrEquivOp<utf16, TQ::None>,
-        EquivalencyOperatorTests::CStrEquivOp<utf16, TQ::MidLow>,
-        EquivalencyOperatorTests::CStrEquivOp<utf16, TQ::Mid>,
-
-        EquivalencyOperatorTests::StrObjEquivOp<utf8, TQ::None>,
-        EquivalencyOperatorTests::StrObjEquivOp<utf8, TQ::MidLow>,
-        EquivalencyOperatorTests::StrObjEquivOp<utf8, TQ::Mid>,
-        EquivalencyOperatorTests::StrObjEquivOp<utf16, TQ::None>,
-        EquivalencyOperatorTests::StrObjEquivOp<utf16, TQ::MidLow>,
-        EquivalencyOperatorTests::StrObjEquivOp<utf16, TQ::Mid>,
-
-        GetterTests::CStr<utf8, TQ::None>,
-        GetterTests::CStr<utf8, TQ::MidLow>,
-        GetterTests::CStr<utf8, TQ::Mid>,
-        GetterTests::CStr<utf16, TQ::None>,
-        GetterTests::CStr<utf16, TQ::MidLow>,
-        GetterTests::CStr<utf16, TQ::Mid>,
-
-        GetterTests::Length<utf8, TQ::None>,
-        GetterTests::Length<utf8, TQ::MidLow>,
-        GetterTests::Length<utf8, TQ::Mid>,
-        GetterTests::Length<utf16, TQ::None>,
-        GetterTests::Length<utf16, TQ::MidLow>,
-        GetterTests::Length<utf16, TQ::Mid>,
-
-        GetterTests::Capacity<utf8, TQ::None>,
-        GetterTests::Capacity<utf8, TQ::MidLow>,
-        GetterTests::Capacity<utf8, TQ::Mid>,
-        GetterTests::Capacity<utf16, TQ::None>,
-        GetterTests::Capacity<utf16, TQ::MidLow>,
-        GetterTests::Capacity<utf16, TQ::Mid>,
-
-        GetterTests::Front<utf8, TQ::None>,
-        GetterTests::Front<utf8, TQ::MidLow>,
-        GetterTests::Front<utf8, TQ::Mid>,
-        GetterTests::Front<utf16, TQ::None>,
-        GetterTests::Front<utf16, TQ::MidLow>,
-        GetterTests::Front<utf16, TQ::Mid>,
-
-        GetterTests::Back<utf8, TQ::None>,
-        GetterTests::Back<utf8, TQ::MidLow>,
-        GetterTests::Back<utf8, TQ::Mid>,
-        GetterTests::Back<utf16, TQ::None>,
-        GetterTests::Back<utf16, TQ::MidLow>,
-        GetterTests::Back<utf16, TQ::Mid>,
-
-        Assign::ChAssign<utf8, TQ::None>,
-        Assign::ChAssign<utf8, TQ::MidLow>,
-        Assign::ChAssign<utf8, TQ::Mid>,
-        Assign::ChAssign<utf16, TQ::None>,
-        Assign::ChAssign<utf16, TQ::MidLow>,
-        Assign::ChAssign<utf16, TQ::Mid>,
-
-        Assign::CStrAssign<utf8, TQ::None>,
-        Assign::CStrAssign<utf8, TQ::MidLow>,
-        Assign::CStrAssign<utf8, TQ::Mid>,
-        Assign::CStrAssign<utf16, TQ::None>,
-        Assign::CStrAssign<utf16, TQ::MidLow>,
-        Assign::CStrAssign<utf16, TQ::Mid>,
-
-        Assign::PtrAndLenAssign<utf8, TQ::None>,
-        Assign::PtrAndLenAssign<utf8, TQ::MidLow>,
-        Assign::PtrAndLenAssign<utf8, TQ::Mid>,
-        Assign::PtrAndLenAssign<utf16, TQ::None>,
-        Assign::PtrAndLenAssign<utf16, TQ::MidLow>,
-        Assign::PtrAndLenAssign<utf16, TQ::Mid>,
-
-        Assign::StrObjCopyAssign<utf8, TQ::None>,
-        Assign::StrObjCopyAssign<utf8, TQ::MidLow>,
-        Assign::StrObjCopyAssign<utf8, TQ::Mid>,
-        Assign::StrObjCopyAssign<utf16, TQ::None>,
-        Assign::StrObjCopyAssign<utf16, TQ::MidLow>,
-        Assign::StrObjCopyAssign<utf16, TQ::Mid>,
-
-        Assign::StrObjAndLenCopyAssign<utf8, TQ::None>,
-        Assign::StrObjAndLenCopyAssign<utf8, TQ::MidLow>,
-        Assign::StrObjAndLenCopyAssign<utf8, TQ::Mid>,
-        Assign::StrObjAndLenCopyAssign<utf16, TQ::None>,
-        Assign::StrObjAndLenCopyAssign<utf16, TQ::MidLow>,
-        Assign::StrObjAndLenCopyAssign<utf16, TQ::Mid>,
-
-        Assign::StrObjMoveAssign<utf8, TQ::None>,
-        Assign::StrObjMoveAssign<utf8, TQ::MidLow>,
-        Assign::StrObjMoveAssign<utf8, TQ::Mid>,
-        Assign::StrObjMoveAssign<utf16, TQ::None>,
-        Assign::StrObjMoveAssign<utf16, TQ::MidLow>,
-        Assign::StrObjMoveAssign<utf16, TQ::Mid>,
-
-        Append::ChAppend<utf8, TQ::None>,
-        Append::ChAppend<utf8, TQ::MidLow>,
-        Append::ChAppend<utf8, TQ::Mid>,
-        Append::ChAppend<utf16, TQ::None>,
-        Append::ChAppend<utf16, TQ::MidLow>,
-        Append::ChAppend<utf16, TQ::Mid>,
-
-        Append::CStrAppend<utf8, TQ::None>,
-        Append::CStrAppend<utf8, TQ::MidLow>,
-        Append::CStrAppend<utf8, TQ::Mid>,
-        Append::CStrAppend<utf16, TQ::None>,
-        Append::CStrAppend<utf16, TQ::MidLow>,
-        Append::CStrAppend<utf16, TQ::Mid>,
-
-        Append::PtrAndLenAppend<utf8, TQ::None>,
-        Append::PtrAndLenAppend<utf8, TQ::MidLow>,
-        Append::PtrAndLenAppend<utf8, TQ::Mid>,
-        Append::PtrAndLenAppend<utf16, TQ::None>,
-        Append::PtrAndLenAppend<utf16, TQ::MidLow>,
-        Append::PtrAndLenAppend<utf16, TQ::Mid>,
-
-        Append::StrObjAppend<utf8, TQ::None>,
-        Append::StrObjAppend<utf8, TQ::MidLow>,
-        Append::StrObjAppend<utf8, TQ::Mid>,
-        Append::StrObjAppend<utf16, TQ::None>,
-        Append::StrObjAppend<utf16, TQ::MidLow>,
-        Append::StrObjAppend<utf16, TQ::Mid>,
-
-        Append::StrObjAndLenAppend<utf8, TQ::None>,
-        Append::StrObjAndLenAppend<utf8, TQ::MidLow>,
-        Append::StrObjAndLenAppend<utf8, TQ::Mid>,
-        Append::StrObjAndLenAppend<utf16, TQ::None>,
-        Append::StrObjAndLenAppend<utf16, TQ::MidLow>,
-        Append::StrObjAndLenAppend<utf16, TQ::Mid>,
-
-        CompareTests::CStrCompare<utf8, TQ::None, false>,
-        CompareTests::CStrCompare<utf8, TQ::None, true>,
-        CompareTests::CStrCompare<utf8, TQ::MidLow, false>,
-        CompareTests::CStrCompare<utf8, TQ::MidLow, true>,
-        CompareTests::CStrCompare<utf8, TQ::Mid, false>,
-        CompareTests::CStrCompare<utf8, TQ::Mid, true>,
-        CompareTests::CStrCompare<utf16, TQ::None, false>,
-        CompareTests::CStrCompare<utf16, TQ::None, true>,
-        CompareTests::CStrCompare<utf16, TQ::MidLow, false>,
-        CompareTests::CStrCompare<utf16, TQ::MidLow, true>,
-        CompareTests::CStrCompare<utf16, TQ::Mid, false>,
-        CompareTests::CStrCompare<utf16, TQ::Mid, true>,
-
-        CompareTests::StrAndLenCompare<utf8, TQ::None, TQ::None, false>,
-        CompareTests::StrAndLenCompare<utf8, TQ::None, TQ::None, true>,
-        CompareTests::StrAndLenCompare<utf8, TQ::None, TQ::MidLow, false>,
-        CompareTests::StrAndLenCompare<utf8, TQ::None, TQ::MidLow, true>,
-        CompareTests::StrAndLenCompare<utf8, TQ::None, TQ::Mid, false>,
-        CompareTests::StrAndLenCompare<utf8, TQ::None, TQ::Mid, true>,
-        CompareTests::StrAndLenCompare<utf8, TQ::MidLow, TQ::None, false>,
-        CompareTests::StrAndLenCompare<utf8, TQ::MidLow, TQ::None, true>,
-        CompareTests::StrAndLenCompare<utf8, TQ::MidLow, TQ::MidLow, false>,
-        CompareTests::StrAndLenCompare<utf8, TQ::MidLow, TQ::MidLow, true>,
-        CompareTests::StrAndLenCompare<utf8, TQ::MidLow, TQ::Mid, false>,
-        CompareTests::StrAndLenCompare<utf8, TQ::MidLow, TQ::Mid, true>,
-        CompareTests::StrAndLenCompare<utf8, TQ::Mid, TQ::None, false>,
-        CompareTests::StrAndLenCompare<utf8, TQ::Mid, TQ::None, true>,
-        CompareTests::StrAndLenCompare<utf8, TQ::Mid, TQ::MidLow, false>,
-        CompareTests::StrAndLenCompare<utf8, TQ::Mid, TQ::MidLow, true>,
-        CompareTests::StrAndLenCompare<utf8, TQ::Mid, TQ::Mid, false>,
-        CompareTests::StrAndLenCompare<utf8, TQ::Mid, TQ::Mid, true>,
-        CompareTests::StrAndLenCompare<utf16, TQ::None, TQ::None, false>,
-        CompareTests::StrAndLenCompare<utf16, TQ::None, TQ::None, true>,
-        CompareTests::StrAndLenCompare<utf16, TQ::None, TQ::MidLow, false>,
-        CompareTests::StrAndLenCompare<utf16, TQ::None, TQ::MidLow, true>,
-        CompareTests::StrAndLenCompare<utf16, TQ::None, TQ::Mid, false>,
-        CompareTests::StrAndLenCompare<utf16, TQ::None, TQ::Mid, true>,
-        CompareTests::StrAndLenCompare<utf16, TQ::MidLow, TQ::None, false>,
-        CompareTests::StrAndLenCompare<utf16, TQ::MidLow, TQ::None, true>,
-        CompareTests::StrAndLenCompare<utf16, TQ::MidLow, TQ::MidLow, false>,
-        CompareTests::StrAndLenCompare<utf16, TQ::MidLow, TQ::MidLow, true>,
-        CompareTests::StrAndLenCompare<utf16, TQ::MidLow, TQ::Mid, false>,
-        CompareTests::StrAndLenCompare<utf16, TQ::MidLow, TQ::Mid, true>,
-        CompareTests::StrAndLenCompare<utf16, TQ::Mid, TQ::None, false>,
-        CompareTests::StrAndLenCompare<utf16, TQ::Mid, TQ::None, true>,
-        CompareTests::StrAndLenCompare<utf16, TQ::Mid, TQ::MidLow, false>,
-        CompareTests::StrAndLenCompare<utf16, TQ::Mid, TQ::MidLow, true>,
-        CompareTests::StrAndLenCompare<utf16, TQ::Mid, TQ::Mid, false>,
-        CompareTests::StrAndLenCompare<utf16, TQ::Mid, TQ::Mid, true>,
-
-        CompareTests::StrObjCompare<utf8, TQ::None, false>,
-        CompareTests::StrObjCompare<utf8, TQ::None, true>,
-        CompareTests::StrObjCompare<utf8, TQ::MidLow, false>,
-        CompareTests::StrObjCompare<utf8, TQ::MidLow, true>,
-        CompareTests::StrObjCompare<utf8, TQ::Mid, false>,
-        CompareTests::StrObjCompare<utf8, TQ::Mid, true>,
-        CompareTests::StrObjCompare<utf16, TQ::None, false>,
-        CompareTests::StrObjCompare<utf16, TQ::None, true>,
-        CompareTests::StrObjCompare<utf16, TQ::MidLow, false>,
-        CompareTests::StrObjCompare<utf16, TQ::MidLow, true>,
-        CompareTests::StrObjCompare<utf16, TQ::Mid, false>,
-        CompareTests::StrObjCompare<utf16, TQ::Mid, true>,
-
-        CompareTests::StrObjAndLenCompare<utf8, TQ::None, TQ::None, false>,
-        CompareTests::StrObjAndLenCompare<utf8, TQ::None, TQ::None, true>,
-        CompareTests::StrObjAndLenCompare<utf8, TQ::None, TQ::MidLow, false>,
-        CompareTests::StrObjAndLenCompare<utf8, TQ::None, TQ::MidLow, true>,
-        CompareTests::StrObjAndLenCompare<utf8, TQ::None, TQ::Mid, false>,
-        CompareTests::StrObjAndLenCompare<utf8, TQ::None, TQ::Mid, true>,
-        CompareTests::StrObjAndLenCompare<utf8, TQ::MidLow, TQ::None, false>,
-        CompareTests::StrObjAndLenCompare<utf8, TQ::MidLow, TQ::None, true>,
-        CompareTests::StrObjAndLenCompare<utf8, TQ::MidLow, TQ::MidLow, false>,
-        CompareTests::StrObjAndLenCompare<utf8, TQ::MidLow, TQ::MidLow, true>,
-        CompareTests::StrObjAndLenCompare<utf8, TQ::MidLow, TQ::Mid, false>,
-        CompareTests::StrObjAndLenCompare<utf8, TQ::MidLow, TQ::Mid, true>,
-        CompareTests::StrObjAndLenCompare<utf8, TQ::Mid, TQ::None, false>,
-        CompareTests::StrObjAndLenCompare<utf8, TQ::Mid, TQ::None, true>,
-        CompareTests::StrObjAndLenCompare<utf8, TQ::Mid, TQ::MidLow, false>,
-        CompareTests::StrObjAndLenCompare<utf8, TQ::Mid, TQ::MidLow, true>,
-        CompareTests::StrObjAndLenCompare<utf8, TQ::Mid, TQ::Mid, false>,
-        CompareTests::StrObjAndLenCompare<utf8, TQ::Mid, TQ::Mid, true>,
-        CompareTests::StrObjAndLenCompare<utf16, TQ::None, TQ::None, false>,
-        CompareTests::StrObjAndLenCompare<utf16, TQ::None, TQ::None, true>,
-        CompareTests::StrObjAndLenCompare<utf16, TQ::None, TQ::MidLow, false>,
-        CompareTests::StrObjAndLenCompare<utf16, TQ::None, TQ::MidLow, true>,
-        CompareTests::StrObjAndLenCompare<utf16, TQ::None, TQ::Mid, false>,
-        CompareTests::StrObjAndLenCompare<utf16, TQ::None, TQ::Mid, true>,
-        CompareTests::StrObjAndLenCompare<utf16, TQ::MidLow, TQ::None, false>,
-        CompareTests::StrObjAndLenCompare<utf16, TQ::MidLow, TQ::None, true>,
-        CompareTests::StrObjAndLenCompare<utf16, TQ::MidLow, TQ::MidLow, false>,
-        CompareTests::StrObjAndLenCompare<utf16, TQ::MidLow, TQ::MidLow, true>,
-        CompareTests::StrObjAndLenCompare<utf16, TQ::MidLow, TQ::Mid, false>,
-        CompareTests::StrObjAndLenCompare<utf16, TQ::MidLow, TQ::Mid, true>,
-        CompareTests::StrObjAndLenCompare<utf16, TQ::Mid, TQ::None, false>,
-        CompareTests::StrObjAndLenCompare<utf16, TQ::Mid, TQ::None, true>,
-        CompareTests::StrObjAndLenCompare<utf16, TQ::Mid, TQ::MidLow, false>,
-        CompareTests::StrObjAndLenCompare<utf16, TQ::Mid, TQ::MidLow, true>,
-        CompareTests::StrObjAndLenCompare<utf16, TQ::Mid, TQ::Mid, false>,
-        CompareTests::StrObjAndLenCompare<utf16, TQ::Mid, TQ::Mid, true>,
-
-        ClearTests::Clear<utf8, TQ::None>,
-        ClearTests::Clear<utf8, TQ::MidLow>,
-        ClearTests::Clear<utf8, TQ::Mid>,
-        ClearTests::Clear<utf16, TQ::None>,
-        ClearTests::Clear<utf16, TQ::MidLow>,
-        ClearTests::Clear<utf16, TQ::Mid>,
-
-        IsEmptyTests::IsEmpty<utf8, TQ::None>,
-        IsEmptyTests::IsEmpty<utf8, TQ::MidLow>,
-        IsEmptyTests::IsEmpty<utf8, TQ::Mid>,
-        IsEmptyTests::IsEmpty<utf16, TQ::None>,
-        IsEmptyTests::IsEmpty<utf16, TQ::MidLow>,
-        IsEmptyTests::IsEmpty<utf16, TQ::Mid>,
+        // IsEmpty Tests
+        ADD_STR_TESTS_C_TQ1(IsEmptyTests::IsEmpty)
     };
 
     return tests;

@@ -1,11 +1,106 @@
 #include <CCStringUtilTests.h>
 
 
+/// Add-String-Util-Test Helper Macros \\\
+
+// Add 2 Tests (2 Char types)
+#define ADD_STR_UTIL_TESTS_C(_fn_)\
+    _fn_<char>, _fn_<wchar_t>
+
+// Add 4 Tests (2 Return Types x 2 Char Types)
+#define ADD_STR_UTIL_TESTS_RT_C(_fn_)\
+    _fn_<CC::ReturnType::CppString, char>, _fn_<CC::ReturnType::CppString, wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  char>, _fn_<CC::ReturnType::CCBuffer,  wchar_t>
+
+// Add 8 Tests (2 Return Types x 2 Char Types x 2 Char Types)
+#define ADD_STR_UTIL_TESTS_RT_C2(_fn_)\
+    _fn_<CC::ReturnType::CppString, char,    char>, _fn_<CC::ReturnType::CppString, char,    wchar_t>,\
+    _fn_<CC::ReturnType::CppString, wchar_t, char>, _fn_<CC::ReturnType::CppString, wchar_t, wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  char,    char>, _fn_<CC::ReturnType::CCBuffer,  char,    wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  wchar_t, char>, _fn_<CC::ReturnType::CCBuffer,  wchar_t, wchar_t>
+
+// Add 144 Tests (2 Returns Types x 4 Bases x 9 Types X 2 Char Types)
+#define ADD_STR_UTIL_TESTS_RT_BT_T_C(_fn_)\
+    _fn_<CC::ReturnType::CppString, CC::Base::Binary,       int8_t,   char>, _fn_<CC::ReturnType::CppString, CC::Base::Binary,       int8_t,   wchar_t>,\
+    _fn_<CC::ReturnType::CppString, CC::Base::Binary,       uint8_t,  char>, _fn_<CC::ReturnType::CppString, CC::Base::Binary,       uint8_t,  wchar_t>,\
+    _fn_<CC::ReturnType::CppString, CC::Base::Binary,       int16_t,  char>, _fn_<CC::ReturnType::CppString, CC::Base::Binary,       int16_t,  wchar_t>,\
+    _fn_<CC::ReturnType::CppString, CC::Base::Binary,       uint16_t, char>, _fn_<CC::ReturnType::CppString, CC::Base::Binary,       uint16_t, wchar_t>,\
+    _fn_<CC::ReturnType::CppString, CC::Base::Binary,       int32_t,  char>, _fn_<CC::ReturnType::CppString, CC::Base::Binary,       int32_t,  wchar_t>,\
+    _fn_<CC::ReturnType::CppString, CC::Base::Binary,       uint32_t, char>, _fn_<CC::ReturnType::CppString, CC::Base::Binary,       uint32_t, wchar_t>,\
+    _fn_<CC::ReturnType::CppString, CC::Base::Binary,       int64_t,  char>, _fn_<CC::ReturnType::CppString, CC::Base::Binary,       int64_t,  wchar_t>,\
+    _fn_<CC::ReturnType::CppString, CC::Base::Binary,       uint64_t, char>, _fn_<CC::ReturnType::CppString, CC::Base::Binary,       uint64_t, wchar_t>,\
+    _fn_<CC::ReturnType::CppString, CC::Base::Binary,       void*,    char>, _fn_<CC::ReturnType::CppString, CC::Base::Binary,       void*,    wchar_t>,\
+    _fn_<CC::ReturnType::CppString, CC::Base::Octal,        int8_t,   char>, _fn_<CC::ReturnType::CppString, CC::Base::Octal,        int8_t,   wchar_t>,\
+    _fn_<CC::ReturnType::CppString, CC::Base::Octal,        uint8_t,  char>, _fn_<CC::ReturnType::CppString, CC::Base::Octal,        uint8_t,  wchar_t>,\
+    _fn_<CC::ReturnType::CppString, CC::Base::Octal,        int16_t,  char>, _fn_<CC::ReturnType::CppString, CC::Base::Octal,        int16_t,  wchar_t>,\
+    _fn_<CC::ReturnType::CppString, CC::Base::Octal,        uint16_t, char>, _fn_<CC::ReturnType::CppString, CC::Base::Octal,        uint16_t, wchar_t>,\
+    _fn_<CC::ReturnType::CppString, CC::Base::Octal,        int32_t,  char>, _fn_<CC::ReturnType::CppString, CC::Base::Octal,        int32_t,  wchar_t>,\
+    _fn_<CC::ReturnType::CppString, CC::Base::Octal,        uint32_t, char>, _fn_<CC::ReturnType::CppString, CC::Base::Octal,        uint32_t, wchar_t>,\
+    _fn_<CC::ReturnType::CppString, CC::Base::Octal,        int64_t,  char>, _fn_<CC::ReturnType::CppString, CC::Base::Octal,        int64_t,  wchar_t>,\
+    _fn_<CC::ReturnType::CppString, CC::Base::Octal,        uint64_t, char>, _fn_<CC::ReturnType::CppString, CC::Base::Octal,        uint64_t, wchar_t>,\
+    _fn_<CC::ReturnType::CppString, CC::Base::Octal,        void*,    char>, _fn_<CC::ReturnType::CppString, CC::Base::Octal,        void*,    wchar_t>,\
+    _fn_<CC::ReturnType::CppString, CC::Base::Decimal,      int8_t,   char>, _fn_<CC::ReturnType::CppString, CC::Base::Decimal,      int8_t,   wchar_t>,\
+    _fn_<CC::ReturnType::CppString, CC::Base::Decimal,      uint8_t,  char>, _fn_<CC::ReturnType::CppString, CC::Base::Decimal,      uint8_t,  wchar_t>,\
+    _fn_<CC::ReturnType::CppString, CC::Base::Decimal,      int16_t,  char>, _fn_<CC::ReturnType::CppString, CC::Base::Decimal,      int16_t,  wchar_t>,\
+    _fn_<CC::ReturnType::CppString, CC::Base::Decimal,      uint16_t, char>, _fn_<CC::ReturnType::CppString, CC::Base::Decimal,      uint16_t, wchar_t>,\
+    _fn_<CC::ReturnType::CppString, CC::Base::Decimal,      int32_t,  char>, _fn_<CC::ReturnType::CppString, CC::Base::Decimal,      int32_t,  wchar_t>,\
+    _fn_<CC::ReturnType::CppString, CC::Base::Decimal,      uint32_t, char>, _fn_<CC::ReturnType::CppString, CC::Base::Decimal,      uint32_t, wchar_t>,\
+    _fn_<CC::ReturnType::CppString, CC::Base::Decimal,      int64_t,  char>, _fn_<CC::ReturnType::CppString, CC::Base::Decimal,      int64_t,  wchar_t>,\
+    _fn_<CC::ReturnType::CppString, CC::Base::Decimal,      uint64_t, char>, _fn_<CC::ReturnType::CppString, CC::Base::Decimal,      uint64_t, wchar_t>,\
+    _fn_<CC::ReturnType::CppString, CC::Base::Decimal,      void*,    char>, _fn_<CC::ReturnType::CppString, CC::Base::Decimal,      void*,    wchar_t>,\
+    _fn_<CC::ReturnType::CppString, CC::Base::Hexadecimal,  int8_t,   char>, _fn_<CC::ReturnType::CppString, CC::Base::Hexadecimal,  int8_t,   wchar_t>,\
+    _fn_<CC::ReturnType::CppString, CC::Base::Hexadecimal,  uint8_t,  char>, _fn_<CC::ReturnType::CppString, CC::Base::Hexadecimal,  uint8_t,  wchar_t>,\
+    _fn_<CC::ReturnType::CppString, CC::Base::Hexadecimal,  int16_t,  char>, _fn_<CC::ReturnType::CppString, CC::Base::Hexadecimal,  int16_t,  wchar_t>,\
+    _fn_<CC::ReturnType::CppString, CC::Base::Hexadecimal,  uint16_t, char>, _fn_<CC::ReturnType::CppString, CC::Base::Hexadecimal,  uint16_t, wchar_t>,\
+    _fn_<CC::ReturnType::CppString, CC::Base::Hexadecimal,  int32_t,  char>, _fn_<CC::ReturnType::CppString, CC::Base::Hexadecimal,  int32_t,  wchar_t>,\
+    _fn_<CC::ReturnType::CppString, CC::Base::Hexadecimal,  uint32_t, char>, _fn_<CC::ReturnType::CppString, CC::Base::Hexadecimal,  uint32_t, wchar_t>,\
+    _fn_<CC::ReturnType::CppString, CC::Base::Hexadecimal,  int64_t,  char>, _fn_<CC::ReturnType::CppString, CC::Base::Hexadecimal,  int64_t,  wchar_t>,\
+    _fn_<CC::ReturnType::CppString, CC::Base::Hexadecimal,  uint64_t, char>, _fn_<CC::ReturnType::CppString, CC::Base::Hexadecimal,  uint64_t, wchar_t>,\
+    _fn_<CC::ReturnType::CppString, CC::Base::Hexadecimal,  void*,    char>, _fn_<CC::ReturnType::CppString, CC::Base::Hexadecimal,  void*,    wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  CC::Base::Binary,       int8_t,   char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Binary,       int8_t,   wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  CC::Base::Binary,       uint8_t,  char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Binary,       uint8_t,  wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  CC::Base::Binary,       int16_t,  char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Binary,       int16_t,  wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  CC::Base::Binary,       uint16_t, char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Binary,       uint16_t, wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  CC::Base::Binary,       int32_t,  char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Binary,       int32_t,  wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  CC::Base::Binary,       uint32_t, char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Binary,       uint32_t, wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  CC::Base::Binary,       int64_t,  char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Binary,       int64_t,  wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  CC::Base::Binary,       uint64_t, char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Binary,       uint64_t, wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  CC::Base::Binary,       void*,    char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Binary,       void*,    wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  CC::Base::Octal,        int8_t,   char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Octal,        int8_t,   wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  CC::Base::Octal,        uint8_t,  char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Octal,        uint8_t,  wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  CC::Base::Octal,        int16_t,  char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Octal,        int16_t,  wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  CC::Base::Octal,        uint16_t, char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Octal,        uint16_t, wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  CC::Base::Octal,        int32_t,  char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Octal,        int32_t,  wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  CC::Base::Octal,        uint32_t, char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Octal,        uint32_t, wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  CC::Base::Octal,        int64_t,  char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Octal,        int64_t,  wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  CC::Base::Octal,        uint64_t, char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Octal,        uint64_t, wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  CC::Base::Octal,        void*,    char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Octal,        void*,    wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  CC::Base::Decimal,      int8_t,   char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Decimal,      int8_t,   wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  CC::Base::Decimal,      uint8_t,  char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Decimal,      uint8_t,  wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  CC::Base::Decimal,      int16_t,  char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Decimal,      int16_t,  wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  CC::Base::Decimal,      uint16_t, char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Decimal,      uint16_t, wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  CC::Base::Decimal,      int32_t,  char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Decimal,      int32_t,  wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  CC::Base::Decimal,      uint32_t, char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Decimal,      uint32_t, wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  CC::Base::Decimal,      int64_t,  char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Decimal,      int64_t,  wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  CC::Base::Decimal,      uint64_t, char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Decimal,      uint64_t, wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  CC::Base::Decimal,      void*,    char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Decimal,      void*,    wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  CC::Base::Hexadecimal,  int8_t,   char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Hexadecimal,  int8_t,   wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  CC::Base::Hexadecimal,  uint8_t,  char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Hexadecimal,  uint8_t,  wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  CC::Base::Hexadecimal,  int16_t,  char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Hexadecimal,  int16_t,  wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  CC::Base::Hexadecimal,  uint16_t, char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Hexadecimal,  uint16_t, wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  CC::Base::Hexadecimal,  int32_t,  char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Hexadecimal,  int32_t,  wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  CC::Base::Hexadecimal,  uint32_t, char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Hexadecimal,  uint32_t, wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  CC::Base::Hexadecimal,  int64_t,  char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Hexadecimal,  int64_t,  wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  CC::Base::Hexadecimal,  uint64_t, char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Hexadecimal,  uint64_t, wchar_t>,\
+    _fn_<CC::ReturnType::CCBuffer,  CC::Base::Hexadecimal,  void*,    char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Hexadecimal,  void*,    wchar_t>
+    
+
 std::list<CC::StringUtilTests::UTFunc> CC::StringUtilTests::GetTests()
 {
 #pragma warning(suppress : 6262) // Suppress high stack memory usage warning.
     static const std::list<std::function<UTR(void)>> tests
     {
+        // Enum Validator Tests
         EnumValidatorTests::InvalidOperationType,
         EnumValidatorTests::ValidOperationType,
         EnumValidatorTests::InvalidEarlyExitResult,
@@ -15,294 +110,65 @@ std::list<CC::StringUtilTests::UTFunc> CC::StringUtilTests::GetTests()
         EnumValidatorTests::InvalidBaseType,
         EnumValidatorTests::ValidBaseType,
 
-        BuildBufferTests::ZeroLength<RT::CppString, char>,
-        BuildBufferTests::ZeroLength<RT::CppString, wchar_t>,
-        BuildBufferTests::ZeroLength<RT::CCBuffer, char>,
-        BuildBufferTests::ZeroLength<RT::CCBuffer, wchar_t>,
-        BuildBufferTests::OneLength<RT::CppString, char>,
-        BuildBufferTests::OneLength<RT::CppString, wchar_t>,
-        BuildBufferTests::OneLength<RT::CCBuffer, char>,
-        BuildBufferTests::OneLength<RT::CCBuffer, wchar_t>,
-        BuildBufferTests::ManyLength<RT::CppString, char>,
-        BuildBufferTests::ManyLength<RT::CppString, wchar_t>,
-        BuildBufferTests::ManyLength<RT::CCBuffer, char>,
-        BuildBufferTests::ManyLength<RT::CCBuffer, wchar_t>,
+        // Build Buffer Tests
+        ADD_STR_UTIL_TESTS_RT_C(BuildBufferTests::ZeroLength),
+        ADD_STR_UTIL_TESTS_RT_C(BuildBufferTests::OneLength),
+        ADD_STR_UTIL_TESTS_RT_C(BuildBufferTests::ManyLength),
 
-        GetLengthTests::NullptrArg<char>,
-        GetLengthTests::NullptrArg<wchar_t>,
-        GetLengthTests::ZeroLength<char>,
-        GetLengthTests::ZeroLength<wchar_t>,
-        GetLengthTests::OneLength<char>,
-        GetLengthTests::OneLength<wchar_t>,
-        GetLengthTests::ManyLength<char>,
-        GetLengthTests::ManyLength<wchar_t>,
+        // Get Length Tests
+        ADD_STR_UTIL_TESTS_C(GetLengthTests::NullptrArg),
+        ADD_STR_UTIL_TESTS_C(GetLengthTests::ZeroLength),
+        ADD_STR_UTIL_TESTS_C(GetLengthTests::OneLength),
+        ADD_STR_UTIL_TESTS_C(GetLengthTests::ManyLength),
 
-        ComparisonEarlyExitTests::SameLengthDifferentStrs<char>,
-        ComparisonEarlyExitTests::SameLengthDifferentStrs<wchar_t>,
-        ComparisonEarlyExitTests::SameStr<char>,
-        ComparisonEarlyExitTests::SameStr<wchar_t>,
-        ComparisonEarlyExitTests::LengthMismatch<char>,
-        ComparisonEarlyExitTests::LengthMismatch<wchar_t>,
-        ComparisonEarlyExitTests::BothZeroLength<char>,
-        ComparisonEarlyExitTests::BothZeroLength<wchar_t>,
-        ComparisonEarlyExitTests::OneNullptr<char>,
-        ComparisonEarlyExitTests::OneNullptr<wchar_t>,
-        ComparisonEarlyExitTests::BothNullptr<char>,
-        ComparisonEarlyExitTests::BothNullptr<wchar_t>,
-        ComparisonEarlyExitTests::SamePtr<char>,
-        ComparisonEarlyExitTests::SamePtr<wchar_t>,
+        // Comparison Early-Exit Tests
+        ADD_STR_UTIL_TESTS_C(ComparisonEarlyExitTests::SameLengthDifferentStrs),
+        ADD_STR_UTIL_TESTS_C(ComparisonEarlyExitTests::SameStr),
+        ADD_STR_UTIL_TESTS_C(ComparisonEarlyExitTests::LengthMismatch),
+        ADD_STR_UTIL_TESTS_C(ComparisonEarlyExitTests::BothZeroLength),
+        ADD_STR_UTIL_TESTS_C(ComparisonEarlyExitTests::OneNullptr),
+        ADD_STR_UTIL_TESTS_C(ComparisonEarlyExitTests::BothNullptr),
+        ADD_STR_UTIL_TESTS_C(ComparisonEarlyExitTests::SamePtr),
 
-        ComparisonTests::LengthMismatch<char>,
-        ComparisonTests::LengthMismatch<wchar_t>,
-        ComparisonTests::BothZeroLength<char>,
-        ComparisonTests::BothZeroLength<wchar_t>,
-        ComparisonTests::OneNullptr<char>,
-        ComparisonTests::OneNullptr<wchar_t>,
-        ComparisonTests::BothNullptr<char>,
-        ComparisonTests::BothNullptr<wchar_t>,
-        ComparisonTests::SamePtr<char>,
-        ComparisonTests::SamePtr<wchar_t>,
-        ComparisonTests::CaseInsensitiveNoMatch<char>,
-        ComparisonTests::CaseInsensitiveNoMatch<wchar_t>,
-        ComparisonTests::CaseInsensitiveDifferentCasing<char>,
-        ComparisonTests::CaseInsensitiveDifferentCasing<wchar_t>,
-        ComparisonTests::CaseInsensitiveMatch<char>,
-        ComparisonTests::CaseInsensitiveMatch<wchar_t>,
-        ComparisonTests::CaseSensitiveNoMatch<char>,
-        ComparisonTests::CaseSensitiveNoMatch<wchar_t>,
-        ComparisonTests::CaseSensitiveDifferentCasing<char>,
-        ComparisonTests::CaseSensitiveDifferentCasing<wchar_t>,
-        ComparisonTests::CaseSensitiveMatch<char>,
-        ComparisonTests::CaseSensitiveMatch<wchar_t>,
+        // Comparison Tests
+        ADD_STR_UTIL_TESTS_C(ComparisonTests::LengthMismatch),
+        ADD_STR_UTIL_TESTS_C(ComparisonTests::BothZeroLength),
+        ADD_STR_UTIL_TESTS_C(ComparisonTests::OneNullptr),
+        ADD_STR_UTIL_TESTS_C(ComparisonTests::BothNullptr),
+        ADD_STR_UTIL_TESTS_C(ComparisonTests::SamePtr),
+        ADD_STR_UTIL_TESTS_C(ComparisonTests::CaseInsensitiveNoMatch),
+        ADD_STR_UTIL_TESTS_C(ComparisonTests::CaseInsensitiveDifferentCasing),
+        ADD_STR_UTIL_TESTS_C(ComparisonTests::CaseInsensitiveMatch),
+        ADD_STR_UTIL_TESTS_C(ComparisonTests::CaseSensitiveNoMatch),
+        ADD_STR_UTIL_TESTS_C(ComparisonTests::CaseSensitiveDifferentCasing),
+        ADD_STR_UTIL_TESTS_C(ComparisonTests::CaseSensitiveMatch),
 
-        CopyEarlyExitTests::Nullptr<RT::CppString, char>,
-        CopyEarlyExitTests::Nullptr<RT::CppString, wchar_t>,
-        CopyEarlyExitTests::Nullptr<RT::CCBuffer, char>,
-        CopyEarlyExitTests::Nullptr<RT::CCBuffer, wchar_t>,
-        CopyEarlyExitTests::ZeroLength<RT::CppString, char>,
-        CopyEarlyExitTests::ZeroLength<RT::CppString, wchar_t>,
-        CopyEarlyExitTests::ZeroLength<RT::CCBuffer, char>,
-        CopyEarlyExitTests::ZeroLength<RT::CCBuffer, wchar_t>,
-        CopyEarlyExitTests::OneLength<RT::CppString, char>,
-        CopyEarlyExitTests::OneLength<RT::CppString, wchar_t>,
-        CopyEarlyExitTests::OneLength<RT::CCBuffer, char>,
-        CopyEarlyExitTests::OneLength<RT::CCBuffer, wchar_t>,
-        CopyEarlyExitTests::ManyLength<RT::CppString, char>,
-        CopyEarlyExitTests::ManyLength<RT::CppString, wchar_t>,
-        CopyEarlyExitTests::ManyLength<RT::CCBuffer, char>,
-        CopyEarlyExitTests::ManyLength<RT::CCBuffer, wchar_t>,
+        // Copy Early-Exit Tests
+        ADD_STR_UTIL_TESTS_RT_C(CopyEarlyExitTests::Nullptr),
+        ADD_STR_UTIL_TESTS_RT_C(CopyEarlyExitTests::ZeroLength),
+        ADD_STR_UTIL_TESTS_RT_C(CopyEarlyExitTests::OneLength),
+        ADD_STR_UTIL_TESTS_RT_C(CopyEarlyExitTests::ManyLength),
 
-        CopyTests::Nullptr<RT::CppString, char>,
-        CopyTests::Nullptr<RT::CppString, wchar_t>,
-        CopyTests::Nullptr<RT::CCBuffer, char>,
-        CopyTests::Nullptr<RT::CCBuffer, wchar_t>,
-        CopyTests::ZeroLength<RT::CppString, char>,
-        CopyTests::ZeroLength<RT::CppString, wchar_t>,
-        CopyTests::ZeroLength<RT::CCBuffer, char>,
-        CopyTests::ZeroLength<RT::CCBuffer, wchar_t>,
-        CopyTests::OneLength<RT::CppString, char>,
-        CopyTests::OneLength<RT::CppString, wchar_t>,
-        CopyTests::OneLength<RT::CCBuffer, char>,
-        CopyTests::OneLength<RT::CCBuffer, wchar_t>,
-        CopyTests::ManyLength<RT::CppString, char>,
-        CopyTests::ManyLength<RT::CppString, wchar_t>,
-        CopyTests::ManyLength<RT::CCBuffer, char>,
-        CopyTests::ManyLength<RT::CCBuffer, wchar_t>,
+        // Copy Tests
+        ADD_STR_UTIL_TESTS_RT_C(CopyTests::Nullptr),
+        ADD_STR_UTIL_TESTS_RT_C(CopyTests::ZeroLength),
+        ADD_STR_UTIL_TESTS_RT_C(CopyTests::OneLength),
+        ADD_STR_UTIL_TESTS_RT_C(CopyTests::ManyLength),
 
-        UTFConversionEarlyExitTests::Nullptr<RT::CppString, char>,
-        UTFConversionEarlyExitTests::Nullptr<RT::CppString, wchar_t>,
-        UTFConversionEarlyExitTests::Nullptr<RT::CCBuffer, char>,
-        UTFConversionEarlyExitTests::Nullptr<RT::CCBuffer, wchar_t>,
-        UTFConversionEarlyExitTests::ZeroLength<RT::CppString, char>,
-        UTFConversionEarlyExitTests::ZeroLength<RT::CppString, wchar_t>,
-        UTFConversionEarlyExitTests::ZeroLength<RT::CCBuffer, char>,
-        UTFConversionEarlyExitTests::ZeroLength<RT::CCBuffer, wchar_t>,
-        UTFConversionEarlyExitTests::OneLength<RT::CppString, char>,
-        UTFConversionEarlyExitTests::OneLength<RT::CppString, wchar_t>,
-        UTFConversionEarlyExitTests::OneLength<RT::CCBuffer, char>,
-        UTFConversionEarlyExitTests::OneLength<RT::CCBuffer, wchar_t>,
-        UTFConversionEarlyExitTests::ManyLength<RT::CppString, char>,
-        UTFConversionEarlyExitTests::ManyLength<RT::CppString, wchar_t>,
-        UTFConversionEarlyExitTests::ManyLength<RT::CCBuffer, char>,
-        UTFConversionEarlyExitTests::ManyLength<RT::CCBuffer, wchar_t>,
+        // UTF Conversion Early-Exit Tests
+        ADD_STR_UTIL_TESTS_RT_C(UTFConversionEarlyExitTests::Nullptr),
+        ADD_STR_UTIL_TESTS_RT_C(UTFConversionEarlyExitTests::ZeroLength),
+        ADD_STR_UTIL_TESTS_RT_C(UTFConversionEarlyExitTests::OneLength),
+        ADD_STR_UTIL_TESTS_RT_C(UTFConversionEarlyExitTests::ManyLength),
 
-        UTFConversionTests::Nullptr<RT::CppString, char, char>,
-        UTFConversionTests::Nullptr<RT::CppString, char, wchar_t>,
-        UTFConversionTests::Nullptr<RT::CppString, wchar_t, char>,
-        UTFConversionTests::Nullptr<RT::CppString, wchar_t, wchar_t>,
-        UTFConversionTests::Nullptr<RT::CCBuffer, char, char>,
-        UTFConversionTests::Nullptr<RT::CCBuffer, char, wchar_t>,
-        UTFConversionTests::Nullptr<RT::CCBuffer, wchar_t, char>,
-        UTFConversionTests::Nullptr<RT::CCBuffer, wchar_t, wchar_t>,
-        UTFConversionTests::ZeroLength<RT::CppString, char, char>,
-        UTFConversionTests::ZeroLength<RT::CppString, char, wchar_t>,
-        UTFConversionTests::ZeroLength<RT::CppString, wchar_t, char>,
-        UTFConversionTests::ZeroLength<RT::CppString, wchar_t, wchar_t>,
-        UTFConversionTests::ZeroLength<RT::CCBuffer, char, char>,
-        UTFConversionTests::ZeroLength<RT::CCBuffer, char, wchar_t>,
-        UTFConversionTests::ZeroLength<RT::CCBuffer, wchar_t, char>,
-        UTFConversionTests::ZeroLength<RT::CCBuffer, wchar_t, wchar_t>,
-        UTFConversionTests::OneLength<RT::CppString, char, char>,
-        UTFConversionTests::OneLength<RT::CppString, char, wchar_t>,
-        UTFConversionTests::OneLength<RT::CppString, wchar_t, char>,
-        UTFConversionTests::OneLength<RT::CppString, wchar_t, wchar_t>,
-        UTFConversionTests::OneLength<RT::CCBuffer, char, char>,
-        UTFConversionTests::OneLength<RT::CCBuffer, char, wchar_t>,
-        UTFConversionTests::OneLength<RT::CCBuffer, wchar_t, char>,
-        UTFConversionTests::OneLength<RT::CCBuffer, wchar_t, wchar_t>,
-        UTFConversionTests::ManyLength<RT::CppString, char, char>,
-        UTFConversionTests::ManyLength<RT::CppString, char, wchar_t>,
-        UTFConversionTests::ManyLength<RT::CppString, wchar_t, char>,
-        UTFConversionTests::ManyLength<RT::CppString, wchar_t, wchar_t>,
-        UTFConversionTests::ManyLength<RT::CCBuffer, char, char>,
-        UTFConversionTests::ManyLength<RT::CCBuffer, char, wchar_t>,
-        UTFConversionTests::ManyLength<RT::CCBuffer, wchar_t, char>,
-        UTFConversionTests::ManyLength<RT::CCBuffer, wchar_t, wchar_t>,
+        // UTF Conversion Tests
+        ADD_STR_UTIL_TESTS_RT_C2(UTFConversionTests::Nullptr),
+        ADD_STR_UTIL_TESTS_RT_C2(UTFConversionTests::ZeroLength),
+        ADD_STR_UTIL_TESTS_RT_C2(UTFConversionTests::OneLength),
+        ADD_STR_UTIL_TESTS_RT_C2(UTFConversionTests::ManyLength),
 
-        NumberConversionTests::NumberType<RT::CppString, BT::Binary, int8_t, char>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Binary, int8_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Octal, int8_t, char>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Octal, int8_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Decimal, int8_t, char>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Decimal, int8_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Hexadecimal, int8_t, char>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Hexadecimal, int8_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Binary, uint8_t, char>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Binary, uint8_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Octal, uint8_t, char>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Octal, uint8_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Decimal, uint8_t, char>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Decimal, uint8_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Hexadecimal, uint8_t, char>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Hexadecimal, uint8_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Binary, int16_t, char>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Binary, int16_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Octal, int16_t, char>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Octal, int16_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Decimal, int16_t, char>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Decimal, int16_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Hexadecimal, int16_t, char>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Hexadecimal, int16_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Binary, uint16_t, char>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Binary, uint16_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Octal, uint16_t, char>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Octal, uint16_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Decimal, uint16_t, char>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Decimal, uint16_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Hexadecimal, uint16_t, char>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Hexadecimal, uint16_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Binary, int32_t, char>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Binary, int32_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Octal, int32_t, char>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Octal, int32_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Decimal, int32_t, char>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Decimal, int32_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Hexadecimal, int32_t, char>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Hexadecimal, int32_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Binary, uint32_t, char>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Binary, uint32_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Octal, uint32_t, char>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Octal, uint32_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Decimal, uint32_t, char>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Decimal, uint32_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Hexadecimal, uint32_t, char>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Hexadecimal, uint32_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Binary, int64_t, char>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Binary, int64_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Octal, int64_t, char>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Octal, int64_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Decimal, int64_t, char>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Decimal, int64_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Hexadecimal, int64_t, char>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Hexadecimal, int64_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Binary, uint64_t, char>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Binary, uint64_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Octal, uint64_t, char>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Octal, uint64_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Decimal, uint64_t, char>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Decimal, uint64_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Hexadecimal, uint64_t, char>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Hexadecimal, uint64_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Binary, void*, char>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Binary, void*, wchar_t>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Octal, void*, char>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Octal, void*, wchar_t>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Decimal, void*, char>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Decimal, void*, wchar_t>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Hexadecimal, void*, char>,
-        NumberConversionTests::NumberType<RT::CppString, BT::Hexadecimal, void*, wchar_t>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Binary, int8_t, char>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Binary, int8_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Octal, int8_t, char>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Octal, int8_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Decimal, int8_t, char>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Decimal, int8_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Hexadecimal, int8_t, char>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Hexadecimal, int8_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Binary, uint8_t, char>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Binary, uint8_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Octal, uint8_t, char>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Octal, uint8_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Decimal, uint8_t, char>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Decimal, uint8_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Hexadecimal, uint8_t, char>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Hexadecimal, uint8_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Binary, int16_t, char>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Binary, int16_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Octal, int16_t, char>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Octal, int16_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Decimal, int16_t, char>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Decimal, int16_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Hexadecimal, int16_t, char>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Hexadecimal, int16_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Binary, uint16_t, char>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Binary, uint16_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Octal, uint16_t, char>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Octal, uint16_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Decimal, uint16_t, char>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Decimal, uint16_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Hexadecimal, uint16_t, char>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Hexadecimal, uint16_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Binary, int32_t, char>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Binary, int32_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Octal, int32_t, char>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Octal, int32_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Decimal, int32_t, char>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Decimal, int32_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Hexadecimal, int32_t, char>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Hexadecimal, int32_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Binary, uint32_t, char>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Binary, uint32_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Octal, uint32_t, char>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Octal, uint32_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Decimal, uint32_t, char>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Decimal, uint32_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Hexadecimal, uint32_t, char>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Hexadecimal, uint32_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Binary, int64_t, char>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Binary, int64_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Octal, int64_t, char>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Octal, int64_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Decimal, int64_t, char>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Decimal, int64_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Hexadecimal, int64_t, char>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Hexadecimal, int64_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Binary, uint64_t, char>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Binary, uint64_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Octal, uint64_t, char>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Octal, uint64_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Decimal, uint64_t, char>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Decimal, uint64_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Hexadecimal, uint64_t, char>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Hexadecimal, uint64_t, wchar_t>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Binary, void*, char>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Binary, void*, wchar_t>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Octal, void*, char>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Octal, void*, wchar_t>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Decimal, void*, char>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Decimal, void*, wchar_t>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Hexadecimal, void*, char>,
-        NumberConversionTests::NumberType<RT::CCBuffer, BT::Hexadecimal, void*, wchar_t>
+        // Number Conversion Tests
+        ADD_STR_UTIL_TESTS_RT_BT_T_C(NumberConversionTests::NumberType)
     };
 
     return tests;

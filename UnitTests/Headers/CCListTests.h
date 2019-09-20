@@ -68,7 +68,7 @@ namespace CC
     public:
 
         template <typename T>
-        static UTR DefaultCtor()
+        [[nodiscard]] static UTR DefaultCtor()
         {
             List<T> list;
 
@@ -80,7 +80,7 @@ namespace CC
         }
 
         template <typename T>
-        static UTR ElementCopyCtor()
+        [[nodiscard]] static UTR ElementCopyCtor()
         {
             const T testData(GetTestData<T, TestQuantity::VeryLow>().front());
             List<T> list(testData);
@@ -107,7 +107,7 @@ namespace CC
         }
 
         template <typename T>
-        static UTR ElementMoveCtor()
+        [[nodiscard]] static UTR ElementMoveCtor()
         {
             T testData(GetTestData<T, TestQuantity::VeryLow>().front());
             List<T> list(std::move(testData));
@@ -134,7 +134,7 @@ namespace CC
         }
 
         template <typename T, TestQuantity SrcLen>
-        static UTR ListCopyCtor()
+        [[nodiscard]] static UTR ListCopyCtor()
         {
             constexpr size_t len = GetTQLength<SrcLen>();
             const std::vector<T> testData(GetTestData<T, SrcLen>());
@@ -183,7 +183,7 @@ namespace CC
         }
 
         template <typename T, TestQuantity SrcLen>
-        static UTR ListMoveCtor()
+        [[nodiscard]] static UTR ListMoveCtor()
         {
             constexpr size_t len = GetTQLength<SrcLen>();
             const std::vector<T> testData(GetTestData<T, SrcLen>());
@@ -242,7 +242,7 @@ namespace CC
     public:
 
         template <typename T, TestQuantity DstLen>
-        static UTR AssignMethodElementCopy()
+        [[nodiscard]] static UTR AssignMethodElementCopy()
         {
             constexpr size_t len = GetTQLength<DstLen>();
             const T testData(GetTestData<T, TestQuantity::VeryLow>().front());
@@ -287,7 +287,7 @@ namespace CC
         }
 
         template <typename T, TestQuantity DstLen>
-        static UTR AssignMethodElementMove()
+        [[nodiscard]] static UTR AssignMethodElementMove()
         {
             constexpr size_t len = GetTQLength<DstLen>();
             T testData(GetTestData<T, TestQuantity::VeryLow>().front());
@@ -332,7 +332,7 @@ namespace CC
         }
 
         template <typename T, TestQuantity DstLen, TestQuantity SrcLen>
-        static UTR AssignMethodListCopy()
+        [[nodiscard]] static UTR AssignMethodListCopy()
         {
             constexpr size_t dstLen = GetTQLength<DstLen>();
             constexpr size_t srcLen = GetTQLength<SrcLen>();
@@ -418,7 +418,7 @@ namespace CC
         }
 
         template <typename T, TestQuantity DstLen, TestQuantity SrcLen>
-        static UTR AssignMethodListMove()
+        [[nodiscard]] static UTR AssignMethodListMove()
         {
             constexpr size_t dstLen = GetTQLength<DstLen>();
             constexpr size_t srcLen = GetTQLength<SrcLen>();
@@ -506,7 +506,7 @@ namespace CC
         }
 
         template <typename T, TestQuantity DstLen>
-        static UTR AssignOperatorElementCopy()
+        [[nodiscard]] static UTR AssignOperatorElementCopy()
         {
             constexpr size_t len = GetTQLength<DstLen>();
             const T testData(GetTestData<T, TestQuantity::VeryLow>().front());
@@ -551,7 +551,7 @@ namespace CC
         }
 
         template <typename T, TestQuantity DstLen>
-        static UTR AssignOperatorElementMove()
+        [[nodiscard]] static UTR AssignOperatorElementMove()
         {
             constexpr size_t len = GetTQLength<DstLen>();
             T testData(GetTestData<T, TestQuantity::VeryLow>().front());
@@ -596,7 +596,7 @@ namespace CC
         }
 
         template <typename T, TestQuantity DstLen, TestQuantity SrcLen>
-        static UTR AssignOperatorListCopy()
+        [[nodiscard]] static UTR AssignOperatorListCopy()
         {
             constexpr size_t dstLen = GetTQLength<DstLen>();
             constexpr size_t srcLen = GetTQLength<SrcLen>();
@@ -682,7 +682,7 @@ namespace CC
         }
 
         template <typename T, TestQuantity DstLen, TestQuantity SrcLen>
-        static UTR AssignOperatorListMove()
+        [[nodiscard]] static UTR AssignOperatorListMove()
         {
             constexpr size_t dstLen = GetTQLength<DstLen>();
             constexpr size_t srcLen = GetTQLength<SrcLen>();
@@ -778,7 +778,7 @@ namespace CC
 
         // Append Method
         template <typename T>
-        static UTR AppendMethodElementCopy()
+        [[nodiscard]] static UTR AppendMethodElementCopy()
         {
             constexpr bool bIsHelper = std::is_same_v<T, Helper>;
             const std::vector<T> testData(GetTestData<T, TestQuantity::Low>());
@@ -850,7 +850,7 @@ namespace CC
         }
 
         template <typename T>
-        static UTR AppendMethodElementMove()
+        [[nodiscard]] static UTR AppendMethodElementMove()
         {
             constexpr bool bIsHelper = std::is_same_v<T, Helper>;
             std::vector<T> testData(GetTestData<T, TestQuantity::Low>());
@@ -922,7 +922,7 @@ namespace CC
         }
 
         template <typename T, TestQuantity SrcLen>
-        static UTR AppendMethodListCopy()
+        [[nodiscard]] static UTR AppendMethodListCopy()
         {
             constexpr size_t len = GetTQLength<SrcLen>();
             List<T> dst;
@@ -1009,7 +1009,7 @@ namespace CC
         }
 
         template <typename T, TestQuantity SrcLen>
-        static UTR AppendMethodListMove()
+        [[nodiscard]] static UTR AppendMethodListMove()
         {
             constexpr size_t len = GetTQLength<SrcLen>();
             const std::vector<T> testData(GetTestData<T, SrcLen>());
@@ -1105,7 +1105,7 @@ namespace CC
 
         // Append Operator (+=)
         template <typename T>
-        static UTR AppendOperatorElementCopy()
+        [[nodiscard]] static UTR AppendOperatorElementCopy()
         {
             constexpr bool bIsHelper = std::is_same_v<T, Helper>;
             const std::vector<T> testData(GetTestData<T, TestQuantity::Low>());
@@ -1177,7 +1177,7 @@ namespace CC
         }
 
         template <typename T>
-        static UTR AppendOperatorElementMove()
+        [[nodiscard]] static UTR AppendOperatorElementMove()
         {
             constexpr bool bIsHelper = std::is_same_v<T, Helper>;
             const std::vector<T> testData(GetTestData<T, TestQuantity::Low>());
@@ -1249,7 +1249,7 @@ namespace CC
         }
 
         template <typename T, TestQuantity SrcLen>
-        static UTR AppendOperatorListCopy()
+        [[nodiscard]] static UTR AppendOperatorListCopy()
         {
             constexpr size_t len = GetTQLength<SrcLen>();
             List<T> dst;
@@ -1338,7 +1338,7 @@ namespace CC
         }
 
         template <typename T, TestQuantity SrcLen>
-        static UTR AppendOperatorListMove()
+        [[nodiscard]] static UTR AppendOperatorListMove()
         {
             constexpr size_t len = GetTQLength<SrcLen>();
             const std::vector<T> testData(GetTestData<T, SrcLen>());
@@ -1436,7 +1436,7 @@ namespace CC
 
         // Prepend
         template <typename T>
-        static UTR PrependElementCopy()
+        [[nodiscard]] static UTR PrependElementCopy()
         {
             constexpr bool bIsHelper = std::is_same_v<T, Helper>;
             const std::vector<T> testData(GetTestData<T, TestQuantity::Low>());
@@ -1508,7 +1508,7 @@ namespace CC
         }
 
         template <typename T>
-        static UTR PrependElementMove()
+        [[nodiscard]] static UTR PrependElementMove()
         {
             constexpr bool bIsHelper = std::is_same_v<T, Helper>;
             std::vector<T> testData(GetTestData<T, TestQuantity::Low>());
@@ -1580,7 +1580,7 @@ namespace CC
         }
 
         template <typename T, TestQuantity SrcLen>
-        static UTR PrependListCopy()
+        [[nodiscard]] static UTR PrependListCopy()
         {
             constexpr size_t len = GetTQLength<SrcLen>();
             List<T> dst;
@@ -1667,7 +1667,7 @@ namespace CC
         }
 
         template <typename T, TestQuantity SrcLen>
-        static UTR PrependListMove()
+        [[nodiscard]] static UTR PrependListMove()
         {
             constexpr size_t len = GetTQLength<SrcLen>();
             const std::vector<T> testData(GetTestData<T, SrcLen>());
@@ -1763,7 +1763,7 @@ namespace CC
 
         // InsertAt - Front
         template <typename T>
-        static UTR InsertAtFrontElementCopy()
+        [[nodiscard]] static UTR InsertAtFrontElementCopy()
         {
             constexpr bool bIsHelper = std::is_same_v<T, Helper>;
             const std::vector<T> testData(GetTestData<T, TestQuantity::Low>());
@@ -1835,7 +1835,7 @@ namespace CC
         }
 
         template <typename T>
-        static UTR InsertAtFrontElementMove()
+        [[nodiscard]] static UTR InsertAtFrontElementMove()
         {
             constexpr bool bIsHelper = std::is_same_v<T, Helper>;
             const std::vector<T> testData(GetTestData<T, TestQuantity::Low>());
@@ -1907,7 +1907,7 @@ namespace CC
         }
 
         template <typename T, TestQuantity SrcLen>
-        static UTR InsertAtFrontListCopy()
+        [[nodiscard]] static UTR InsertAtFrontListCopy()
         {
             constexpr size_t len = GetTQLength<SrcLen>();
             List<T> dst;
@@ -1994,7 +1994,7 @@ namespace CC
         }
 
         template <typename T, TestQuantity SrcLen>
-        static UTR InsertAtFrontListMove()
+        [[nodiscard]] static UTR InsertAtFrontListMove()
         {
             constexpr size_t len = GetTQLength<SrcLen>();
             const std::vector<T> testData(GetTestData<T, SrcLen>());
@@ -2089,7 +2089,7 @@ namespace CC
 
         // InsertAt - Mid
         template <typename T>
-        static UTR InsertAtMidElementCopy()
+        [[nodiscard]] static UTR InsertAtMidElementCopy()
         {
             constexpr bool bIsHelper = std::is_same_v<T, Helper>;
             const std::vector<T> testData(GetTestData<T, TestQuantity::Low>());
@@ -2193,7 +2193,7 @@ namespace CC
         }
 
         template <typename T>
-        static UTR InsertAtMidElementMove()
+        [[nodiscard]] static UTR InsertAtMidElementMove()
         {
             constexpr bool bIsHelper = std::is_same_v<T, Helper>;
             std::vector<T> testData(GetTestData<T, TestQuantity::Low>());
@@ -2297,7 +2297,7 @@ namespace CC
         }
 
         template <typename T, TestQuantity SrcLen>
-        static UTR InsertAtMidListCopy()
+        [[nodiscard]] static UTR InsertAtMidListCopy()
         {
             constexpr size_t len = GetTQLength<SrcLen>();
             const std::vector<T> testData(GetTestData<T, SrcLen>());
@@ -2420,7 +2420,7 @@ namespace CC
         }
 
         template <typename T, TestQuantity SrcLen>
-        static UTR InsertAtMidListMove()
+        [[nodiscard]] static UTR InsertAtMidListMove()
         {
             constexpr size_t len = GetTQLength<SrcLen>();
             const std::vector<T> testData(GetTestData<T, SrcLen>());
@@ -2540,7 +2540,7 @@ namespace CC
 
         // InsertAt - Back
         template <typename T, TestQuantity DstLen>
-        static UTR InsertAtBackElementCopy()
+        [[nodiscard]] static UTR InsertAtBackElementCopy()
         {
             constexpr bool bIsHelper = std::is_same_v<T, Helper>;
             const std::vector<T> testData(GetTestData<T, TestQuantity::Low>());
@@ -2633,7 +2633,7 @@ namespace CC
         }
 
         template <typename T, TestQuantity DstLen>
-        static UTR InsertAtBackElementMove()
+        [[nodiscard]] static UTR InsertAtBackElementMove()
         {
             constexpr bool bIsHelper = std::is_same_v<T, Helper>;
             std::vector<T> testData(GetTestData<T, TestQuantity::Low>());
@@ -2726,7 +2726,7 @@ namespace CC
         }
 
         template <typename T, TestQuantity SrcLen>
-        static UTR InsertAtBackListCopy()
+        [[nodiscard]] static UTR InsertAtBackListCopy()
         {
             constexpr size_t len = GetTQLength<SrcLen>();
             List<T> dst;
@@ -2827,7 +2827,7 @@ namespace CC
         }
 
         template <typename T, TestQuantity SrcLen>
-        static UTR InsertAtBackListMove()
+        [[nodiscard]] static UTR InsertAtBackListMove()
         {
             constexpr size_t len = GetTQLength<SrcLen>();
             const std::vector<T> testData(GetTestData<T, SrcLen>());
@@ -2928,7 +2928,7 @@ namespace CC
     public:
 
         template <typename T, TestQuantity Len>
-        static UTR Length()
+        [[nodiscard]] static UTR Length()
         {
             constexpr size_t len = GetTQLength<Len>();
             List<T> dst;
@@ -2949,7 +2949,7 @@ namespace CC
         }
 
         template <typename T, TestQuantity Len>
-        static UTR Front()
+        [[nodiscard]] static UTR Front()
         {
             constexpr size_t len = GetTQLength<Len>();
             List<T> dst;
@@ -2990,7 +2990,7 @@ namespace CC
         }
 
         template <typename T, TestQuantity Len>
-        static UTR Back()
+        [[nodiscard]] static UTR Back()
         {
             constexpr size_t len = GetTQLength<Len>();
             List<T> dst;
@@ -3031,7 +3031,7 @@ namespace CC
         }
 
         template <typename T, TestQuantity Len>
-        static UTR At()
+        [[nodiscard]] static UTR At()
         {
             constexpr size_t len = GetTQLength<Len>();
             bool bThrew = false;
@@ -3187,7 +3187,7 @@ namespace CC
     public:
 
         template <typename T, TestQuantity DstLen, TestQuantity SrcLen>
-        static UTR CompareMethod()
+        [[nodiscard]] static UTR CompareMethod()
         {
             constexpr size_t dstLen = GetTQLength<DstLen>();
             constexpr size_t srcLen = GetTQLength<SrcLen>();
@@ -3228,7 +3228,7 @@ namespace CC
         }
 
         template <typename T, TestQuantity DstLen, TestQuantity SrcLen>
-        static UTR CompareOperator()
+        [[nodiscard]] static UTR CompareOperator()
         {
             constexpr size_t dstLen = GetTQLength<DstLen>();
             constexpr size_t srcLen = GetTQLength<SrcLen>();
@@ -3276,7 +3276,7 @@ namespace CC
     public:
 
         template <typename T, TestQuantity Len>
-        static UTR PopFront()
+        [[nodiscard]] static UTR PopFront()
         {
             constexpr size_t len = GetTQLength<Len>();
 
@@ -3323,7 +3323,7 @@ namespace CC
         }
 
         template <typename T, TestQuantity Len>
-        static UTR PopBack()
+        [[nodiscard]] static UTR PopBack()
         {
             constexpr size_t len = GetTQLength<Len>();
 
@@ -3370,7 +3370,7 @@ namespace CC
         }
 
         template <typename T, TestQuantity Len>
-        static UTR RemoveAt()
+        [[nodiscard]] static UTR RemoveAt()
         {
             constexpr size_t len = GetTQLength<Len>();
 
@@ -3423,7 +3423,7 @@ namespace CC
         }
 
         template <typename T, TestQuantity Len>
-        static UTR Clear()
+        [[nodiscard]] static UTR Clear()
         {
             constexpr size_t len = GetTQLength<Len>();
 

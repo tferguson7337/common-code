@@ -32,6 +32,7 @@
 #define CC_IS_NOTHROW_CTOR_MOVE(_T)     (std::is_nothrow_move_constructible_v<_T>)
 #define CC_IS_NOTHROW_COPY(_T)          (std::is_nothrow_copy_assignable_v<_T>)
 #define CC_IS_NOTHROW_MOVE(_T)          (std::is_nothrow_move_assignable_v<_T>)
+#define CC_IS_NOTHROW_DTOR(_T)          (std::is_nothrow_destructible_v<_T>)
 
 
 /// SFINAE Enable-If Helper Macros \\\

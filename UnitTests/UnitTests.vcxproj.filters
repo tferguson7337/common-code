@@ -85,6 +85,12 @@
     <ClInclude Include="Headers\TestHelpers.hpp">
       <Filter>Tests\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\Headers\CCStack.h">
+      <Filter>CommonCode\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\CCStackTests.h">
+      <Filter>Tests\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\RunTests.cpp" />
@@ -111,6 +117,9 @@
       <Filter>Tests\Source</Filter>
     </ClCompile>
     <ClCompile Include="Source\CCListTests.cpp">
+      <Filter>Tests\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\CCStackTests.cpp">
       <Filter>Tests\Source</Filter>
     </ClCompile>
   </ItemGroup>

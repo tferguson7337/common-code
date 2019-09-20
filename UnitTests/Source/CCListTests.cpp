@@ -1,47 +1,5 @@
 #include <CCListTests.h>
 
-using TQ = TestQuantity;
-
-// Add 5 tests, (5 types)
-#define ADD_TESTS_T(_fn_)\
-    _fn_<uint8_t>, _fn_<uint16_t>, _fn_<uint32_t>, _fn_<uint64_t>, _fn_<Helper>
-
-// Add 25 tests, (5 types x 5 TQs)
-#define ADD_TESTS_T_TQ1(_fn_)\
-    _fn_<uint8_t,  TQ::None>, _fn_<uint8_t,  TQ::VeryLow>, _fn_<uint8_t,  TQ::Low>, _fn_<uint8_t,  TQ::Mid>, _fn_<uint8_t,  TQ::High>,\
-    _fn_<uint16_t, TQ::None>, _fn_<uint16_t, TQ::VeryLow>, _fn_<uint16_t, TQ::Low>, _fn_<uint16_t, TQ::Mid>, _fn_<uint16_t, TQ::High>,\
-    _fn_<uint32_t, TQ::None>, _fn_<uint32_t, TQ::VeryLow>, _fn_<uint32_t, TQ::Low>, _fn_<uint32_t, TQ::Mid>, _fn_<uint32_t, TQ::High>,\
-    _fn_<uint64_t, TQ::None>, _fn_<uint64_t, TQ::VeryLow>, _fn_<uint64_t, TQ::Low>, _fn_<uint64_t, TQ::Mid>, _fn_<uint64_t, TQ::High>,\
-    _fn_<Helper,   TQ::None>, _fn_<Helper,   TQ::VeryLow>, _fn_<Helper,   TQ::Low>, _fn_<Helper,   TQ::Mid>, _fn_<Helper,   TQ::High>
-
-// Add 125 tests, (5 types X 5 TQs X 5 TQs)
-#define ADD_TESTS_T_TQ2(_fn_)\
-    _fn_<uint8_t,  TQ::None,    TQ::None>, _fn_<uint8_t,  TQ::None,    TQ::VeryLow>, _fn_<uint8_t,  TQ::None,    TQ::Low>, _fn_<uint8_t,  TQ::None,    TQ::Mid>, _fn_<uint8_t,  TQ::None,    TQ::High>,\
-    _fn_<uint8_t,  TQ::VeryLow, TQ::None>, _fn_<uint8_t,  TQ::VeryLow, TQ::VeryLow>, _fn_<uint8_t,  TQ::VeryLow, TQ::Low>, _fn_<uint8_t,  TQ::VeryLow, TQ::Mid>, _fn_<uint8_t,  TQ::VeryLow, TQ::High>,\
-    _fn_<uint8_t,  TQ::Low,     TQ::None>, _fn_<uint8_t,  TQ::Low,     TQ::VeryLow>, _fn_<uint8_t,  TQ::Low,     TQ::Low>, _fn_<uint8_t,  TQ::Low,     TQ::Mid>, _fn_<uint8_t,  TQ::Low,     TQ::High>,\
-    _fn_<uint8_t,  TQ::Mid,     TQ::None>, _fn_<uint8_t,  TQ::Mid,     TQ::VeryLow>, _fn_<uint8_t,  TQ::Mid,     TQ::Low>, _fn_<uint8_t,  TQ::Mid,     TQ::Mid>, _fn_<uint8_t,  TQ::Mid,     TQ::High>,\
-    _fn_<uint8_t,  TQ::High,    TQ::None>, _fn_<uint8_t,  TQ::High,    TQ::VeryLow>, _fn_<uint8_t,  TQ::High,    TQ::Low>, _fn_<uint8_t,  TQ::High,    TQ::Mid>, _fn_<uint8_t,  TQ::High,    TQ::High>,\
-    _fn_<uint16_t, TQ::None,    TQ::None>, _fn_<uint16_t, TQ::None,    TQ::VeryLow>, _fn_<uint16_t, TQ::None,    TQ::Low>, _fn_<uint16_t, TQ::None,    TQ::Mid>, _fn_<uint16_t, TQ::None,    TQ::High>,\
-    _fn_<uint16_t, TQ::VeryLow, TQ::None>, _fn_<uint16_t, TQ::VeryLow, TQ::VeryLow>, _fn_<uint16_t, TQ::VeryLow, TQ::Low>, _fn_<uint16_t, TQ::VeryLow, TQ::Mid>, _fn_<uint16_t, TQ::VeryLow, TQ::High>,\
-    _fn_<uint16_t, TQ::Low,     TQ::None>, _fn_<uint16_t, TQ::Low,     TQ::VeryLow>, _fn_<uint16_t, TQ::Low,     TQ::Low>, _fn_<uint16_t, TQ::Low,     TQ::Mid>, _fn_<uint16_t, TQ::Low,     TQ::High>,\
-    _fn_<uint16_t, TQ::Mid,     TQ::None>, _fn_<uint16_t, TQ::Mid,     TQ::VeryLow>, _fn_<uint16_t, TQ::Mid,     TQ::Low>, _fn_<uint16_t, TQ::Mid,     TQ::Mid>, _fn_<uint16_t, TQ::Mid,     TQ::High>,\
-    _fn_<uint16_t, TQ::High,    TQ::None>, _fn_<uint16_t, TQ::High,    TQ::VeryLow>, _fn_<uint16_t, TQ::High,    TQ::Low>, _fn_<uint16_t, TQ::High,    TQ::Mid>, _fn_<uint16_t, TQ::High,    TQ::High>,\
-    _fn_<uint32_t, TQ::None,    TQ::None>, _fn_<uint32_t, TQ::None,    TQ::VeryLow>, _fn_<uint32_t, TQ::None,    TQ::Low>, _fn_<uint32_t, TQ::None,    TQ::Mid>, _fn_<uint32_t, TQ::None,    TQ::High>,\
-    _fn_<uint32_t, TQ::VeryLow, TQ::None>, _fn_<uint32_t, TQ::VeryLow, TQ::VeryLow>, _fn_<uint32_t, TQ::VeryLow, TQ::Low>, _fn_<uint32_t, TQ::VeryLow, TQ::Mid>, _fn_<uint32_t, TQ::VeryLow, TQ::High>,\
-    _fn_<uint32_t, TQ::Low,     TQ::None>, _fn_<uint32_t, TQ::Low,     TQ::VeryLow>, _fn_<uint32_t, TQ::Low,     TQ::Low>, _fn_<uint32_t, TQ::Low,     TQ::Mid>, _fn_<uint32_t, TQ::Low,     TQ::High>,\
-    _fn_<uint32_t, TQ::Mid,     TQ::None>, _fn_<uint32_t, TQ::Mid,     TQ::VeryLow>, _fn_<uint32_t, TQ::Mid,     TQ::Low>, _fn_<uint32_t, TQ::Mid,     TQ::Mid>, _fn_<uint32_t, TQ::Mid,     TQ::High>,\
-    _fn_<uint32_t, TQ::High,    TQ::None>, _fn_<uint32_t, TQ::High,    TQ::VeryLow>, _fn_<uint32_t, TQ::High,    TQ::Low>, _fn_<uint32_t, TQ::High,    TQ::Mid>, _fn_<uint32_t, TQ::High,    TQ::High>,\
-    _fn_<uint64_t, TQ::None,    TQ::None>, _fn_<uint64_t, TQ::None,    TQ::VeryLow>, _fn_<uint64_t, TQ::None,    TQ::Low>, _fn_<uint64_t, TQ::None,    TQ::Mid>, _fn_<uint64_t, TQ::None,    TQ::High>,\
-    _fn_<uint64_t, TQ::VeryLow, TQ::None>, _fn_<uint64_t, TQ::VeryLow, TQ::VeryLow>, _fn_<uint64_t, TQ::VeryLow, TQ::Low>, _fn_<uint64_t, TQ::VeryLow, TQ::Mid>, _fn_<uint64_t, TQ::VeryLow, TQ::High>,\
-    _fn_<uint64_t, TQ::Low,     TQ::None>, _fn_<uint64_t, TQ::Low,     TQ::VeryLow>, _fn_<uint64_t, TQ::Low,     TQ::Low>, _fn_<uint64_t, TQ::Low,     TQ::Mid>, _fn_<uint64_t, TQ::Low,     TQ::High>,\
-    _fn_<uint64_t, TQ::Mid,     TQ::None>, _fn_<uint64_t, TQ::Mid,     TQ::VeryLow>, _fn_<uint64_t, TQ::Mid,     TQ::Low>, _fn_<uint64_t, TQ::Mid,     TQ::Mid>, _fn_<uint64_t, TQ::Mid,     TQ::High>,\
-    _fn_<uint64_t, TQ::High,    TQ::None>, _fn_<uint64_t, TQ::High,    TQ::VeryLow>, _fn_<uint64_t, TQ::High,    TQ::Low>, _fn_<uint64_t, TQ::High,    TQ::Mid>, _fn_<uint64_t, TQ::High,    TQ::High>,\
-    _fn_<Helper,   TQ::None,    TQ::None>, _fn_<Helper,   TQ::None,    TQ::VeryLow>, _fn_<Helper,   TQ::None,    TQ::Low>, _fn_<Helper,   TQ::None,    TQ::Mid>, _fn_<Helper,   TQ::None,    TQ::High>,\
-    _fn_<Helper,   TQ::VeryLow, TQ::None>, _fn_<Helper,   TQ::VeryLow, TQ::VeryLow>, _fn_<Helper,   TQ::VeryLow, TQ::Low>, _fn_<Helper,   TQ::VeryLow, TQ::Mid>, _fn_<Helper,   TQ::VeryLow, TQ::High>,\
-    _fn_<Helper,   TQ::Low,     TQ::None>, _fn_<Helper,   TQ::Low,     TQ::VeryLow>, _fn_<Helper,   TQ::Low,     TQ::Low>, _fn_<Helper,   TQ::Low,     TQ::Mid>, _fn_<Helper,   TQ::Low,     TQ::High>,\
-    _fn_<Helper,   TQ::Mid,     TQ::None>, _fn_<Helper,   TQ::Mid,     TQ::VeryLow>, _fn_<Helper,   TQ::Mid,     TQ::Low>, _fn_<Helper,   TQ::Mid,     TQ::Mid>, _fn_<Helper,   TQ::Mid,     TQ::High>,\
-    _fn_<Helper,   TQ::High,    TQ::None>, _fn_<Helper,   TQ::High,    TQ::VeryLow>, _fn_<Helper,   TQ::High,    TQ::Low>, _fn_<Helper,   TQ::High,    TQ::Mid>, _fn_<Helper,   TQ::High,    TQ::High>
-
 
 CC::ListTests::UTList CC::ListTests::GetTests()
 {
