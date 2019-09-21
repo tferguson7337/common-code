@@ -881,38 +881,41 @@ namespace CC
             for (size_t staggerThreshold = 1; staggerThreshold <= static_cast<size_t>(sqrt(len)) + 1; staggerThreshold++)
             {
                 Queue<T> queue;
-                size_t staggerCount = 0;
 
-                for (size_t i = 0; i < len; i++)
+                if constexpr (len != 0)
                 {
-                    SUTL_TEST_ASSERT(queue.Enqueue(testData[i]));
-                    SUTL_TEST_ASSERT(queue.m_pHead->data == testData[staggerCount]);
-                    SUTL_TEST_ASSERT(queue.m_pTail->data == testData[i]);
-                    if ((i % staggerThreshold) == 0)
+                    size_t staggerCount = 0;
+                    for (size_t i = 0; i < len; i++)
                     {
-                        staggerCount++;
-                        SUTL_TEST_ASSERT(queue.Dequeue());
-                        if (!!queue.m_pHead)
+                        SUTL_TEST_ASSERT(queue.Enqueue(testData[i]));
+                        SUTL_TEST_ASSERT(queue.m_pHead->data == testData[staggerCount]);
+                        SUTL_TEST_ASSERT(queue.m_pTail->data == testData[i]);
+                        if ((i % staggerThreshold) == 0)
                         {
-                            SUTL_TEST_ASSERT(queue.m_pHead->data == testData[staggerCount]);
-                            SUTL_TEST_ASSERT(queue.m_pTail->data == testData[i]);
-                            SUTL_TEST_ASSERT(queue.m_Len != 0);
+                            staggerCount++;
+                            SUTL_TEST_ASSERT(queue.Dequeue());
+                            if (!!queue.m_pHead)
+                            {
+                                SUTL_TEST_ASSERT(queue.m_pHead->data == testData[staggerCount]);
+                                SUTL_TEST_ASSERT(queue.m_pTail->data == testData[i]);
+                                SUTL_TEST_ASSERT(queue.m_Len != 0);
+                            }
+                            else
+                            {
+                                SUTL_TEST_ASSERT(queue.m_Len == 0);
+                                SUTL_TEST_ASSERT(((i + 1) - staggerCount) == 0);
+                            }
                         }
-                        else
-                        {
-                            SUTL_TEST_ASSERT(queue.m_Len == 0);
-                            SUTL_TEST_ASSERT(((i + 1) - staggerCount) == 0);
-                        }
+
+                        SUTL_TEST_ASSERT(queue.m_Len == ((i + 1) - staggerCount));
                     }
 
-                    SUTL_TEST_ASSERT(queue.m_Len == ((i + 1) - staggerCount));
-                }
-
-                for (size_t i = staggerCount; i < len; i++)
-                {
-                    SUTL_TEST_ASSERT(!!queue.m_pHead);
-                    SUTL_TEST_ASSERT(queue.m_pHead->data == testData[i]);
-                    SUTL_TEST_ASSERT(queue.Dequeue());
+                    for (size_t i = staggerCount; i < len; i++)
+                    {
+                        SUTL_TEST_ASSERT(!!queue.m_pHead);
+                        SUTL_TEST_ASSERT(queue.m_pHead->data == testData[i]);
+                        SUTL_TEST_ASSERT(queue.Dequeue());
+                    }
                 }
 
                 SUTL_TEST_ASSERT(!queue.m_pHead);
@@ -932,51 +935,54 @@ namespace CC
             for (size_t staggerThreshold = 1; staggerThreshold <= static_cast<size_t>(sqrt(len)) + 1; staggerThreshold++)
             {
                 Queue<T> queue;
-                T tmp;
-                size_t staggerCount = 0;
 
-                for (size_t i = 0; i < len; i++)
+                if constexpr (len != 0)
                 {
-                    SUTL_TEST_ASSERT(queue.Enqueue(testData[i]));
-                    SUTL_TEST_ASSERT(queue.m_pHead->data == testData[staggerCount]);
-                    SUTL_TEST_ASSERT(queue.m_pTail->data == testData[i]);
-                    if ((i % staggerThreshold) == 0)
+                    T tmp;
+                    size_t staggerCount = 0;
+                    for (size_t i = 0; i < len; i++)
                     {
-                        staggerCount++;
+                        SUTL_TEST_ASSERT(queue.Enqueue(testData[i]));
+                        SUTL_TEST_ASSERT(queue.m_pHead->data == testData[staggerCount]);
+                        SUTL_TEST_ASSERT(queue.m_pTail->data == testData[i]);
+                        if ((i % staggerThreshold) == 0)
+                        {
+                            staggerCount++;
+                            SUTL_TEST_ASSERT(queue.Dequeue(tmp));
+                            SUTL_TEST_ASSERT(tmp == testData[staggerCount - 1]);
+                            if constexpr (std::is_same_v<T, Helper>)
+                            {
+                                SUTL_TEST_ASSERT(!tmp.m_bCopied);
+                                SUTL_TEST_ASSERT(tmp.m_bMoved);
+                            }
+
+                            if (!!queue.m_pHead)
+                            {
+                                SUTL_TEST_ASSERT(queue.m_pHead->data == testData[staggerCount]);
+                                SUTL_TEST_ASSERT(queue.m_pTail->data == testData[i]);
+                                SUTL_TEST_ASSERT(queue.m_Len != 0);
+                            }
+                            else
+                            {
+                                SUTL_TEST_ASSERT(queue.m_Len == 0);
+                                SUTL_TEST_ASSERT(((i + 1) - staggerCount) == 0);
+                            }
+                        }
+
+                        SUTL_TEST_ASSERT(queue.m_Len == ((i + 1) - staggerCount));
+                    }
+
+                    for (size_t i = staggerCount; i < len; i++)
+                    {
+                        SUTL_TEST_ASSERT(!!queue.m_pHead);
+                        SUTL_TEST_ASSERT(queue.m_pHead->data == testData[i]);
                         SUTL_TEST_ASSERT(queue.Dequeue(tmp));
-                        SUTL_TEST_ASSERT(tmp == testData[staggerCount - 1]);
+                        SUTL_TEST_ASSERT(tmp == testData[i]);
                         if constexpr (std::is_same_v<T, Helper>)
                         {
                             SUTL_TEST_ASSERT(!tmp.m_bCopied);
                             SUTL_TEST_ASSERT(tmp.m_bMoved);
                         }
-
-                        if (!!queue.m_pHead)
-                        {
-                            SUTL_TEST_ASSERT(queue.m_pHead->data == testData[staggerCount]);
-                            SUTL_TEST_ASSERT(queue.m_pTail->data == testData[i]);
-                            SUTL_TEST_ASSERT(queue.m_Len != 0);
-                        }
-                        else
-                        {
-                            SUTL_TEST_ASSERT(queue.m_Len == 0);
-                            SUTL_TEST_ASSERT(((i + 1) - staggerCount) == 0);
-                        }
-                    }
-
-                    SUTL_TEST_ASSERT(queue.m_Len == ((i + 1) - staggerCount));
-                }
-
-                for (size_t i = staggerCount; i < len; i++)
-                {
-                    SUTL_TEST_ASSERT(!!queue.m_pHead);
-                    SUTL_TEST_ASSERT(queue.m_pHead->data == testData[i]);
-                    SUTL_TEST_ASSERT(queue.Dequeue(tmp));
-                    SUTL_TEST_ASSERT(tmp == testData[i]);
-                    if constexpr (std::is_same_v<T, Helper>)
-                    {
-                        SUTL_TEST_ASSERT(!tmp.m_bCopied);
-                        SUTL_TEST_ASSERT(tmp.m_bMoved);
                     }
                 }
 

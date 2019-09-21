@@ -218,6 +218,7 @@ namespace CC
         // Default constructor
         Queue() noexcept :
             m_pHead(nullptr),
+            m_pTail(nullptr),
             m_Len(0)
         { }
 

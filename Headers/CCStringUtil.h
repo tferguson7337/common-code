@@ -1,10 +1,10 @@
 #ifndef _CC_STRING_UTIL_H_
 #define _CC_STRING_UTIL_H_
 
-#include "CCBuffer.h"
 #include "CCMacros.h"
 
-#include <sal.h>
+#include "CCBuffer.h"
+#include "CCString.h"
 
 #include <vector>
 
@@ -14,6 +14,7 @@ namespace CC
     enum class ReturnType : size_t
     {
         CCBuffer = 0,
+        CCString,
         CppString,
 
         _End,
@@ -109,6 +110,7 @@ namespace CC
         [[nodiscard]] _Success_(return) static constexpr bool IsValidReturnType() noexcept
         {
             return RT == ReturnType::CCBuffer
+                || RT == ReturnType::CCString
                 || RT == ReturnType::CppString;
         }
 
@@ -120,6 +122,10 @@ namespace CC
             if constexpr (RT == ReturnType::CCBuffer)
             {
                 return Buffer<C>();
+            }
+            else if constexpr (RT == ReturnType::CCString)
+            {
+                return String<C>();
             }
             else if constexpr (RT == ReturnType::CppString)
             {
@@ -133,12 +139,26 @@ namespace CC
             if constexpr (RT == ReturnType::CCBuffer)
             {
                 Buffer<C> ret(len + 1);
-                memset(ret.Get(), 0, sizeof(C) * (len + 1));
+                if (!!ret)
+                {
+                    memset(ret.Get(), 0, sizeof(C) * (len + 1));
+                }
                 return ret;
+            }
+            else if constexpr (RT == ReturnType::CCString)
+            {
+                return String<C>(len);
             }
             else if constexpr (RT == ReturnType::CppString)
             {
-                return std::basic_string<C>(len, static_cast<C>('\0'));
+                try
+                {
+                    return std::basic_string<C>(len, static_cast<C>('\0'));
+                }
+                catch (const std::exception&)
+                {
+                    return std::basic_string<C>();
+                }
             }
             else
             {
@@ -148,6 +168,25 @@ namespace CC
                 throw std::invalid_argument(msg1 + data1 + msg2);
             }
         }
+
+        template <typename C>
+        [[nodiscard]] static bool IsValidBuffer(_In_ Buffer<C>& dst) noexcept
+        {
+            return !!dst;
+        }
+
+        template <typename C>
+        [[nodiscard]] static bool IsValidBuffer(_In_ String<C>& dst) noexcept
+        {
+            return !!dst;
+        }
+
+        template <typename C>
+        [[nodiscard]] static bool IsValidBuffer(_In_ std::basic_string<C>& dst) noexcept
+        {
+            return !dst.empty();
+        }
+
 
         /// Comparison Private Helpers \\\
 
@@ -236,13 +275,19 @@ namespace CC
         }
 
         template <typename C>
-        [[nodiscard]] _Ret_maybenull_ static C* GetRawDestinationPointer(_In_ Buffer<C>& dst) noexcept
+        [[nodiscard]] _Ret_maybenull_z_ static C* GetRawDestinationPointer(_In_ Buffer<C>& dst) noexcept
         {
             return dst.Get();
         }
 
         template <typename C>
-        [[nodiscard]] _Ret_maybenull_ static C* GetRawDestinationPointer(_In_ std::basic_string<C>& dst) noexcept
+        [[nodiscard]] _Ret_z_ static C* GetRawDestinationPointer(_In_ String<C>& dst) noexcept
+        {
+            return dst.CStr();
+        }
+
+        template <typename C>
+        [[nodiscard]] _Ret_z_ static C* GetRawDestinationPointer(_In_ std::basic_string<C>& dst) noexcept
         {
             return const_cast<C*>(dst.data());
         }
@@ -495,7 +540,7 @@ namespace CC
         // Builds base-dependent string representation of number n.
         // The string representation will contain the base-dependent prefix and separators.
         template <Base B, class T, class N>
-        static void BuildNumberString(_In_ const N& n, _Inout_updates_(l) T* p, _In_ const size_t& l)
+        static void BuildNumberString(_In_ const N& n, _Inout_updates_all_(l) T* p, _In_ const size_t& l)
         {
             if constexpr (B != Base::Decimal && std::is_signed_v<N>)
             {
@@ -642,7 +687,7 @@ namespace CC
 
             auto copy = BuildBuffer<RT, C>(len);
 
-            if (eer == EarlyExitResult::NoExit)
+            if (eer == EarlyExitResult::NoExit && IsValidBuffer(copy))
             {
                 memcpy(GetRawDestinationPointer<C>(copy), src, len * sizeof(C));
             }
@@ -687,7 +732,7 @@ namespace CC
 
                 auto conv = BuildBuffer<RT, CDst>(len);
 
-                if (eer == EarlyExitResult::NoExit)
+                if (eer == EarlyExitResult::NoExit && IsValidBuffer(conv))
                 {
                     PerformConversion(GetRawDestinationPointer<CDst>(conv), src, len);
                 }
@@ -715,7 +760,11 @@ namespace CC
             {
                 const size_t len = GetRequiredLength<B, T, N>(integral);
                 auto buffer = BuildBuffer<RT, T>(len);
-                BuildNumberString<B, T, N>(integral, GetRawDestinationPointer(buffer), len);
+                if (IsValidBuffer(buffer))
+                {
+                    BuildNumberString<B, T, N>(integral, GetRawDestinationPointer(buffer), len);
+                }
+
                 return buffer;
             }
         }

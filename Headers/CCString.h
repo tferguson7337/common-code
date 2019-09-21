@@ -25,9 +25,6 @@ namespace CC
 
         /// Private Static Data Members \\\
 
-        static constexpr T ms_NullTerminator = static_cast<T>('\0');
-        static constexpr size_t ms_InvalidPos = std::numeric_limits<size_t>::max();
-        static constexpr size_t ms_InvalidLen = std::numeric_limits<size_t>::max();
         static constexpr size_t ms_SSOCap = 32;
 
 
@@ -394,6 +391,13 @@ namespace CC
 
     public:
 
+        /// Public Static Data Members \\\
+
+        static constexpr T ms_NullTerminator = static_cast<T>('\0');
+        static constexpr size_t ms_InvalidPos = std::numeric_limits<size_t>::max();
+        static constexpr size_t ms_InvalidLen = std::numeric_limits<size_t>::max();
+
+
         /// Constructors \\\
 
         // Default constructor - string will be empty.
@@ -407,7 +411,7 @@ namespace CC
 
         // Length and character constructor
         // Note: If len exceeds size of SSO array, dynamic array will be used.
-        String(_In_ const size_t& len, _In_ const T& tc) noexcept :
+        String(_In_ const size_t& len, _In_ const T& tc = String<T>::ms_NullTerminator) noexcept :
             String()
         {
             if (!LengthCharacterCtorHelper(len, tc))

@@ -1020,41 +1020,44 @@ namespace CC
             for (size_t staggerThreshold = 1; staggerThreshold <= static_cast<size_t>(sqrt(len)) + 1; staggerThreshold++)
             {
                 Stack<T> stack;
-                size_t staggerCount = 0;
 
-                for (size_t i = 0; i < len; i++)
+                if constexpr (len != 0)
                 {
-                    SUTL_TEST_ASSERT(stack.Push(testData[i]));
-                    SUTL_TEST_ASSERT(stack.m_pHead->data == testData[i]);
-                    if ((i % staggerThreshold) == 0)
+                    size_t staggerCount = 0;
+                    for (size_t i = 0; i < len; i++)
                     {
-                        staggerCount++;
+                        SUTL_TEST_ASSERT(stack.Push(testData[i]));
+                        SUTL_TEST_ASSERT(stack.m_pHead->data == testData[i]);
+                        if ((i % staggerThreshold) == 0)
+                        {
+                            staggerCount++;
+                            SUTL_TEST_ASSERT(stack.Pop());
+                            if (!!stack.m_pHead)
+                            {
+                                SUTL_TEST_ASSERT(stack.m_pHead->data == testData[i - 1]);
+                                SUTL_TEST_ASSERT(stack.m_Len != 0);
+                            }
+                            else
+                            {
+                                SUTL_TEST_ASSERT(stack.m_Len == 0);
+                                SUTL_TEST_ASSERT(((i + 1) - staggerCount) == 0);
+                            }
+                        }
+
+                        SUTL_TEST_ASSERT(stack.m_Len == ((i + 1) - staggerCount));
+                    }
+
+                    for (size_t i = 0; i < len; i++)
+                    {
+                        if (((len - i - 1) % staggerThreshold) == 0)
+                        {
+                            continue;
+                        }
+
+                        SUTL_TEST_ASSERT(!!stack.m_pHead);
+                        SUTL_TEST_ASSERT(stack.m_pHead->data == testData[len - i - 1]);
                         SUTL_TEST_ASSERT(stack.Pop());
-                        if (!!stack.m_pHead)
-                        {
-                            SUTL_TEST_ASSERT(stack.m_pHead->data == testData[i - 1]);
-                            SUTL_TEST_ASSERT(stack.m_Len != 0);
-                        }
-                        else
-                        {
-                            SUTL_TEST_ASSERT(stack.m_Len == 0);
-                            SUTL_TEST_ASSERT(((i + 1) - staggerCount) == 0);
-                        }
                     }
-
-                    SUTL_TEST_ASSERT(stack.m_Len == ((i + 1) - staggerCount));
-                }
-
-                for (size_t i = 0; i < len; i++)
-                {
-                    if (((len - i - 1) % staggerThreshold) == 0)
-                    {
-                        continue;
-                    }
-
-                    SUTL_TEST_ASSERT(!!stack.m_pHead);
-                    SUTL_TEST_ASSERT(stack.m_pHead->data == testData[len - i - 1]);
-                    SUTL_TEST_ASSERT(stack.Pop());
                 }
 
                 SUTL_TEST_ASSERT(!stack.m_pHead);
@@ -1073,54 +1076,57 @@ namespace CC
             for (size_t staggerThreshold = 1; staggerThreshold <= static_cast<size_t>(sqrt(len)) + 1; staggerThreshold++)
             {
                 Stack<T> stack;
-                T tmp;
-                size_t staggerCount = 0;
 
-                for (size_t i = 0; i < len; i++)
+                if constexpr (len != 0)
                 {
-                    SUTL_TEST_ASSERT(stack.Push(testData[i]));
-                    SUTL_TEST_ASSERT(stack.m_pHead->data == testData[i]);
-                    if ((i % staggerThreshold) == 0)
+                    T tmp;
+                    size_t staggerCount = 0;
+                    for (size_t i = 0; i < len; i++)
                     {
-                        staggerCount++;
+                        SUTL_TEST_ASSERT(stack.Push(testData[i]));
+                        SUTL_TEST_ASSERT(stack.m_pHead->data == testData[i]);
+                        if ((i % staggerThreshold) == 0)
+                        {
+                            staggerCount++;
+                            SUTL_TEST_ASSERT(stack.Pop(tmp));
+                            SUTL_TEST_ASSERT(tmp == testData[i]);
+                            if constexpr (std::is_same_v<T, Helper>)
+                            {
+                                SUTL_TEST_ASSERT(!tmp.m_bCopied);
+                                SUTL_TEST_ASSERT(tmp.m_bMoved);
+                            }
+
+                            if (!!stack.m_pHead)
+                            {
+                                SUTL_TEST_ASSERT(stack.m_pHead->data == testData[i - 1]);
+                                SUTL_TEST_ASSERT(stack.m_Len != 0);
+                            }
+                            else
+                            {
+                                SUTL_TEST_ASSERT(stack.m_Len == 0);
+                                SUTL_TEST_ASSERT(((i + 1) - staggerCount) == 0);
+                            }
+                        }
+
+                        SUTL_TEST_ASSERT(stack.m_Len == ((i + 1) - staggerCount));
+                    }
+
+                    for (size_t i = 0; i < len; i++)
+                    {
+                        if (((len - i - 1) % staggerThreshold) == 0)
+                        {
+                            continue;
+                        }
+
+                        SUTL_TEST_ASSERT(!!stack.m_pHead);
+                        SUTL_TEST_ASSERT(stack.m_pHead->data == testData[len - i - 1]);
                         SUTL_TEST_ASSERT(stack.Pop(tmp));
-                        SUTL_TEST_ASSERT(tmp == testData[i]);
+                        SUTL_TEST_ASSERT(tmp == testData[len - i - 1]);
                         if constexpr (std::is_same_v<T, Helper>)
                         {
                             SUTL_TEST_ASSERT(!tmp.m_bCopied);
                             SUTL_TEST_ASSERT(tmp.m_bMoved);
                         }
-
-                        if (!!stack.m_pHead)
-                        {
-                            SUTL_TEST_ASSERT(stack.m_pHead->data == testData[i - 1]);
-                            SUTL_TEST_ASSERT(stack.m_Len != 0);
-                        }
-                        else
-                        {
-                            SUTL_TEST_ASSERT(stack.m_Len == 0);
-                            SUTL_TEST_ASSERT(((i + 1) - staggerCount) == 0);
-                        }
-                    }
-
-                    SUTL_TEST_ASSERT(stack.m_Len == ((i + 1) - staggerCount));
-                }
-
-                for (size_t i = 0; i < len; i++)
-                {
-                    if (((len - i - 1) % staggerThreshold) == 0)
-                    {
-                        continue;
-                    }
-
-                    SUTL_TEST_ASSERT(!!stack.m_pHead);
-                    SUTL_TEST_ASSERT(stack.m_pHead->data == testData[len - i - 1]);
-                    SUTL_TEST_ASSERT(stack.Pop(tmp));
-                    SUTL_TEST_ASSERT(tmp == testData[len - i - 1]);
-                    if constexpr (std::is_same_v<T, Helper>)
-                    {
-                        SUTL_TEST_ASSERT(!tmp.m_bCopied);
-                        SUTL_TEST_ASSERT(tmp.m_bMoved);
                     }
                 }
 

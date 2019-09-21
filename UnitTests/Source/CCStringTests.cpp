@@ -83,6 +83,7 @@ CC::StringTests::UTList CC::StringTests::GetTests()
     {
         // Constructor Tests
         ADD_STR_TESTS_C(ConstructorTests::DefaultCtor),
+        ADD_STR_TESTS_C_TQ1(ConstructorTests::LenAndDefaultCharCtor),
         ADD_STR_TESTS_C_TQ1(ConstructorTests::LenAndCharCtor),
         ADD_STR_TESTS_C(ConstructorTests::CStrCtorNullptr),
         ADD_STR_TESTS_C_TQ1(ConstructorTests::CStrCtor),

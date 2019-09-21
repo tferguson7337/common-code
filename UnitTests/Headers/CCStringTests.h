@@ -258,10 +258,11 @@ namespace CC
         }
 
         template <typename T, TestQuantity TQ>
-        [[nodiscard]] static UTR LenAndCharCtor()
+        [[nodiscard]] static UTR LenAndDefaultCharCtor()
         {
             constexpr size_t len = GetTQLength<TQ>();
-            String<T> str(len, static_cast<T>('x'));
+            const T tc = String<T>::ms_NullTerminator;
+            String<T> str(len);
 
             SUTL_TEST_ASSERT(str.m_Len == len);
 
@@ -269,21 +270,57 @@ namespace CC
             {
                 SUTL_TEST_ASSERT(str.m_pStr == str.m_SSOArr);
                 SUTL_TEST_ASSERT(str.m_Cap == String<T>::ms_SSOCap);
-                SUTL_TEST_ASSERT((str.m_pStr[0] == static_cast<T>('x')) == (TQ == TestQuantity::MidLow));
-                SUTL_TEST_ASSERT(str.m_pStr[len] == String<T>::ms_NullTerminator);
             }
             else
             {
                 SUTL_TEST_ASSERT(str.m_pStr != str.m_SSOArr);
                 SUTL_TEST_ASSERT(str.m_Cap == (len + String<T>::ms_SSOCap + 16));
                 SUTL_TEST_ASSERT(str.m_SSOArr[0] == String<T>::ms_NullTerminator);
+            }
+
+            if constexpr (len != 0)
+            {
                 for (size_t i = 0; i < len; i++)
                 {
-                    SUTL_TEST_ASSERT(str.m_pStr[i] == T('x'));
+                    SUTL_TEST_ASSERT(str.m_pStr[i] == tc);
                 }
-
-                SUTL_TEST_ASSERT(str.m_pStr[len] == String<T>::ms_NullTerminator);
             }
+            
+            SUTL_TEST_ASSERT(str.m_pStr[len] == String<T>::ms_NullTerminator);
+
+            SUTL_TEST_SUCCESS();
+        }
+
+        template <typename T, TestQuantity TQ>
+        [[nodiscard]] static UTR LenAndCharCtor()
+        {
+            constexpr size_t len = GetTQLength<TQ>();
+            const T tc = static_cast<T>('x');
+            String<T> str(len, tc);
+
+            SUTL_TEST_ASSERT(str.m_Len == len);
+
+            if constexpr (TQ != TestQuantity::Mid)
+            {
+                SUTL_TEST_ASSERT(str.m_pStr == str.m_SSOArr);
+                SUTL_TEST_ASSERT(str.m_Cap == String<T>::ms_SSOCap);
+            }
+            else
+            {
+                SUTL_TEST_ASSERT(str.m_pStr != str.m_SSOArr);
+                SUTL_TEST_ASSERT(str.m_Cap == (len + String<T>::ms_SSOCap + 16));
+                SUTL_TEST_ASSERT(str.m_SSOArr[0] == String<T>::ms_NullTerminator);
+            }
+
+            if constexpr (len != 0)
+            {
+                for (size_t i = 0; i < len; i++)
+                {
+                    SUTL_TEST_ASSERT(str.m_pStr[i] == tc);
+                }
+            }
+
+            SUTL_TEST_ASSERT(str.m_pStr[len] == String<T>::ms_NullTerminator);
 
             SUTL_TEST_SUCCESS();
         }

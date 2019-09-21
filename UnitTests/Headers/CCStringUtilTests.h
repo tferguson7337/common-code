@@ -51,6 +51,10 @@ namespace CC
             {
                 return reinterpret_cast<const Buffer<C>*>(obj)->Get();
             }
+            else if constexpr (_RT == RT::CCString)
+            {
+                return reinterpret_cast<const String<C>*>(obj)->CStr();
+            }
             else if constexpr (_RT == RT::CppString)
             {
                 return reinterpret_cast<const std::basic_string<C>*>(obj)->c_str();
@@ -721,7 +725,7 @@ namespace CC
 
             const EER eer = CC::StringUtil::CheckForCopyEarlyExit<_RT, C>(nullptr, str.length());
 
-            SUTL_TEST_ASSERT(eer == ((_RT == RT::CppString) ? EER::EmptyString : EER::ZeroedBuffer));
+            SUTL_TEST_ASSERT(eer == ((_RT == RT::CCBuffer) ? EER::ZeroedBuffer : EER::EmptyString));
 
             SUTL_TEST_SUCCESS();
         }
@@ -734,7 +738,7 @@ namespace CC
 
             const EER eer = CC::StringUtil::CheckForCopyEarlyExit<_RT, C>(str.c_str(), str.length());
 
-            SUTL_TEST_ASSERT(eer == ((_RT == RT::CppString) ? EER::EmptyString : EER::ZeroedBuffer));
+            SUTL_TEST_ASSERT(eer == ((_RT == RT::CCBuffer) ? EER::ZeroedBuffer : EER::EmptyString));
 
             SUTL_TEST_SUCCESS();
         }
@@ -866,7 +870,7 @@ namespace CC
 
             const EER eer = CC::StringUtil::CheckForUTFConversionEarlyExit<_RT, C>(nullptr, str.length());
 
-            SUTL_TEST_ASSERT(eer == ((_RT == RT::CppString) ? EER::EmptyString : EER::ZeroedBuffer));
+            SUTL_TEST_ASSERT(eer == ((_RT == RT::CCBuffer) ? EER::ZeroedBuffer : EER::EmptyString));
 
             SUTL_TEST_SUCCESS();
         }
@@ -879,7 +883,7 @@ namespace CC
 
             const EER eer = CC::StringUtil::CheckForUTFConversionEarlyExit<_RT, C>(str.c_str(), str.length());
 
-            SUTL_TEST_ASSERT(eer == ((_RT == RT::CppString) ? EER::EmptyString : EER::ZeroedBuffer));
+            SUTL_TEST_ASSERT(eer == ((_RT == RT::CCBuffer) ? EER::ZeroedBuffer : EER::EmptyString));
 
             SUTL_TEST_SUCCESS();
         }
