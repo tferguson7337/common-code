@@ -24,6 +24,7 @@
     <ClCompile Include="Source\CCListTests.cpp" />
     <ClCompile Include="Source\CCPointerHelperTests.cpp" />
     <ClCompile Include="Source\CCPointerTests.cpp" />
+    <ClCompile Include="Source\CCQueueTests.cpp" />
     <ClCompile Include="Source\CCSharedPointerTests.cpp" />
     <ClCompile Include="Source\CCStackTests.cpp" />
     <ClCompile Include="Source\CCStringTests.cpp" />
@@ -39,6 +40,7 @@
     <ClInclude Include="..\Headers\CCMacros.h" />
     <ClInclude Include="..\Headers\CCPointer.h" />
     <ClInclude Include="..\Headers\CCPointerHelper.h" />
+    <ClInclude Include="..\Headers\CCQueue.h" />
     <ClInclude Include="..\Headers\CCSharedPointer.h" />
     <ClInclude Include="..\Headers\CCStack.h" />
     <ClInclude Include="..\Headers\CCString.h" />
@@ -50,6 +52,7 @@
     <ClInclude Include="Headers\CCListTests.h" />
     <ClInclude Include="Headers\CCPointerHelperTests.h" />
     <ClInclude Include="Headers\CCPointerTests.h" />
+    <ClInclude Include="Headers\CCQueueTests.h" />
     <ClInclude Include="Headers\CCSharedPointerTests.h" />
     <ClInclude Include="Headers\CCStackTests.h" />
     <ClInclude Include="Headers\CCStringTests.h" />

@@ -11,7 +11,7 @@
 #include <memory>
 
 // Target Class
-#include <CCStack.h>
+#include <CCQueue.h>
 
 // Test Helper Utils
 #include <TestHelpers.hpp>
@@ -19,19 +19,19 @@
 
 namespace CC
 {
-    class StackTests
+    class QueueTests
     {
         // Type aliases.
         using UTR = UnitTestResult;
         using UTFunc = std::function<UTR()>;
         using UTList = std::list<UTFunc>;
 
-        StackTests() = delete;
-        StackTests(const StackTests&) = delete;
-        StackTests(StackTests&&) = delete;
-        ~StackTests() = delete;
-        StackTests& operator=(const StackTests&) = delete;
-        StackTests& operator=(StackTests&&) = delete;
+        QueueTests() = delete;
+        QueueTests(const QueueTests&) = delete;
+        QueueTests(QueueTests&&) = delete;
+        ~QueueTests() = delete;
+        QueueTests& operator=(const QueueTests&) = delete;
+        QueueTests& operator=(QueueTests&&) = delete;
 
     private:
 
@@ -46,11 +46,11 @@ namespace CC
         // Tests comparison methods.
         class ComparisonTests;
 
-        // Tests getter methods (e.g., Top, Length, etc.).
+        // Tests getter methods (e.g., Length, Back, Front, etc.).
         class GetterTests;
 
-        // Tests push and pop methods.
-        class PushPopTests;
+        // Tests enqueue and dequeue methods.
+        class EnqueueDequeueTests;
 
     public:
 
@@ -58,19 +58,44 @@ namespace CC
         [[nodiscard]] static UTList GetTests();
     };
 
+#define SETUP_QUEUE_WITH_TEST_DATA_VECTOR(_q_, _t_, _l_)                        \
+    if constexpr (_l_ != 0)                                                     \
+    {                                                                           \
+        for (size_t i = 0; i < _l_; i++)                                        \
+        {                                                                       \
+            SUTL_SETUP_ASSERT(_q_.Enqueue(_t_[i]));                             \
+            SUTL_SETUP_ASSERT(!!_q_.m_pHead);                                   \
+            SUTL_SETUP_ASSERT(!!_q_.m_pTail);                                   \
+            SUTL_SETUP_ASSERT(_q_.m_Len == i + 1);                              \
+            SUTL_SETUP_ASSERT((_q_.m_pHead == _q_.m_pTail) == (_q_.m_Len == 1));\
+            SUTL_SETUP_ASSERT(_q_.m_pHead->data == _t_[0]);                     \
+            SUTL_SETUP_ASSERT(_q_.m_pTail->data == _t_[i]);                     \
+        }                                                                       \
+                                                                                \
+        SUTL_SETUP_ASSERT(!!_q_.m_pHead);                                       \
+        SUTL_SETUP_ASSERT(!!_q_.m_pTail);                                       \
+        SUTL_SETUP_ASSERT(_q_.m_Len == _l_);                                    \
+    }                                                                           \
+    else                                                                        \
+    {                                                                           \
+        SUTL_SETUP_ASSERT(!_q_.m_pHead);                                        \
+        SUTL_SETUP_ASSERT(!_q_.m_pTail);                                        \
+        SUTL_SETUP_ASSERT(_q_.m_Len == 0);                                      \
+    }
 
     // Test constructor behavior.
-    class StackTests::ConstructorTests
+    class QueueTests::ConstructorTests
     {
     public:
 
         template <typename T>
         [[nodiscard]] static UTR DefaultCtor()
         {
-            Stack<T> stack;
+            Queue<T> queue;
 
-            SUTL_TEST_ASSERT(!stack.m_pHead);
-            SUTL_TEST_ASSERT(stack.m_Len == 0);
+            SUTL_TEST_ASSERT(!queue.m_pHead);
+            SUTL_TEST_ASSERT(!queue.m_pTail);
+            SUTL_TEST_ASSERT(queue.m_Len == 0);
 
             SUTL_TEST_SUCCESS();
         }
@@ -79,16 +104,18 @@ namespace CC
         [[nodiscard]] static UTR ElementCopyCtor()
         {
             const std::vector<T> testData(GetTestData<T, TestQuantity::VeryLow>());
-            Stack<T> stack(testData.back());
+            Queue<T> queue(testData.back());
 
-            SUTL_TEST_ASSERT(!!stack.m_pHead);
-            SUTL_TEST_ASSERT(stack.m_Len == 1);
-            SUTL_TEST_ASSERT(!stack.m_pHead->pNext);
-            SUTL_TEST_ASSERT(stack.m_pHead->data == testData.back());
+            SUTL_TEST_ASSERT(!!queue.m_pHead);
+            SUTL_TEST_ASSERT(!!queue.m_pTail);
+            SUTL_TEST_ASSERT(queue.m_pHead == queue.m_pTail);
+            SUTL_TEST_ASSERT(queue.m_Len == 1);
+            SUTL_TEST_ASSERT(!queue.m_pHead->pNext);
+            SUTL_TEST_ASSERT(queue.m_pHead->data == testData.back());
             if constexpr (std::is_same_v<T, Helper>)
             {
-                SUTL_TEST_ASSERT(stack.m_pHead->data.m_bCopied);
-                SUTL_TEST_ASSERT(!stack.m_pHead->data.m_bMoved);
+                SUTL_TEST_ASSERT(queue.m_pHead->data.m_bCopied);
+                SUTL_TEST_ASSERT(!queue.m_pHead->data.m_bMoved);
             }
 
             SUTL_TEST_SUCCESS();
@@ -98,48 +125,33 @@ namespace CC
         [[nodiscard]] static UTR ElementMoveCtor()
         {
             std::vector<T> testData(GetTestData<T, TestQuantity::VeryLow>());
-            Stack<T> stack(std::move(testData.back()));
+            Queue<T> queue(std::move(testData.back()));
 
-            SUTL_TEST_ASSERT(!!stack.m_pHead);
-            SUTL_TEST_ASSERT(stack.m_Len == 1);
-            SUTL_TEST_ASSERT(!stack.m_pHead->pNext);
-            SUTL_TEST_ASSERT(stack.m_pHead->data == testData.back());
+            SUTL_TEST_ASSERT(!!queue.m_pHead);
+            SUTL_TEST_ASSERT(!!queue.m_pTail);
+            SUTL_TEST_ASSERT(queue.m_pHead == queue.m_pTail);
+            SUTL_TEST_ASSERT(queue.m_Len == 1);
+            SUTL_TEST_ASSERT(!queue.m_pHead->pNext);
+            SUTL_TEST_ASSERT(queue.m_pHead->data == testData.back());
             if constexpr (std::is_same_v<T, Helper>)
             {
-                SUTL_TEST_ASSERT(!stack.m_pHead->data.m_bCopied);
-                SUTL_TEST_ASSERT(stack.m_pHead->data.m_bMoved);
+                SUTL_TEST_ASSERT(!queue.m_pHead->data.m_bCopied);
+                SUTL_TEST_ASSERT(queue.m_pHead->data.m_bMoved);
             }
 
             SUTL_TEST_SUCCESS();
         }
 
         template <typename T, TestQuantity SrcLen>
-        [[nodiscard]] static UTR StackCopyCtor()
+        [[nodiscard]] static UTR QueueCopyCtor()
         {
             constexpr size_t srcLen = GetTQLength<SrcLen>();
             const std::vector<T> testData(GetTestData<T, SrcLen>());
-            Stack<T> src;
+            Queue<T> src;
 
-            if constexpr (srcLen != 0)
-            {
-                for (size_t i = 0; i < srcLen; i++)
-                {
-                    SUTL_SETUP_ASSERT(src.Push(testData[i]));
-                    SUTL_SETUP_ASSERT(!!src.m_pHead);
-                    SUTL_SETUP_ASSERT(src.m_Len == i + 1);
-                    SUTL_SETUP_ASSERT(src.m_pHead->data == testData[i]);
-                }
+            SETUP_QUEUE_WITH_TEST_DATA_VECTOR(src, testData, srcLen);
 
-                SUTL_SETUP_ASSERT(!!src.m_pHead);
-                SUTL_SETUP_ASSERT(src.m_Len == srcLen);
-            }
-            else
-            {
-                SUTL_SETUP_ASSERT(!src.m_pHead);
-                SUTL_SETUP_ASSERT(src.m_Len == 0);
-            }
-
-            Stack<T> dst(src);
+            Queue<T> dst(src);
             SUTL_TEST_ASSERT(dst.m_Len == src.m_Len);
 
             if constexpr (srcLen != 0)
@@ -152,7 +164,14 @@ namespace CC
                     SUTL_TEST_ASSERT(!!pSrc);
                     SUTL_TEST_ASSERT(pDst != pSrc);
                     SUTL_TEST_ASSERT(pDst->data == pSrc->data);
-                    SUTL_TEST_ASSERT(pDst->data == testData[srcLen - i - 1]);
+                    SUTL_TEST_ASSERT(pDst->data == testData[i]);
+
+                    if (i == srcLen - 1)
+                    {
+                        SUTL_TEST_ASSERT(pDst == dst.m_pTail);
+                        SUTL_TEST_ASSERT(pSrc == src.m_pTail);
+                    }
+
                     pDst = pDst->pNext;
                     pSrc = pSrc->pNext;
                 }
@@ -160,7 +179,9 @@ namespace CC
             else
             {
                 SUTL_TEST_ASSERT(!dst.m_pHead);
+                SUTL_TEST_ASSERT(!dst.m_pTail);
                 SUTL_TEST_ASSERT(!src.m_pHead);
+                SUTL_TEST_ASSERT(!src.m_pTail);
                 SUTL_TEST_ASSERT(dst.m_Len == 0);
                 SUTL_TEST_ASSERT(src.m_Len == 0);
             }
@@ -169,36 +190,22 @@ namespace CC
         }
 
         template <typename T, TestQuantity SrcLen>
-        [[nodiscard]] static UTR StackMoveCtor()
+        [[nodiscard]] static UTR QueueMoveCtor()
         {
             constexpr size_t srcLen = GetTQLength<SrcLen>();
             const std::vector<T> testData(GetTestData<T, SrcLen>());
-            Stack<T> src;
+            Queue<T> src;
 
-            if constexpr (srcLen != 0)
-            {
-                for (size_t i = 0; i < srcLen; i++)
-                {
-                    SUTL_SETUP_ASSERT(src.Push(testData[i]));
-                    SUTL_SETUP_ASSERT(!!src.m_pHead);
-                    SUTL_SETUP_ASSERT(src.m_Len == i + 1);
-                    SUTL_SETUP_ASSERT(src.m_pHead->data == testData[i]);
-                }
+            SETUP_QUEUE_WITH_TEST_DATA_VECTOR(src, testData, srcLen);
 
-                SUTL_SETUP_ASSERT(!!src.m_pHead);
-                SUTL_SETUP_ASSERT(src.m_Len == srcLen);
-            }
-            else
-            {
-                SUTL_SETUP_ASSERT(!src.m_pHead);
-                SUTL_SETUP_ASSERT(src.m_Len == 0);
-            }
-
-            auto pSrc = src.m_pHead;
-            Stack<T> dst(std::move(src));
-            SUTL_TEST_ASSERT(dst.m_pHead == pSrc);
+            auto pSrcHead = src.m_pHead;
+            auto pSrcTail = src.m_pTail;
+            Queue<T> dst(std::move(src));
+            SUTL_TEST_ASSERT(dst.m_pHead == pSrcHead);
+            SUTL_TEST_ASSERT(dst.m_pTail == pSrcTail);
             SUTL_TEST_ASSERT(dst.m_Len == srcLen);
             SUTL_TEST_ASSERT(!src.m_pHead);
+            SUTL_TEST_ASSERT(!src.m_pTail);
             SUTL_TEST_ASSERT(src.m_Len == 0);
 
             if constexpr (srcLen != 0)
@@ -207,13 +214,18 @@ namespace CC
                 for (size_t i = 0; i < srcLen; i++)
                 {
                     SUTL_TEST_ASSERT(!!pDst);
-                    SUTL_TEST_ASSERT(pDst->data == testData[srcLen - i - 1]);
+                    SUTL_TEST_ASSERT(pDst->data == testData[i]);
+                    if (i == srcLen - 1)
+                    {
+                        SUTL_TEST_ASSERT(pDst == dst.m_pTail);
+                    }
                     pDst = pDst->pNext;
                 }
             }
             else
             {
                 SUTL_TEST_ASSERT(!dst.m_pHead);
+                SUTL_TEST_ASSERT(!dst.m_pTail);
                 SUTL_TEST_ASSERT(dst.m_Len == 0);
             }
 
@@ -223,7 +235,7 @@ namespace CC
 
 
     // Tests assignment methods.
-    class StackTests::AssignTests
+    class QueueTests::AssignTests
     {
     public:
 
@@ -231,32 +243,20 @@ namespace CC
         [[nodiscard]] static UTR AssignMethodElementCopy()
         {
             constexpr size_t len = GetTQLength<DstLen>();
+            const std::vector<T> dstTestData(GetTestData<T, DstLen>());
             const T testData(GetTestData<T, TestQuantity::Low>().back());
-            Stack<T> dst;
+            Queue<T> dst;
 
-            // Setup dst stack.
-            if constexpr (len != 0)
-            {
-                const std::vector<T> srcTestData(GetTestData<T, DstLen>());
-                for (size_t i = 0; i < len; i++)
-                {
-                    SUTL_SETUP_ASSERT(dst.Push(srcTestData[i]));
-                    SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                    SUTL_SETUP_ASSERT(dst.m_Len == i + 1);
-                    SUTL_SETUP_ASSERT(dst.m_pHead->data == srcTestData[i]);
-                }
+            SETUP_QUEUE_WITH_TEST_DATA_VECTOR(dst, dstTestData, len);
 
-                // Verify initial dst conditions.
-                SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                SUTL_SETUP_ASSERT(dst.m_Len == len);
-            }
-
-            // Save off current stack head.
+            // Save off current queue head.
             auto pHead = dst.m_pHead;
 
             // Assign the element.
             SUTL_TEST_ASSERT(dst.Assign(testData));
             SUTL_TEST_ASSERT(!!dst.m_pHead);
+            SUTL_TEST_ASSERT(!!dst.m_pTail);
+            SUTL_TEST_ASSERT(dst.m_pHead == dst.m_pTail);
             SUTL_TEST_ASSERT(dst.m_Len == 1);
             SUTL_TEST_ASSERT(dst.m_pHead != pHead);
             SUTL_TEST_ASSERT(dst.m_pHead->data == testData);
@@ -275,32 +275,20 @@ namespace CC
         [[nodiscard]] static UTR AssignMethodElementMove()
         {
             constexpr size_t len = GetTQLength<DstLen>();
+            const std::vector<T> dstTestData(GetTestData<T, DstLen>());
             T testData(GetTestData<T, TestQuantity::Low>().back());
-            Stack<T> dst;
+            Queue<T> dst;
 
-            // Setup dst stack.
-            if constexpr (len != 0)
-            {
-                const std::vector<T> srcTestData(GetTestData<T, DstLen>());
-                for (size_t i = 0; i < len; i++)
-                {
-                    SUTL_SETUP_ASSERT(dst.Push(srcTestData[i]));
-                    SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                    SUTL_SETUP_ASSERT(dst.m_Len == i + 1);
-                    SUTL_SETUP_ASSERT(dst.m_pHead->data == srcTestData[i]);
-                }
+            SETUP_QUEUE_WITH_TEST_DATA_VECTOR(dst, dstTestData, len);
 
-                // Verify initial dst conditions.
-                SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                SUTL_SETUP_ASSERT(dst.m_Len == len);
-            }
-
-            // Save off current stack head.
+            // Save off current queue head.
             auto pHead = dst.m_pHead;
 
             // Assign the element.
             SUTL_TEST_ASSERT(dst.Assign(std::move(testData)));
             SUTL_TEST_ASSERT(!!dst.m_pHead);
+            SUTL_TEST_ASSERT(!!dst.m_pTail);
+            SUTL_TEST_ASSERT(dst.m_pHead == dst.m_pTail);
             SUTL_TEST_ASSERT(dst.m_Len == 1);
             SUTL_TEST_ASSERT(dst.m_pHead != pHead);
             SUTL_TEST_ASSERT(dst.m_pHead->data == testData);
@@ -316,46 +304,17 @@ namespace CC
         }
 
         template <typename T, TestQuantity DstLen, TestQuantity SrcLen>
-        [[nodiscard]] static UTR AssignMethodStackCopy()
+        [[nodiscard]] static UTR AssignMethodQueueCopy()
         {
             constexpr size_t dstLen = GetTQLength<DstLen>();
             constexpr size_t srcLen = GetTQLength<SrcLen>();
+            const std::vector<T> dstTestData(GetTestData<T, DstLen>());
             const std::vector<T> srcTestData(GetTestData<T, SrcLen>());
-            Stack<T> dst;
-            Stack<T> src;
+            Queue<T> dst;
+            Queue<T> src;
 
-            // Setup dst stack.
-            if constexpr (dstLen != 0)
-            {
-                const std::vector<T> dstTestData(GetTestData<T, DstLen>());
-                for (size_t i = 0; i < dstLen; i++)
-                {
-                    SUTL_SETUP_ASSERT(dst.Push(dstTestData[i]));
-                    SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                    SUTL_SETUP_ASSERT(dst.m_Len == i + 1);
-                    SUTL_SETUP_ASSERT(dst.m_pHead->data == dstTestData[i]);
-                }
-
-                // Verify initial dst conditions.
-                SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                SUTL_SETUP_ASSERT(dst.m_Len == dstLen);
-            }
-
-            // Setup src stack.
-            if constexpr (srcLen != 0)
-            {
-                for (size_t i = 0; i < srcLen; i++)
-                {
-                    SUTL_SETUP_ASSERT(src.Push(srcTestData[i]));
-                    SUTL_SETUP_ASSERT(!!src.m_pHead);
-                    SUTL_SETUP_ASSERT(src.m_Len == i + 1);
-                    SUTL_SETUP_ASSERT(src.m_pHead->data == srcTestData[i]);
-                }
-
-                // Verify initial dst conditions.
-                SUTL_SETUP_ASSERT(!!src.m_pHead);
-                SUTL_SETUP_ASSERT(src.m_Len == srcLen);
-            }
+            SETUP_QUEUE_WITH_TEST_DATA_VECTOR(dst, dstTestData, dstLen);
+            SETUP_QUEUE_WITH_TEST_DATA_VECTOR(src, srcTestData, srcLen);
 
             SUTL_TEST_ASSERT(dst.Assign(src));
             SUTL_TEST_ASSERT(dst.m_Len == src.m_Len);
@@ -370,7 +329,14 @@ namespace CC
                     SUTL_TEST_ASSERT(!!pSrc);
                     SUTL_TEST_ASSERT(pDst != pSrc);
                     SUTL_TEST_ASSERT(pDst->data == pSrc->data);
-                    SUTL_TEST_ASSERT(pDst->data == srcTestData[srcLen - i - 1]);
+                    SUTL_TEST_ASSERT(pDst->data == srcTestData[i]);
+
+                    if (i == srcLen - 1)
+                    {
+                        SUTL_TEST_ASSERT(pDst == dst.m_pTail);
+                        SUTL_TEST_ASSERT(pSrc == src.m_pTail);
+                    }
+
                     pDst = pDst->pNext;
                     pSrc = pSrc->pNext;
                 }
@@ -378,7 +344,9 @@ namespace CC
             else
             {
                 SUTL_TEST_ASSERT(!dst.m_pHead);
+                SUTL_TEST_ASSERT(!dst.m_pTail);
                 SUTL_TEST_ASSERT(!src.m_pHead);
+                SUTL_TEST_ASSERT(!src.m_pTail);
                 SUTL_TEST_ASSERT(dst.m_Len == 0);
                 SUTL_TEST_ASSERT(src.m_Len == 0);
             }
@@ -387,46 +355,17 @@ namespace CC
         }
 
         template <typename T, TestQuantity DstLen, TestQuantity SrcLen>
-        [[nodiscard]] static UTR AssignMethodStackMove()
+        [[nodiscard]] static UTR AssignMethodQueueMove()
         {
             constexpr size_t dstLen = GetTQLength<DstLen>();
             constexpr size_t srcLen = GetTQLength<SrcLen>();
+            const std::vector<T> dstTestData(GetTestData<T, DstLen>());
             const std::vector<T> srcTestData(GetTestData<T, SrcLen>());
-            Stack<T> dst;
-            Stack<T> src;
+            Queue<T> dst;
+            Queue<T> src;
 
-            // Setup dst stack.
-            if constexpr (dstLen != 0)
-            {
-                const std::vector<T> dstTestData(GetTestData<T, DstLen>());
-                for (size_t i = 0; i < dstLen; i++)
-                {
-                    SUTL_SETUP_ASSERT(dst.Push(dstTestData[i]));
-                    SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                    SUTL_SETUP_ASSERT(dst.m_Len == i + 1);
-                    SUTL_SETUP_ASSERT(dst.m_pHead->data == dstTestData[i]);
-                }
-
-                // Verify initial dst conditions.
-                SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                SUTL_SETUP_ASSERT(dst.m_Len == dstLen);
-            }
-
-            // Setup src stack.
-            if constexpr (srcLen != 0)
-            {
-                for (size_t i = 0; i < srcLen; i++)
-                {
-                    SUTL_SETUP_ASSERT(src.Push(srcTestData[i]));
-                    SUTL_SETUP_ASSERT(!!src.m_pHead);
-                    SUTL_SETUP_ASSERT(src.m_Len == i + 1);
-                    SUTL_SETUP_ASSERT(src.m_pHead->data == srcTestData[i]);
-                }
-
-                // Verify initial dst conditions.
-                SUTL_SETUP_ASSERT(!!src.m_pHead);
-                SUTL_SETUP_ASSERT(src.m_Len == srcLen);
-            }
+            SETUP_QUEUE_WITH_TEST_DATA_VECTOR(dst, dstTestData, dstLen);
+            SETUP_QUEUE_WITH_TEST_DATA_VECTOR(src, srcTestData, srcLen);
 
             auto pSrc = src.m_pHead;
             SUTL_TEST_ASSERT(dst.Assign(std::move(src)));
@@ -441,14 +380,21 @@ namespace CC
                 for (size_t i = 0; i < srcLen; i++)
                 {
                     SUTL_TEST_ASSERT(!!pDst);
-                    SUTL_TEST_ASSERT(pDst->data == srcTestData[srcLen - i - 1]);
+                    SUTL_TEST_ASSERT(pDst->data == srcTestData[i]);
+                    if (i == srcLen - 1)
+                    {
+                        SUTL_TEST_ASSERT(pDst == dst.m_pTail);
+                    }
+
                     pDst = pDst->pNext;
                 }
             }
             else
             {
                 SUTL_TEST_ASSERT(!dst.m_pHead);
+                SUTL_TEST_ASSERT(!dst.m_pTail);
                 SUTL_TEST_ASSERT(!src.m_pHead);
+                SUTL_TEST_ASSERT(!src.m_pTail);
                 SUTL_TEST_ASSERT(dst.m_Len == 0);
                 SUTL_TEST_ASSERT(src.m_Len == 0);
             }
@@ -461,31 +407,19 @@ namespace CC
         {
             constexpr size_t len = GetTQLength<DstLen>();
             const T testData(GetTestData<T, TestQuantity::Low>().back());
-            Stack<T> dst;
+            const std::vector<T> srcTestData(GetTestData<T, DstLen>());
+            Queue<T> dst;
 
-            // Setup dst stack.
-            if constexpr (len != 0)
-            {
-                const std::vector<T> srcTestData(GetTestData<T, DstLen>());
-                for (size_t i = 0; i < len; i++)
-                {
-                    SUTL_SETUP_ASSERT(dst.Push(srcTestData[i]));
-                    SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                    SUTL_SETUP_ASSERT(dst.m_Len == i + 1);
-                    SUTL_SETUP_ASSERT(dst.m_pHead->data == srcTestData[i]);
-                }
+            SETUP_QUEUE_WITH_TEST_DATA_VECTOR(dst, srcTestData, len);
 
-                // Verify initial dst conditions.
-                SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                SUTL_SETUP_ASSERT(dst.m_Len == len);
-            }
-
-            // Save off current stack head.
+            // Save off current queue head.
             auto pHead = dst.m_pHead;
 
             // Assign the element.
             dst = testData;
             SUTL_TEST_ASSERT(!!dst.m_pHead);
+            SUTL_TEST_ASSERT(!!dst.m_pTail);
+            SUTL_TEST_ASSERT(dst.m_pHead == dst.m_pTail);
             SUTL_TEST_ASSERT(dst.m_Len == 1);
             SUTL_TEST_ASSERT(dst.m_pHead != pHead);
             SUTL_TEST_ASSERT(dst.m_pHead->data == testData);
@@ -505,31 +439,19 @@ namespace CC
         {
             constexpr size_t len = GetTQLength<DstLen>();
             T testData(GetTestData<T, TestQuantity::Low>().back());
-            Stack<T> dst;
+            const std::vector<T> srcTestData(GetTestData<T, DstLen>());
+            Queue<T> dst;
 
-            // Setup dst stack.
-            if constexpr (len != 0)
-            {
-                const std::vector<T> srcTestData(GetTestData<T, DstLen>());
-                for (size_t i = 0; i < len; i++)
-                {
-                    SUTL_SETUP_ASSERT(dst.Push(srcTestData[i]));
-                    SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                    SUTL_SETUP_ASSERT(dst.m_Len == i + 1);
-                    SUTL_SETUP_ASSERT(dst.m_pHead->data == srcTestData[i]);
-                }
+            SETUP_QUEUE_WITH_TEST_DATA_VECTOR(dst, srcTestData, len);
 
-                // Verify initial dst conditions.
-                SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                SUTL_SETUP_ASSERT(dst.m_Len == len);
-            }
-
-            // Save off current stack head.
+            // Save off current queue head.
             auto pHead = dst.m_pHead;
 
             // Assign the element.
             dst = std::move(testData);
             SUTL_TEST_ASSERT(!!dst.m_pHead);
+            SUTL_TEST_ASSERT(!!dst.m_pTail);
+            SUTL_TEST_ASSERT(dst.m_pHead == dst.m_pTail);
             SUTL_TEST_ASSERT(dst.m_Len == 1);
             SUTL_TEST_ASSERT(dst.m_pHead != pHead);
             SUTL_TEST_ASSERT(dst.m_pHead->data == testData);
@@ -545,46 +467,17 @@ namespace CC
         }
 
         template <typename T, TestQuantity DstLen, TestQuantity SrcLen>
-        [[nodiscard]] static UTR AssignOperatorStackCopy()
+        [[nodiscard]] static UTR AssignOperatorQueueCopy()
         {
             constexpr size_t dstLen = GetTQLength<DstLen>();
             constexpr size_t srcLen = GetTQLength<SrcLen>();
+            const std::vector<T> dstTestData(GetTestData<T, DstLen>());
             const std::vector<T> srcTestData(GetTestData<T, SrcLen>());
-            Stack<T> dst;
-            Stack<T> src;
+            Queue<T> dst;
+            Queue<T> src;
 
-            // Setup dst stack.
-            if constexpr (dstLen != 0)
-            {
-                const std::vector<T> dstTestData(GetTestData<T, DstLen>());
-                for (size_t i = 0; i < dstLen; i++)
-                {
-                    SUTL_SETUP_ASSERT(dst.Push(dstTestData[i]));
-                    SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                    SUTL_SETUP_ASSERT(dst.m_Len == i + 1);
-                    SUTL_SETUP_ASSERT(dst.m_pHead->data == dstTestData[i]);
-                }
-
-                // Verify initial dst conditions.
-                SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                SUTL_SETUP_ASSERT(dst.m_Len == dstLen);
-            }
-
-            // Setup src stack.
-            if constexpr (srcLen != 0)
-            {
-                for (size_t i = 0; i < srcLen; i++)
-                {
-                    SUTL_SETUP_ASSERT(src.Push(srcTestData[i]));
-                    SUTL_SETUP_ASSERT(!!src.m_pHead);
-                    SUTL_SETUP_ASSERT(src.m_Len == i + 1);
-                    SUTL_SETUP_ASSERT(src.m_pHead->data == srcTestData[i]);
-                }
-
-                // Verify initial dst conditions.
-                SUTL_SETUP_ASSERT(!!src.m_pHead);
-                SUTL_SETUP_ASSERT(src.m_Len == srcLen);
-            }
+            SETUP_QUEUE_WITH_TEST_DATA_VECTOR(dst, dstTestData, dstLen);
+            SETUP_QUEUE_WITH_TEST_DATA_VECTOR(src, srcTestData, srcLen);
 
             dst = src;
             SUTL_TEST_ASSERT(dst.m_Len == src.m_Len);
@@ -599,7 +492,14 @@ namespace CC
                     SUTL_TEST_ASSERT(!!pSrc);
                     SUTL_TEST_ASSERT(pDst != pSrc);
                     SUTL_TEST_ASSERT(pDst->data == pSrc->data);
-                    SUTL_TEST_ASSERT(pDst->data == srcTestData[srcLen - i - 1]);
+                    SUTL_TEST_ASSERT(pDst->data == srcTestData[i]);
+
+                    if (i == srcLen - 1)
+                    {
+                        SUTL_TEST_ASSERT(pDst == dst.m_pTail);
+                        SUTL_TEST_ASSERT(pSrc == src.m_pTail);
+                    }
+
                     pDst = pDst->pNext;
                     pSrc = pSrc->pNext;
                 }
@@ -616,52 +516,26 @@ namespace CC
         }
 
         template <typename T, TestQuantity DstLen, TestQuantity SrcLen>
-        [[nodiscard]] static UTR AssignOperatorStackMove()
+        [[nodiscard]] static UTR AssignOperatorQueueMove()
         {
             constexpr size_t dstLen = GetTQLength<DstLen>();
             constexpr size_t srcLen = GetTQLength<SrcLen>();
+            const std::vector<T> dstTestData(GetTestData<T, DstLen>());
             const std::vector<T> srcTestData(GetTestData<T, SrcLen>());
-            Stack<T> dst;
-            Stack<T> src;
+            Queue<T> dst;
+            Queue<T> src;
 
-            // Setup dst stack.
-            if constexpr (dstLen != 0)
-            {
-                const std::vector<T> dstTestData(GetTestData<T, DstLen>());
-                for (size_t i = 0; i < dstLen; i++)
-                {
-                    SUTL_SETUP_ASSERT(dst.Push(dstTestData[i]));
-                    SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                    SUTL_SETUP_ASSERT(dst.m_Len == i + 1);
-                    SUTL_SETUP_ASSERT(dst.m_pHead->data == dstTestData[i]);
-                }
+            SETUP_QUEUE_WITH_TEST_DATA_VECTOR(dst, dstTestData, dstLen);
+            SETUP_QUEUE_WITH_TEST_DATA_VECTOR(src, srcTestData, srcLen);
 
-                // Verify initial dst conditions.
-                SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                SUTL_SETUP_ASSERT(dst.m_Len == dstLen);
-            }
-
-            // Setup src stack.
-            if constexpr (srcLen != 0)
-            {
-                for (size_t i = 0; i < srcLen; i++)
-                {
-                    SUTL_SETUP_ASSERT(src.Push(srcTestData[i]));
-                    SUTL_SETUP_ASSERT(!!src.m_pHead);
-                    SUTL_SETUP_ASSERT(src.m_Len == i + 1);
-                    SUTL_SETUP_ASSERT(src.m_pHead->data == srcTestData[i]);
-                }
-
-                // Verify initial dst conditions.
-                SUTL_SETUP_ASSERT(!!src.m_pHead);
-                SUTL_SETUP_ASSERT(src.m_Len == srcLen);
-            }
-
-            auto pSrc = src.m_pHead;
+            auto pSrcHead = src.m_pHead;
+            auto pSrcTail = src.m_pTail;
             dst = std::move(src);
-            SUTL_TEST_ASSERT(dst.m_pHead == pSrc);
+            SUTL_TEST_ASSERT(dst.m_pHead == pSrcHead);
+            SUTL_TEST_ASSERT(dst.m_pTail == pSrcTail);
             SUTL_TEST_ASSERT(dst.m_Len == srcLen);
             SUTL_TEST_ASSERT(!src.m_pHead);
+            SUTL_TEST_ASSERT(!src.m_pTail);
             SUTL_TEST_ASSERT(src.m_Len == 0);
 
             if constexpr (srcLen != 0)
@@ -670,14 +544,21 @@ namespace CC
                 for (size_t i = 0; i < srcLen; i++)
                 {
                     SUTL_TEST_ASSERT(!!pDst);
-                    SUTL_TEST_ASSERT(pDst->data == srcTestData[srcLen - i - 1]);
+                    SUTL_TEST_ASSERT(pDst->data == srcTestData[i]);
+                    if (i == srcLen - 1)
+                    {
+                        SUTL_TEST_ASSERT(pDst == dst.m_pTail);
+                    }
+
                     pDst = pDst->pNext;
                 }
             }
             else
             {
                 SUTL_TEST_ASSERT(!dst.m_pHead);
+                SUTL_TEST_ASSERT(!dst.m_pTail);
                 SUTL_TEST_ASSERT(!src.m_pHead);
+                SUTL_TEST_ASSERT(!src.m_pTail);
                 SUTL_TEST_ASSERT(dst.m_Len == 0);
                 SUTL_TEST_ASSERT(src.m_Len == 0);
             }
@@ -688,7 +569,7 @@ namespace CC
 
 
     // Tests comparison methods.
-    class StackTests::ComparisonTests
+    class QueueTests::ComparisonTests
     {
     public:
 
@@ -698,42 +579,13 @@ namespace CC
             constexpr size_t dstLen = GetTQLength<DstLen>();
             constexpr size_t srcLen = GetTQLength<SrcLen>();
             constexpr bool bExpectMatch = (dstLen == srcLen);
+            const std::vector<T> dstTestData(GetTestData<T, DstLen>());
             const std::vector<T> srcTestData(GetTestData<T, SrcLen>());
-            Stack<T> dst;
-            Stack<T> src;
+            Queue<T> dst;
+            Queue<T> src;
 
-            // Setup dst stack.
-            if constexpr (dstLen != 0)
-            {
-                const std::vector<T> dstTestData(GetTestData<T, DstLen>());
-                for (size_t i = 0; i < dstLen; i++)
-                {
-                    SUTL_SETUP_ASSERT(dst.Push(dstTestData[i]));
-                    SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                    SUTL_SETUP_ASSERT(dst.m_Len == i + 1);
-                    SUTL_SETUP_ASSERT(dst.m_pHead->data == dstTestData[i]);
-                }
-
-                // Verify initial dst conditions.
-                SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                SUTL_SETUP_ASSERT(dst.m_Len == dstLen);
-            }
-
-            // Setup src stack.
-            if constexpr (srcLen != 0)
-            {
-                for (size_t i = 0; i < srcLen; i++)
-                {
-                    SUTL_SETUP_ASSERT(src.Push(srcTestData[i]));
-                    SUTL_SETUP_ASSERT(!!src.m_pHead);
-                    SUTL_SETUP_ASSERT(src.m_Len == i + 1);
-                    SUTL_SETUP_ASSERT(src.m_pHead->data == srcTestData[i]);
-                }
-
-                // Verify initial dst conditions.
-                SUTL_SETUP_ASSERT(!!src.m_pHead);
-                SUTL_SETUP_ASSERT(src.m_Len == srcLen);
-            }
+            SETUP_QUEUE_WITH_TEST_DATA_VECTOR(dst, dstTestData, dstLen);
+            SETUP_QUEUE_WITH_TEST_DATA_VECTOR(src, srcTestData, srcLen);
 
             SUTL_TEST_ASSERT(dst.Compare(src) == bExpectMatch);
 
@@ -746,42 +598,13 @@ namespace CC
             constexpr size_t dstLen = GetTQLength<DstLen>();
             constexpr size_t srcLen = GetTQLength<SrcLen>();
             constexpr bool bExpectMatch = (dstLen == srcLen);
+            const std::vector<T> dstTestData(GetTestData<T, DstLen>());
             const std::vector<T> srcTestData(GetTestData<T, SrcLen>());
-            Stack<T> dst;
-            Stack<T> src;
+            Queue<T> dst;
+            Queue<T> src;
 
-            // Setup dst stack.
-            if constexpr (dstLen != 0)
-            {
-                const std::vector<T> dstTestData(GetTestData<T, DstLen>());
-                for (size_t i = 0; i < dstLen; i++)
-                {
-                    SUTL_SETUP_ASSERT(dst.Push(dstTestData[i]));
-                    SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                    SUTL_SETUP_ASSERT(dst.m_Len == i + 1);
-                    SUTL_SETUP_ASSERT(dst.m_pHead->data == dstTestData[i]);
-                }
-
-                // Verify initial dst conditions.
-                SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                SUTL_SETUP_ASSERT(dst.m_Len == dstLen);
-            }
-
-            // Setup src stack.
-            if constexpr (srcLen != 0)
-            {
-                for (size_t i = 0; i < srcLen; i++)
-                {
-                    SUTL_SETUP_ASSERT(src.Push(srcTestData[i]));
-                    SUTL_SETUP_ASSERT(!!src.m_pHead);
-                    SUTL_SETUP_ASSERT(src.m_Len == i + 1);
-                    SUTL_SETUP_ASSERT(src.m_pHead->data == srcTestData[i]);
-                }
-
-                // Verify initial dst conditions.
-                SUTL_SETUP_ASSERT(!!src.m_pHead);
-                SUTL_SETUP_ASSERT(src.m_Len == srcLen);
-            }
+            SETUP_QUEUE_WITH_TEST_DATA_VECTOR(dst, dstTestData, dstLen);
+            SETUP_QUEUE_WITH_TEST_DATA_VECTOR(src, srcTestData, srcLen);
 
             SUTL_TEST_ASSERT((dst == src) == bExpectMatch);
 
@@ -790,8 +613,8 @@ namespace CC
     };
 
 
-    // Tests getter methods (e.g., Top, Length, etc.).
-    class StackTests::GetterTests
+    // Tests getter methods (e.g., Length, Back, Front, etc.).
+    class QueueTests::GetterTests
     {
     public:
 
@@ -800,13 +623,13 @@ namespace CC
         {
             constexpr size_t len = GetTQLength<Len>();
             const std::vector<T> testData(GetTestData<T, Len>());
-            Stack<T> dst;
+            Queue<T> dst;
 
             if constexpr (len != 0)
             {
                 for (size_t i = 0; i < len; i++)
                 {
-                    SUTL_SETUP_ASSERT(dst.Push(testData[i]));
+                    SUTL_SETUP_ASSERT(dst.Enqueue(testData[i]));
                     SUTL_TEST_ASSERT(dst.Length() == i + 1);
                 }
             }
@@ -817,20 +640,20 @@ namespace CC
         }
 
         template <typename T, TestQuantity Len>
-        [[nodiscard]] static UTR Top()
+        [[nodiscard]] static UTR Back()
         {
             constexpr size_t len = GetTQLength<Len>();
             const std::vector<T> testData(GetTestData<T, Len>());
-            Stack<T> dst;
+            Queue<T> dst;
 
             if constexpr (len != 0)
             {
                 for (size_t i = 0; i < len; i++)
                 {
-                    SUTL_SETUP_ASSERT(dst.Push(testData[i]));
+                    SUTL_SETUP_ASSERT(dst.Enqueue(testData[i]));
                     try
                     {
-                        SUTL_TEST_ASSERT(dst.Top() == testData[i]);
+                        SUTL_TEST_ASSERT(dst.Back() == testData[i]);
                     }
                     catch (const std::exception& e)
                     {
@@ -843,7 +666,52 @@ namespace CC
                 bool bThrew = false;
                 try
                 {
-                    T tmp = dst.Top();
+                    T tmp = dst.Back();
+                    SUTL_TEST_ASSERT(tmp == T());
+                }
+                catch (const std::logic_error&)
+                {
+                    bThrew = true;
+                }
+                catch (const std::exception& e)
+                {
+                    SUTL_TEST_EXCEPTION(e.what());
+                }
+
+                SUTL_TEST_ASSERT(bThrew);
+            }
+
+            SUTL_TEST_SUCCESS();
+        }
+
+        template <typename T, TestQuantity Len>
+        [[nodiscard]] static UTR Front()
+        {
+            constexpr size_t len = GetTQLength<Len>();
+            const std::vector<T> testData(GetTestData<T, Len>());
+            Queue<T> dst;
+
+            if constexpr (len != 0)
+            {
+                for (size_t i = 0; i < len; i++)
+                {
+                    SUTL_SETUP_ASSERT(dst.Enqueue(testData[i]));
+                    try
+                    {
+                        SUTL_TEST_ASSERT(dst.Front() == testData[0]);
+                    }
+                    catch (const std::exception& e)
+                    {
+                        SUTL_TEST_EXCEPTION(e.what());
+                    }
+                }
+            }
+            else
+            {
+                bool bThrew = false;
+                try
+                {
+                    T tmp = dst.Front();
                     SUTL_TEST_ASSERT(tmp == T());
                 }
                 catch (const std::logic_error&)
@@ -863,36 +731,35 @@ namespace CC
     };
 
 
-    // Tests push and pop methods.
-    class StackTests::PushPopTests
+    // Tests enqueue and dequeue methods.
+    class QueueTests::EnqueueDequeueTests
     {
     public:
 
         template <typename T, TestQuantity Len>
-        [[nodiscard]] static UTR Push()
+        [[nodiscard]] static UTR Enqueue()
         {
             constexpr size_t len = GetTQLength<Len>();
             const std::vector<T> testData(GetTestData<T, Len>());
-            Stack<T> dst;
+            Queue<T> dst;
 
             if constexpr (len != 0)
             {
                 for (size_t i = 0; i < len; i++)
                 {
-                    SUTL_SETUP_ASSERT(dst.Push(testData[i]));
-                    try
-                    {
-                        SUTL_TEST_ASSERT(dst.Top() == testData[i]);
-                    }
-                    catch (const std::exception& e)
-                    {
-                        SUTL_TEST_EXCEPTION(e.what());
-                    }
+                    SUTL_SETUP_ASSERT(dst.Enqueue(testData[i]));
+                    SUTL_TEST_ASSERT(dst.m_Len == (i + 1));
+                    SUTL_TEST_ASSERT(!!dst.m_pHead);
+                    SUTL_TEST_ASSERT(!!dst.m_pTail);
+                    SUTL_TEST_ASSERT((dst.m_pHead == dst.m_pTail) == (dst.m_Len == 1));
+                    SUTL_TEST_ASSERT(dst.m_pHead->data == testData[0]);
+                    SUTL_TEST_ASSERT(dst.m_pTail->data == testData[i]);
                 }
             }
             else
             {
                 SUTL_TEST_ASSERT(!dst.m_pHead);
+                SUTL_TEST_ASSERT(!dst.m_pTail);
                 SUTL_TEST_ASSERT(dst.m_Len == 0);
             }
 
@@ -900,40 +767,33 @@ namespace CC
         }
 
         template <typename T, TestQuantity Len>
-        [[nodiscard]] static UTR Pop()
+        [[nodiscard]] static UTR Dequeue()
         {
             constexpr size_t len = GetTQLength<Len>();
             const std::vector<T> testData(GetTestData<T, Len>());
-            Stack<T> dst;
+            Queue<T> dst;
 
-            if constexpr (len != 0)
-            {
-                for (size_t i = 0; i < len; i++)
-                {
-                    SUTL_SETUP_ASSERT(dst.Push(testData[i]));
-                }
-
-                SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                SUTL_SETUP_ASSERT(dst.m_Len == len);
-            }
+            SETUP_QUEUE_WITH_TEST_DATA_VECTOR(dst, testData, len);
 
             if constexpr (len != 0)
             {
                 for (size_t i = 0; i < len; i++)
                 {
                     SUTL_TEST_ASSERT(!!dst.m_pHead);
-                    SUTL_TEST_ASSERT(dst.m_pHead->data == testData[len - i - 1]);
+                    SUTL_TEST_ASSERT(dst.m_pHead->data == testData[i]);
+                    SUTL_TEST_ASSERT(dst.m_pTail->data == testData[len - 1]);
                     SUTL_TEST_ASSERT(dst.m_Len == len - i);
 
                     auto pNext = dst.m_pHead->pNext;
-                    SUTL_TEST_ASSERT(dst.Pop());
+                    SUTL_TEST_ASSERT(dst.Dequeue());
                     SUTL_TEST_ASSERT(dst.m_pHead == pNext);
                     SUTL_TEST_ASSERT(dst.m_Len == len - i - 1);
 
                     if (!!pNext)
                     {
                         SUTL_TEST_ASSERT(i < len - 1);
-                        SUTL_TEST_ASSERT(dst.m_pHead->data == testData[len - i - 2]);
+                        SUTL_TEST_ASSERT(dst.m_pHead->data == testData[i + 1]);
+                        SUTL_TEST_ASSERT(dst.m_pTail->data == testData[len - 1]);
                     }
                     else
                     {
@@ -944,53 +804,50 @@ namespace CC
 
             try
             {
-                SUTL_TEST_ASSERT(!dst.Pop());
+                SUTL_TEST_ASSERT(!dst.Dequeue());
             }
             catch (const std::exception& e)
             {
                 SUTL_TEST_EXCEPTION(e.what());
             }
 
+            SUTL_TEST_ASSERT(!dst.m_pHead);
+            SUTL_TEST_ASSERT(!dst.m_pTail);
+            SUTL_TEST_ASSERT(dst.m_Len == 0);
+
             SUTL_TEST_SUCCESS();
         }
 
         template <typename T, TestQuantity Len>
-        [[nodiscard]] static UTR PopAndCopy()
+        [[nodiscard]] static UTR DequeueAndCopy()
         {
             constexpr size_t len = GetTQLength<Len>();
             const std::vector<T> testData(GetTestData<T, Len>());
-            Stack<T> dst;
+            Queue<T> dst;
 
-            if constexpr (len != 0)
-            {
-                for (size_t i = 0; i < len; i++)
-                {
-                    SUTL_SETUP_ASSERT(dst.Push(testData[i]));
-                }
-
-                SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                SUTL_SETUP_ASSERT(dst.m_Len == len);
-            }
+            SETUP_QUEUE_WITH_TEST_DATA_VECTOR(dst, testData, len);
 
             if constexpr (len != 0)
             {
                 for (size_t i = 0; i < len; i++)
                 {
                     SUTL_TEST_ASSERT(!!dst.m_pHead);
-                    SUTL_TEST_ASSERT(dst.m_pHead->data == testData[len - i - 1]);
+                    SUTL_TEST_ASSERT(dst.m_pHead->data == testData[i]);
+                    SUTL_TEST_ASSERT(dst.m_pTail->data == testData[len - 1]);
                     SUTL_TEST_ASSERT(dst.m_Len == len - i);
 
                     T tmp;
                     auto pNext = dst.m_pHead->pNext;
-                    SUTL_TEST_ASSERT(dst.Pop(tmp));
-                    SUTL_TEST_ASSERT(tmp == testData[len - i - 1]);
+                    SUTL_TEST_ASSERT(dst.Dequeue(tmp));
+                    SUTL_TEST_ASSERT(tmp == testData[i]);
                     SUTL_TEST_ASSERT(dst.m_pHead == pNext);
                     SUTL_TEST_ASSERT(dst.m_Len == len - i - 1);
 
                     if (!!pNext)
                     {
                         SUTL_TEST_ASSERT(i < len - 1);
-                        SUTL_TEST_ASSERT(dst.m_pHead->data == testData[len - i - 2]);
+                        SUTL_TEST_ASSERT(dst.m_pHead->data == testData[i + 1]);
+                        SUTL_TEST_ASSERT(dst.m_pTail->data == testData[len - 1]);
                     }
                     else
                     {
@@ -1001,122 +858,121 @@ namespace CC
 
             try
             {
-                SUTL_TEST_ASSERT(!dst.Pop());
+                SUTL_TEST_ASSERT(!dst.Dequeue());
             }
             catch (const std::exception& e)
             {
                 SUTL_TEST_EXCEPTION(e.what());
             }
 
+            SUTL_TEST_ASSERT(!dst.m_pHead);
+            SUTL_TEST_ASSERT(!dst.m_pTail);
+            SUTL_TEST_ASSERT(dst.m_Len == 0);
+
             SUTL_TEST_SUCCESS();
         }
 
         template <typename T, TestQuantity Len>
-        [[nodiscard]] static UTR PushPopStagger()
+        [[nodiscard]] static UTR EnqueueDequeueStagger()
         {
             constexpr size_t len = GetTQLength<Len>();
             const std::vector<T> testData(GetTestData<T, Len>());
 
             for (size_t staggerThreshold = 1; staggerThreshold <= static_cast<size_t>(sqrt(len)) + 1; staggerThreshold++)
             {
-                Stack<T> stack;
+                Queue<T> queue;
                 size_t staggerCount = 0;
 
                 for (size_t i = 0; i < len; i++)
                 {
-                    SUTL_TEST_ASSERT(stack.Push(testData[i]));
-                    SUTL_TEST_ASSERT(stack.m_pHead->data == testData[i]);
+                    SUTL_TEST_ASSERT(queue.Enqueue(testData[i]));
+                    SUTL_TEST_ASSERT(queue.m_pHead->data == testData[staggerCount]);
+                    SUTL_TEST_ASSERT(queue.m_pTail->data == testData[i]);
                     if ((i % staggerThreshold) == 0)
                     {
                         staggerCount++;
-                        SUTL_TEST_ASSERT(stack.Pop());
-                        if (!!stack.m_pHead)
+                        SUTL_TEST_ASSERT(queue.Dequeue());
+                        if (!!queue.m_pHead)
                         {
-                            SUTL_TEST_ASSERT(stack.m_pHead->data == testData[i - 1]);
-                            SUTL_TEST_ASSERT(stack.m_Len != 0);
+                            SUTL_TEST_ASSERT(queue.m_pHead->data == testData[staggerCount]);
+                            SUTL_TEST_ASSERT(queue.m_pTail->data == testData[i]);
+                            SUTL_TEST_ASSERT(queue.m_Len != 0);
                         }
                         else
                         {
-                            SUTL_TEST_ASSERT(stack.m_Len == 0);
+                            SUTL_TEST_ASSERT(queue.m_Len == 0);
                             SUTL_TEST_ASSERT(((i + 1) - staggerCount) == 0);
                         }
                     }
 
-                    SUTL_TEST_ASSERT(stack.m_Len == ((i + 1) - staggerCount));
+                    SUTL_TEST_ASSERT(queue.m_Len == ((i + 1) - staggerCount));
                 }
 
-                for (size_t i = 0; i < len; i++)
+                for (size_t i = staggerCount; i < len; i++)
                 {
-                    if (((len - i - 1) % staggerThreshold) == 0)
-                    {
-                        continue;
-                    }
-
-                    SUTL_TEST_ASSERT(!!stack.m_pHead);
-                    SUTL_TEST_ASSERT(stack.m_pHead->data == testData[len - i - 1]);
-                    SUTL_TEST_ASSERT(stack.Pop());
+                    SUTL_TEST_ASSERT(!!queue.m_pHead);
+                    SUTL_TEST_ASSERT(queue.m_pHead->data == testData[i]);
+                    SUTL_TEST_ASSERT(queue.Dequeue());
                 }
 
-                SUTL_TEST_ASSERT(!stack.m_pHead);
-                SUTL_TEST_ASSERT(stack.m_Len == 0);
+                SUTL_TEST_ASSERT(!queue.m_pHead);
+                SUTL_TEST_ASSERT(!queue.m_pTail);
+                SUTL_TEST_ASSERT(queue.m_Len == 0);
             }
 
             SUTL_TEST_SUCCESS();
         }
 
         template <typename T, TestQuantity Len>
-        [[nodiscard]] static UTR PushPopAndCopyStagger()
+        [[nodiscard]] static UTR EnqueueDequeueAndCopyStagger()
         {
             constexpr size_t len = GetTQLength<Len>();
             const std::vector<T> testData(GetTestData<T, Len>());
 
             for (size_t staggerThreshold = 1; staggerThreshold <= static_cast<size_t>(sqrt(len)) + 1; staggerThreshold++)
             {
-                Stack<T> stack;
+                Queue<T> queue;
                 T tmp;
                 size_t staggerCount = 0;
 
                 for (size_t i = 0; i < len; i++)
                 {
-                    SUTL_TEST_ASSERT(stack.Push(testData[i]));
-                    SUTL_TEST_ASSERT(stack.m_pHead->data == testData[i]);
+                    SUTL_TEST_ASSERT(queue.Enqueue(testData[i]));
+                    SUTL_TEST_ASSERT(queue.m_pHead->data == testData[staggerCount]);
+                    SUTL_TEST_ASSERT(queue.m_pTail->data == testData[i]);
                     if ((i % staggerThreshold) == 0)
                     {
                         staggerCount++;
-                        SUTL_TEST_ASSERT(stack.Pop(tmp));
-                        SUTL_TEST_ASSERT(tmp == testData[i]);
+                        SUTL_TEST_ASSERT(queue.Dequeue(tmp));
+                        SUTL_TEST_ASSERT(tmp == testData[staggerCount - 1]);
                         if constexpr (std::is_same_v<T, Helper>)
                         {
                             SUTL_TEST_ASSERT(!tmp.m_bCopied);
                             SUTL_TEST_ASSERT(tmp.m_bMoved);
                         }
 
-                        if (!!stack.m_pHead)
+                        if (!!queue.m_pHead)
                         {
-                            SUTL_TEST_ASSERT(stack.m_pHead->data == testData[i - 1]);
-                            SUTL_TEST_ASSERT(stack.m_Len != 0);
+                            SUTL_TEST_ASSERT(queue.m_pHead->data == testData[staggerCount]);
+                            SUTL_TEST_ASSERT(queue.m_pTail->data == testData[i]);
+                            SUTL_TEST_ASSERT(queue.m_Len != 0);
                         }
                         else
                         {
-                            SUTL_TEST_ASSERT(stack.m_Len == 0);
+                            SUTL_TEST_ASSERT(queue.m_Len == 0);
                             SUTL_TEST_ASSERT(((i + 1) - staggerCount) == 0);
                         }
                     }
 
-                    SUTL_TEST_ASSERT(stack.m_Len == ((i + 1) - staggerCount));
+                    SUTL_TEST_ASSERT(queue.m_Len == ((i + 1) - staggerCount));
                 }
 
-                for (size_t i = 0; i < len; i++)
+                for (size_t i = staggerCount; i < len; i++)
                 {
-                    if (((len - i - 1) % staggerThreshold) == 0)
-                    {
-                        continue;
-                    }
-
-                    SUTL_TEST_ASSERT(!!stack.m_pHead);
-                    SUTL_TEST_ASSERT(stack.m_pHead->data == testData[len - i - 1]);
-                    SUTL_TEST_ASSERT(stack.Pop(tmp));
-                    SUTL_TEST_ASSERT(tmp == testData[len - i - 1]);
+                    SUTL_TEST_ASSERT(!!queue.m_pHead);
+                    SUTL_TEST_ASSERT(queue.m_pHead->data == testData[i]);
+                    SUTL_TEST_ASSERT(queue.Dequeue(tmp));
+                    SUTL_TEST_ASSERT(tmp == testData[i]);
                     if constexpr (std::is_same_v<T, Helper>)
                     {
                         SUTL_TEST_ASSERT(!tmp.m_bCopied);
@@ -1124,8 +980,9 @@ namespace CC
                     }
                 }
 
-                SUTL_TEST_ASSERT(!stack.m_pHead);
-                SUTL_TEST_ASSERT(stack.m_Len == 0);
+                SUTL_TEST_ASSERT(!queue.m_pHead);
+                SUTL_TEST_ASSERT(!queue.m_pTail);
+                SUTL_TEST_ASSERT(queue.m_Len == 0);
             }
 
             SUTL_TEST_SUCCESS();

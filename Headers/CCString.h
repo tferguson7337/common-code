@@ -417,7 +417,7 @@ namespace CC
         }
 
         // C-string constructor
-        // Note: If copy fails for any reason, this string will be cleared out. 
+        // Note: If copy fails for any reason, this string will be cleared out.
         explicit String(_In_opt_z_ const T* const pCStr) noexcept :
             String()
         {
@@ -470,7 +470,7 @@ namespace CC
 
 
         /// Assignment Overloads \\\
-                
+
         // Assigns C-string contents to this string.
         // Note: Clears string if assignment fails.
         String<T>& operator=(_In_opt_z_ const T* pCStr)

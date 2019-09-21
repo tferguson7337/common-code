@@ -2942,7 +2942,7 @@ namespace CC
                     SUTL_TEST_ASSERT(dst.Length() == i + 1);
                 }
             }
-            
+
             SUTL_TEST_ASSERT(dst.Length() == len);
 
             SUTL_TEST_SUCCESS();
@@ -3139,7 +3139,7 @@ namespace CC
                 }
 
                 SUTL_TEST_ASSERT(bThrew);
-                
+
                 bThrew = false;
                 try
                 {

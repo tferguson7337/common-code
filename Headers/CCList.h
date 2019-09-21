@@ -348,7 +348,7 @@ namespace CC
                 // Insert at front of list is same as prepend.
                 return PrependListObj(std::move(src));
             }
-            
+
             if (pos >= (m_Len - 1))
             {
                 // Insert at back of list is same as append.

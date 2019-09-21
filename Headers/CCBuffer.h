@@ -27,7 +27,7 @@ namespace CC
 
         size_t m_WritePos;
 
-        /// Protected Validator Methods \\\ 
+        /// Protected Validator Methods \\\
 
         // Returns false if pos >= this->m_Len - returns true otherwise.
         [[nodiscard]] _Success_(return) inline bool ValidateNewWritePosition(_In_ const size_t& pos) const noexcept

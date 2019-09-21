@@ -9,23 +9,23 @@ namespace CC
         (std::is_same_v<std::decay_t<_U>, _T> ||\
         std::is_convertible_v<std::decay_t<_U>, _T>)
 
-#define CC_IS_STACK(_T, _U)\
-        (std::is_same_v<std::decay_t<_U>, Stack<_T>>)
+#define CC_IS_QUEUE(_T, _U)\
+        (std::is_same_v<std::decay_t<_U>, Queue<_T>>)
 
 #define CC_ENABLE_IF_ELEMENT(_T, _U)\
         typename = typename std::enable_if_t<CC_IS_ELEMENT(_T, _U)>
 
-#define CC_ENABLE_IF_STACK(_T, _U)\
-        typename = typename std::enable_if_t<CC_IS_STACK(_T, _U)>
+#define CC_ENABLE_IF_QUEUE(_T, _U)\
+        typename = typename std::enable_if_t<CC_IS_QUEUE(_T, _U)>
 
-#define CC_ENABLE_IF_STACK_OR_ELEMENT(_T, _U)    \
-        typename = typename std::enable_if_t<CC_IS_STACK(_T, _U) || CC_IS_ELEMENT(_T, _U)>
+#define CC_ENABLE_IF_QUEUE_OR_ELEMENT(_T, _U)    \
+        typename = typename std::enable_if_t<CC_IS_QUEUE(_T, _U) || CC_IS_ELEMENT(_T, _U)>
 
     template <typename T, CC_ENABLE_IF_NOT_POINTER_TYPE(T)>
-    class [[nodiscard]] Stack
+    class [[nodiscard]] Queue
     {
         // Testing class.
-        friend class StackTests;
+        friend class QueueTests;
 
     private:
 
@@ -45,9 +45,9 @@ namespace CC
 
             // Constructor, targeted universal forwarder.
             template <typename U, CC_ENABLE_IF_ELEMENT(T, U)>
-            Node(_In_ U&& obj, _In_opt_ Node<T>* pN = nullptr) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T)) :
+            Node(_In_ U&& obj) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T)) :
                 data(std::forward<U>(obj)),
-                pNext(pN)
+                pNext(nullptr)
             { }
 
             ~Node() noexcept(CC_IS_NOTHROW_DTOR(T)) = default;
@@ -59,25 +59,26 @@ namespace CC
         /// Private Data Members \\\
 
         Node<T>* m_pHead;
+        Node<T>* m_pTail;
         size_t m_Len;
 
         /// Private Throwing Validators \\\
 
-        // Throws std::logic_error if this stack is empty.
+        // Throws std::logic_error if this queue is empty.
         inline void ValidateDereferenceT(_In_z_ const char* const f)
         {
             if (IsEmpty())
             {
-                std::string msg(": Attempted invalid access on empty stack.");
+                std::string msg(": Attempted invalid access on empty queue.");
                 throw std::logic_error(f + msg);
             }
         }
 
         /// Private Helper Methods \\\
 
-        // Deallocates all nodes in the stack.
+        // Deallocates all nodes in the queue.
         // Note: Data members are not reset.
-        inline void DestroyStack()
+        inline void DestroyQueue()
         {
             while (!!m_pHead)
             {
@@ -87,58 +88,58 @@ namespace CC
             }
         }
 
-        // If specified, frees all stack nodes. Always resets all data members to default values.
+        // If specified, frees all queue nodes. Always resets all data members to default values.
         template <bool bDestroy>
-        inline void ResetStack() noexcept
+        inline void ResetQueue() noexcept
         {
             if constexpr (bDestroy)
             {
-                DestroyStack();
+                DestroyQueue();
             }
 
             m_pHead = nullptr;
+            m_pTail = nullptr;
             m_Len = 0;
         }
 
-        // Clears this stack and assigns single element to this stack via copy or move.
+        // Clears this queue and assigns single element to this queue via copy or move.
         // Returns true if operation succeeds, false otherwise.
         template <typename U, CC_ENABLE_IF_ELEMENT(T, U)>
         [[nodiscard]] _Success_(return) bool AssignElementObj(_In_ U&& obj) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T))
         {
-            // Allocate new stack element.
+            // Allocate new queue element.
             Node<T>* p = PH::Allocate(std::forward<U>(obj));
             if (!p)
             {
                 return false;
             }
 
-            // Destroy current stack.
-            DestroyStack();
+            // Destroy current queue.
+            DestroyQueue();
 
-            // Assign element to the stack, adjust length.
-            m_pHead = p;
+            // Assign element to the queue, adjust length.
+            m_pHead = m_pTail = p;
             m_Len = 1;
 
             return true;
         }
 
-        // Clears this stack and copies src stack to this stack.
+        // Clears this queue and copies src queue to this queue.
         // Returns true if operation succeeds, false otherwise.
-        [[nodiscard]] _Success_(return) bool AssignStackObj(_In_ const Stack<T>& src) noexcept(CC_IS_NOTHROW_CTOR_COPY(T))
+        [[nodiscard]] _Success_(return) bool AssignQueueObj(_In_ const Queue<T>& src) noexcept(CC_IS_NOTHROW_CTOR_COPY(T))
         {
             Node<T>* pSrc = src.m_pHead;
-            Node<T>* pDst = nullptr;
-            Stack<T> tmp;
+            Queue<T> tmp;
 
             if (src.IsEmpty())
             {
-                // Assigns empty stack - clear out this stack.
-                ResetStack<true>();
+                // Assigns empty queue - clear out this queue.
+                ResetQueue<true>();
                 return true;
             }
 
-            // Copy first element to tmp stack.
-            tmp.m_pHead = PH::Allocate(pSrc->data);
+            // Copy first element to tmp queue.
+            tmp.m_pHead = tmp.m_pTail = PH::Allocate(pSrc->data);
             if (!tmp.m_pHead)
             {
                 return false;
@@ -146,57 +147,65 @@ namespace CC
 
             // Copy the rest of the elements.
             pSrc = pSrc->pNext;
-            pDst = tmp.m_pHead;
             while (!!pSrc)
             {
-                pDst->pNext = PH::Allocate(pSrc->data);
-                if (!pDst->pNext)
+                tmp.m_pTail->pNext = PH::Allocate(pSrc->data);
+                if (!tmp.m_pTail->pNext)
                 {
                     // Allocation failed - bail out.
                     return false;
                 }
 
                 pSrc = pSrc->pNext;
-                pDst = pDst->pNext;
+                tmp.m_pTail = tmp.m_pTail->pNext;
             }
 
             // Copy the length.
             tmp.m_Len = src.m_Len;
 
-            // Move tmp stack to this stack.
-            return AssignStackObj(std::move(tmp));
+            // Move tmp queue to this queue.
+            return AssignQueueObj(std::move(tmp));
         }
 
-        // Clears this stack and transfers src stack contents to this stack.
+        // Clears this queue and transfers src queue contents to this queue.
         // Returns true if operation succeeds, false otherwise.
-        [[nodiscard]] _Success_(return) bool AssignStackObj(_Inout_ Stack<T>&& src) noexcept
+        [[nodiscard]] _Success_(return) bool AssignQueueObj(_Inout_ Queue<T>&& src) noexcept
         {
-            // Destroy current stack.
-            DestroyStack();
+            // Destroy current queue.
+            DestroyQueue();
 
-            // Transfer elements to this stack, copy length.
+            // Transfer elements to this queue, copy length.
             m_pHead = src.m_pHead;
+            m_pTail = src.m_pTail;
             m_Len = src.m_Len;
 
-            // src doesn't own this stack anymore - reset it.
-            src.ResetStack<false>();
+            // src doesn't own this queue anymore - reset it.
+            src.ResetQueue<false>();
 
             return true;
         }
 
-        // Adds element to the top of the stack.
+        // Adds element to the back of the queue.
         // Returns true if operation succeeds, false otherwise.
         template <typename U, CC_ENABLE_IF_ELEMENT(T, U)>
-        [[nodiscard]] bool PushElementObj(_In_ U&& obj) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T))
+        [[nodiscard]] bool EnqueueElementObj(_In_ U&& obj) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T))
         {
-            Node<T>* p = PH::Allocate(std::forward<U>(obj), m_pHead);
+            Node<T>* p = PH::Allocate(std::forward<U>(obj));
             if (!p)
             {
                 // Allocation failed - bail out.
                 return false;
             }
 
-            m_pHead = p;
+            if (IsEmpty())
+            {
+                m_pHead = m_pTail = p;
+            }
+            else
+            {
+                m_pTail = m_pTail->pNext = p;
+            }
+
             m_Len++;
 
             return true;
@@ -207,21 +216,21 @@ namespace CC
         /// Constructors \\\
 
         // Default constructor
-        Stack() noexcept :
+        Queue() noexcept :
             m_pHead(nullptr),
             m_Len(0)
         { }
 
         // Copy constructor
-        Stack(_In_ const Stack<T>& src) noexcept(CC_IS_NOTHROW_CTOR_COPY(T)) :
-            Stack<T>()
+        Queue(_In_ const Queue<T>& src) noexcept(CC_IS_NOTHROW_CTOR_COPY(T)) :
+            Queue<T>()
         {
             *this = src;
         }
 
         // Move constructor
-        Stack(_Inout_ Stack<T>&& src) noexcept(CC_IS_NOTHROW_DTOR(T)) :
-            Stack<T>()
+        Queue(_Inout_ Queue<T>&& src) noexcept(CC_IS_NOTHROW_DTOR(T)) :
+            Queue<T>()
         {
             *this = std::move(src);
         }
@@ -229,38 +238,38 @@ namespace CC
         // Forwarding constructor
         // Can handle single element copy/move.
         template <typename U, CC_ENABLE_IF_ELEMENT(T, U)>
-        Stack(_In_ U&& src) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T)) :
-            Stack<T>()
+        Queue(_In_ U&& src) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T)) :
+            Queue<T>()
         {
             *this = std::forward<U>(src);
         }
 
         /// Destructor \\\
 
-        ~Stack() noexcept(CC_IS_NOTHROW_DTOR(T))
+        ~Queue() noexcept(CC_IS_NOTHROW_DTOR(T))
         {
-            DestroyStack();
+            DestroyQueue();
         }
 
         /// Assignment Overload \\\
 
         // Copy assignment
-        Stack<T>& operator=(_In_ const Stack<T>& src) noexcept(CC_IS_NOTHROW_COPY(T))
+        Queue<T>& operator=(_In_ const Queue<T>& src) noexcept(CC_IS_NOTHROW_COPY(T))
         {
             if (!Assign(src))
             {
-                ResetStack<true>();
+                ResetQueue<true>();
             }
 
             return *this;
         }
 
         // Move assignment
-        Stack<T>& operator=(_Inout_ Stack<T>&& src) noexcept(CC_IS_NOTHROW_MOVE(T))
+        Queue<T>& operator=(_Inout_ Queue<T>&& src) noexcept(CC_IS_NOTHROW_MOVE(T))
         {
             if (!Assign(std::move(src)))
             {
-                ResetStack<true>();
+                ResetQueue<true>();
             }
 
             return *this;
@@ -268,11 +277,11 @@ namespace CC
 
         // Targeted Universal Forwarder to Assign
         template <typename U, CC_ENABLE_IF_ELEMENT(T, U)>
-        Stack<T>& operator=(_In_ U&& obj) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T))
+        Queue<T>& operator=(_In_ U&& obj) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T))
         {
             if (!Assign(std::forward<U>(obj)))
             {
-                ResetStack<true>();
+                ResetQueue<true>();
             }
 
             return *this;
@@ -280,38 +289,54 @@ namespace CC
 
         /// Operator Overloads \\\
 
-        // Returns true if stack is not empty, false otherwise.
+        // Returns true if queue is not empty, false otherwise.
         [[nodiscard]] explicit operator bool() const noexcept
         {
             return !IsEmpty();
         }
 
-        // Compares this stack's elements against rhs' stack elements.
-        // Returns true if stacks are the same length and all elements match, false otherwise.
-        [[nodiscard]] bool operator==(_In_ const Stack<T>& rhs) const noexcept
+        // Compares this queue's elements against rhs' queue elements.
+        // Returns true if queues are the same length and all elements match, false otherwise.
+        [[nodiscard]] bool operator==(_In_ const Queue<T>& rhs) const noexcept
         {
             return Compare(rhs);
         }
 
         /// Getters \\\
 
-        // Returns length of stack (number of elements).
+        // Returns length of queue (number of elements).
         [[nodiscard]] inline size_t Length() const noexcept
         {
             return m_Len;
         }
 
-        // Returns mutable reference to first element in the stack.
-        // Note: If stack is empty, this throws std::logic_error.
-        [[nodiscard]] inline T& Top()
+        // Returns mutable reference to last element in the queue.
+        // Note: If queue is empty, this throws std::logic_error.
+        [[nodiscard]] inline T& Back()
+        {
+            ValidateDereferenceT(__FUNCSIG__);
+            return m_pTail->data;
+        }
+
+        // Returns immutable reference to last element in the queue.
+        // Note: If queue is empty, this throws std::logic_error.
+        [[nodiscard]] inline const T& Back() const
+        {
+            ValidateDereferenceT(__FUNCSIG__);
+            return m_pTail->data;
+        }
+
+        // Returns mutable reference to first element in the queue.
+        // Note: If queue is empty, this throws std::logic_error.
+        [[nodiscard]] inline T& Front()
         {
             ValidateDereferenceT(__FUNCSIG__);
             return m_pHead->data;
         }
 
-        // Returns mutable reference to first element in the stack.
-        // Note: If stack is empty, this throws std::logic_error.
-        [[nodiscard]] inline const T& Top() const
+        // Returns mutable reference to first element in the queue.
+        // Note: If queue is empty, this throws std::logic_error.
+        [[nodiscard]] inline const T& Front() const
         {
             ValidateDereferenceT(__FUNCSIG__);
             return m_pHead->data;
@@ -319,14 +344,14 @@ namespace CC
 
         /// Public Methods \\\
 
-        // Clears previous stack contents and assigns specified element or stack object to this stack.
+        // Clears previous queue contents and assigns specified element or queue object to this queue.
         // Returns true if operation succeeds, false otherwise.
-        template <typename U, CC_ENABLE_IF_STACK_OR_ELEMENT(T, U)>
+        template <typename U, CC_ENABLE_IF_QUEUE_OR_ELEMENT(T, U)>
         [[nodiscard]] _Success_(return) bool Assign(_In_ U&& obj) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T))
         {
-            if constexpr (CC_IS_STACK(T, U))
+            if constexpr (CC_IS_QUEUE(T, U))
             {
-                return (this == &obj) || AssignStackObj(std::forward<U>(obj));
+                return (this == &obj) || AssignQueueObj(std::forward<U>(obj));
             }
             else if constexpr (CC_IS_ELEMENT(T, U))
             {
@@ -338,22 +363,22 @@ namespace CC
             }
         }
 
-        // Destroys stack, freeing all resources and reseting stack.
+        // Destroys queue, freeing all resources and reseting queue.
         void Clear() noexcept(CC_IS_NOTHROW_DTOR(T))
         {
-            ResetStack<true>();
+            ResetQueue<true>();
         }
 
-        // Compares this stack's elements against rhs' stack elements.
-        // Returns true if stacks are the same length and all elements match, false otherwise.
-        [[nodiscard]] bool Compare(_In_ const Stack<T>& rhs) const noexcept
+        // Compares this queue's elements against rhs' queue elements.
+        // Returns true if queues are the same length and all elements match, false otherwise.
+        [[nodiscard]] bool Compare(_In_ const Queue<T>& rhs) const noexcept
         {
             Node<T>* pL = m_pHead;
             Node<T>* pR = rhs.m_pHead;
 
             if (pL == pR)
             {
-                // Comparing same stack - equal.
+                // Comparing same queue - equal.
                 return true;
             }
 
@@ -363,7 +388,7 @@ namespace CC
                 return false;
             }
 
-            // Compare while we haven't exhausted either stack.
+            // Compare while we haven't exhausted either queue.
             while (!!pL)
             {
                 if (pL->data != pR->data)
@@ -380,15 +405,15 @@ namespace CC
             return true;
         }
 
-        // Returns true if the stack is empty, false otherwise.
+        // Returns true if the queue is empty, false otherwise.
         [[nodiscard]] bool IsEmpty() const noexcept
         {
             return (m_Len == 0);
         }
 
-        // Pops element from the top of the stack.
-        // Returns true if element is removed, false otherwise (e.g., stack is empty).
-        _Success_(return) bool Pop() noexcept(CC_IS_NOTHROW_DTOR(T))
+        // Removes element from the front of the queue.
+        // Returns true if element is removed, false otherwise (e.g., queue is empty).
+        _Success_(return) bool Dequeue() noexcept(CC_IS_NOTHROW_DTOR(T))
         {
             if (IsEmpty())
             {
@@ -400,12 +425,17 @@ namespace CC
             delete p;
             m_Len--;
 
+            if (IsEmpty())
+            {
+                m_pTail = nullptr;
+            }
+
             return true;
         }
 
-        // Pops element from the top of the stack and moves element to the out parameter.
-        // Returns true if element is removed, false otherwise (e.g., stack is empty).
-        [[nodiscard]] _Success_(return) bool Pop(_Out_ T& obj) noexcept(CC_IS_NOTHROW_MOVE(T) && CC_IS_NOTHROW_DTOR(T))
+        // Removes element from the front of the queue and moves element to the out parameter.
+        // Returns true if element is removed, false otherwise (e.g., queue is empty).
+        [[nodiscard]] _Success_(return) bool Dequeue(_Out_ T& obj) noexcept(CC_IS_NOTHROW_MOVE(T) && CC_IS_NOTHROW_DTOR(T))
         {
             if (IsEmpty())
             {
@@ -413,29 +443,29 @@ namespace CC
             }
 
             obj = std::move(m_pHead->data);
-            return Pop();
+            return Dequeue();
         }
 
-        // Pushes new element onto the stack.
+        // Enqueues new element onto the queue.
         // Returns true if operation succeeds, false otherwise.
         template <typename U, CC_ENABLE_IF_ELEMENT(T, U)>
-        [[nodiscard]] _Success_(return) bool Push(_In_ U&& obj) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T))
+        [[nodiscard]] _Success_(return) bool Enqueue(_In_ U&& obj) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T))
         {
             if (IsEmpty())
             {
-                // Push to empty stack is same as assign.
+                // Enqueue to empty queue is same as assign.
                 return AssignElementObj(std::forward<U>(obj));
             }
 
-            return PushElementObj(std::forward<U>(obj));
+            return EnqueueElementObj(std::forward<U>(obj));
         }
     };
 
     // Undefine local macro helpers so we don't add even more pollution to global namespace.
-#undef CC_ENABLE_IF_STACK_OR_ELEMENT
-#undef CC_ENABLE_IF_STACK
+#undef CC_ENABLE_IF_QUEUE_OR_ELEMENT
+#undef CC_ENABLE_IF_QUEUE
 #undef CC_ENABLE_IF_ELEMENT
-#undef CC_IS_STACK
+#undef CC_IS_QUEUE
 #undef CC_IS_ELEMENT
 
 }

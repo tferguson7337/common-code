@@ -93,7 +93,7 @@
     _fn_<CC::ReturnType::CCBuffer,  CC::Base::Hexadecimal,  int64_t,  char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Hexadecimal,  int64_t,  wchar_t>,\
     _fn_<CC::ReturnType::CCBuffer,  CC::Base::Hexadecimal,  uint64_t, char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Hexadecimal,  uint64_t, wchar_t>,\
     _fn_<CC::ReturnType::CCBuffer,  CC::Base::Hexadecimal,  void*,    char>, _fn_<CC::ReturnType::CCBuffer,  CC::Base::Hexadecimal,  void*,    wchar_t>
-    
+
 
 std::list<CC::StringUtilTests::UTFunc> CC::StringUtilTests::GetTests()
 {

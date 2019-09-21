@@ -315,7 +315,7 @@ namespace CC
         static UTR WriteToWritePos()
         {
             constexpr size_t dstLen = GetTQLength<DstBufLen>();
-            constexpr size_t srcWritePos = GetTQLength<SrcWritePos>(); 
+            constexpr size_t srcWritePos = GetTQLength<SrcWritePos>();
             constexpr bool bExpectWrite = (SrcWritePos != TQ::None);
 
             constexpr bool bExpectFirstWriteGrow = bExpectWrite && (dstLen < srcWritePos);

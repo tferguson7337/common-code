@@ -6,6 +6,7 @@
 #include <CCListTests.h>
 #include <CCPointerTests.h>
 #include <CCPointerHelperTests.h>
+#include <CCQueueTests.h>
 #include <CCSharedPointerTests.h>
 #include <CCStackTests.h>
 #include <CCStringTests.h>
@@ -26,6 +27,7 @@ static bool RunAllTests(_Inout_ UnitTestRunner<char>& utr)
     utr.AddUnitTests(CC::StringUtilTests::GetTests());
     utr.AddUnitTests(CC::ListTests::GetTests());
     utr.AddUnitTests(CC::StackTests::GetTests());
+    utr.AddUnitTests(CC::QueueTests::GetTests());
 
     return utr.RunUnitTests();
 }
@@ -120,6 +122,16 @@ static bool RunStackTests(_Inout_ UnitTestRunner<char>& utr)
     return utr.RunUnitTests();
 }
 
+static bool RunQueueTests(_Inout_ UnitTestRunner<char>& utr)
+{
+    utr.ClearUnitTests();
+    utr.GetTestSetData().SetTestSetName("CommonCode - Queue");
+
+    utr.AddUnitTests(CC::QueueTests::GetTests());
+
+    return utr.RunUnitTests();
+}
+
 
 // Test-Set-Name To Run-Test-Function Mapping
 const TestFuncMap s_TestFuncMap
@@ -133,7 +145,8 @@ const TestFuncMap s_TestFuncMap
     TestPair("StringUtil", RunStringUtilTests),
     TestPair("String", RunStringTests),
     TestPair("List", RunListTests),
-    TestPair("Stack", RunStackTests)
+    TestPair("Stack", RunStackTests),
+    TestPair("Queue", RunQueueTests)
 };
 
 
