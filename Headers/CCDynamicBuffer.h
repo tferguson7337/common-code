@@ -245,7 +245,7 @@ namespace CC
         }
 
         // Copies source buffer content to internal buffer at m_WritePos.
-        // Note: If bCopyUpToSrcWritePos == true, will write up to src.WritePosition( ), otherwise up to src.Length( ).
+        // Note: If bCopyUpToSrcWritePos == true, will write up to src.WritePosition(), otherwise up to src.Length().
         // Note: Will allocate/grow the internal buffer to hold the new element(s) if the buffer is null/full.
         [[nodiscard]] _Success_(return) virtual bool Write(_In_ const IBase& src, _In_ const bool& bCopyUpToSrcWritePos = true) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T) && CC_IS_NOTHROW_MOVE(T))
         {
@@ -253,7 +253,7 @@ namespace CC
         }
 
         // Moves source buffer content to internal buffer at m_WritePos.
-        // Note: If bCopyUpToSrcWritePos == true, will write up to src.WritePosition( ), otherwise up to src.Length( ).
+        // Note: If bCopyUpToSrcWritePos == true, will write up to src.WritePosition(), otherwise up to src.Length().
         // Note: Will allocate/grow the internal buffer to hold the new element(s) if the buffer is null/full.
         [[nodiscard]] _Success_(return) virtual bool Write(_In_ IBase&& src, _In_ const bool& bCopyUpToSrcWritePos = true) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T) && CC_IS_NOTHROW_MOVE(T))
         {

@@ -744,7 +744,7 @@ namespace CC
         /// NumberConversion Public Methods \\\
 
     #define _ENABLE_IF_NUMBER_CONVERT_SUPPORTED(T, N) \
-    typename = typename std::enable_if<IsSupportedCharType<T>( ) && IsIntegerRepresentableType<N>( )>::type
+    typename = typename std::enable_if<IsSupportedCharType<T>() && IsIntegerRepresentableType<N>()>::type
 
         template <ReturnType RT, Base B, class T, class N, _ENABLE_IF_NUMBER_CONVERT_SUPPORTED(T, N)>
         [[nodiscard]] static auto NumberConversion(_In_ const N& integral)

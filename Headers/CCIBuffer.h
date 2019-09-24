@@ -13,10 +13,10 @@ namespace CC
     class [[nodiscard]] IBuffer
     {
     protected:
-        constexpr IBuffer( ) noexcept = default;
+        constexpr IBuffer() noexcept = default;
         IBuffer(const IBuffer<T>&) noexcept = default;
         IBuffer(IBuffer<T>&&) noexcept = default;
-        virtual ~IBuffer( ) noexcept = default;
+        virtual ~IBuffer() noexcept = default;
         IBuffer<T>& operator=(const IBuffer<T>&) noexcept = default;
         IBuffer<T>& operator=(IBuffer<T>&&) noexcept = default;
 
@@ -24,7 +24,7 @@ namespace CC
         /// Operator Overloads \\\
 
         // Return true for non-null buffers - false otherwise.
-        [[nodiscard]] virtual explicit operator bool( ) const noexcept = 0;
+        [[nodiscard]] virtual explicit operator bool() const noexcept = 0;
 
         // Return pointer to internal buffer (mutable).
         [[nodiscard]] virtual explicit operator T* () noexcept = 0;
@@ -51,19 +51,19 @@ namespace CC
         /// Getters \\\
 
         // Return a pointer to the internal buffer (mutable).
-        [[nodiscard]] virtual T* Get( ) noexcept = 0;
+        [[nodiscard]] virtual T* Get() noexcept = 0;
 
         // Return a pointer to the internal buffer (immutable).
-        [[nodiscard]] virtual const T* Get( ) const noexcept = 0;
+        [[nodiscard]] virtual const T* Get() const noexcept = 0;
 
         // Return length of internal buffer.
-        [[nodiscard]] virtual const size_t& Length( ) const noexcept = 0;
+        [[nodiscard]] virtual const size_t& Length() const noexcept = 0;
 
         // Return size in bytes of internal buffer.
-        [[nodiscard]] virtual const size_t Size( ) const noexcept = 0;
+        [[nodiscard]] virtual const size_t Size() const noexcept = 0;
 
         // Return where a subsequent write operation would take place on the internal buffer.
-        [[nodiscard]] virtual const size_t& WritePosition( ) const noexcept = 0;
+        [[nodiscard]] virtual const size_t& WritePosition() const noexcept = 0;
 
         /// Setters \\\
 
@@ -72,17 +72,17 @@ namespace CC
         [[nodiscard]] _Success_(return) virtual bool SetWritePosition(_In_ const size_t&) noexcept = 0;
 
         // Explicitly resets the write position to the beginning of the buffer (0).
-        virtual void ResetWritePosition( ) noexcept = 0;
+        virtual void ResetWritePosition() noexcept = 0;
 
         /// Public Methods \\\
 
         // Resets internal data members to default values.
         // Note: This will not free any internal resources - use with caution.
-        virtual void Reset( ) noexcept = 0;
+        virtual void Reset() noexcept = 0;
 
         // Causes the object to free the memory of the internal buffer.
         // Note: This does nothing if the buffer does not currently own any resources.
-        virtual void Free( ) noexcept = 0;
+        virtual void Free() noexcept = 0;
 
         // Compares contents of internal buffer to p (up to len).  Returns true if contents match, false otherwise.
         [[nodiscard]] _Success_(return) virtual bool Compare(_In_reads_opt_(len) const T* p, _In_ const size_t& len) const noexcept = 0;
@@ -115,13 +115,13 @@ namespace CC
         [[nodiscard]] _Success_(return) virtual bool Write(_Inout_updates_opt_(len) T*&& p, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_MOVE(T)) = 0;
 
         // Buffer copy write.
-        // Writes src.WritePosition( ) elements from src's internal buffer if bCopyUpToSrcWritePos is true.
+        // Writes src.WritePosition() elements from src's internal buffer if bCopyUpToSrcWritePos is true.
         // Returns false if the write fails or otherwise could not be completed - returns true otherwise.
         // Note: Modifies buffer's write position if the write is successful.
         [[nodiscard]] _Success_(return) virtual bool Write(_In_ const IBuffer<T>& src, _In_ const bool& bCopyUpToSrcWritePos) noexcept(CC_IS_NOTHROW_COPY(T)) = 0;
 
         // Buffer copy move.
-        // Writes src.WritePosition( ) elements from src's internal buffer if bCopyUpToSrcWritePos is true.
+        // Writes src.WritePosition() elements from src's internal buffer if bCopyUpToSrcWritePos is true.
         // Returns false if the write fails or otherwise could not be completed - returns true otherwise.
         // Note: Modifies buffer's write position if the write is successful.
         [[nodiscard]] _Success_(return) virtual bool Write(_In_ IBuffer<T>&& src, _In_ const bool& bCopyUpToSrcWritePos) noexcept(CC_IS_NOTHROW_MOVE(T)) = 0;

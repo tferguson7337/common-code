@@ -39,37 +39,37 @@
 
 // Supported Char Type
 #define CC_ENABLE_IF_SUPPORTED_CHARACTER_TYPE(_T) \
-    typename = typename std::enable_if_t<IsSupportedCharType<_T>( )>
+    typename = typename std::enable_if_t<IsSupportedCharType<_T>()>
 
 
 // Signed Integer Type
 #define CC_ENABLE_IF_SIGNED_INTEGER_TYPE(_T) \
-    typename = typename std::enable_if_t<IsSignedIntegerType<_T>( )>
+    typename = typename std::enable_if_t<IsSignedIntegerType<_T>()>
 
 
 // Unsigned Integer Type
 #define CC_ENABLE_IF_UNSIGNED_INTEGER_TYPE(_T) \
-    typename = typename std::enable_if_t<IsUnsignedIntegerType<_T>( )>
+    typename = typename std::enable_if_t<IsUnsignedIntegerType<_T>()>
 
 
 // Integer Type
 #define CC_ENABLE_IF_INTEGER_TYPE(_T) \
-    typename = typename std::enable_if_t<IsIntegerType<_T>( )>
+    typename = typename std::enable_if_t<IsIntegerType<_T>()>
 
 
 // Pointer Type
 #define CC_ENABLE_IF_POINTER_TYPE(_T) \
-    typename = typename std::enable_if_t<IsPointerType<_T>( )>
+    typename = typename std::enable_if_t<IsPointerType<_T>()>
 
 
 // Not Pointer Type
 #define CC_ENABLE_IF_NOT_POINTER_TYPE(_T) \
-    typename = typename std::enable_if_t<!IsPointerType<_T>( )>
+    typename = typename std::enable_if_t<!IsPointerType<_T>()>
 
 
 // Integer Representable Type
 #define CC_ENABLE_IF_INTEGER_REPRESENTABLE_TYPE(_T) \
-    typename = typename std::enable_if_t<IsIntegerRepresentableType<_T>( )>
+    typename = typename std::enable_if_t<IsIntegerRepresentableType<_T>()>
 
 
 #endif // _CC_MACROS_H_
