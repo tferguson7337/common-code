@@ -154,7 +154,7 @@ const TestSetFunc GetTestSetFunction(_In_ const std::string& str)
 {
     TestSetFunc func;
 
-    for (TestPair pair : s_TestFuncMap)
+    for (const TestPair& pair : s_TestFuncMap)
     {
         const TestName& testName = pair.first;
         const TestSetFunc& testFunc = pair.second;
@@ -164,7 +164,7 @@ const TestSetFunc GetTestSetFunction(_In_ const std::string& str)
             continue;
         }
 
-        if (_strnicmp(str.c_str(), testName.c_str(), sizeof(char) * str.length()) == 0)
+        if (_strnicmp(str.c_str(), testName.c_str(), str.length()) == 0)
         {
             func = testFunc;
             break;
@@ -174,7 +174,7 @@ const TestSetFunc GetTestSetFunction(_In_ const std::string& str)
     return func;
 }
 
-std::list<TestSetFunc> GetTestSetFunctions(_In_ const int& argc, _In_count_(argc) const char* argv[])
+std::list<TestSetFunc> GetTestSetFunctions(_In_ const int& argc, _In_z_count_(argc) const char* argv[])
 {
     std::list<TestSetFunc> testFuncList;
 
