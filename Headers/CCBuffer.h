@@ -388,7 +388,7 @@ namespace CC
             return bRet;
         }
 
-        // Returns true if contents of this->m_pPtr match contents of buffer.Get( ), false otherwise.
+        // Returns true if contents of this->m_pPtr match contents of buffer.Get(), false otherwise.
         [[nodiscard]] _Success_(return) inline virtual bool Compare(_In_ const IBase& buffer) const noexcept
         {
             return Compare(buffer.Get(), buffer.Length());
@@ -440,14 +440,14 @@ namespace CC
         }
 
         // Copies source buffer content to internal buffer at m_WritePos.
-        // Note: If bCopyUpToSrcWritePos == true, will write up to src.WritePosition( ), otherwise up to src.Length( ).
+        // Note: If bCopyUpToSrcWritePos == true, will write up to src.WritePosition(), otherwise up to src.Length().
         [[nodiscard]] _Success_(return) virtual bool Write(_In_ const IBase& src, _In_ const bool& bCopyUpToSrcWritePos = true) noexcept(CC_IS_NOTHROW_COPY(T))
         {
             return Write(src.Get(), bCopyUpToSrcWritePos ? src.WritePosition() : src.Length());
         }
 
         // Moves source buffer content to internal buffer at m_WritePos.
-        // Note: If bCopyUpToSrcWritePos == true, will write up to src.WritePosition( ), otherwise up to src.Length( ).
+        // Note: If bCopyUpToSrcWritePos == true, will write up to src.WritePosition(), otherwise up to src.Length().
         [[nodiscard]] _Success_(return) virtual bool Write(_In_ IBase&& src, _In_ const bool& bCopyUpToSrcWritePos = true) noexcept(CC_IS_NOTHROW_MOVE(T))
         {
             return Write(std::move(src.Get()), bCopyUpToSrcWritePos ? src.WritePosition() : src.Length());
