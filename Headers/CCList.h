@@ -31,12 +31,11 @@ namespace CC
 
         /// Helper Struct - Doubly-Linked List Node \\\
 
-        template <typename T>
         struct DNode
         {
             T data;
-            DNode<T>* pPrev;
-            DNode<T>* pNext;
+            DNode* pPrev;
+            DNode* pNext;
 
             // Default constructor.
             DNode() noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T)) :
@@ -47,7 +46,7 @@ namespace CC
 
             // Constructor, targeted universal forwarder.
             template <typename U, CC_ENABLE_IF_ELEMENT(T, U)>
-            DNode(_In_ U&& obj, _In_opt_ DNode<T>* pP = nullptr, _In_opt_ DNode<T>* pN = nullptr) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T)) :
+            DNode(_In_ U&& obj, _In_opt_ DNode* pP = nullptr, _In_opt_ DNode* pN = nullptr) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T)) :
                 data(std::forward<U>(obj)),
                 pPrev(pP),
                 pNext(pN)
@@ -69,24 +68,24 @@ namespace CC
             template <typename U, CC_ENABLE_IF_ELEMENT(T, U)>
             [[nodiscard]] _Success_(return) bool Prepend(_In_ U&& obj) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T))
             {
-                // DNode<T> ctor handles link adjustments.
-                return !!PointerHelper<DNode<T>>::Allocate(std::forward<U>(obj), pPrev, this);
+                // DNode ctor handles link adjustments.
+                return !!PointerHelper<DNode>::Allocate(std::forward<U>(obj), pPrev, this);
             }
 
             // Append with targeted universal forwarder
             template <typename U, CC_ENABLE_IF_ELEMENT(T, U)>
             [[nodiscard]] _Success_(return) bool Append(_In_ U&& obj) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T))
             {
-                // DNode<T> ctor handles link adjustments.
-                return !!PointerHelper<DNode<T>>::Allocate(std::forward<U>(obj), this, pNext);
+                // DNode ctor handles link adjustments.
+                return !!PointerHelper<DNode>::Allocate(std::forward<U>(obj), this, pNext);
             }
         };
 
 
         /// Private Data Members \\\
 
-        DNode<T>* m_pHead;
-        DNode<T>* m_pTail;
+        DNode* m_pHead;
+        DNode* m_pTail;
         size_t m_Len;
 
         /// Private Throwing Validators \\\
@@ -125,7 +124,7 @@ namespace CC
         {
             while (!!m_pHead)
             {
-                DNode<T>* p = m_pHead;
+                DNode* p = m_pHead;
                 m_pHead = m_pHead->pNext;
                 delete p;
             }
@@ -147,9 +146,9 @@ namespace CC
 
         // Returns node located at the specified position.
         // Note: Caller is expected to verify that specified position is valid.
-        [[nodiscard]] _Ret_notnull_ DNode<T>* GetNodeAtPosition(_In_ const size_t pos) noexcept
+        [[nodiscard]] _Ret_notnull_ DNode* GetNodeAtPosition(_In_ const size_t pos) noexcept
         {
-            DNode<T>* p = nullptr;
+            DNode* p = nullptr;
             if (pos <= (m_Len / 2))
             {
                 p = m_pHead;
@@ -238,7 +237,7 @@ namespace CC
         // Returns true if operation succeeds, false otherwise.
         [[nodiscard]] _Success_(return) bool AssignListObj(_In_ const List<T>& src) noexcept(CC_IS_NOTHROW_CTOR_COPY(T))
         {
-            DNode<T>* pSrc = src.m_pHead;
+            DNode* pSrc = src.m_pHead;
             List<T> tmp;
 
             if (src.IsEmpty())
@@ -249,7 +248,7 @@ namespace CC
             }
 
             // Copy first element to tmp list.
-            tmp.m_pHead = tmp.m_pTail = PointerHelper<DNode<T>>::Allocate(pSrc->data);
+            tmp.m_pHead = tmp.m_pTail = PointerHelper<DNode>::Allocate(pSrc->data);
             if (!tmp.m_pHead)
             {
                 return false;
@@ -299,7 +298,7 @@ namespace CC
         [[nodiscard]] _Success_(return) bool AssignElementObj(_In_ U&& elem) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T))
         {
             // Allocate new list element.
-            DNode<T>* p = PointerHelper<DNode<T>>::Allocate(std::forward<U>(elem));
+            DNode* p = PointerHelper<DNode>::Allocate(std::forward<U>(elem));
             if (!p)
             {
                 return false;
@@ -336,7 +335,7 @@ namespace CC
         // Returns true if operation succeeds, false otherwise.
         [[nodiscard]] _Success_(return) bool InsertListObj(_Inout_ List<T>&& src, _In_ const size_t pos) noexcept
         {
-            DNode<T>* p = nullptr;
+            DNode* p = nullptr;
 
             if (IsEmpty())
             {
@@ -686,8 +685,8 @@ namespace CC
         // Returns true if lists are same length all elements match, false otherwise.
         [[nodiscard]] bool Compare(_In_ const List<T>& rhs) const noexcept
         {
-            DNode<T>* pL = m_pHead;
-            DNode<T>* pR = rhs.m_pHead;
+            DNode* pL = m_pHead;
+            DNode* pR = rhs.m_pHead;
 
             if (pL == pR)
             {
@@ -791,7 +790,7 @@ namespace CC
         // Returns true if element is removed, false otherwise (e.g., list is empty).
         bool PopBack() noexcept
         {
-            DNode<T>* p = m_pTail;
+            DNode* p = m_pTail;
             if (!p)
             {
                 // List must be empty - exit early.
@@ -838,7 +837,7 @@ namespace CC
         // Returns true if element is removed, false otherwise (e.g., list is empty).
         bool PopFront() noexcept
         {
-            DNode<T>* p = m_pHead;
+            DNode* p = m_pHead;
             if (!p)
             {
                 // List must be empty - exit early.
@@ -902,7 +901,7 @@ namespace CC
             else
             {
                 // Get node to delete.
-                DNode<T>* p = GetNodeAtPosition(pos);
+                DNode* p = GetNodeAtPosition(pos);
 
                 // Adjust pointers.
                 p->pPrev->pNext = p->pNext;
@@ -939,7 +938,7 @@ namespace CC
             else
             {
                 // Get node to delete.
-                DNode<T>* p = GetNodeAtPosition(pos);
+                DNode* p = GetNodeAtPosition(pos);
 
                 // Adjust pointers.
                 p->pPrev->pNext = p->pNext;

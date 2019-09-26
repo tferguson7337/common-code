@@ -35,11 +35,10 @@ namespace CC
 
         /// Helper Struct - Singly-Linked List Node \\\
 
-        template <typename T>
         struct Node
         {
             T data;
-            Node<T>* pNext;
+            Node* pNext;
 
             // Default constructor.
             Node() noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T)) :
@@ -49,7 +48,7 @@ namespace CC
 
             // Constructor, targeted universal forwarder.
             template <typename U, CC_ENABLE_IF_ELEMENT(T, U)>
-            Node(_In_ U&& obj, _In_opt_ Node<T>* pN = nullptr) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T)) :
+            Node(_In_ U&& obj, _In_opt_ Node* pN = nullptr) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T)) :
                 data(std::forward<U>(obj)),
                 pNext(pN)
             { }
@@ -57,13 +56,13 @@ namespace CC
             ~Node() noexcept(CC_IS_NOTHROW_DTOR(T)) = default;
         };
 
-        using PH = PointerHelper<Node<T>>;
+        using PH = PointerHelper<Node>;
 
 
         /// Private Data Members \\\
 
-        Node<T>* m_pHead;
-        Node<T>* m_pTail;
+        Node* m_pHead;
+        Node* m_pTail;
         size_t m_Len;
 
         /// Private Throwing Validators \\\
@@ -102,7 +101,7 @@ namespace CC
         {
             while (!!m_pHead)
             {
-                Node<T>* p = m_pHead;
+                Node* p = m_pHead;
                 m_pHead = m_pHead->pNext;
                 delete p;
             }
@@ -124,9 +123,9 @@ namespace CC
 
         // Returns node located at the specified position.
         // Note: Caller is expected to verify that specified position is valid.
-        [[nodiscard]] _Ret_notnull_ Node<T>* GetNodeAtPosition(_In_ const size_t pos) noexcept
+        [[nodiscard]] _Ret_notnull_ Node* GetNodeAtPosition(_In_ const size_t pos) noexcept
         {
-            Node<T>* p = m_pHead;
+            Node* p = m_pHead;
             for (size_t i = 0; i < pos; i++)
             {
                 p = p->pNext;
@@ -179,7 +178,7 @@ namespace CC
         template <typename U, CC_ENABLE_IF_ELEMENT(T, U)>
         [[nodiscard]] _Success_(return) bool AppendElementObj(_In_ U&& elem) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T))
         {
-            Node<T>* pNewElem = nullptr;
+            Node* pNewElem = nullptr;
 
             if (IsEmpty())
             {
@@ -206,7 +205,7 @@ namespace CC
         // Returns true if operation succeeds, false otherwise.
         [[nodiscard]] _Success_(return) bool AssignListObj(_In_ const ForwardList<T>& src) noexcept(CC_IS_NOTHROW_CTOR_COPY(T))
         {
-            Node<T>* pSrc = src.m_pHead;
+            Node* pSrc = src.m_pHead;
             ForwardList<T> tmp;
 
             if (src.IsEmpty())
@@ -227,7 +226,7 @@ namespace CC
             pSrc = pSrc->pNext;
             while (!!pSrc)
             {
-                Node<T>* pNewElem = PH::Allocate(pSrc->data);
+                Node* pNewElem = PH::Allocate(pSrc->data);
                 if (!pNewElem)
                 {
                     return false;
@@ -271,7 +270,7 @@ namespace CC
         [[nodiscard]] _Success_(return) bool AssignElementObj(_In_ U&& elem) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T))
         {
             // Allocate new list element.
-            Node<T>* p = PH::Allocate(std::forward<U>(elem));
+            Node* p = PH::Allocate(std::forward<U>(elem));
             if (!p)
             {
                 return false;
@@ -308,7 +307,7 @@ namespace CC
         // Returns true if operation succeeds, false otherwise.
         [[nodiscard]] _Success_(return) bool InsertListObj(_Inout_ ForwardList<T>&& src, _In_ const size_t pos) noexcept
         {
-            Node<T>* p = nullptr;
+            Node* p = nullptr;
 
             if (IsEmpty())
             {
@@ -347,8 +346,8 @@ namespace CC
         template <typename U>
         [[nodiscard]] _Success_(return) bool InsertElementObj(_In_ U&& elem, _In_ const size_t pos) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T))
         {
-            Node<T>* pNewElem = nullptr;
-            Node<T>* p = nullptr;
+            Node* pNewElem = nullptr;
+            Node* p = nullptr;
 
             if (IsEmpty())
             {
@@ -423,7 +422,7 @@ namespace CC
         template <typename U>
         [[nodiscard]] _Success_(return) bool PrependElementObj(_In_ U&& elem)  noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T))
         {
-            Node<T>* pNewElem = nullptr;
+            Node* pNewElem = nullptr;
 
             if (IsEmpty())
             {
@@ -667,8 +666,8 @@ namespace CC
         // Returns true if lists are same length all elements match, false otherwise.
         [[nodiscard]] bool Compare(_In_ const ForwardList<T>& rhs) const noexcept
         {
-            Node<T>* pL = m_pHead;
-            Node<T>* pR = rhs.m_pHead;
+            Node* pL = m_pHead;
+            Node* pR = rhs.m_pHead;
 
             if (pL == pR)
             {
@@ -772,7 +771,7 @@ namespace CC
         // Returns true if element is removed, false otherwise (e.g., list is empty).
         bool PopBack() noexcept
         {
-            Node<T>* p = nullptr;
+            Node* p = nullptr;
             if (IsEmpty())
             {
                 // List is empty - exit early.
@@ -818,7 +817,7 @@ namespace CC
         // Returns true if element is removed, false otherwise (e.g., list is empty).
         bool PopFront() noexcept
         {
-            Node<T>* p = m_pHead;
+            Node* p = m_pHead;
             if (!p)
             {
                 // List must be empty - exit early.
@@ -877,8 +876,8 @@ namespace CC
             else
             {
                 // Get node prior to delete.
-                Node<T>* p = GetNodeAtPosition(pos - 1);
-                Node<T>* pDel = p->pNext;
+                Node* p = GetNodeAtPosition(pos - 1);
+                Node* pDel = p->pNext;
 
                 // Adjust pointer and length.
                 p->pNext = pDel->pNext;
@@ -912,8 +911,8 @@ namespace CC
             else
             {
                 // Get node prior to delete.
-                Node<T>* p = GetNodeAtPosition(pos - 1);
-                Node<T>* pDel = p->pNext;
+                Node* p = GetNodeAtPosition(pos - 1);
+                Node* pDel = p->pNext;
 
                 // Adjust pointer and length.
                 p->pNext = pDel->pNext;
