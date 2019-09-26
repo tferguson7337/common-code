@@ -1,5 +1,7 @@
 #pragma once
 
+#include <CCMacros.h>
+
 
 namespace CC
 {
@@ -16,7 +18,7 @@ namespace CC
 
         /// Protected Virtual Destructor \\\
 
-        virtual ~IPointer() noexcept = default;
+        virtual ~IPointer() noexcept(CC_IS_NOTHROW_DTOR(T)) { };
 
         /// Protected Assignment Overloads \\\
 

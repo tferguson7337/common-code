@@ -69,8 +69,11 @@ CC::ForwardListTests::UTList CC::ForwardListTests::GetTests()
 
         // Removal Tests
         ADD_TESTS_T_TQ1(RemovalTests::PopFront),
+        ADD_TESTS_T_TQ1(RemovalTests::PopFrontMove),
         ADD_TESTS_T_TQ1(RemovalTests::PopBack),
+        ADD_TESTS_T_TQ1(RemovalTests::PopBackMove),
         ADD_TESTS_T_TQ1(RemovalTests::RemoveAt),
+        ADD_TESTS_T_TQ1(RemovalTests::RemoveAtMove),
         ADD_TESTS_T_TQ1(RemovalTests::Clear),
     };
 

@@ -16,7 +16,7 @@ namespace CC
         constexpr IBuffer() noexcept = default;
         IBuffer(const IBuffer<T>&) noexcept = default;
         IBuffer(IBuffer<T>&&) noexcept = default;
-        virtual ~IBuffer() noexcept = default;
+        virtual ~IBuffer() noexcept(CC_IS_NOTHROW_DTOR(T)) { }
         IBuffer<T>& operator=(const IBuffer<T>&) noexcept = default;
         IBuffer<T>& operator=(IBuffer<T>&&) noexcept = default;
 

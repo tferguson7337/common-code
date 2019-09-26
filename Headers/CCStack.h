@@ -1,7 +1,7 @@
 #pragma once
 
 #include <CCMacros.h>
-#include <CCPointerHelper.h>
+#include <CCForwardList.h>
 
 namespace CC
 {
@@ -29,188 +29,16 @@ namespace CC
 
     private:
 
-        /// Helper Struct - Singly-Linked List Node \\\
-
-        template <typename T>
-        struct Node
-        {
-            T data;
-            Node<T>* pNext;
-
-            // Default constructor.
-            Node() noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T)) :
-                data(T()),
-                pNext(nullptr)
-            { }
-
-            // Constructor, targeted universal forwarder.
-            template <typename U, CC_ENABLE_IF_ELEMENT(T, U)>
-            Node(_In_ U&& obj, _In_opt_ Node<T>* pN = nullptr) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T)) :
-                data(std::forward<U>(obj)),
-                pNext(pN)
-            { }
-
-            ~Node() noexcept(CC_IS_NOTHROW_DTOR(T)) = default;
-        };
-
-        // Type aliases
-        using PH = PointerHelper<Node<T>>;
-
         /// Private Data Members \\\
 
-        Node<T>* m_pHead;
-        size_t m_Len;
-
-        /// Private Throwing Validators \\\
-
-        // Throws std::logic_error if this stack is empty.
-        inline void ValidateDereferenceT(_In_z_ const char* const f)
-        {
-            if (IsEmpty())
-            {
-                std::string msg(": Attempted invalid access on empty stack.");
-                throw std::logic_error(f + msg);
-            }
-        }
-
-        /// Private Helper Methods \\\
-
-        // Deallocates all nodes in the stack.
-        // Note: Data members are not reset.
-        inline void DestroyStack()
-        {
-            while (!!m_pHead)
-            {
-                Node<T>* p = m_pHead;
-                m_pHead = m_pHead->pNext;
-                delete p;
-            }
-        }
-
-        // If specified, frees all stack nodes. Always resets all data members to default values.
-        template <bool bDestroy>
-        inline void ResetStack() noexcept
-        {
-            if constexpr (bDestroy)
-            {
-                DestroyStack();
-            }
-
-            m_pHead = nullptr;
-            m_Len = 0;
-        }
-
-        // Clears this stack and assigns single element to this stack via copy or move.
-        // Returns true if operation succeeds, false otherwise.
-        template <typename U, CC_ENABLE_IF_ELEMENT(T, U)>
-        [[nodiscard]] _Success_(return) bool AssignElementObj(_In_ U&& obj) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T))
-        {
-            // Allocate new stack element.
-            Node<T>* p = PH::Allocate(std::forward<U>(obj));
-            if (!p)
-            {
-                return false;
-            }
-
-            // Destroy current stack.
-            DestroyStack();
-
-            // Assign element to the stack, adjust length.
-            m_pHead = p;
-            m_Len = 1;
-
-            return true;
-        }
-
-        // Clears this stack and copies src stack to this stack.
-        // Returns true if operation succeeds, false otherwise.
-        [[nodiscard]] _Success_(return) bool AssignStackObj(_In_ const Stack<T>& src) noexcept(CC_IS_NOTHROW_CTOR_COPY(T))
-        {
-            Node<T>* pSrc = src.m_pHead;
-            Node<T>* pDst = nullptr;
-            Stack<T> tmp;
-
-            if (src.IsEmpty())
-            {
-                // Assigns empty stack - clear out this stack.
-                ResetStack<true>();
-                return true;
-            }
-
-            // Copy first element to tmp stack.
-            tmp.m_pHead = PH::Allocate(pSrc->data);
-            if (!tmp.m_pHead)
-            {
-                return false;
-            }
-
-            // Copy the rest of the elements.
-            pSrc = pSrc->pNext;
-            pDst = tmp.m_pHead;
-            while (!!pSrc)
-            {
-                pDst->pNext = PH::Allocate(pSrc->data);
-                if (!pDst->pNext)
-                {
-                    // Allocation failed - bail out.
-                    return false;
-                }
-
-                pSrc = pSrc->pNext;
-                pDst = pDst->pNext;
-            }
-
-            // Copy the length.
-            tmp.m_Len = src.m_Len;
-
-            // Move tmp stack to this stack.
-            return AssignStackObj(std::move(tmp));
-        }
-
-        // Clears this stack and transfers src stack contents to this stack.
-        // Returns true if operation succeeds, false otherwise.
-        [[nodiscard]] _Success_(return) bool AssignStackObj(_Inout_ Stack<T>&& src) noexcept
-        {
-            // Destroy current stack.
-            DestroyStack();
-
-            // Transfer elements to this stack, copy length.
-            m_pHead = src.m_pHead;
-            m_Len = src.m_Len;
-
-            // src doesn't own this stack anymore - reset it.
-            src.ResetStack<false>();
-
-            return true;
-        }
-
-        // Adds element to the top of the stack.
-        // Returns true if operation succeeds, false otherwise.
-        template <typename U, CC_ENABLE_IF_ELEMENT(T, U)>
-        [[nodiscard]] bool PushElementObj(_In_ U&& obj) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T))
-        {
-            Node<T>* p = PH::Allocate(std::forward<U>(obj), m_pHead);
-            if (!p)
-            {
-                // Allocation failed - bail out.
-                return false;
-            }
-
-            m_pHead = p;
-            m_Len++;
-
-            return true;
-        }
+        ForwardList<T> m_FwdList;
 
     public:
 
         /// Constructors \\\
 
         // Default constructor
-        Stack() noexcept :
-            m_pHead(nullptr),
-            m_Len(0)
-        { }
+        Stack() noexcept = default;
 
         // Copy constructor
         Stack(_In_ const Stack<T>& src) noexcept(CC_IS_NOTHROW_CTOR_COPY(T)) :
@@ -237,32 +65,21 @@ namespace CC
 
         /// Destructor \\\
 
-        ~Stack() noexcept(CC_IS_NOTHROW_DTOR(T))
-        {
-            DestroyStack();
-        }
+        ~Stack() noexcept(CC_IS_NOTHROW_DTOR(T)) { };
 
         /// Assignment Overload \\\
 
         // Copy assignment
         Stack<T>& operator=(_In_ const Stack<T>& src) noexcept(CC_IS_NOTHROW_COPY(T))
         {
-            if (!Assign(src))
-            {
-                ResetStack<true>();
-            }
-
+            m_FwdList.operator=(src.m_FwdList);
             return *this;
         }
 
         // Move assignment
         Stack<T>& operator=(_Inout_ Stack<T>&& src) noexcept(CC_IS_NOTHROW_MOVE(T))
         {
-            if (!Assign(std::move(src)))
-            {
-                ResetStack<true>();
-            }
-
+            m_FwdList.operator=(std::move(src.m_FwdList));
             return *this;
         }
 
@@ -270,11 +87,7 @@ namespace CC
         template <typename U, CC_ENABLE_IF_ELEMENT(T, U)>
         Stack<T>& operator=(_In_ U&& obj) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T))
         {
-            if (!Assign(std::forward<U>(obj)))
-            {
-                ResetStack<true>();
-            }
-
+            m_FwdList.operator=(std::forward<U>(obj));
             return *this;
         }
 
@@ -298,23 +111,21 @@ namespace CC
         // Returns length of stack (number of elements).
         [[nodiscard]] inline size_t Length() const noexcept
         {
-            return m_Len;
+            return m_FwdList.Length();
         }
 
         // Returns mutable reference to first element in the stack.
         // Note: If stack is empty, this throws std::logic_error.
         [[nodiscard]] inline T& Top()
         {
-            ValidateDereferenceT(__FUNCSIG__);
-            return m_pHead->data;
+            return m_FwdList.Front();
         }
 
         // Returns mutable reference to first element in the stack.
         // Note: If stack is empty, this throws std::logic_error.
         [[nodiscard]] inline const T& Top() const
         {
-            ValidateDereferenceT(__FUNCSIG__);
-            return m_pHead->data;
+            return m_FwdList.Front();
         }
 
         /// Public Methods \\\
@@ -326,94 +137,56 @@ namespace CC
         {
             if constexpr (CC_IS_STACK(T, U))
             {
-                return (this == &obj) || AssignStackObj(std::forward<U>(obj));
+                if constexpr (std::is_rvalue_reference_v<decltype(std::forward<U>(obj))>)
+                {
+                    return m_FwdList.Assign(std::move(obj.m_FwdList));
+                }
+                else
+                {
+                    return m_FwdList.Assign(obj.m_FwdList);
+                }
             }
             else if constexpr (CC_IS_ELEMENT(T, U))
             {
-                return AssignElementObj(std::forward<U>(obj));
+                return m_FwdList.Assign(std::forward<U>(obj));
             }
             else
             {
-                static_assert(false, __FUNCSIG__ ": Unsuported assign type.");
+                static_assert(false, __FUNCSIG__ ": Unsupported template type.");
             }
         }
 
         // Destroys stack, freeing all resources and reseting stack.
         void Clear() noexcept(CC_IS_NOTHROW_DTOR(T))
         {
-            ResetStack<true>();
+            m_FwdList.Clear();
         }
 
         // Compares this stack's elements against rhs' stack elements.
         // Returns true if stacks are the same length and all elements match, false otherwise.
         [[nodiscard]] bool Compare(_In_ const Stack<T>& rhs) const noexcept
         {
-            Node<T>* pL = m_pHead;
-            Node<T>* pR = rhs.m_pHead;
-
-            if (pL == pR)
-            {
-                // Comparing same stack - equal.
-                return true;
-            }
-
-            if (m_Len != rhs.m_Len)
-            {
-                // Length mismatch - not equal.
-                return false;
-            }
-
-            // Compare while we haven't exhausted either stack.
-            while (!!pL)
-            {
-                if (pL->data != pR->data)
-                {
-                    // Mismatch - not equal.
-                    return false;
-                }
-
-                // Move to next elements.
-                pL = pL->pNext;
-                pR = pR->pNext;
-            }
-
-            return true;
+            return m_FwdList.Compare(rhs.m_FwdList);
         }
 
         // Returns true if the stack is empty, false otherwise.
         [[nodiscard]] bool IsEmpty() const noexcept
         {
-            return (m_Len == 0);
+            return m_FwdList.IsEmpty();
         }
 
         // Pops element from the top of the stack.
         // Returns true if element is removed, false otherwise (e.g., stack is empty).
-        _Success_(return) bool Pop() noexcept(CC_IS_NOTHROW_DTOR(T))
+        bool Pop() noexcept(CC_IS_NOTHROW_DTOR(T))
         {
-            if (IsEmpty())
-            {
-                return false;
-            }
-
-            Node<T>* p = m_pHead;
-            m_pHead = m_pHead->pNext;
-            delete p;
-            m_Len--;
-
-            return true;
+            return m_FwdList.PopFront();
         }
 
         // Pops element from the top of the stack and moves element to the out parameter.
         // Returns true if element is removed, false otherwise (e.g., stack is empty).
         [[nodiscard]] _Success_(return) bool Pop(_Out_ T& obj) noexcept(CC_IS_NOTHROW_MOVE(T) && CC_IS_NOTHROW_DTOR(T))
         {
-            if (IsEmpty())
-            {
-                return false;
-            }
-
-            obj = std::move(m_pHead->data);
-            return Pop();
+            return m_FwdList.PopFront(obj);
         }
 
         // Pushes new element onto the stack.
@@ -421,13 +194,7 @@ namespace CC
         template <typename U, CC_ENABLE_IF_ELEMENT(T, U)>
         [[nodiscard]] _Success_(return) bool Push(_In_ U&& obj) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T))
         {
-            if (IsEmpty())
-            {
-                // Push to empty stack is same as assign.
-                return AssignElementObj(std::forward<U>(obj));
-            }
-
-            return PushElementObj(std::forward<U>(obj));
+            return m_FwdList.Prepend(std::forward<U>(obj));
         }
     };
 

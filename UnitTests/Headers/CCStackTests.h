@@ -69,8 +69,8 @@ namespace CC
         {
             Stack<T> stack;
 
-            SUTL_TEST_ASSERT(!stack.m_pHead);
-            SUTL_TEST_ASSERT(stack.m_Len == 0);
+            SUTL_TEST_ASSERT(!stack);
+            SUTL_TEST_ASSERT(!stack.m_FwdList);
 
             SUTL_TEST_SUCCESS();
         }
@@ -81,14 +81,13 @@ namespace CC
             const std::vector<T> testData(GetTestData<T, TestQuantity::VeryLow>());
             Stack<T> stack(testData.back());
 
-            SUTL_TEST_ASSERT(!!stack.m_pHead);
-            SUTL_TEST_ASSERT(stack.m_Len == 1);
-            SUTL_TEST_ASSERT(!stack.m_pHead->pNext);
-            SUTL_TEST_ASSERT(stack.m_pHead->data == testData.back());
+            SUTL_TEST_ASSERT(!!stack);
+            SUTL_TEST_ASSERT(stack.Top() == testData.back());
+            SUTL_TEST_ASSERT(stack.Length() == 1);
             if constexpr (std::is_same_v<T, Helper>)
             {
-                SUTL_TEST_ASSERT(stack.m_pHead->data.m_bCopied);
-                SUTL_TEST_ASSERT(!stack.m_pHead->data.m_bMoved);
+                SUTL_TEST_ASSERT(stack.Top().m_bCopied);
+                SUTL_TEST_ASSERT(!stack.Top().m_bMoved);
             }
 
             SUTL_TEST_SUCCESS();
@@ -100,14 +99,13 @@ namespace CC
             std::vector<T> testData(GetTestData<T, TestQuantity::VeryLow>());
             Stack<T> stack(std::move(testData.back()));
 
-            SUTL_TEST_ASSERT(!!stack.m_pHead);
-            SUTL_TEST_ASSERT(stack.m_Len == 1);
-            SUTL_TEST_ASSERT(!stack.m_pHead->pNext);
-            SUTL_TEST_ASSERT(stack.m_pHead->data == testData.back());
+            SUTL_TEST_ASSERT(!!stack);
+            SUTL_TEST_ASSERT(stack.Top() == testData.back());
+            SUTL_TEST_ASSERT(stack.Length() == 1);
             if constexpr (std::is_same_v<T, Helper>)
             {
-                SUTL_TEST_ASSERT(!stack.m_pHead->data.m_bCopied);
-                SUTL_TEST_ASSERT(stack.m_pHead->data.m_bMoved);
+                SUTL_TEST_ASSERT(!stack.Top().m_bCopied);
+                SUTL_TEST_ASSERT(stack.Top().m_bMoved);
             }
 
             SUTL_TEST_SUCCESS();
@@ -125,27 +123,27 @@ namespace CC
                 for (size_t i = 0; i < srcLen; i++)
                 {
                     SUTL_SETUP_ASSERT(src.Push(testData[i]));
-                    SUTL_SETUP_ASSERT(!!src.m_pHead);
-                    SUTL_SETUP_ASSERT(src.m_Len == i + 1);
-                    SUTL_SETUP_ASSERT(src.m_pHead->data == testData[i]);
+                    SUTL_SETUP_ASSERT(!!src);
+                    SUTL_SETUP_ASSERT(src.Length() == i + 1);
+                    SUTL_SETUP_ASSERT(src.Top() == testData[i]);
                 }
 
-                SUTL_SETUP_ASSERT(!!src.m_pHead);
-                SUTL_SETUP_ASSERT(src.m_Len == srcLen);
+                SUTL_SETUP_ASSERT(!!src);
+                SUTL_SETUP_ASSERT(src.Length() == srcLen);
             }
             else
             {
-                SUTL_SETUP_ASSERT(!src.m_pHead);
-                SUTL_SETUP_ASSERT(src.m_Len == 0);
+                SUTL_SETUP_ASSERT(!src);
+                SUTL_SETUP_ASSERT(src.Length() == 0);
             }
 
             Stack<T> dst(src);
-            SUTL_TEST_ASSERT(dst.m_Len == src.m_Len);
+            SUTL_TEST_ASSERT(dst.Length() == src.Length());
 
             if constexpr (srcLen != 0)
             {
-                auto pDst = dst.m_pHead;
-                auto pSrc = src.m_pHead;
+                auto pDst = dst.m_FwdList.m_pHead;
+                auto pSrc = src.m_FwdList.m_pHead;
                 for (size_t i = 0; i < srcLen; i++)
                 {
                     SUTL_TEST_ASSERT(!!pDst);
@@ -159,10 +157,10 @@ namespace CC
             }
             else
             {
-                SUTL_TEST_ASSERT(!dst.m_pHead);
-                SUTL_TEST_ASSERT(!src.m_pHead);
-                SUTL_TEST_ASSERT(dst.m_Len == 0);
-                SUTL_TEST_ASSERT(src.m_Len == 0);
+                SUTL_TEST_ASSERT(!dst);
+                SUTL_TEST_ASSERT(!src);
+                SUTL_TEST_ASSERT(dst.Length() == 0);
+                SUTL_TEST_ASSERT(src.Length() == 0);
             }
 
             SUTL_TEST_SUCCESS();
@@ -180,30 +178,30 @@ namespace CC
                 for (size_t i = 0; i < srcLen; i++)
                 {
                     SUTL_SETUP_ASSERT(src.Push(testData[i]));
-                    SUTL_SETUP_ASSERT(!!src.m_pHead);
-                    SUTL_SETUP_ASSERT(src.m_Len == i + 1);
-                    SUTL_SETUP_ASSERT(src.m_pHead->data == testData[i]);
+                    SUTL_SETUP_ASSERT(!!src);
+                    SUTL_SETUP_ASSERT(src.Length() == i + 1);
+                    SUTL_SETUP_ASSERT(src.Top() == testData[i]);
                 }
 
-                SUTL_SETUP_ASSERT(!!src.m_pHead);
-                SUTL_SETUP_ASSERT(src.m_Len == srcLen);
+                SUTL_SETUP_ASSERT(!!src);
+                SUTL_SETUP_ASSERT(src.Length() == srcLen);
             }
             else
             {
-                SUTL_SETUP_ASSERT(!src.m_pHead);
-                SUTL_SETUP_ASSERT(src.m_Len == 0);
+                SUTL_SETUP_ASSERT(!src);
+                SUTL_SETUP_ASSERT(src.Length() == 0);
             }
 
-            auto pSrc = src.m_pHead;
+            auto pSrc = src.m_FwdList.m_pHead;
             Stack<T> dst(std::move(src));
-            SUTL_TEST_ASSERT(dst.m_pHead == pSrc);
-            SUTL_TEST_ASSERT(dst.m_Len == srcLen);
-            SUTL_TEST_ASSERT(!src.m_pHead);
-            SUTL_TEST_ASSERT(src.m_Len == 0);
+            SUTL_TEST_ASSERT(dst.m_FwdList.m_pHead == pSrc);
+            SUTL_TEST_ASSERT(dst.Length() == srcLen);
+            SUTL_TEST_ASSERT(!src);
+            SUTL_TEST_ASSERT(src.Length() == 0);
 
             if constexpr (srcLen != 0)
             {
-                auto pDst = dst.m_pHead;
+                auto pDst = dst.m_FwdList.m_pHead;
                 for (size_t i = 0; i < srcLen; i++)
                 {
                     SUTL_TEST_ASSERT(!!pDst);
@@ -213,8 +211,8 @@ namespace CC
             }
             else
             {
-                SUTL_TEST_ASSERT(!dst.m_pHead);
-                SUTL_TEST_ASSERT(dst.m_Len == 0);
+                SUTL_TEST_ASSERT(!dst);
+                SUTL_TEST_ASSERT(dst.Length() == 0);
             }
 
             SUTL_TEST_SUCCESS();
@@ -241,31 +239,31 @@ namespace CC
                 for (size_t i = 0; i < len; i++)
                 {
                     SUTL_SETUP_ASSERT(dst.Push(srcTestData[i]));
-                    SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                    SUTL_SETUP_ASSERT(dst.m_Len == i + 1);
-                    SUTL_SETUP_ASSERT(dst.m_pHead->data == srcTestData[i]);
+                    SUTL_SETUP_ASSERT(!!dst);
+                    SUTL_SETUP_ASSERT(dst.Length() == i + 1);
+                    SUTL_SETUP_ASSERT(dst.Top() == srcTestData[i]);
                 }
 
                 // Verify initial dst conditions.
-                SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                SUTL_SETUP_ASSERT(dst.m_Len == len);
+                SUTL_SETUP_ASSERT(!!dst);
+                SUTL_SETUP_ASSERT(dst.Length() == len);
             }
 
             // Save off current stack head.
-            auto pHead = dst.m_pHead;
+            auto pHead = dst.m_FwdList.m_pHead;
 
             // Assign the element.
             SUTL_TEST_ASSERT(dst.Assign(testData));
-            SUTL_TEST_ASSERT(!!dst.m_pHead);
-            SUTL_TEST_ASSERT(dst.m_Len == 1);
-            SUTL_TEST_ASSERT(dst.m_pHead != pHead);
-            SUTL_TEST_ASSERT(dst.m_pHead->data == testData);
+            SUTL_TEST_ASSERT(!!dst);
+            SUTL_TEST_ASSERT(dst.Length() == 1);
+            SUTL_TEST_ASSERT(dst.m_FwdList.m_pHead != pHead);
+            SUTL_TEST_ASSERT(dst.Top() == testData);
 
             if constexpr (std::is_same_v<T, Helper>)
             {
                 // Ensure data was copied (not moved).
-                SUTL_TEST_ASSERT(dst.m_pHead->data.m_bCopied);
-                SUTL_TEST_ASSERT(!dst.m_pHead->data.m_bMoved);
+                SUTL_TEST_ASSERT(dst.Top().m_bCopied);
+                SUTL_TEST_ASSERT(!dst.Top().m_bMoved);
             }
 
             SUTL_TEST_SUCCESS();
@@ -285,31 +283,31 @@ namespace CC
                 for (size_t i = 0; i < len; i++)
                 {
                     SUTL_SETUP_ASSERT(dst.Push(srcTestData[i]));
-                    SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                    SUTL_SETUP_ASSERT(dst.m_Len == i + 1);
-                    SUTL_SETUP_ASSERT(dst.m_pHead->data == srcTestData[i]);
+                    SUTL_SETUP_ASSERT(!!dst);
+                    SUTL_SETUP_ASSERT(dst.Length() == i + 1);
+                    SUTL_SETUP_ASSERT(dst.Top() == srcTestData[i]);
                 }
 
                 // Verify initial dst conditions.
-                SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                SUTL_SETUP_ASSERT(dst.m_Len == len);
+                SUTL_SETUP_ASSERT(!!dst);
+                SUTL_SETUP_ASSERT(dst.Length() == len);
             }
 
             // Save off current stack head.
-            auto pHead = dst.m_pHead;
+            auto pHead = dst.m_FwdList.m_pHead;
 
             // Assign the element.
             SUTL_TEST_ASSERT(dst.Assign(std::move(testData)));
-            SUTL_TEST_ASSERT(!!dst.m_pHead);
-            SUTL_TEST_ASSERT(dst.m_Len == 1);
-            SUTL_TEST_ASSERT(dst.m_pHead != pHead);
-            SUTL_TEST_ASSERT(dst.m_pHead->data == testData);
+            SUTL_TEST_ASSERT(!!dst);
+            SUTL_TEST_ASSERT(dst.Length() == 1);
+            SUTL_TEST_ASSERT(dst.m_FwdList.m_pHead != pHead);
+            SUTL_TEST_ASSERT(dst.Top() == testData);
 
             if constexpr (std::is_same_v<T, Helper>)
             {
                 // Ensure data was copied (not moved).
-                SUTL_TEST_ASSERT(!dst.m_pHead->data.m_bCopied);
-                SUTL_TEST_ASSERT(dst.m_pHead->data.m_bMoved);
+                SUTL_TEST_ASSERT(!dst.Top().m_bCopied);
+                SUTL_TEST_ASSERT(dst.Top().m_bMoved);
             }
 
             SUTL_TEST_SUCCESS();
@@ -331,14 +329,14 @@ namespace CC
                 for (size_t i = 0; i < dstLen; i++)
                 {
                     SUTL_SETUP_ASSERT(dst.Push(dstTestData[i]));
-                    SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                    SUTL_SETUP_ASSERT(dst.m_Len == i + 1);
-                    SUTL_SETUP_ASSERT(dst.m_pHead->data == dstTestData[i]);
+                    SUTL_SETUP_ASSERT(!!dst);
+                    SUTL_SETUP_ASSERT(dst.Length() == i + 1);
+                    SUTL_SETUP_ASSERT(dst.Top() == dstTestData[i]);
                 }
 
                 // Verify initial dst conditions.
-                SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                SUTL_SETUP_ASSERT(dst.m_Len == dstLen);
+                SUTL_SETUP_ASSERT(!!dst);
+                SUTL_SETUP_ASSERT(dst.Length() == dstLen);
             }
 
             // Setup src stack.
@@ -347,23 +345,23 @@ namespace CC
                 for (size_t i = 0; i < srcLen; i++)
                 {
                     SUTL_SETUP_ASSERT(src.Push(srcTestData[i]));
-                    SUTL_SETUP_ASSERT(!!src.m_pHead);
-                    SUTL_SETUP_ASSERT(src.m_Len == i + 1);
-                    SUTL_SETUP_ASSERT(src.m_pHead->data == srcTestData[i]);
+                    SUTL_SETUP_ASSERT(!!src);
+                    SUTL_SETUP_ASSERT(src.Length() == i + 1);
+                    SUTL_SETUP_ASSERT(src.Top() == srcTestData[i]);
                 }
 
                 // Verify initial dst conditions.
-                SUTL_SETUP_ASSERT(!!src.m_pHead);
-                SUTL_SETUP_ASSERT(src.m_Len == srcLen);
+                SUTL_SETUP_ASSERT(!!src);
+                SUTL_SETUP_ASSERT(src.Length() == srcLen);
             }
 
             SUTL_TEST_ASSERT(dst.Assign(src));
-            SUTL_TEST_ASSERT(dst.m_Len == src.m_Len);
+            SUTL_TEST_ASSERT(dst.Length() == src.Length());
 
             if constexpr (srcLen != 0)
             {
-                auto pDst = dst.m_pHead;
-                auto pSrc = src.m_pHead;
+                auto pDst = dst.m_FwdList.m_pHead;
+                auto pSrc = src.m_FwdList.m_pHead;
                 for (size_t i = 0; i < srcLen; i++)
                 {
                     SUTL_TEST_ASSERT(!!pDst);
@@ -377,10 +375,10 @@ namespace CC
             }
             else
             {
-                SUTL_TEST_ASSERT(!dst.m_pHead);
-                SUTL_TEST_ASSERT(!src.m_pHead);
-                SUTL_TEST_ASSERT(dst.m_Len == 0);
-                SUTL_TEST_ASSERT(src.m_Len == 0);
+                SUTL_TEST_ASSERT(!dst);
+                SUTL_TEST_ASSERT(!src);
+                SUTL_TEST_ASSERT(dst.Length() == 0);
+                SUTL_TEST_ASSERT(src.Length() == 0);
             }
 
             SUTL_TEST_SUCCESS();
@@ -402,14 +400,14 @@ namespace CC
                 for (size_t i = 0; i < dstLen; i++)
                 {
                     SUTL_SETUP_ASSERT(dst.Push(dstTestData[i]));
-                    SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                    SUTL_SETUP_ASSERT(dst.m_Len == i + 1);
-                    SUTL_SETUP_ASSERT(dst.m_pHead->data == dstTestData[i]);
+                    SUTL_SETUP_ASSERT(!!dst);
+                    SUTL_SETUP_ASSERT(dst.Length() == i + 1);
+                    SUTL_SETUP_ASSERT(dst.Top() == dstTestData[i]);
                 }
 
                 // Verify initial dst conditions.
-                SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                SUTL_SETUP_ASSERT(dst.m_Len == dstLen);
+                SUTL_SETUP_ASSERT(!!dst);
+                SUTL_SETUP_ASSERT(dst.Length() == dstLen);
             }
 
             // Setup src stack.
@@ -418,26 +416,26 @@ namespace CC
                 for (size_t i = 0; i < srcLen; i++)
                 {
                     SUTL_SETUP_ASSERT(src.Push(srcTestData[i]));
-                    SUTL_SETUP_ASSERT(!!src.m_pHead);
-                    SUTL_SETUP_ASSERT(src.m_Len == i + 1);
-                    SUTL_SETUP_ASSERT(src.m_pHead->data == srcTestData[i]);
+                    SUTL_SETUP_ASSERT(!!src);
+                    SUTL_SETUP_ASSERT(src.Length() == i + 1);
+                    SUTL_SETUP_ASSERT(src.Top() == srcTestData[i]);
                 }
 
                 // Verify initial dst conditions.
-                SUTL_SETUP_ASSERT(!!src.m_pHead);
-                SUTL_SETUP_ASSERT(src.m_Len == srcLen);
+                SUTL_SETUP_ASSERT(!!src);
+                SUTL_SETUP_ASSERT(src.Length() == srcLen);
             }
 
-            auto pSrc = src.m_pHead;
+            auto pSrc = src.m_FwdList.m_pHead;
             SUTL_TEST_ASSERT(dst.Assign(std::move(src)));
-            SUTL_TEST_ASSERT(dst.m_pHead == pSrc);
-            SUTL_TEST_ASSERT(dst.m_Len == srcLen);
-            SUTL_TEST_ASSERT(!src.m_pHead);
-            SUTL_TEST_ASSERT(src.m_Len == 0);
+            SUTL_TEST_ASSERT(dst.m_FwdList.m_pHead == pSrc);
+            SUTL_TEST_ASSERT(dst.Length() == srcLen);
+            SUTL_TEST_ASSERT(!src);
+            SUTL_TEST_ASSERT(src.Length() == 0);
 
             if constexpr (srcLen != 0)
             {
-                auto pDst = dst.m_pHead;
+                auto pDst = dst.m_FwdList.m_pHead;
                 for (size_t i = 0; i < srcLen; i++)
                 {
                     SUTL_TEST_ASSERT(!!pDst);
@@ -447,10 +445,10 @@ namespace CC
             }
             else
             {
-                SUTL_TEST_ASSERT(!dst.m_pHead);
-                SUTL_TEST_ASSERT(!src.m_pHead);
-                SUTL_TEST_ASSERT(dst.m_Len == 0);
-                SUTL_TEST_ASSERT(src.m_Len == 0);
+                SUTL_TEST_ASSERT(!dst);
+                SUTL_TEST_ASSERT(!src);
+                SUTL_TEST_ASSERT(dst.Length() == 0);
+                SUTL_TEST_ASSERT(src.Length() == 0);
             }
 
             SUTL_TEST_SUCCESS();
@@ -470,31 +468,31 @@ namespace CC
                 for (size_t i = 0; i < len; i++)
                 {
                     SUTL_SETUP_ASSERT(dst.Push(srcTestData[i]));
-                    SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                    SUTL_SETUP_ASSERT(dst.m_Len == i + 1);
-                    SUTL_SETUP_ASSERT(dst.m_pHead->data == srcTestData[i]);
+                    SUTL_SETUP_ASSERT(!!dst);
+                    SUTL_SETUP_ASSERT(dst.Length() == i + 1);
+                    SUTL_SETUP_ASSERT(dst.Top() == srcTestData[i]);
                 }
 
                 // Verify initial dst conditions.
-                SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                SUTL_SETUP_ASSERT(dst.m_Len == len);
+                SUTL_SETUP_ASSERT(!!dst);
+                SUTL_SETUP_ASSERT(dst.Length() == len);
             }
 
             // Save off current stack head.
-            auto pHead = dst.m_pHead;
+            auto pHead = dst.m_FwdList.m_pHead;
 
             // Assign the element.
             dst = testData;
-            SUTL_TEST_ASSERT(!!dst.m_pHead);
-            SUTL_TEST_ASSERT(dst.m_Len == 1);
-            SUTL_TEST_ASSERT(dst.m_pHead != pHead);
-            SUTL_TEST_ASSERT(dst.m_pHead->data == testData);
+            SUTL_TEST_ASSERT(!!dst);
+            SUTL_TEST_ASSERT(dst.Length() == 1);
+            SUTL_TEST_ASSERT(dst.m_FwdList.m_pHead != pHead);
+            SUTL_TEST_ASSERT(dst.Top() == testData);
 
             if constexpr (std::is_same_v<T, Helper>)
             {
                 // Ensure data was copied (not moved).
-                SUTL_TEST_ASSERT(dst.m_pHead->data.m_bCopied);
-                SUTL_TEST_ASSERT(!dst.m_pHead->data.m_bMoved);
+                SUTL_TEST_ASSERT(dst.Top().m_bCopied);
+                SUTL_TEST_ASSERT(!dst.Top().m_bMoved);
             }
 
             SUTL_TEST_SUCCESS();
@@ -514,31 +512,31 @@ namespace CC
                 for (size_t i = 0; i < len; i++)
                 {
                     SUTL_SETUP_ASSERT(dst.Push(srcTestData[i]));
-                    SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                    SUTL_SETUP_ASSERT(dst.m_Len == i + 1);
-                    SUTL_SETUP_ASSERT(dst.m_pHead->data == srcTestData[i]);
+                    SUTL_SETUP_ASSERT(!!dst);
+                    SUTL_SETUP_ASSERT(dst.Length() == i + 1);
+                    SUTL_SETUP_ASSERT(dst.Top() == srcTestData[i]);
                 }
 
                 // Verify initial dst conditions.
-                SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                SUTL_SETUP_ASSERT(dst.m_Len == len);
+                SUTL_SETUP_ASSERT(!!dst);
+                SUTL_SETUP_ASSERT(dst.Length() == len);
             }
 
             // Save off current stack head.
-            auto pHead = dst.m_pHead;
+            auto pHead = dst.m_FwdList.m_pHead;
 
             // Assign the element.
             dst = std::move(testData);
-            SUTL_TEST_ASSERT(!!dst.m_pHead);
-            SUTL_TEST_ASSERT(dst.m_Len == 1);
-            SUTL_TEST_ASSERT(dst.m_pHead != pHead);
-            SUTL_TEST_ASSERT(dst.m_pHead->data == testData);
+            SUTL_TEST_ASSERT(!!dst);
+            SUTL_TEST_ASSERT(dst.Length() == 1);
+            SUTL_TEST_ASSERT(dst.m_FwdList.m_pHead != pHead);
+            SUTL_TEST_ASSERT(dst.Top() == testData);
 
             if constexpr (std::is_same_v<T, Helper>)
             {
                 // Ensure data was copied (not moved).
-                SUTL_TEST_ASSERT(!dst.m_pHead->data.m_bCopied);
-                SUTL_TEST_ASSERT(dst.m_pHead->data.m_bMoved);
+                SUTL_TEST_ASSERT(!dst.Top().m_bCopied);
+                SUTL_TEST_ASSERT(dst.Top().m_bMoved);
             }
 
             SUTL_TEST_SUCCESS();
@@ -560,14 +558,14 @@ namespace CC
                 for (size_t i = 0; i < dstLen; i++)
                 {
                     SUTL_SETUP_ASSERT(dst.Push(dstTestData[i]));
-                    SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                    SUTL_SETUP_ASSERT(dst.m_Len == i + 1);
-                    SUTL_SETUP_ASSERT(dst.m_pHead->data == dstTestData[i]);
+                    SUTL_SETUP_ASSERT(!!dst);
+                    SUTL_SETUP_ASSERT(dst.Length() == i + 1);
+                    SUTL_SETUP_ASSERT(dst.Top() == dstTestData[i]);
                 }
 
                 // Verify initial dst conditions.
-                SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                SUTL_SETUP_ASSERT(dst.m_Len == dstLen);
+                SUTL_SETUP_ASSERT(!!dst);
+                SUTL_SETUP_ASSERT(dst.Length() == dstLen);
             }
 
             // Setup src stack.
@@ -576,23 +574,23 @@ namespace CC
                 for (size_t i = 0; i < srcLen; i++)
                 {
                     SUTL_SETUP_ASSERT(src.Push(srcTestData[i]));
-                    SUTL_SETUP_ASSERT(!!src.m_pHead);
-                    SUTL_SETUP_ASSERT(src.m_Len == i + 1);
-                    SUTL_SETUP_ASSERT(src.m_pHead->data == srcTestData[i]);
+                    SUTL_SETUP_ASSERT(!!src);
+                    SUTL_SETUP_ASSERT(src.Length() == i + 1);
+                    SUTL_SETUP_ASSERT(src.Top() == srcTestData[i]);
                 }
 
                 // Verify initial dst conditions.
-                SUTL_SETUP_ASSERT(!!src.m_pHead);
-                SUTL_SETUP_ASSERT(src.m_Len == srcLen);
+                SUTL_SETUP_ASSERT(!!src);
+                SUTL_SETUP_ASSERT(src.Length() == srcLen);
             }
 
             dst = src;
-            SUTL_TEST_ASSERT(dst.m_Len == src.m_Len);
+            SUTL_TEST_ASSERT(dst.Length() == src.Length());
 
             if constexpr (srcLen != 0)
             {
-                auto pDst = dst.m_pHead;
-                auto pSrc = src.m_pHead;
+                auto pDst = dst.m_FwdList.m_pHead;
+                auto pSrc = src.m_FwdList.m_pHead;
                 for (size_t i = 0; i < srcLen; i++)
                 {
                     SUTL_TEST_ASSERT(!!pDst);
@@ -606,10 +604,10 @@ namespace CC
             }
             else
             {
-                SUTL_TEST_ASSERT(!dst.m_pHead);
-                SUTL_TEST_ASSERT(!src.m_pHead);
-                SUTL_TEST_ASSERT(dst.m_Len == 0);
-                SUTL_TEST_ASSERT(src.m_Len == 0);
+                SUTL_TEST_ASSERT(!dst);
+                SUTL_TEST_ASSERT(!src);
+                SUTL_TEST_ASSERT(dst.Length() == 0);
+                SUTL_TEST_ASSERT(src.Length() == 0);
             }
 
             SUTL_TEST_SUCCESS();
@@ -631,14 +629,14 @@ namespace CC
                 for (size_t i = 0; i < dstLen; i++)
                 {
                     SUTL_SETUP_ASSERT(dst.Push(dstTestData[i]));
-                    SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                    SUTL_SETUP_ASSERT(dst.m_Len == i + 1);
-                    SUTL_SETUP_ASSERT(dst.m_pHead->data == dstTestData[i]);
+                    SUTL_SETUP_ASSERT(!!dst);
+                    SUTL_SETUP_ASSERT(dst.Length() == i + 1);
+                    SUTL_SETUP_ASSERT(dst.Top() == dstTestData[i]);
                 }
 
                 // Verify initial dst conditions.
-                SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                SUTL_SETUP_ASSERT(dst.m_Len == dstLen);
+                SUTL_SETUP_ASSERT(!!dst);
+                SUTL_SETUP_ASSERT(dst.Length() == dstLen);
             }
 
             // Setup src stack.
@@ -647,26 +645,26 @@ namespace CC
                 for (size_t i = 0; i < srcLen; i++)
                 {
                     SUTL_SETUP_ASSERT(src.Push(srcTestData[i]));
-                    SUTL_SETUP_ASSERT(!!src.m_pHead);
-                    SUTL_SETUP_ASSERT(src.m_Len == i + 1);
-                    SUTL_SETUP_ASSERT(src.m_pHead->data == srcTestData[i]);
+                    SUTL_SETUP_ASSERT(!!src);
+                    SUTL_SETUP_ASSERT(src.Length() == i + 1);
+                    SUTL_SETUP_ASSERT(src.Top() == srcTestData[i]);
                 }
 
                 // Verify initial dst conditions.
-                SUTL_SETUP_ASSERT(!!src.m_pHead);
-                SUTL_SETUP_ASSERT(src.m_Len == srcLen);
+                SUTL_SETUP_ASSERT(!!src);
+                SUTL_SETUP_ASSERT(src.Length() == srcLen);
             }
 
-            auto pSrc = src.m_pHead;
+            auto pSrc = src.m_FwdList.m_pHead;
             dst = std::move(src);
-            SUTL_TEST_ASSERT(dst.m_pHead == pSrc);
-            SUTL_TEST_ASSERT(dst.m_Len == srcLen);
-            SUTL_TEST_ASSERT(!src.m_pHead);
-            SUTL_TEST_ASSERT(src.m_Len == 0);
+            SUTL_TEST_ASSERT(dst.m_FwdList.m_pHead == pSrc);
+            SUTL_TEST_ASSERT(dst.Length() == srcLen);
+            SUTL_TEST_ASSERT(!src);
+            SUTL_TEST_ASSERT(src.Length() == 0);
 
             if constexpr (srcLen != 0)
             {
-                auto pDst = dst.m_pHead;
+                auto pDst = dst.m_FwdList.m_pHead;
                 for (size_t i = 0; i < srcLen; i++)
                 {
                     SUTL_TEST_ASSERT(!!pDst);
@@ -676,10 +674,10 @@ namespace CC
             }
             else
             {
-                SUTL_TEST_ASSERT(!dst.m_pHead);
-                SUTL_TEST_ASSERT(!src.m_pHead);
-                SUTL_TEST_ASSERT(dst.m_Len == 0);
-                SUTL_TEST_ASSERT(src.m_Len == 0);
+                SUTL_TEST_ASSERT(!dst);
+                SUTL_TEST_ASSERT(!src);
+                SUTL_TEST_ASSERT(dst.Length() == 0);
+                SUTL_TEST_ASSERT(src.Length() == 0);
             }
 
             SUTL_TEST_SUCCESS();
@@ -709,14 +707,14 @@ namespace CC
                 for (size_t i = 0; i < dstLen; i++)
                 {
                     SUTL_SETUP_ASSERT(dst.Push(dstTestData[i]));
-                    SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                    SUTL_SETUP_ASSERT(dst.m_Len == i + 1);
-                    SUTL_SETUP_ASSERT(dst.m_pHead->data == dstTestData[i]);
+                    SUTL_SETUP_ASSERT(!!dst);
+                    SUTL_SETUP_ASSERT(dst.Length() == i + 1);
+                    SUTL_SETUP_ASSERT(dst.Top() == dstTestData[i]);
                 }
 
                 // Verify initial dst conditions.
-                SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                SUTL_SETUP_ASSERT(dst.m_Len == dstLen);
+                SUTL_SETUP_ASSERT(!!dst);
+                SUTL_SETUP_ASSERT(dst.Length() == dstLen);
             }
 
             // Setup src stack.
@@ -725,14 +723,14 @@ namespace CC
                 for (size_t i = 0; i < srcLen; i++)
                 {
                     SUTL_SETUP_ASSERT(src.Push(srcTestData[i]));
-                    SUTL_SETUP_ASSERT(!!src.m_pHead);
-                    SUTL_SETUP_ASSERT(src.m_Len == i + 1);
-                    SUTL_SETUP_ASSERT(src.m_pHead->data == srcTestData[i]);
+                    SUTL_SETUP_ASSERT(!!src);
+                    SUTL_SETUP_ASSERT(src.Length() == i + 1);
+                    SUTL_SETUP_ASSERT(src.Top() == srcTestData[i]);
                 }
 
                 // Verify initial dst conditions.
-                SUTL_SETUP_ASSERT(!!src.m_pHead);
-                SUTL_SETUP_ASSERT(src.m_Len == srcLen);
+                SUTL_SETUP_ASSERT(!!src);
+                SUTL_SETUP_ASSERT(src.Length() == srcLen);
             }
 
             SUTL_TEST_ASSERT(dst.Compare(src) == bExpectMatch);
@@ -757,14 +755,14 @@ namespace CC
                 for (size_t i = 0; i < dstLen; i++)
                 {
                     SUTL_SETUP_ASSERT(dst.Push(dstTestData[i]));
-                    SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                    SUTL_SETUP_ASSERT(dst.m_Len == i + 1);
-                    SUTL_SETUP_ASSERT(dst.m_pHead->data == dstTestData[i]);
+                    SUTL_SETUP_ASSERT(!!dst);
+                    SUTL_SETUP_ASSERT(dst.Length() == i + 1);
+                    SUTL_SETUP_ASSERT(dst.Top() == dstTestData[i]);
                 }
 
                 // Verify initial dst conditions.
-                SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                SUTL_SETUP_ASSERT(dst.m_Len == dstLen);
+                SUTL_SETUP_ASSERT(!!dst);
+                SUTL_SETUP_ASSERT(dst.Length() == dstLen);
             }
 
             // Setup src stack.
@@ -773,14 +771,14 @@ namespace CC
                 for (size_t i = 0; i < srcLen; i++)
                 {
                     SUTL_SETUP_ASSERT(src.Push(srcTestData[i]));
-                    SUTL_SETUP_ASSERT(!!src.m_pHead);
-                    SUTL_SETUP_ASSERT(src.m_Len == i + 1);
-                    SUTL_SETUP_ASSERT(src.m_pHead->data == srcTestData[i]);
+                    SUTL_SETUP_ASSERT(!!src);
+                    SUTL_SETUP_ASSERT(src.Length() == i + 1);
+                    SUTL_SETUP_ASSERT(src.Top() == srcTestData[i]);
                 }
 
                 // Verify initial dst conditions.
-                SUTL_SETUP_ASSERT(!!src.m_pHead);
-                SUTL_SETUP_ASSERT(src.m_Len == srcLen);
+                SUTL_SETUP_ASSERT(!!src);
+                SUTL_SETUP_ASSERT(src.Length() == srcLen);
             }
 
             SUTL_TEST_ASSERT((dst == src) == bExpectMatch);
@@ -892,8 +890,8 @@ namespace CC
             }
             else
             {
-                SUTL_TEST_ASSERT(!dst.m_pHead);
-                SUTL_TEST_ASSERT(dst.m_Len == 0);
+                SUTL_TEST_ASSERT(!dst);
+                SUTL_TEST_ASSERT(dst.Length() == 0);
             }
 
             SUTL_TEST_SUCCESS();
@@ -913,27 +911,27 @@ namespace CC
                     SUTL_SETUP_ASSERT(dst.Push(testData[i]));
                 }
 
-                SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                SUTL_SETUP_ASSERT(dst.m_Len == len);
+                SUTL_SETUP_ASSERT(!!dst);
+                SUTL_SETUP_ASSERT(dst.Length() == len);
             }
 
             if constexpr (len != 0)
             {
                 for (size_t i = 0; i < len; i++)
                 {
-                    SUTL_TEST_ASSERT(!!dst.m_pHead);
-                    SUTL_TEST_ASSERT(dst.m_pHead->data == testData[len - i - 1]);
-                    SUTL_TEST_ASSERT(dst.m_Len == len - i);
+                    SUTL_TEST_ASSERT(!!dst);
+                    SUTL_TEST_ASSERT(dst.Top() == testData[len - i - 1]);
+                    SUTL_TEST_ASSERT(dst.Length() == len - i);
 
-                    auto pNext = dst.m_pHead->pNext;
+                    auto pNext = dst.m_FwdList.m_pHead->pNext;
                     SUTL_TEST_ASSERT(dst.Pop());
-                    SUTL_TEST_ASSERT(dst.m_pHead == pNext);
-                    SUTL_TEST_ASSERT(dst.m_Len == len - i - 1);
+                    SUTL_TEST_ASSERT(dst.m_FwdList.m_pHead == pNext);
+                    SUTL_TEST_ASSERT(dst.Length() == len - i - 1);
 
                     if (!!pNext)
                     {
                         SUTL_TEST_ASSERT(i < len - 1);
-                        SUTL_TEST_ASSERT(dst.m_pHead->data == testData[len - i - 2]);
+                        SUTL_TEST_ASSERT(dst.Top() == testData[len - i - 2]);
                     }
                     else
                     {
@@ -968,29 +966,29 @@ namespace CC
                     SUTL_SETUP_ASSERT(dst.Push(testData[i]));
                 }
 
-                SUTL_SETUP_ASSERT(!!dst.m_pHead);
-                SUTL_SETUP_ASSERT(dst.m_Len == len);
+                SUTL_SETUP_ASSERT(!!dst);
+                SUTL_SETUP_ASSERT(dst.Length() == len);
             }
 
             if constexpr (len != 0)
             {
                 for (size_t i = 0; i < len; i++)
                 {
-                    SUTL_TEST_ASSERT(!!dst.m_pHead);
-                    SUTL_TEST_ASSERT(dst.m_pHead->data == testData[len - i - 1]);
-                    SUTL_TEST_ASSERT(dst.m_Len == len - i);
+                    SUTL_TEST_ASSERT(!!dst);
+                    SUTL_TEST_ASSERT(dst.Top() == testData[len - i - 1]);
+                    SUTL_TEST_ASSERT(dst.Length() == len - i);
 
                     T tmp;
-                    auto pNext = dst.m_pHead->pNext;
+                    auto pNext = dst.m_FwdList.m_pHead->pNext;
                     SUTL_TEST_ASSERT(dst.Pop(tmp));
                     SUTL_TEST_ASSERT(tmp == testData[len - i - 1]);
-                    SUTL_TEST_ASSERT(dst.m_pHead == pNext);
-                    SUTL_TEST_ASSERT(dst.m_Len == len - i - 1);
+                    SUTL_TEST_ASSERT(dst.m_FwdList.m_pHead == pNext);
+                    SUTL_TEST_ASSERT(dst.Length() == len - i - 1);
 
                     if (!!pNext)
                     {
                         SUTL_TEST_ASSERT(i < len - 1);
-                        SUTL_TEST_ASSERT(dst.m_pHead->data == testData[len - i - 2]);
+                        SUTL_TEST_ASSERT(dst.Top() == testData[len - i - 2]);
                     }
                     else
                     {
@@ -1027,24 +1025,24 @@ namespace CC
                     for (size_t i = 0; i < len; i++)
                     {
                         SUTL_TEST_ASSERT(stack.Push(testData[i]));
-                        SUTL_TEST_ASSERT(stack.m_pHead->data == testData[i]);
+                        SUTL_TEST_ASSERT(stack.Top() == testData[i]);
                         if ((i % staggerThreshold) == 0)
                         {
                             staggerCount++;
                             SUTL_TEST_ASSERT(stack.Pop());
-                            if (!!stack.m_pHead)
+                            if (!!stack)
                             {
-                                SUTL_TEST_ASSERT(stack.m_pHead->data == testData[i - 1]);
-                                SUTL_TEST_ASSERT(stack.m_Len != 0);
+                                SUTL_TEST_ASSERT(stack.Top() == testData[i - 1]);
+                                SUTL_TEST_ASSERT(stack.Length() != 0);
                             }
                             else
                             {
-                                SUTL_TEST_ASSERT(stack.m_Len == 0);
+                                SUTL_TEST_ASSERT(stack.Length() == 0);
                                 SUTL_TEST_ASSERT(((i + 1) - staggerCount) == 0);
                             }
                         }
 
-                        SUTL_TEST_ASSERT(stack.m_Len == ((i + 1) - staggerCount));
+                        SUTL_TEST_ASSERT(stack.Length() == ((i + 1) - staggerCount));
                     }
 
                     for (size_t i = 0; i < len; i++)
@@ -1054,14 +1052,14 @@ namespace CC
                             continue;
                         }
 
-                        SUTL_TEST_ASSERT(!!stack.m_pHead);
-                        SUTL_TEST_ASSERT(stack.m_pHead->data == testData[len - i - 1]);
+                        SUTL_TEST_ASSERT(!!stack);
+                        SUTL_TEST_ASSERT(stack.Top() == testData[len - i - 1]);
                         SUTL_TEST_ASSERT(stack.Pop());
                     }
                 }
 
-                SUTL_TEST_ASSERT(!stack.m_pHead);
-                SUTL_TEST_ASSERT(stack.m_Len == 0);
+                SUTL_TEST_ASSERT(!stack);
+                SUTL_TEST_ASSERT(stack.Length() == 0);
             }
 
             SUTL_TEST_SUCCESS();
@@ -1084,7 +1082,7 @@ namespace CC
                     for (size_t i = 0; i < len; i++)
                     {
                         SUTL_TEST_ASSERT(stack.Push(testData[i]));
-                        SUTL_TEST_ASSERT(stack.m_pHead->data == testData[i]);
+                        SUTL_TEST_ASSERT(stack.Top() == testData[i]);
                         if ((i % staggerThreshold) == 0)
                         {
                             staggerCount++;
@@ -1096,19 +1094,19 @@ namespace CC
                                 SUTL_TEST_ASSERT(tmp.m_bMoved);
                             }
 
-                            if (!!stack.m_pHead)
+                            if (!!stack)
                             {
-                                SUTL_TEST_ASSERT(stack.m_pHead->data == testData[i - 1]);
-                                SUTL_TEST_ASSERT(stack.m_Len != 0);
+                                SUTL_TEST_ASSERT(stack.Top() == testData[i - 1]);
+                                SUTL_TEST_ASSERT(stack.Length() != 0);
                             }
                             else
                             {
-                                SUTL_TEST_ASSERT(stack.m_Len == 0);
+                                SUTL_TEST_ASSERT(stack.Length() == 0);
                                 SUTL_TEST_ASSERT(((i + 1) - staggerCount) == 0);
                             }
                         }
 
-                        SUTL_TEST_ASSERT(stack.m_Len == ((i + 1) - staggerCount));
+                        SUTL_TEST_ASSERT(stack.Length() == ((i + 1) - staggerCount));
                     }
 
                     for (size_t i = 0; i < len; i++)
@@ -1118,8 +1116,8 @@ namespace CC
                             continue;
                         }
 
-                        SUTL_TEST_ASSERT(!!stack.m_pHead);
-                        SUTL_TEST_ASSERT(stack.m_pHead->data == testData[len - i - 1]);
+                        SUTL_TEST_ASSERT(!!stack);
+                        SUTL_TEST_ASSERT(stack.Top() == testData[len - i - 1]);
                         SUTL_TEST_ASSERT(stack.Pop(tmp));
                         SUTL_TEST_ASSERT(tmp == testData[len - i - 1]);
                         if constexpr (std::is_same_v<T, Helper>)
@@ -1130,8 +1128,8 @@ namespace CC
                     }
                 }
 
-                SUTL_TEST_ASSERT(!stack.m_pHead);
-                SUTL_TEST_ASSERT(stack.m_Len == 0);
+                SUTL_TEST_ASSERT(!stack);
+                SUTL_TEST_ASSERT(stack.Length() == 0);
             }
 
             SUTL_TEST_SUCCESS();

@@ -167,7 +167,7 @@ namespace CC
         /// Public Destructor \\\
 
         // Destructor
-        virtual ~DynamicBuffer() noexcept(CC_IS_NOTHROW_DTOR(T)) = default;
+        virtual ~DynamicBuffer() noexcept(CC_IS_NOTHROW_DTOR(T)) { };
 
         /// Operator Overloads \\\
 

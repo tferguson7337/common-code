@@ -792,7 +792,6 @@ namespace CC
         bool PopBack() noexcept
         {
             DNode<T>* p = m_pTail;
-
             if (!p)
             {
                 // List must be empty - exit early.
@@ -819,6 +818,20 @@ namespace CC
             delete p;
 
             return true;
+        }
+
+        // Removes last element from list, moving element to argument.
+        // Returns true if element is removed, false otherwise (e.g., list is empty).
+        [[nodiscard]] _Success_(return) bool PopBack(_Out_ T& obj) noexcept(CC_IS_NOTHROW_MOVE(T))
+        {
+            if (IsEmpty())
+            {
+                // List is empty - bail out.
+                return false;
+            }
+
+            obj = std::move(m_pTail->data);
+            return PopBack();
         }
 
         // Removes first element from list.
@@ -854,6 +867,20 @@ namespace CC
             return true;
         }
 
+        // Removes first element from list, moving element to argument.
+        // Returns true if element is removed, false otherwise (e.g., list is empty).
+        [[nodiscard]] _Success_(return) bool PopFront(_Out_ T& obj) noexcept(CC_IS_NOTHROW_MOVE(T))
+        {
+            if (IsEmpty())
+            {
+                // List is empty - bail out.
+                return false;
+            }
+
+            obj = std::move(m_pHead->data);
+            return PopFront();
+        }
+
         // Removes specified element from list.
         // Note: If the list empty, then this does nothing.
         // Note: If the list is not empty and pos exceeds list length, then the last element is removed.
@@ -883,6 +910,46 @@ namespace CC
 
                 // Adjust length.
                 m_Len--;
+
+                // Free memory.
+                delete p;
+
+                return true;
+            }
+        }
+
+        // Removes specified element from list, moving the data to the obj argument.
+        // Note: If the list empty, then this does nothing.
+        // Note: If the list is not empty and pos exceeds list length, then the last element is removed.
+        [[nodiscard]] _Success_(return) bool RemoveAt(_In_ const size_t pos, _Out_ T& obj) noexcept(CC_IS_NOTHROW_MOVE(T))
+        {
+            if (IsEmpty())
+            {
+                return false;
+            }
+
+            if (pos == 0)
+            {
+                return PopFront(obj);
+            }
+            else if (pos >= (m_Len - 1))
+            {
+                return PopBack(obj);
+            }
+            else
+            {
+                // Get node to delete.
+                DNode<T>* p = GetNodeAtPosition(pos);
+
+                // Adjust pointers.
+                p->pPrev->pNext = p->pNext;
+                p->pNext->pPrev = p->pPrev;
+
+                // Adjust length.
+                m_Len--;
+
+                // Move data.
+                obj = std::move(p->data);
 
                 // Free memory.
                 delete p;

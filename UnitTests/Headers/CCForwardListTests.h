@@ -3202,6 +3202,61 @@ namespace CC
         }
 
         template <typename T, TestQuantity Len>
+        [[nodiscard]] static UTR PopFrontMove()
+        {
+            constexpr size_t len = GetTQLength<Len>();
+
+            ForwardList<T> dst;
+
+            if constexpr (len != 0)
+            {
+                const std::vector<T> testData(GetTestData<T, Len>());
+                for (size_t i = 0; i < len; i++)
+                {
+                    SUTL_SETUP_ASSERT(dst.Append(testData[i]));
+                }
+
+                SUTL_SETUP_ASSERT(!!dst.m_pHead);
+                SUTL_SETUP_ASSERT(!!dst.m_pTail);
+                SUTL_SETUP_ASSERT(dst.m_Len == len);
+
+                T obj;
+                for (size_t i = 0; i < len; i++)
+                {
+                    SUTL_TEST_ASSERT(dst.m_pHead->data == testData[i]);
+                    try
+                    {
+                        SUTL_TEST_ASSERT(dst.PopFront(obj));
+                    }
+                    catch (const std::exception& e)
+                    {
+                        SUTL_TEST_EXCEPTION(e.what());
+                    }
+
+                    SUTL_TEST_ASSERT(obj == testData[i]);
+                    if constexpr (std::is_same_v<T, Helper>)
+                    {
+                        SUTL_TEST_ASSERT(obj.m_bMoved);
+                    }
+                    SUTL_TEST_ASSERT(dst.m_Len == (len - i - 1));
+                }
+            }
+
+            try
+            {
+                T obj = T();
+                SUTL_TEST_ASSERT(!dst.PopFront(obj));
+                SUTL_TEST_ASSERT(obj == T());
+            }
+            catch (const std::exception& e)
+            {
+                SUTL_TEST_EXCEPTION(e.what());
+            }
+
+            SUTL_TEST_SUCCESS();
+        }
+
+        template <typename T, TestQuantity Len>
         [[nodiscard]] static UTR PopBack()
         {
             constexpr size_t len = GetTQLength<Len>();
@@ -3249,6 +3304,61 @@ namespace CC
         }
 
         template <typename T, TestQuantity Len>
+        [[nodiscard]] static UTR PopBackMove()
+        {
+            constexpr size_t len = GetTQLength<Len>();
+
+            ForwardList<T> dst;
+
+            if constexpr (len != 0)
+            {
+                const std::vector<T> testData(GetTestData<T, Len>());
+                for (size_t i = 0; i < len; i++)
+                {
+                    SUTL_SETUP_ASSERT(dst.Append(testData[i]));
+                }
+
+                SUTL_SETUP_ASSERT(!!dst.m_pHead);
+                SUTL_SETUP_ASSERT(!!dst.m_pTail);
+                SUTL_SETUP_ASSERT(dst.m_Len == len);
+
+                T obj;
+                for (size_t i = 0; i < len; i++)
+                {
+                    SUTL_TEST_ASSERT(dst.m_pTail->data == testData[len - i - 1]);
+                    try
+                    {
+                        SUTL_TEST_ASSERT(dst.PopBack(obj));
+                    }
+                    catch (const std::exception& e)
+                    {
+                        SUTL_TEST_EXCEPTION(e.what());
+                    }
+
+                    SUTL_TEST_ASSERT(obj == testData[len - i - 1]);
+                    if constexpr (std::is_same_v<T, Helper>)
+                    {
+                        SUTL_TEST_ASSERT(obj.m_bMoved);
+                    }
+                    SUTL_TEST_ASSERT(dst.m_Len == (len - i - 1));
+                }
+            }
+
+            try
+            {
+                T obj = T();
+                SUTL_TEST_ASSERT(!dst.PopBack(obj));
+                SUTL_TEST_ASSERT(obj == T());
+            }
+            catch (const std::exception& e)
+            {
+                SUTL_TEST_EXCEPTION(e.what());
+            }
+
+            SUTL_TEST_SUCCESS();
+        }
+
+        template <typename T, TestQuantity Len>
         [[nodiscard]] static UTR RemoveAt()
         {
             constexpr size_t len = GetTQLength<Len>();
@@ -3275,7 +3385,7 @@ namespace CC
                     std::advance(itr, pos);
 
                     testData.erase(itr);
-                    dst.RemoveAt(pos);
+                    SUTL_TEST_ASSERT(dst.RemoveAt(pos));
                     curLen--;
 
                     auto pDst = dst.m_pHead;
@@ -3291,7 +3401,70 @@ namespace CC
 
             try
             {
-                SUTL_TEST_ASSERT(!dst.PopBack());
+                SUTL_TEST_ASSERT(!dst.RemoveAt(0));
+            }
+            catch (const std::exception& e)
+            {
+                SUTL_TEST_EXCEPTION(e.what());
+            }
+
+            SUTL_TEST_SUCCESS();
+        }
+
+        template <typename T, TestQuantity Len>
+        [[nodiscard]] static UTR RemoveAtMove()
+        {
+            constexpr size_t len = GetTQLength<Len>();
+
+            ForwardList<T> dst;
+
+            if constexpr (len != 0)
+            {
+                std::vector<T> testData(GetTestData<T, Len>());
+                for (size_t i = 0; i < len; i++)
+                {
+                    SUTL_SETUP_ASSERT(dst.Append(testData[i]));
+                }
+
+                SUTL_SETUP_ASSERT(!!dst.m_pHead);
+                SUTL_SETUP_ASSERT(!!dst.m_pTail);
+                SUTL_SETUP_ASSERT(dst.m_Len == len);
+
+                T obj;
+                size_t curLen = len;
+                while (!testData.empty())
+                {
+                    const size_t pos = curLen / 2;
+                    auto itr = testData.cbegin();
+                    std::advance(itr, pos);
+                    T copy = *itr;
+                    testData.erase(itr);
+
+                    SUTL_TEST_ASSERT(dst.RemoveAt(pos, obj));
+                    SUTL_TEST_ASSERT(obj == copy);
+                    if constexpr (std::is_same_v<T, Helper>)
+                    {
+                        SUTL_TEST_ASSERT(obj.m_bMoved);
+                    }
+
+                    curLen--;
+
+                    auto pDst = dst.m_pHead;
+                    for (size_t i = 0; i < curLen; i++)
+                    {
+                        SUTL_TEST_ASSERT(testData[i] == pDst->data);
+                        pDst = pDst->pNext;
+                    }
+
+                    SUTL_TEST_ASSERT(!pDst);
+                }
+            }
+
+            try
+            {
+                T obj = T();
+                SUTL_TEST_ASSERT(!dst.RemoveAt(0, obj));
+                SUTL_TEST_ASSERT(obj == T());
             }
             catch (const std::exception& e)
             {
