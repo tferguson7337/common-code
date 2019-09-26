@@ -58,29 +58,25 @@ namespace CC
         [[nodiscard]] static UTList GetTests();
     };
 
-#define SETUP_QUEUE_WITH_TEST_DATA_VECTOR(_q_, _t_, _l_)                        \
-    if constexpr (_l_ != 0)                                                     \
-    {                                                                           \
-        for (size_t i = 0; i < _l_; i++)                                        \
-        {                                                                       \
-            SUTL_SETUP_ASSERT(_q_.Enqueue(_t_[i]));                             \
-            SUTL_SETUP_ASSERT(!!_q_.m_pHead);                                   \
-            SUTL_SETUP_ASSERT(!!_q_.m_pTail);                                   \
-            SUTL_SETUP_ASSERT(_q_.m_Len == i + 1);                              \
-            SUTL_SETUP_ASSERT((_q_.m_pHead == _q_.m_pTail) == (_q_.m_Len == 1));\
-            SUTL_SETUP_ASSERT(_q_.m_pHead->data == _t_[0]);                     \
-            SUTL_SETUP_ASSERT(_q_.m_pTail->data == _t_[i]);                     \
-        }                                                                       \
-                                                                                \
-        SUTL_SETUP_ASSERT(!!_q_.m_pHead);                                       \
-        SUTL_SETUP_ASSERT(!!_q_.m_pTail);                                       \
-        SUTL_SETUP_ASSERT(_q_.m_Len == _l_);                                    \
-    }                                                                           \
-    else                                                                        \
-    {                                                                           \
-        SUTL_SETUP_ASSERT(!_q_.m_pHead);                                        \
-        SUTL_SETUP_ASSERT(!_q_.m_pTail);                                        \
-        SUTL_SETUP_ASSERT(_q_.m_Len == 0);                                      \
+#define SETUP_QUEUE_WITH_TEST_DATA_VECTOR(_q_, _t_, _l_)\
+    if constexpr (_l_ != 0)                             \
+    {                                                   \
+        for (size_t i = 0; i < _l_; i++)                \
+        {                                               \
+            SUTL_SETUP_ASSERT(_q_.Enqueue(_t_[i]));     \
+            SUTL_SETUP_ASSERT(!!_q_);                   \
+            SUTL_SETUP_ASSERT(_q_.Length() == i + 1);   \
+            SUTL_SETUP_ASSERT(_q_.Front() == _t_[0]);   \
+            SUTL_SETUP_ASSERT(_q_.Back() == _t_[i]);    \
+        }                                               \
+                                                        \
+        SUTL_SETUP_ASSERT(!!_q_);                       \
+        SUTL_SETUP_ASSERT(_q_.Length() == _l_);         \
+    }                                                   \
+    else                                                \
+    {                                                   \
+        SUTL_SETUP_ASSERT(!_q_);                        \
+        SUTL_SETUP_ASSERT(_q_.Length() == 0);           \
     }
 
     // Test constructor behavior.
@@ -93,9 +89,8 @@ namespace CC
         {
             Queue<T> queue;
 
-            SUTL_TEST_ASSERT(!queue.m_pHead);
-            SUTL_TEST_ASSERT(!queue.m_pTail);
-            SUTL_TEST_ASSERT(queue.m_Len == 0);
+            SUTL_TEST_ASSERT(!queue);
+            SUTL_TEST_ASSERT(queue.Length() == 0);
 
             SUTL_TEST_SUCCESS();
         }
@@ -106,16 +101,14 @@ namespace CC
             const std::vector<T> testData(GetTestData<T, TestQuantity::VeryLow>());
             Queue<T> queue(testData.back());
 
-            SUTL_TEST_ASSERT(!!queue.m_pHead);
-            SUTL_TEST_ASSERT(!!queue.m_pTail);
-            SUTL_TEST_ASSERT(queue.m_pHead == queue.m_pTail);
-            SUTL_TEST_ASSERT(queue.m_Len == 1);
-            SUTL_TEST_ASSERT(!queue.m_pHead->pNext);
-            SUTL_TEST_ASSERT(queue.m_pHead->data == testData.back());
+            SUTL_TEST_ASSERT(!!queue);
+            SUTL_TEST_ASSERT(queue.Length() == 1);
+            SUTL_TEST_ASSERT(queue.Front() == testData.back());
+            SUTL_TEST_ASSERT(queue.Back() == testData.back());
             if constexpr (std::is_same_v<T, Helper>)
             {
-                SUTL_TEST_ASSERT(queue.m_pHead->data.m_bCopied);
-                SUTL_TEST_ASSERT(!queue.m_pHead->data.m_bMoved);
+                SUTL_TEST_ASSERT(queue.Front().m_bCopied);
+                SUTL_TEST_ASSERT(!queue.Front().m_bMoved);
             }
 
             SUTL_TEST_SUCCESS();
@@ -127,16 +120,14 @@ namespace CC
             std::vector<T> testData(GetTestData<T, TestQuantity::VeryLow>());
             Queue<T> queue(std::move(testData.back()));
 
-            SUTL_TEST_ASSERT(!!queue.m_pHead);
-            SUTL_TEST_ASSERT(!!queue.m_pTail);
-            SUTL_TEST_ASSERT(queue.m_pHead == queue.m_pTail);
-            SUTL_TEST_ASSERT(queue.m_Len == 1);
-            SUTL_TEST_ASSERT(!queue.m_pHead->pNext);
-            SUTL_TEST_ASSERT(queue.m_pHead->data == testData.back());
+            SUTL_TEST_ASSERT(!!queue);
+            SUTL_TEST_ASSERT(queue.Length() == 1);
+            SUTL_TEST_ASSERT(queue.Front() == testData.back());
+            SUTL_TEST_ASSERT(queue.Back() == testData.back());
             if constexpr (std::is_same_v<T, Helper>)
             {
-                SUTL_TEST_ASSERT(!queue.m_pHead->data.m_bCopied);
-                SUTL_TEST_ASSERT(queue.m_pHead->data.m_bMoved);
+                SUTL_TEST_ASSERT(!queue.Front().m_bCopied);
+                SUTL_TEST_ASSERT(queue.Front().m_bMoved);
             }
 
             SUTL_TEST_SUCCESS();
@@ -152,12 +143,12 @@ namespace CC
             SETUP_QUEUE_WITH_TEST_DATA_VECTOR(src, testData, srcLen);
 
             Queue<T> dst(src);
-            SUTL_TEST_ASSERT(dst.m_Len == src.m_Len);
+            SUTL_TEST_ASSERT(dst.Length() == src.Length());
 
             if constexpr (srcLen != 0)
             {
-                auto pDst = dst.m_pHead;
-                auto pSrc = src.m_pHead;
+                auto pDst = dst.m_FwdList.m_pHead;
+                auto pSrc = src.m_FwdList.m_pHead;
                 for (size_t i = 0; i < srcLen; i++)
                 {
                     SUTL_TEST_ASSERT(!!pDst);
@@ -168,8 +159,8 @@ namespace CC
 
                     if (i == srcLen - 1)
                     {
-                        SUTL_TEST_ASSERT(pDst == dst.m_pTail);
-                        SUTL_TEST_ASSERT(pSrc == src.m_pTail);
+                        SUTL_TEST_ASSERT(pDst == dst.m_FwdList.m_pTail);
+                        SUTL_TEST_ASSERT(pSrc == src.m_FwdList.m_pTail);
                     }
 
                     pDst = pDst->pNext;
@@ -178,12 +169,10 @@ namespace CC
             }
             else
             {
-                SUTL_TEST_ASSERT(!dst.m_pHead);
-                SUTL_TEST_ASSERT(!dst.m_pTail);
-                SUTL_TEST_ASSERT(!src.m_pHead);
-                SUTL_TEST_ASSERT(!src.m_pTail);
-                SUTL_TEST_ASSERT(dst.m_Len == 0);
-                SUTL_TEST_ASSERT(src.m_Len == 0);
+                SUTL_TEST_ASSERT(!dst);
+                SUTL_TEST_ASSERT(!src);
+                SUTL_TEST_ASSERT(dst.Length() == 0);
+                SUTL_TEST_ASSERT(src.Length() == 0);
             }
 
             SUTL_TEST_SUCCESS();
@@ -198,35 +187,33 @@ namespace CC
 
             SETUP_QUEUE_WITH_TEST_DATA_VECTOR(src, testData, srcLen);
 
-            auto pSrcHead = src.m_pHead;
-            auto pSrcTail = src.m_pTail;
+            auto pSrcHead = src.m_FwdList.m_pHead;
+            auto pSrcTail = src.m_FwdList.m_pTail;
             Queue<T> dst(std::move(src));
-            SUTL_TEST_ASSERT(dst.m_pHead == pSrcHead);
-            SUTL_TEST_ASSERT(dst.m_pTail == pSrcTail);
-            SUTL_TEST_ASSERT(dst.m_Len == srcLen);
-            SUTL_TEST_ASSERT(!src.m_pHead);
-            SUTL_TEST_ASSERT(!src.m_pTail);
-            SUTL_TEST_ASSERT(src.m_Len == 0);
+            SUTL_TEST_ASSERT(dst.m_FwdList.m_pHead == pSrcHead);
+            SUTL_TEST_ASSERT(dst.m_FwdList.m_pTail == pSrcTail);
+            SUTL_TEST_ASSERT(dst.Length() == srcLen);
+            SUTL_TEST_ASSERT(!src);
+            SUTL_TEST_ASSERT(src.Length() == 0);
 
             if constexpr (srcLen != 0)
             {
-                auto pDst = dst.m_pHead;
+                auto pDst = dst.m_FwdList.m_pHead;
                 for (size_t i = 0; i < srcLen; i++)
                 {
                     SUTL_TEST_ASSERT(!!pDst);
                     SUTL_TEST_ASSERT(pDst->data == testData[i]);
                     if (i == srcLen - 1)
                     {
-                        SUTL_TEST_ASSERT(pDst == dst.m_pTail);
+                        SUTL_TEST_ASSERT(pDst == dst.m_FwdList.m_pTail);
                     }
                     pDst = pDst->pNext;
                 }
             }
             else
             {
-                SUTL_TEST_ASSERT(!dst.m_pHead);
-                SUTL_TEST_ASSERT(!dst.m_pTail);
-                SUTL_TEST_ASSERT(dst.m_Len == 0);
+                SUTL_TEST_ASSERT(!dst);
+                SUTL_TEST_ASSERT(dst.Length() == 0);
             }
 
             SUTL_TEST_SUCCESS();
@@ -250,22 +237,21 @@ namespace CC
             SETUP_QUEUE_WITH_TEST_DATA_VECTOR(dst, dstTestData, len);
 
             // Save off current queue head.
-            auto pHead = dst.m_pHead;
+            auto pHead = dst.m_FwdList.m_pHead;
 
             // Assign the element.
             SUTL_TEST_ASSERT(dst.Assign(testData));
-            SUTL_TEST_ASSERT(!!dst.m_pHead);
-            SUTL_TEST_ASSERT(!!dst.m_pTail);
-            SUTL_TEST_ASSERT(dst.m_pHead == dst.m_pTail);
-            SUTL_TEST_ASSERT(dst.m_Len == 1);
-            SUTL_TEST_ASSERT(dst.m_pHead != pHead);
-            SUTL_TEST_ASSERT(dst.m_pHead->data == testData);
+            SUTL_TEST_ASSERT(!!dst);
+            SUTL_TEST_ASSERT(dst.Length() == 1);
+            SUTL_TEST_ASSERT(dst.m_FwdList.m_pHead != pHead);
+            SUTL_TEST_ASSERT(dst.Front() == testData);
+            SUTL_TEST_ASSERT(dst.Front() == dst.Back());
 
             if constexpr (std::is_same_v<T, Helper>)
             {
                 // Ensure data was copied (not moved).
-                SUTL_TEST_ASSERT(dst.m_pHead->data.m_bCopied);
-                SUTL_TEST_ASSERT(!dst.m_pHead->data.m_bMoved);
+                SUTL_TEST_ASSERT(dst.Front().m_bCopied);
+                SUTL_TEST_ASSERT(!dst.Front().m_bMoved);
             }
 
             SUTL_TEST_SUCCESS();
@@ -282,22 +268,21 @@ namespace CC
             SETUP_QUEUE_WITH_TEST_DATA_VECTOR(dst, dstTestData, len);
 
             // Save off current queue head.
-            auto pHead = dst.m_pHead;
+            auto pHead = dst.m_FwdList.m_pHead;
 
             // Assign the element.
             SUTL_TEST_ASSERT(dst.Assign(std::move(testData)));
-            SUTL_TEST_ASSERT(!!dst.m_pHead);
-            SUTL_TEST_ASSERT(!!dst.m_pTail);
-            SUTL_TEST_ASSERT(dst.m_pHead == dst.m_pTail);
-            SUTL_TEST_ASSERT(dst.m_Len == 1);
-            SUTL_TEST_ASSERT(dst.m_pHead != pHead);
-            SUTL_TEST_ASSERT(dst.m_pHead->data == testData);
+            SUTL_TEST_ASSERT(!!dst);
+            SUTL_TEST_ASSERT(dst.Length() == 1);
+            SUTL_TEST_ASSERT(dst.m_FwdList.m_pHead != pHead);
+            SUTL_TEST_ASSERT(dst.Front() == testData);
+            SUTL_TEST_ASSERT(dst.Front() == dst.Back());
 
             if constexpr (std::is_same_v<T, Helper>)
             {
                 // Ensure data was copied (not moved).
-                SUTL_TEST_ASSERT(!dst.m_pHead->data.m_bCopied);
-                SUTL_TEST_ASSERT(dst.m_pHead->data.m_bMoved);
+                SUTL_TEST_ASSERT(!dst.Front().m_bCopied);
+                SUTL_TEST_ASSERT(dst.Front().m_bMoved);
             }
 
             SUTL_TEST_SUCCESS();
@@ -317,12 +302,12 @@ namespace CC
             SETUP_QUEUE_WITH_TEST_DATA_VECTOR(src, srcTestData, srcLen);
 
             SUTL_TEST_ASSERT(dst.Assign(src));
-            SUTL_TEST_ASSERT(dst.m_Len == src.m_Len);
+            SUTL_TEST_ASSERT(dst.Length() == src.Length());
 
             if constexpr (srcLen != 0)
             {
-                auto pDst = dst.m_pHead;
-                auto pSrc = src.m_pHead;
+                auto pDst = dst.m_FwdList.m_pHead;
+                auto pSrc = src.m_FwdList.m_pHead;
                 for (size_t i = 0; i < srcLen; i++)
                 {
                     SUTL_TEST_ASSERT(!!pDst);
@@ -333,8 +318,8 @@ namespace CC
 
                     if (i == srcLen - 1)
                     {
-                        SUTL_TEST_ASSERT(pDst == dst.m_pTail);
-                        SUTL_TEST_ASSERT(pSrc == src.m_pTail);
+                        SUTL_TEST_ASSERT(pDst == dst.m_FwdList.m_pTail);
+                        SUTL_TEST_ASSERT(pSrc == src.m_FwdList.m_pTail);
                     }
 
                     pDst = pDst->pNext;
@@ -343,12 +328,10 @@ namespace CC
             }
             else
             {
-                SUTL_TEST_ASSERT(!dst.m_pHead);
-                SUTL_TEST_ASSERT(!dst.m_pTail);
-                SUTL_TEST_ASSERT(!src.m_pHead);
-                SUTL_TEST_ASSERT(!src.m_pTail);
-                SUTL_TEST_ASSERT(dst.m_Len == 0);
-                SUTL_TEST_ASSERT(src.m_Len == 0);
+                SUTL_TEST_ASSERT(!dst);
+                SUTL_TEST_ASSERT(!src);
+                SUTL_TEST_ASSERT(dst.Length() == 0);
+                SUTL_TEST_ASSERT(src.Length() == 0);
             }
 
             SUTL_TEST_SUCCESS();
@@ -367,23 +350,23 @@ namespace CC
             SETUP_QUEUE_WITH_TEST_DATA_VECTOR(dst, dstTestData, dstLen);
             SETUP_QUEUE_WITH_TEST_DATA_VECTOR(src, srcTestData, srcLen);
 
-            auto pSrc = src.m_pHead;
+            auto pSrc = src.m_FwdList.m_pHead;
             SUTL_TEST_ASSERT(dst.Assign(std::move(src)));
-            SUTL_TEST_ASSERT(dst.m_pHead == pSrc);
-            SUTL_TEST_ASSERT(dst.m_Len == srcLen);
-            SUTL_TEST_ASSERT(!src.m_pHead);
-            SUTL_TEST_ASSERT(src.m_Len == 0);
+            SUTL_TEST_ASSERT(dst.m_FwdList.m_pHead == pSrc);
+            SUTL_TEST_ASSERT(dst.Length() == srcLen);
+            SUTL_TEST_ASSERT(!src);
+            SUTL_TEST_ASSERT(src.Length() == 0);
 
             if constexpr (srcLen != 0)
             {
-                auto pDst = dst.m_pHead;
+                auto pDst = dst.m_FwdList.m_pHead;
                 for (size_t i = 0; i < srcLen; i++)
                 {
                     SUTL_TEST_ASSERT(!!pDst);
                     SUTL_TEST_ASSERT(pDst->data == srcTestData[i]);
                     if (i == srcLen - 1)
                     {
-                        SUTL_TEST_ASSERT(pDst == dst.m_pTail);
+                        SUTL_TEST_ASSERT(pDst == dst.m_FwdList.m_pTail);
                     }
 
                     pDst = pDst->pNext;
@@ -391,12 +374,10 @@ namespace CC
             }
             else
             {
-                SUTL_TEST_ASSERT(!dst.m_pHead);
-                SUTL_TEST_ASSERT(!dst.m_pTail);
-                SUTL_TEST_ASSERT(!src.m_pHead);
-                SUTL_TEST_ASSERT(!src.m_pTail);
-                SUTL_TEST_ASSERT(dst.m_Len == 0);
-                SUTL_TEST_ASSERT(src.m_Len == 0);
+                SUTL_TEST_ASSERT(!dst);
+                SUTL_TEST_ASSERT(!src);
+                SUTL_TEST_ASSERT(dst.Length() == 0);
+                SUTL_TEST_ASSERT(src.Length() == 0);
             }
 
             SUTL_TEST_SUCCESS();
@@ -413,22 +394,21 @@ namespace CC
             SETUP_QUEUE_WITH_TEST_DATA_VECTOR(dst, srcTestData, len);
 
             // Save off current queue head.
-            auto pHead = dst.m_pHead;
+            auto pHead = dst.m_FwdList.m_pHead;
 
             // Assign the element.
             dst = testData;
-            SUTL_TEST_ASSERT(!!dst.m_pHead);
-            SUTL_TEST_ASSERT(!!dst.m_pTail);
-            SUTL_TEST_ASSERT(dst.m_pHead == dst.m_pTail);
-            SUTL_TEST_ASSERT(dst.m_Len == 1);
-            SUTL_TEST_ASSERT(dst.m_pHead != pHead);
-            SUTL_TEST_ASSERT(dst.m_pHead->data == testData);
+            SUTL_TEST_ASSERT(!!dst);
+            SUTL_TEST_ASSERT(dst.Length() == 1);
+            SUTL_TEST_ASSERT(dst.m_FwdList.m_pHead != pHead);
+            SUTL_TEST_ASSERT(dst.Front() == testData);
+            SUTL_TEST_ASSERT(dst.Front() == dst.Back());
 
             if constexpr (std::is_same_v<T, Helper>)
             {
                 // Ensure data was copied (not moved).
-                SUTL_TEST_ASSERT(dst.m_pHead->data.m_bCopied);
-                SUTL_TEST_ASSERT(!dst.m_pHead->data.m_bMoved);
+                SUTL_TEST_ASSERT(dst.Front().m_bCopied);
+                SUTL_TEST_ASSERT(!dst.Front().m_bMoved);
             }
 
             SUTL_TEST_SUCCESS();
@@ -445,22 +425,21 @@ namespace CC
             SETUP_QUEUE_WITH_TEST_DATA_VECTOR(dst, srcTestData, len);
 
             // Save off current queue head.
-            auto pHead = dst.m_pHead;
+            auto pHead = dst.m_FwdList.m_pHead;
 
             // Assign the element.
             dst = std::move(testData);
-            SUTL_TEST_ASSERT(!!dst.m_pHead);
-            SUTL_TEST_ASSERT(!!dst.m_pTail);
-            SUTL_TEST_ASSERT(dst.m_pHead == dst.m_pTail);
-            SUTL_TEST_ASSERT(dst.m_Len == 1);
-            SUTL_TEST_ASSERT(dst.m_pHead != pHead);
-            SUTL_TEST_ASSERT(dst.m_pHead->data == testData);
+            SUTL_TEST_ASSERT(!!dst);
+            SUTL_TEST_ASSERT(dst.Length() == 1);
+            SUTL_TEST_ASSERT(dst.m_FwdList.m_pHead != pHead);
+            SUTL_TEST_ASSERT(dst.Front() == testData);
+            SUTL_TEST_ASSERT(dst.Front() == dst.Back());
 
             if constexpr (std::is_same_v<T, Helper>)
             {
                 // Ensure data was copied (not moved).
-                SUTL_TEST_ASSERT(!dst.m_pHead->data.m_bCopied);
-                SUTL_TEST_ASSERT(dst.m_pHead->data.m_bMoved);
+                SUTL_TEST_ASSERT(!dst.Front().m_bCopied);
+                SUTL_TEST_ASSERT(dst.Front().m_bMoved);
             }
 
             SUTL_TEST_SUCCESS();
@@ -480,12 +459,12 @@ namespace CC
             SETUP_QUEUE_WITH_TEST_DATA_VECTOR(src, srcTestData, srcLen);
 
             dst = src;
-            SUTL_TEST_ASSERT(dst.m_Len == src.m_Len);
+            SUTL_TEST_ASSERT(dst.Length() == src.Length());
 
             if constexpr (srcLen != 0)
             {
-                auto pDst = dst.m_pHead;
-                auto pSrc = src.m_pHead;
+                auto pDst = dst.m_FwdList.m_pHead;
+                auto pSrc = src.m_FwdList.m_pHead;
                 for (size_t i = 0; i < srcLen; i++)
                 {
                     SUTL_TEST_ASSERT(!!pDst);
@@ -496,8 +475,8 @@ namespace CC
 
                     if (i == srcLen - 1)
                     {
-                        SUTL_TEST_ASSERT(pDst == dst.m_pTail);
-                        SUTL_TEST_ASSERT(pSrc == src.m_pTail);
+                        SUTL_TEST_ASSERT(pDst == dst.m_FwdList.m_pTail);
+                        SUTL_TEST_ASSERT(pSrc == src.m_FwdList.m_pTail);
                     }
 
                     pDst = pDst->pNext;
@@ -506,10 +485,10 @@ namespace CC
             }
             else
             {
-                SUTL_TEST_ASSERT(!dst.m_pHead);
-                SUTL_TEST_ASSERT(!src.m_pHead);
-                SUTL_TEST_ASSERT(dst.m_Len == 0);
-                SUTL_TEST_ASSERT(src.m_Len == 0);
+                SUTL_TEST_ASSERT(!dst);
+                SUTL_TEST_ASSERT(!src);
+                SUTL_TEST_ASSERT(dst.Length() == 0);
+                SUTL_TEST_ASSERT(src.Length() == 0);
             }
 
             SUTL_TEST_SUCCESS();
@@ -528,26 +507,25 @@ namespace CC
             SETUP_QUEUE_WITH_TEST_DATA_VECTOR(dst, dstTestData, dstLen);
             SETUP_QUEUE_WITH_TEST_DATA_VECTOR(src, srcTestData, srcLen);
 
-            auto pSrcHead = src.m_pHead;
-            auto pSrcTail = src.m_pTail;
+            auto pSrcHead = src.m_FwdList.m_pHead;
+            auto pSrcTail = src.m_FwdList.m_pTail;
             dst = std::move(src);
-            SUTL_TEST_ASSERT(dst.m_pHead == pSrcHead);
-            SUTL_TEST_ASSERT(dst.m_pTail == pSrcTail);
-            SUTL_TEST_ASSERT(dst.m_Len == srcLen);
-            SUTL_TEST_ASSERT(!src.m_pHead);
-            SUTL_TEST_ASSERT(!src.m_pTail);
-            SUTL_TEST_ASSERT(src.m_Len == 0);
+            SUTL_TEST_ASSERT(dst.m_FwdList.m_pHead == pSrcHead);
+            SUTL_TEST_ASSERT(dst.m_FwdList.m_pTail == pSrcTail);
+            SUTL_TEST_ASSERT(dst.Length() == srcLen);
+            SUTL_TEST_ASSERT(!src);
+            SUTL_TEST_ASSERT(src.Length() == 0);
 
             if constexpr (srcLen != 0)
             {
-                auto pDst = dst.m_pHead;
+                auto pDst = dst.m_FwdList.m_pHead;
                 for (size_t i = 0; i < srcLen; i++)
                 {
                     SUTL_TEST_ASSERT(!!pDst);
                     SUTL_TEST_ASSERT(pDst->data == srcTestData[i]);
                     if (i == srcLen - 1)
                     {
-                        SUTL_TEST_ASSERT(pDst == dst.m_pTail);
+                        SUTL_TEST_ASSERT(pDst == dst.m_FwdList.m_pTail);
                     }
 
                     pDst = pDst->pNext;
@@ -555,12 +533,10 @@ namespace CC
             }
             else
             {
-                SUTL_TEST_ASSERT(!dst.m_pHead);
-                SUTL_TEST_ASSERT(!dst.m_pTail);
-                SUTL_TEST_ASSERT(!src.m_pHead);
-                SUTL_TEST_ASSERT(!src.m_pTail);
-                SUTL_TEST_ASSERT(dst.m_Len == 0);
-                SUTL_TEST_ASSERT(src.m_Len == 0);
+                SUTL_TEST_ASSERT(!dst);
+                SUTL_TEST_ASSERT(!src);
+                SUTL_TEST_ASSERT(dst.Length() == 0);
+                SUTL_TEST_ASSERT(src.Length() == 0);
             }
 
             SUTL_TEST_SUCCESS();
@@ -748,19 +724,16 @@ namespace CC
                 for (size_t i = 0; i < len; i++)
                 {
                     SUTL_SETUP_ASSERT(dst.Enqueue(testData[i]));
-                    SUTL_TEST_ASSERT(dst.m_Len == (i + 1));
-                    SUTL_TEST_ASSERT(!!dst.m_pHead);
-                    SUTL_TEST_ASSERT(!!dst.m_pTail);
-                    SUTL_TEST_ASSERT((dst.m_pHead == dst.m_pTail) == (dst.m_Len == 1));
-                    SUTL_TEST_ASSERT(dst.m_pHead->data == testData[0]);
-                    SUTL_TEST_ASSERT(dst.m_pTail->data == testData[i]);
+                    SUTL_TEST_ASSERT(dst.Length() == (i + 1));
+                    SUTL_TEST_ASSERT(!!dst);
+                    SUTL_TEST_ASSERT(dst.Front() == testData[0]);
+                    SUTL_TEST_ASSERT(dst.Back() == testData[i]);
                 }
             }
             else
             {
-                SUTL_TEST_ASSERT(!dst.m_pHead);
-                SUTL_TEST_ASSERT(!dst.m_pTail);
-                SUTL_TEST_ASSERT(dst.m_Len == 0);
+                SUTL_TEST_ASSERT(!dst);
+                SUTL_TEST_ASSERT(dst.Length() == 0);
             }
 
             SUTL_TEST_SUCCESS();
@@ -779,21 +752,21 @@ namespace CC
             {
                 for (size_t i = 0; i < len; i++)
                 {
-                    SUTL_TEST_ASSERT(!!dst.m_pHead);
-                    SUTL_TEST_ASSERT(dst.m_pHead->data == testData[i]);
-                    SUTL_TEST_ASSERT(dst.m_pTail->data == testData[len - 1]);
-                    SUTL_TEST_ASSERT(dst.m_Len == len - i);
+                    SUTL_TEST_ASSERT(!!dst);
+                    SUTL_TEST_ASSERT(dst.Front() == testData[i]);
+                    SUTL_TEST_ASSERT(dst.Back() == testData[len - 1]);
+                    SUTL_TEST_ASSERT(dst.Length() == len - i);
 
-                    auto pNext = dst.m_pHead->pNext;
+                    auto pNext = dst.m_FwdList.m_pHead->pNext;
                     SUTL_TEST_ASSERT(dst.Dequeue());
-                    SUTL_TEST_ASSERT(dst.m_pHead == pNext);
-                    SUTL_TEST_ASSERT(dst.m_Len == len - i - 1);
+                    SUTL_TEST_ASSERT(dst.m_FwdList.m_pHead == pNext);
+                    SUTL_TEST_ASSERT(dst.Length() == len - i - 1);
 
                     if (!!pNext)
                     {
                         SUTL_TEST_ASSERT(i < len - 1);
-                        SUTL_TEST_ASSERT(dst.m_pHead->data == testData[i + 1]);
-                        SUTL_TEST_ASSERT(dst.m_pTail->data == testData[len - 1]);
+                        SUTL_TEST_ASSERT(dst.Front() == testData[i + 1]);
+                        SUTL_TEST_ASSERT(dst.Back() == testData[len - 1]);
                     }
                     else
                     {
@@ -811,15 +784,14 @@ namespace CC
                 SUTL_TEST_EXCEPTION(e.what());
             }
 
-            SUTL_TEST_ASSERT(!dst.m_pHead);
-            SUTL_TEST_ASSERT(!dst.m_pTail);
-            SUTL_TEST_ASSERT(dst.m_Len == 0);
+            SUTL_TEST_ASSERT(!dst);
+            SUTL_TEST_ASSERT(dst.Length() == 0);
 
             SUTL_TEST_SUCCESS();
         }
 
         template <typename T, TestQuantity Len>
-        [[nodiscard]] static UTR DequeueAndCopy()
+        [[nodiscard]] static UTR DequeueAndMove()
         {
             constexpr size_t len = GetTQLength<Len>();
             const std::vector<T> testData(GetTestData<T, Len>());
@@ -831,23 +803,27 @@ namespace CC
             {
                 for (size_t i = 0; i < len; i++)
                 {
-                    SUTL_TEST_ASSERT(!!dst.m_pHead);
-                    SUTL_TEST_ASSERT(dst.m_pHead->data == testData[i]);
-                    SUTL_TEST_ASSERT(dst.m_pTail->data == testData[len - 1]);
-                    SUTL_TEST_ASSERT(dst.m_Len == len - i);
+                    SUTL_TEST_ASSERT(!!dst);
+                    SUTL_TEST_ASSERT(dst.Front() == testData[i]);
+                    SUTL_TEST_ASSERT(dst.Back() == testData[len - 1]);
+                    SUTL_TEST_ASSERT(dst.Length() == len - i);
 
                     T tmp;
-                    auto pNext = dst.m_pHead->pNext;
+                    auto pNext = dst.m_FwdList.m_pHead->pNext;
                     SUTL_TEST_ASSERT(dst.Dequeue(tmp));
                     SUTL_TEST_ASSERT(tmp == testData[i]);
-                    SUTL_TEST_ASSERT(dst.m_pHead == pNext);
-                    SUTL_TEST_ASSERT(dst.m_Len == len - i - 1);
+                    if constexpr (std::is_same_v<T, Helper>)
+                    {
+                        SUTL_TEST_ASSERT(tmp.m_bMoved);
+                    }
+                    SUTL_TEST_ASSERT(dst.m_FwdList.m_pHead == pNext);
+                    SUTL_TEST_ASSERT(dst.Length() == len - i - 1);
 
                     if (!!pNext)
                     {
                         SUTL_TEST_ASSERT(i < len - 1);
-                        SUTL_TEST_ASSERT(dst.m_pHead->data == testData[i + 1]);
-                        SUTL_TEST_ASSERT(dst.m_pTail->data == testData[len - 1]);
+                        SUTL_TEST_ASSERT(dst.Front() == testData[i + 1]);
+                        SUTL_TEST_ASSERT(dst.Back() == testData[len - 1]);
                     }
                     else
                     {
@@ -865,9 +841,8 @@ namespace CC
                 SUTL_TEST_EXCEPTION(e.what());
             }
 
-            SUTL_TEST_ASSERT(!dst.m_pHead);
-            SUTL_TEST_ASSERT(!dst.m_pTail);
-            SUTL_TEST_ASSERT(dst.m_Len == 0);
+            SUTL_TEST_ASSERT(!dst);
+            SUTL_TEST_ASSERT(dst.Length() == 0);
 
             SUTL_TEST_SUCCESS();
         }
@@ -888,46 +863,45 @@ namespace CC
                     for (size_t i = 0; i < len; i++)
                     {
                         SUTL_TEST_ASSERT(queue.Enqueue(testData[i]));
-                        SUTL_TEST_ASSERT(queue.m_pHead->data == testData[staggerCount]);
-                        SUTL_TEST_ASSERT(queue.m_pTail->data == testData[i]);
+                        SUTL_TEST_ASSERT(queue.Front() == testData[staggerCount]);
+                        SUTL_TEST_ASSERT(queue.Back() == testData[i]);
                         if ((i % staggerThreshold) == 0)
                         {
                             staggerCount++;
                             SUTL_TEST_ASSERT(queue.Dequeue());
-                            if (!!queue.m_pHead)
+                            if (!!queue)
                             {
-                                SUTL_TEST_ASSERT(queue.m_pHead->data == testData[staggerCount]);
-                                SUTL_TEST_ASSERT(queue.m_pTail->data == testData[i]);
-                                SUTL_TEST_ASSERT(queue.m_Len != 0);
+                                SUTL_TEST_ASSERT(queue.Front() == testData[staggerCount]);
+                                SUTL_TEST_ASSERT(queue.Back() == testData[i]);
+                                SUTL_TEST_ASSERT(queue.Length() != 0);
                             }
                             else
                             {
-                                SUTL_TEST_ASSERT(queue.m_Len == 0);
+                                SUTL_TEST_ASSERT(queue.Length() == 0);
                                 SUTL_TEST_ASSERT(((i + 1) - staggerCount) == 0);
                             }
                         }
 
-                        SUTL_TEST_ASSERT(queue.m_Len == ((i + 1) - staggerCount));
+                        SUTL_TEST_ASSERT(queue.Length() == ((i + 1) - staggerCount));
                     }
 
                     for (size_t i = staggerCount; i < len; i++)
                     {
-                        SUTL_TEST_ASSERT(!!queue.m_pHead);
-                        SUTL_TEST_ASSERT(queue.m_pHead->data == testData[i]);
+                        SUTL_TEST_ASSERT(!!queue);
+                        SUTL_TEST_ASSERT(queue.Front() == testData[i]);
                         SUTL_TEST_ASSERT(queue.Dequeue());
                     }
                 }
 
-                SUTL_TEST_ASSERT(!queue.m_pHead);
-                SUTL_TEST_ASSERT(!queue.m_pTail);
-                SUTL_TEST_ASSERT(queue.m_Len == 0);
+                SUTL_TEST_ASSERT(!queue);
+                SUTL_TEST_ASSERT(queue.Length() == 0);
             }
 
             SUTL_TEST_SUCCESS();
         }
 
         template <typename T, TestQuantity Len>
-        [[nodiscard]] static UTR EnqueueDequeueAndCopyStagger()
+        [[nodiscard]] static UTR EnqueueDequeueAndMoveStagger()
         {
             constexpr size_t len = GetTQLength<Len>();
             const std::vector<T> testData(GetTestData<T, Len>());
@@ -943,8 +917,8 @@ namespace CC
                     for (size_t i = 0; i < len; i++)
                     {
                         SUTL_TEST_ASSERT(queue.Enqueue(testData[i]));
-                        SUTL_TEST_ASSERT(queue.m_pHead->data == testData[staggerCount]);
-                        SUTL_TEST_ASSERT(queue.m_pTail->data == testData[i]);
+                        SUTL_TEST_ASSERT(queue.Front() == testData[staggerCount]);
+                        SUTL_TEST_ASSERT(queue.Back() == testData[i]);
                         if ((i % staggerThreshold) == 0)
                         {
                             staggerCount++;
@@ -956,26 +930,26 @@ namespace CC
                                 SUTL_TEST_ASSERT(tmp.m_bMoved);
                             }
 
-                            if (!!queue.m_pHead)
+                            if (!!queue)
                             {
-                                SUTL_TEST_ASSERT(queue.m_pHead->data == testData[staggerCount]);
-                                SUTL_TEST_ASSERT(queue.m_pTail->data == testData[i]);
-                                SUTL_TEST_ASSERT(queue.m_Len != 0);
+                                SUTL_TEST_ASSERT(queue.Front() == testData[staggerCount]);
+                                SUTL_TEST_ASSERT(queue.Back() == testData[i]);
+                                SUTL_TEST_ASSERT(queue.Length() != 0);
                             }
                             else
                             {
-                                SUTL_TEST_ASSERT(queue.m_Len == 0);
+                                SUTL_TEST_ASSERT(queue.Length() == 0);
                                 SUTL_TEST_ASSERT(((i + 1) - staggerCount) == 0);
                             }
                         }
 
-                        SUTL_TEST_ASSERT(queue.m_Len == ((i + 1) - staggerCount));
+                        SUTL_TEST_ASSERT(queue.Length() == ((i + 1) - staggerCount));
                     }
 
                     for (size_t i = staggerCount; i < len; i++)
                     {
-                        SUTL_TEST_ASSERT(!!queue.m_pHead);
-                        SUTL_TEST_ASSERT(queue.m_pHead->data == testData[i]);
+                        SUTL_TEST_ASSERT(!!queue);
+                        SUTL_TEST_ASSERT(queue.Front() == testData[i]);
                         SUTL_TEST_ASSERT(queue.Dequeue(tmp));
                         SUTL_TEST_ASSERT(tmp == testData[i]);
                         if constexpr (std::is_same_v<T, Helper>)
@@ -986,9 +960,8 @@ namespace CC
                     }
                 }
 
-                SUTL_TEST_ASSERT(!queue.m_pHead);
-                SUTL_TEST_ASSERT(!queue.m_pTail);
-                SUTL_TEST_ASSERT(queue.m_Len == 0);
+                SUTL_TEST_ASSERT(!queue);
+                SUTL_TEST_ASSERT(queue.Length() == 0);
             }
 
             SUTL_TEST_SUCCESS();

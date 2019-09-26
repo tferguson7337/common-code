@@ -953,7 +953,7 @@ namespace CC
         }
 
         template <typename T, TestQuantity Len>
-        [[nodiscard]] static UTR PopAndCopy()
+        [[nodiscard]] static UTR PopAndMove()
         {
             constexpr size_t len = GetTQLength<Len>();
             const std::vector<T> testData(GetTestData<T, Len>());
@@ -1066,7 +1066,7 @@ namespace CC
         }
 
         template <typename T, TestQuantity Len>
-        [[nodiscard]] static UTR PushPopAndCopyStagger()
+        [[nodiscard]] static UTR PushPopAndMoveStagger()
         {
             constexpr size_t len = GetTQLength<Len>();
             const std::vector<T> testData(GetTestData<T, Len>());

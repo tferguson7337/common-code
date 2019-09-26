@@ -96,7 +96,7 @@ namespace CC
         // Returns true if stack is not empty, false otherwise.
         [[nodiscard]] explicit operator bool() const noexcept
         {
-            return !IsEmpty();
+            return !!m_FwdList;
         }
 
         // Compares this stack's elements against rhs' stack elements.
@@ -152,7 +152,7 @@ namespace CC
             }
             else
             {
-                static_assert(false, __FUNCSIG__ ": Unsupported template type.");
+                static_assert(false, __FUNCSIG__ ": Unsupported assign type.");
             }
         }
 

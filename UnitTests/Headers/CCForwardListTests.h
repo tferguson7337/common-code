@@ -37,7 +37,7 @@ namespace CC
 
         /// Tests Subclasses \\\
 
-                // Tests constructor behavior.
+        // Tests constructor behavior.
         class ConstructorTests;
 
         // Tests assignment methods.

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <CCMacros.h>
-#include <CCPointerHelper.h>
+#include <CCForwardList.h>
 
 namespace CC
 {
@@ -29,198 +29,16 @@ namespace CC
 
     private:
 
-        /// Helper Struct - Singly-Linked List Node \\\
-
-        template <typename T>
-        struct Node
-        {
-            T data;
-            Node<T>* pNext;
-
-            // Default constructor.
-            Node() noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T)) :
-                data(T()),
-                pNext(nullptr)
-            { }
-
-            // Constructor, targeted universal forwarder.
-            template <typename U, CC_ENABLE_IF_ELEMENT(T, U)>
-            Node(_In_ U&& obj) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T)) :
-                data(std::forward<U>(obj)),
-                pNext(nullptr)
-            { }
-
-            ~Node() noexcept(CC_IS_NOTHROW_DTOR(T)) = default;
-        };
-
-        // Type aliases
-        using PH = PointerHelper<Node<T>>;
-
         /// Private Data Members \\\
 
-        Node<T>* m_pHead;
-        Node<T>* m_pTail;
-        size_t m_Len;
-
-        /// Private Throwing Validators \\\
-
-        // Throws std::logic_error if this queue is empty.
-        inline void ValidateDereferenceT(_In_z_ const char* const f)
-        {
-            if (IsEmpty())
-            {
-                std::string msg(": Attempted invalid access on empty queue.");
-                throw std::logic_error(f + msg);
-            }
-        }
-
-        /// Private Helper Methods \\\
-
-        // Deallocates all nodes in the queue.
-        // Note: Data members are not reset.
-        inline void DestroyQueue()
-        {
-            while (!!m_pHead)
-            {
-                Node<T>* p = m_pHead;
-                m_pHead = m_pHead->pNext;
-                delete p;
-            }
-        }
-
-        // If specified, frees all queue nodes. Always resets all data members to default values.
-        template <bool bDestroy>
-        inline void ResetQueue() noexcept
-        {
-            if constexpr (bDestroy)
-            {
-                DestroyQueue();
-            }
-
-            m_pHead = nullptr;
-            m_pTail = nullptr;
-            m_Len = 0;
-        }
-
-        // Clears this queue and assigns single element to this queue via copy or move.
-        // Returns true if operation succeeds, false otherwise.
-        template <typename U, CC_ENABLE_IF_ELEMENT(T, U)>
-        [[nodiscard]] _Success_(return) bool AssignElementObj(_In_ U&& obj) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T))
-        {
-            // Allocate new queue element.
-            Node<T>* p = PH::Allocate(std::forward<U>(obj));
-            if (!p)
-            {
-                return false;
-            }
-
-            // Destroy current queue.
-            DestroyQueue();
-
-            // Assign element to the queue, adjust length.
-            m_pHead = m_pTail = p;
-            m_Len = 1;
-
-            return true;
-        }
-
-        // Clears this queue and copies src queue to this queue.
-        // Returns true if operation succeeds, false otherwise.
-        [[nodiscard]] _Success_(return) bool AssignQueueObj(_In_ const Queue<T>& src) noexcept(CC_IS_NOTHROW_CTOR_COPY(T))
-        {
-            Node<T>* pSrc = src.m_pHead;
-            Queue<T> tmp;
-
-            if (src.IsEmpty())
-            {
-                // Assigns empty queue - clear out this queue.
-                ResetQueue<true>();
-                return true;
-            }
-
-            // Copy first element to tmp queue.
-            tmp.m_pHead = tmp.m_pTail = PH::Allocate(pSrc->data);
-            if (!tmp.m_pHead)
-            {
-                return false;
-            }
-
-            // Copy the rest of the elements.
-            pSrc = pSrc->pNext;
-            while (!!pSrc)
-            {
-                tmp.m_pTail->pNext = PH::Allocate(pSrc->data);
-                if (!tmp.m_pTail->pNext)
-                {
-                    // Allocation failed - bail out.
-                    return false;
-                }
-
-                pSrc = pSrc->pNext;
-                tmp.m_pTail = tmp.m_pTail->pNext;
-            }
-
-            // Copy the length.
-            tmp.m_Len = src.m_Len;
-
-            // Move tmp queue to this queue.
-            return AssignQueueObj(std::move(tmp));
-        }
-
-        // Clears this queue and transfers src queue contents to this queue.
-        // Returns true if operation succeeds, false otherwise.
-        [[nodiscard]] _Success_(return) bool AssignQueueObj(_Inout_ Queue<T>&& src) noexcept
-        {
-            // Destroy current queue.
-            DestroyQueue();
-
-            // Transfer elements to this queue, copy length.
-            m_pHead = src.m_pHead;
-            m_pTail = src.m_pTail;
-            m_Len = src.m_Len;
-
-            // src doesn't own this queue anymore - reset it.
-            src.ResetQueue<false>();
-
-            return true;
-        }
-
-        // Adds element to the back of the queue.
-        // Returns true if operation succeeds, false otherwise.
-        template <typename U, CC_ENABLE_IF_ELEMENT(T, U)>
-        [[nodiscard]] bool EnqueueElementObj(_In_ U&& obj) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T))
-        {
-            Node<T>* p = PH::Allocate(std::forward<U>(obj));
-            if (!p)
-            {
-                // Allocation failed - bail out.
-                return false;
-            }
-
-            if (IsEmpty())
-            {
-                m_pHead = m_pTail = p;
-            }
-            else
-            {
-                m_pTail = m_pTail->pNext = p;
-            }
-
-            m_Len++;
-
-            return true;
-        }
+        ForwardList<T> m_FwdList;
 
     public:
 
         /// Constructors \\\
 
         // Default constructor
-        Queue() noexcept :
-            m_pHead(nullptr),
-            m_pTail(nullptr),
-            m_Len(0)
-        { }
+        Queue() noexcept = default;
 
         // Copy constructor
         Queue(_In_ const Queue<T>& src) noexcept(CC_IS_NOTHROW_CTOR_COPY(T)) :
@@ -247,32 +65,21 @@ namespace CC
 
         /// Destructor \\\
 
-        ~Queue() noexcept(CC_IS_NOTHROW_DTOR(T))
-        {
-            DestroyQueue();
-        }
+        ~Queue() noexcept(CC_IS_NOTHROW_DTOR(T)) { }
 
         /// Assignment Overload \\\
 
         // Copy assignment
         Queue<T>& operator=(_In_ const Queue<T>& src) noexcept(CC_IS_NOTHROW_COPY(T))
         {
-            if (!Assign(src))
-            {
-                ResetQueue<true>();
-            }
-
+            m_FwdList = src.m_FwdList;
             return *this;
         }
 
         // Move assignment
         Queue<T>& operator=(_Inout_ Queue<T>&& src) noexcept(CC_IS_NOTHROW_MOVE(T))
         {
-            if (!Assign(std::move(src)))
-            {
-                ResetQueue<true>();
-            }
-
+            m_FwdList = std::move(src.m_FwdList);
             return *this;
         }
 
@@ -280,11 +87,7 @@ namespace CC
         template <typename U, CC_ENABLE_IF_ELEMENT(T, U)>
         Queue<T>& operator=(_In_ U&& obj) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T))
         {
-            if (!Assign(std::forward<U>(obj)))
-            {
-                ResetQueue<true>();
-            }
-
+            m_FwdList = std::forward<U>(obj);
             return *this;
         }
 
@@ -293,7 +96,7 @@ namespace CC
         // Returns true if queue is not empty, false otherwise.
         [[nodiscard]] explicit operator bool() const noexcept
         {
-            return !IsEmpty();
+            return !!m_FwdList;
         }
 
         // Compares this queue's elements against rhs' queue elements.
@@ -308,39 +111,35 @@ namespace CC
         // Returns length of queue (number of elements).
         [[nodiscard]] inline size_t Length() const noexcept
         {
-            return m_Len;
+            return m_FwdList.Length();
         }
 
         // Returns mutable reference to last element in the queue.
         // Note: If queue is empty, this throws std::logic_error.
         [[nodiscard]] inline T& Back()
         {
-            ValidateDereferenceT(__FUNCSIG__);
-            return m_pTail->data;
+            return m_FwdList.Back();
         }
 
         // Returns immutable reference to last element in the queue.
         // Note: If queue is empty, this throws std::logic_error.
         [[nodiscard]] inline const T& Back() const
         {
-            ValidateDereferenceT(__FUNCSIG__);
-            return m_pTail->data;
+            return m_FwdList.Back();
         }
 
         // Returns mutable reference to first element in the queue.
         // Note: If queue is empty, this throws std::logic_error.
         [[nodiscard]] inline T& Front()
         {
-            ValidateDereferenceT(__FUNCSIG__);
-            return m_pHead->data;
+            return m_FwdList.Front();
         }
 
         // Returns mutable reference to first element in the queue.
         // Note: If queue is empty, this throws std::logic_error.
         [[nodiscard]] inline const T& Front() const
         {
-            ValidateDereferenceT(__FUNCSIG__);
-            return m_pHead->data;
+            return m_FwdList.Front();
         }
 
         /// Public Methods \\\
@@ -352,99 +151,56 @@ namespace CC
         {
             if constexpr (CC_IS_QUEUE(T, U))
             {
-                return (this == &obj) || AssignQueueObj(std::forward<U>(obj));
+                if constexpr (std::is_rvalue_reference_v<decltype(std::forward<U>(obj))>)
+                {
+                    return m_FwdList.Assign(std::move(obj.m_FwdList));
+                }
+                else
+                {
+                    return m_FwdList.Assign(obj.m_FwdList);
+                }
             }
             else if constexpr (CC_IS_ELEMENT(T, U))
             {
-                return AssignElementObj(std::forward<U>(obj));
+                return m_FwdList.Assign(std::forward<U>(obj));
             }
             else
             {
-                static_assert(false, __FUNCSIG__ ": Unsuported assign type.");
+                static_assert(false, __FUNCSIG__ ": Unsupported assign type.");
             }
         }
 
         // Destroys queue, freeing all resources and reseting queue.
         void Clear() noexcept(CC_IS_NOTHROW_DTOR(T))
         {
-            ResetQueue<true>();
+            m_FwdList.Clear();
         }
 
         // Compares this queue's elements against rhs' queue elements.
         // Returns true if queues are the same length and all elements match, false otherwise.
         [[nodiscard]] bool Compare(_In_ const Queue<T>& rhs) const noexcept
         {
-            Node<T>* pL = m_pHead;
-            Node<T>* pR = rhs.m_pHead;
-
-            if (pL == pR)
-            {
-                // Comparing same queue - equal.
-                return true;
-            }
-
-            if (m_Len != rhs.m_Len)
-            {
-                // Length mismatch - not equal.
-                return false;
-            }
-
-            // Compare while we haven't exhausted either queue.
-            while (!!pL)
-            {
-                if (pL->data != pR->data)
-                {
-                    // Mismatch - not equal.
-                    return false;
-                }
-
-                // Move to next elements.
-                pL = pL->pNext;
-                pR = pR->pNext;
-            }
-
-            return true;
+            return m_FwdList.Compare(rhs.m_FwdList);
         }
 
         // Returns true if the queue is empty, false otherwise.
         [[nodiscard]] bool IsEmpty() const noexcept
         {
-            return (m_Len == 0);
+            return m_FwdList.IsEmpty();
         }
 
         // Removes element from the front of the queue.
         // Returns true if element is removed, false otherwise (e.g., queue is empty).
         _Success_(return) bool Dequeue() noexcept(CC_IS_NOTHROW_DTOR(T))
         {
-            if (IsEmpty())
-            {
-                return false;
-            }
-
-            Node<T>* p = m_pHead;
-            m_pHead = m_pHead->pNext;
-            delete p;
-            m_Len--;
-
-            if (IsEmpty())
-            {
-                m_pTail = nullptr;
-            }
-
-            return true;
+            return m_FwdList.PopFront();
         }
 
         // Removes element from the front of the queue and moves element to the out parameter.
         // Returns true if element is removed, false otherwise (e.g., queue is empty).
         [[nodiscard]] _Success_(return) bool Dequeue(_Out_ T& obj) noexcept(CC_IS_NOTHROW_MOVE(T) && CC_IS_NOTHROW_DTOR(T))
         {
-            if (IsEmpty())
-            {
-                return false;
-            }
-
-            obj = std::move(m_pHead->data);
-            return Dequeue();
+            return m_FwdList.PopFront(obj);
         }
 
         // Enqueues new element onto the queue.
@@ -452,13 +208,7 @@ namespace CC
         template <typename U, CC_ENABLE_IF_ELEMENT(T, U)>
         [[nodiscard]] _Success_(return) bool Enqueue(_In_ U&& obj) noexcept(CC_IS_NOTHROW_CTOR_COPY(T) && CC_IS_NOTHROW_CTOR_MOVE(T))
         {
-            if (IsEmpty())
-            {
-                // Enqueue to empty queue is same as assign.
-                return AssignElementObj(std::forward<U>(obj));
-            }
-
-            return EnqueueElementObj(std::forward<U>(obj));
+            return m_FwdList.Append(std::forward<U>(obj));
         }
     };
 

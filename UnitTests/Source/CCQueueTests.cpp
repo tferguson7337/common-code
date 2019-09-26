@@ -35,9 +35,9 @@ CC::QueueTests::UTList CC::QueueTests::GetTests()
         // EnqueueDequeue Tests
         ADD_TESTS_T_TQ1(EnqueueDequeueTests::Enqueue),
         ADD_TESTS_T_TQ1(EnqueueDequeueTests::Dequeue),
-        ADD_TESTS_T_TQ1(EnqueueDequeueTests::DequeueAndCopy),
+        ADD_TESTS_T_TQ1(EnqueueDequeueTests::DequeueAndMove),
         ADD_TESTS_T_TQ1(EnqueueDequeueTests::EnqueueDequeueStagger),
-        ADD_TESTS_T_TQ1(EnqueueDequeueTests::EnqueueDequeueAndCopyStagger)
+        ADD_TESTS_T_TQ1(EnqueueDequeueTests::EnqueueDequeueAndMoveStagger)
     };
 
     return tests;
