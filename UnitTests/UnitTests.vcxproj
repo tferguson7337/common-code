@@ -29,12 +29,14 @@
     <ClCompile Include="Source\CCStackTests.cpp" />
     <ClCompile Include="Source\CCStringTests.cpp" />
     <ClCompile Include="Source\CCStringUtilTests.cpp" />
+    <ClCompile Include="Source\CCForwardListTests.cpp" />
     <ClCompile Include="Source\RunTests.cpp" />
     <ClCompile Include="Source\TestSets.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Headers\CCBuffer.h" />
     <ClInclude Include="..\Headers\CCDynamicBuffer.h" />
+    <ClInclude Include="..\Headers\CCForwardList.h" />
     <ClInclude Include="..\Headers\CCIBuffer.h" />
     <ClInclude Include="..\Headers\CCList.h" />
     <ClInclude Include="..\Headers\CCMacros.h" />
@@ -57,6 +59,7 @@
     <ClInclude Include="Headers\CCStackTests.h" />
     <ClInclude Include="Headers\CCStringTests.h" />
     <ClInclude Include="Headers\CCStringUtilTests.h" />
+    <ClInclude Include="Headers\CCForwardListTests.h" />
     <ClInclude Include="Headers\TestHelpers.hpp" />
     <ClInclude Include="Headers\TestSets.h" />
   </ItemGroup>

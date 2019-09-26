@@ -141,7 +141,7 @@ namespace CC
 
         /// Public Virtual Destructor \\\
 
-        virtual ~SharedPointer() noexcept
+        virtual ~SharedPointer() noexcept(CC_IS_NOTHROW_DTOR(T))
         {
             Free();
         }

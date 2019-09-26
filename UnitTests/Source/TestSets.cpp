@@ -3,6 +3,7 @@
 // CC Tests
 #include <CCBufferTests.h>
 #include <CCDynamicBufferTests.h>
+#include <CCForwardListTests.h>
 #include <CCListTests.h>
 #include <CCPointerTests.h>
 #include <CCPointerHelperTests.h>
@@ -28,6 +29,7 @@ static bool RunAllTests(_Inout_ UnitTestRunner<char>& utr)
     utr.AddUnitTests(CC::ListTests::GetTests());
     utr.AddUnitTests(CC::StackTests::GetTests());
     utr.AddUnitTests(CC::QueueTests::GetTests());
+    utr.AddUnitTests(CC::ForwardListTests::GetTests());
 
     return utr.RunUnitTests();
 }
@@ -132,6 +134,16 @@ static bool RunQueueTests(_Inout_ UnitTestRunner<char>& utr)
     return utr.RunUnitTests();
 }
 
+static bool RunForwardListTests(_Inout_ UnitTestRunner<char>& utr)
+{
+    utr.ClearUnitTests();
+    utr.GetTestSetData().SetTestSetName("CommonCode - ForwardList");
+
+    utr.AddUnitTests(CC::ForwardListTests::GetTests());
+
+    return utr.RunUnitTests();
+}
+
 
 // Test-Set-Name To Run-Test-Function Mapping
 const TestFuncMap s_TestFuncMap
@@ -146,7 +158,8 @@ const TestFuncMap s_TestFuncMap
     TestPair("String", RunStringTests),
     TestPair("List", RunListTests),
     TestPair("Stack", RunStackTests),
-    TestPair("Queue", RunQueueTests)
+    TestPair("Queue", RunQueueTests),
+    TestPair("ForwardList", RunForwardListTests)
 };
 
 

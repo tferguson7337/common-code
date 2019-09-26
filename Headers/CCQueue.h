@@ -29,7 +29,7 @@ namespace CC
 
     private:
 
-        /// Helper Struct \\\
+        /// Helper Struct - Singly-Linked List Node \\\
 
         template <typename T>
         struct Node

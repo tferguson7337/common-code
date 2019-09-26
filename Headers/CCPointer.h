@@ -121,7 +121,7 @@ namespace CC
         /// Public Destructor \\\
 
         // Destructor
-        virtual ~Pointer() noexcept
+        virtual ~Pointer() noexcept(CC_IS_NOTHROW_DTOR(T))
         {
             InvokeFreeFunction();
         }
