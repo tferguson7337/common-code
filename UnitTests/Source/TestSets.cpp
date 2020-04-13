@@ -11,6 +11,7 @@
 #include <CCSharedPointerTests.h>
 #include <CCStackTests.h>
 #include <CCStringTests.h>
+#include <CCStringLiteralTests.h>
 #include <CCStringUtilTests.h>
 
 
@@ -30,6 +31,7 @@ static bool RunAllTests(_Inout_ UnitTestRunner<char>& utr)
     utr.AddUnitTests(CC::StackTests::GetTests());
     utr.AddUnitTests(CC::QueueTests::GetTests());
     utr.AddUnitTests(CC::ForwardListTests::GetTests());
+    utr.AddUnitTests(CC::StringLiteralTests::GetTests());
 
     return utr.RunUnitTests();
 }
@@ -144,6 +146,16 @@ static bool RunForwardListTests(_Inout_ UnitTestRunner<char>& utr)
     return utr.RunUnitTests();
 }
 
+static bool RunStringLiteralTests(_Inout_ UnitTestRunner<char>& utr)
+{
+    utr.ClearUnitTests();
+    utr.GetTestSetData().SetTestSetName("CommonCode - StringLiteral");
+
+    utr.AddUnitTests(CC::StringLiteralTests::GetTests());
+
+    return utr.RunUnitTests();
+}
+
 
 // Test-Set-Name To Run-Test-Function Mapping
 const TestFuncMap s_TestFuncMap
@@ -159,7 +171,8 @@ const TestFuncMap s_TestFuncMap
     TestPair("List", RunListTests),
     TestPair("Stack", RunStackTests),
     TestPair("Queue", RunQueueTests),
-    TestPair("ForwardList", RunForwardListTests)
+    TestPair("ForwardList", RunForwardListTests),
+    TestPair("StringLiteral", RunStringLiteralTests)
 };
 
 

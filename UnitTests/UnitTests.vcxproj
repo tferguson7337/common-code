@@ -27,6 +27,7 @@
     <ClCompile Include="Source\CCQueueTests.cpp" />
     <ClCompile Include="Source\CCSharedPointerTests.cpp" />
     <ClCompile Include="Source\CCStackTests.cpp" />
+    <ClCompile Include="Source\CCStringLiteralTests.cpp" />
     <ClCompile Include="Source\CCStringTests.cpp" />
     <ClCompile Include="Source\CCStringUtilTests.cpp" />
     <ClCompile Include="Source\CCForwardListTests.cpp" />
@@ -46,6 +47,7 @@
     <ClInclude Include="..\Headers\CCSharedPointer.h" />
     <ClInclude Include="..\Headers\CCStack.h" />
     <ClInclude Include="..\Headers\CCString.h" />
+    <ClInclude Include="..\Headers\CCStringLiteral.h" />
     <ClInclude Include="..\Headers\CCStringUtil.h" />
     <ClInclude Include="..\Headers\CCTypes.h" />
     <ClInclude Include="Headers\CCBufferTests.h" />
@@ -57,6 +59,7 @@
     <ClInclude Include="Headers\CCQueueTests.h" />
     <ClInclude Include="Headers\CCSharedPointerTests.h" />
     <ClInclude Include="Headers\CCStackTests.h" />
+    <ClInclude Include="Headers\CCStringLiteralTests.h" />
     <ClInclude Include="Headers\CCStringTests.h" />
     <ClInclude Include="Headers\CCStringUtilTests.h" />
     <ClInclude Include="Headers\CCForwardListTests.h" />

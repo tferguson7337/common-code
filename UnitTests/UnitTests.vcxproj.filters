@@ -103,6 +103,12 @@
     <ClInclude Include="Headers\CCForwardListTests.h">
       <Filter>Tests\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\Headers\CCStringLiteral.h">
+      <Filter>CommonCode\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\CCStringLiteralTests.h">
+      <Filter>Tests\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\RunTests.cpp" />
@@ -138,6 +144,9 @@
       <Filter>Tests\Source</Filter>
     </ClCompile>
     <ClCompile Include="Source\CCForwardListTests.cpp">
+      <Filter>Tests\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\CCStringLiteralTests.cpp">
       <Filter>Tests\Source</Filter>
     </ClCompile>
   </ItemGroup>

@@ -22,6 +22,9 @@
 #define CC_MAKE_CHAR_TUPLE(_C)      SupportedCharacterTuple(CC_UTF8_LITERAL_CHAR(_C), CC_UTF16_LITERAL_CHAR(_C))
 #define CC_MAKE_STR_TUPLE(_STR)	    SupportedStringTuple(CC_UTF8_LITERAL_STR(_STR), CC_UTF16_LITERAL_STR(_STR))
 
+#define _CC_STRING_LITERAL_LEN(_STR)    ((sizeof(_STR) / sizeof(_STR[0])) - 1)
+#define CC_STRING_LITERAL_LEN(_STR)     _CC_STRING_LITERAL_LEN(_STR)
+
 
 /// noexcept is_nothrow Helper Macros \\\
 
