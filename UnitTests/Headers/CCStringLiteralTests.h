@@ -44,6 +44,7 @@ namespace CC
                 || TQ == TestQuantity::Mid;
         }
 
+
         template <typename T, TestQuantity TQ>
         constexpr static std::pair<const T* const, const size_t> GetTestStringLiteralPtrLenPair()
         {
@@ -100,6 +101,14 @@ namespace CC
         [[nodiscard]] static UTList GetTests();
     };
 
+
+    ///
+    /// NOTE:   Compilers can, but are not required, to combine storage for equal/overlapping string literals.
+    ///         E.g., { const char* a = "Lit"; const char* b = "Lit"; a == b; } is not necessarily true.
+    ///         Due to this, we need to actually do string comparisons here rather just compare the address of each literal.
+    ///
+    /// TODO:   Fix tests where we're comparing the pointer values.
+    ///
 
     class StringLiteralTests::ConstructorTests
     {
@@ -634,16 +643,19 @@ namespace CC
                 {
                     constexpr StringLiteral lit(STRING_LITERAL_NARROW_TQ_NONE);
                     SUTL_TEST_ASSERT(lit.Length() == ptrLenPair.second);
+                    SUTL_TEST_ASSERT(lit.m_pLitStr[lit.Length() + 1] == '\0');
                 }
                 else if constexpr (TQ == TestQuantity::Low)
                 {
                     constexpr StringLiteral lit(STRING_LITERAL_NARROW_TQ_LOW);
                     SUTL_TEST_ASSERT(lit.Length() == ptrLenPair.second);
+                    SUTL_TEST_ASSERT(lit.m_pLitStr[lit.Length() + 1] == '\0');
                 }
                 else // if constexpr (TQ == TestQuantity::Mid)
                 {
                     constexpr StringLiteral lit(STRING_LITERAL_NARROW_TQ_MID);
                     SUTL_TEST_ASSERT(lit.Length() == ptrLenPair.second);
+                    SUTL_TEST_ASSERT(lit.m_pLitStr[lit.Length() + 1] == '\0');
                 }
             }
             else // if constexpr (std::is_same_v<T, wchar_t>)
@@ -652,16 +664,19 @@ namespace CC
                 {
                     constexpr StringLiteral lit(STRING_LITERAL_WIDE_TQ_NONE);
                     SUTL_TEST_ASSERT(lit.Length() == ptrLenPair.second);
+                    SUTL_TEST_ASSERT(lit.m_pLitStr[lit.Length() + 1] == L'\0');
                 }
                 else if constexpr (TQ == TestQuantity::Low)
                 {
                     constexpr StringLiteral lit(STRING_LITERAL_WIDE_TQ_LOW);
                     SUTL_TEST_ASSERT(lit.Length() == ptrLenPair.second);
+                    SUTL_TEST_ASSERT(lit.m_pLitStr[lit.Length() + 1] == L'\0');
                 }
                 else // if constexpr (TQ == TestQuantity::Mid)
                 {
                     constexpr StringLiteral lit(STRING_LITERAL_WIDE_TQ_MID);
                     SUTL_TEST_ASSERT(lit.Length() == ptrLenPair.second);
+                    SUTL_TEST_ASSERT(lit.m_pLitStr[lit.Length() + 1] == L'\0');
                 }
             }
 

@@ -2,20 +2,20 @@
 
 // CC
 #include "CCMacros.h"
-
-// STL
-#include <stdexcept>
+#include "CCArrayIterator.h"
 
 
 namespace CC
 {
-
     template <typename T, size_t ArrayLength, CC_ENABLE_IF_SUPPORTED_CHARACTER_TYPE(T)>
     class [[nodiscard]] StringLiteral
     {
         friend class StringLiteralTests;
 
         static_assert(ArrayLength > 0, "StringLiteral: Somehow received zero-length string literal.");
+
+    public:
+
 
     private:
 
@@ -73,7 +73,31 @@ namespace CC
             return (ArrayLength - 1);
         }
 
-        /// TODO: Implement iterator support.
+
+        /// Iterator Support \\\
+
+        using ConstIterator = ArrayIterator<const StringLiteral<T, ArrayLength>, T, ptrdiff_t, const T*, const T&>;
+
+        [[nodiscard]] constexpr ConstIterator begin() const noexcept
+        {
+            return ConstIterator(this, CStr());
+        }
+
+        [[nodiscard]] constexpr ConstIterator end() const noexcept
+        {
+            // End iterator corresponds to the string's null-terminator.
+            return ConstIterator(this, CStr() + Length());
+        }
+
+        [[nodiscard]] constexpr ConstIterator cbegin() const noexcept
+        {
+            return begin();
+        }
+
+        [[nodiscard]] constexpr ConstIterator cend() const noexcept
+        {
+            return end();
+        }
     };
 
 #define CC_MAKE_STRING_LITERAL(_STR) CC::StringLiteral(_STR)

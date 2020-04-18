@@ -223,7 +223,7 @@ namespace CC
         template <class T>
         [[nodiscard]] _Success_(return) static bool CaseSensitiveCompare(_In_reads_(len) const T* lhs, _In_reads_(len) const T* rhs, _In_ const size_t& len) noexcept
         {
-            if constexpr (std::is_same_v<T, utf8>)
+            if constexpr (std::is_same_v<T, char>)
             {
                 return strncmp(lhs, rhs, len) == 0;
             }
@@ -238,7 +238,7 @@ namespace CC
         template <class T>
         [[nodiscard]] _Success_(return) static bool CaseInsensitiveCompare(_In_reads_(len) const T* lhs, _In_reads_(len) const T* rhs, _In_ const size_t& len) noexcept
         {
-            if constexpr (std::is_same_v<T, utf8>)
+            if constexpr (std::is_same_v<T, char>)
             {
                 return _strnicmp(lhs, rhs, len) == 0;
             }
@@ -611,7 +611,7 @@ namespace CC
                 return 0;
             }
 
-            if constexpr (std::is_same_v<T, utf8>)
+            if constexpr (std::is_same_v<T, char>)
             {
                 return strlen(src);
             }

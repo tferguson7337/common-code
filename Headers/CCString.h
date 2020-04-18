@@ -194,11 +194,11 @@ namespace CC
                 }
             }
 
-            if constexpr (std::is_same_v<T, utf8>)
+            if constexpr (std::is_same_v<T, char>)
             {
                 memset(m_pStr, tc, len);
             }
-            else if constexpr (std::is_same_v<T, utf16>)
+            else if constexpr (std::is_same_v<T, wchar_t>)
             {
                 wmemset(m_pStr, tc, len);
             }
@@ -778,6 +778,6 @@ namespace CC
     };
 
     // Aliases for supported string types.
-    using StringUTF8 = String<utf8>;
-    using StringUTF16 = String<utf16>;
+    using StringUTF8 = String<char>;
+    using StringUTF16 = String<wchar_t>;
 }

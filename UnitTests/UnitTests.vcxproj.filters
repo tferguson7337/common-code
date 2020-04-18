@@ -109,6 +109,9 @@
     <ClInclude Include="Headers\CCStringLiteralTests.h">
       <Filter>Tests\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\Headers\CCArrayIterator.h">
+      <Filter>CommonCode\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\RunTests.cpp" />
