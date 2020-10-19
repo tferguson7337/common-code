@@ -6,7 +6,9 @@
 #include "CCBuffer.h"
 #include "CCString.h"
 
+#include <cmath>
 #include <vector>
+
 
 namespace CC
 {
@@ -33,19 +35,19 @@ namespace CC
         _Begin = 0
     };
 
-    ///
+    //
     //
     //  Class   - StringUtil [STATIC]
     //
     //  Purpose - Wrapper for general string utilities.
     //
-    ///
+    //
     class StringUtil
     {
         // Friend class for private-method testing.
         friend class StringUtilTests;
 
-        /// Static Class - No Ctors/Dtors
+        // Static Class - No Ctors/Dtors
         StringUtil() = delete;
         StringUtil(const StringUtil&) = delete;
         StringUtil(StringUtil&&) = delete;
@@ -56,7 +58,7 @@ namespace CC
 
     private:
 
-        /// Private Helper Enums \\\
+        // Private Helper Enums //
 
         // Used for indicating target operation type (e.g., copy, conversion, etc).
         enum class OperationType : size_t
@@ -85,7 +87,7 @@ namespace CC
 
     private:
 
-        /// Constexpr Enum Validators \\\
+        // Constexpr Enum Validators //
 
         template <OperationType OT>
         [[nodiscard]] _Success_(return) static constexpr bool IsValidOperationType() noexcept
@@ -114,7 +116,7 @@ namespace CC
                 || RT == ReturnType::CppString;
         }
 
-        /// Common Private Helpers \\\
+        // Common Private Helpers //
 
         template <ReturnType RT, typename C>
         [[nodiscard]] static auto BuildEmptyString()
@@ -162,10 +164,11 @@ namespace CC
             }
             else
             {
-                const std::string msg1 = __FUNCSIG__": Unknown ReturnType[";
+                const std::string msg1 = __PRETTY_FUNCTION__;
+                const std::string msg2 = ": Unknown ReturnType[";
                 const std::string data1 = std::to_string(static_cast<std::underlying_type_t<ReturnType>>(RT));
-                const std::string msg2 = "].";
-                throw std::invalid_argument(msg1 + data1 + msg2);
+                const std::string msg3 = "].";
+                throw std::invalid_argument(msg1 + msg2 + data1 + msg3);
             }
         }
 
@@ -188,7 +191,7 @@ namespace CC
         }
 
 
-        /// Comparison Private Helpers \\\
+        // Comparison Private Helpers //
 
         // Determines if an early-exit condition for string comparison has been met.
         // If an early-exit condition is met, returns value specifying early return result.
@@ -223,7 +226,7 @@ namespace CC
         template <class T>
         [[nodiscard]] _Success_(return) static bool CaseSensitiveCompare(_In_reads_(len) const T* lhs, _In_reads_(len) const T* rhs, _In_ const size_t& len) noexcept
         {
-            if constexpr (std::is_same_v<T, utf8>)
+            if constexpr (std::is_same_v<T, char>)
             {
                 return strncmp(lhs, rhs, len) == 0;
             }
@@ -238,17 +241,28 @@ namespace CC
         template <class T>
         [[nodiscard]] _Success_(return) static bool CaseInsensitiveCompare(_In_reads_(len) const T* lhs, _In_reads_(len) const T* rhs, _In_ const size_t& len) noexcept
         {
-            if constexpr (std::is_same_v<T, utf8>)
+            for (size_t i = 0; i < len; ++i)
             {
-                return _strnicmp(lhs, rhs, len) == 0;
+                if constexpr (std::is_same_v<T, char>)
+                {
+                    if (std::tolower(lhs[i]) != std::tolower(rhs[i]))
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    if (std::towlower(static_cast<std::wint_t>(lhs[i])) != std::towlower(static_cast<std::wint_t>(rhs[i])))
+                    {
+                        return false;
+                    }
+                }
             }
-            else
-            {
-                return _wcsnicmp(lhs, rhs, len) == 0;
-            }
+            
+            return true;
         }
 
-        /// Copy/UTFConversion Private Helpers \\\
+        // Copy/UTFConversion Private Helpers //
 
         template <ReturnType RT, typename C>
         [[nodiscard]] static EarlyExitResult CheckForCopyEarlyExit(_In_ const C* src, _In_ const size_t& len) noexcept
@@ -301,7 +315,7 @@ namespace CC
             }
         }
 
-        /// Number Conversion Private Helpers \\\
+        // Number Conversion Private Helpers //
 
         [[nodiscard]] static const std::vector<SupportedCharacterTuple>& GetNumberCharsTuple()
         {
@@ -556,7 +570,7 @@ namespace CC
                 size_t count = 0;
 
                 // Copy base prefix string to destination string.
-                memcpy_s(p, l * sizeof(T), prefixStr.c_str(), prefixStr.length() * sizeof(T));
+                memcpy(p, prefixStr.c_str(), prefixStr.length() * sizeof(T));
 
                 // Copy over the negative sign for negative decimal numbers.
                 if constexpr (B == Base::Decimal)
@@ -604,14 +618,14 @@ namespace CC
         template <class T>
         [[nodiscard]] static size_t GetLength(_In_opt_z_ const T* src) noexcept
         {
-            static_assert(IsSupportedCharType<T>(), __FUNCTION__": Invalid character type.");
+            static_assert(IsSupportedCharType<T>(), "Invalid character type.");
 
             if (!src)
             {
                 return 0;
             }
 
-            if constexpr (std::is_same_v<T, utf8>)
+            if constexpr (std::is_same_v<T, char>)
             {
                 return strlen(src);
             }
@@ -621,7 +635,7 @@ namespace CC
             }
         }
 
-        /// Comparison Public Methods \\\
+        // Comparison Public Methods //
 
         // Forwards approriate arguments to Compare(const T*, const size_t&, const T*, const size_t&, const bool&)
         template <class T>
@@ -641,7 +655,7 @@ namespace CC
         template <class T>
         [[nodiscard]] _Success_(return) static bool Compare(_In_ const T* lhs, _In_ const size_t& lhsLen, _In_ const T* rhs, _In_ const size_t& rhsLen, _In_ const bool& bCaseSensitive = true) noexcept
         {
-            static_assert(IsSupportedCharType<T>(), __FUNCTION__": Invalid character type.");
+            static_assert(IsSupportedCharType<T>(), "Invalid character type.");
 
             auto fpCmp = (bCaseSensitive) ? CaseSensitiveCompare<T> : CaseInsensitiveCompare<T>;
             switch (CheckForComparisonEarlyExit(lhs, lhsLen, rhs, rhsLen))
@@ -658,7 +672,7 @@ namespace CC
             }
         }
 
-        /// Copy Public Methods \\\
+        // Copy Public Methods //
 
         template <ReturnType RT, typename C>
         [[nodiscard]] static auto Copy(_In_ const std::basic_string<C>& src)
@@ -675,8 +689,8 @@ namespace CC
         template <ReturnType RT, typename C>
         [[nodiscard]] static auto Copy(_In_reads_(len) const C* src, _In_ const size_t& len)
         {
-            static_assert(IsValidReturnType<RT>(), __FUNCTION__": Invalid ReturnType template argument");
-            static_assert(IsSupportedCharType<C>(), __FUNCTION__": Invalid character type template argument");
+            static_assert(IsValidReturnType<RT>(), "Invalid ReturnType template argument");
+            static_assert(IsSupportedCharType<C>(), "Invalid character type template argument");
 
             const EarlyExitResult eer = CheckForCopyEarlyExit<RT, C>(src, len);
 
@@ -696,7 +710,7 @@ namespace CC
         }
 
 
-        /// UTFConversion Public Methods \\\
+        // UTFConversion Public Methods //
 
         template <ReturnType RT, typename CDst, typename CSrc>
         [[nodiscard]] static auto UTFConversion(_In_ const std::basic_string<CSrc>& src)
@@ -713,9 +727,9 @@ namespace CC
         template <ReturnType RT, typename CDst, typename CSrc>
         [[nodiscard]] static auto UTFConversion(_In_reads_(len) const CSrc* src, _In_ const size_t& len)
         {
-            static_assert(IsValidReturnType<RT>(), __FUNCTION__": Invalid ReturnType template argument");
-            static_assert(IsSupportedCharType<CDst>(), __FUNCTION__": Invalid destination character type.");
-            static_assert(IsSupportedCharType<CSrc>(), __FUNCTION__": Invalid source character type.");
+            static_assert(IsValidReturnType<RT>(), "Invalid ReturnType template argument");
+            static_assert(IsSupportedCharType<CDst>(), "Invalid destination character type.");
+            static_assert(IsSupportedCharType<CSrc>(), "Invalid source character type.");
 
             if constexpr (std::is_same<CDst, CSrc>::value)
             {
@@ -741,7 +755,7 @@ namespace CC
             }
         }
 
-        /// NumberConversion Public Methods \\\
+        // NumberConversion Public Methods //
 
     #define _ENABLE_IF_NUMBER_CONVERT_SUPPORTED(T, N) \
     typename = typename std::enable_if<IsSupportedCharType<T>() && IsIntegerRepresentableType<N>()>::type
@@ -749,8 +763,8 @@ namespace CC
         template <ReturnType RT, Base B, class T, class N, _ENABLE_IF_NUMBER_CONVERT_SUPPORTED(T, N)>
         [[nodiscard]] static auto NumberConversion(_In_ const N& integral)
         {
-            static_assert(IsSupportedCharType<T>(), __FUNCTION__": Invalid character type.");
-            static_assert(IsValidBaseType<B>(), __FUNCTION__": Invalid Base Type");
+            static_assert(IsSupportedCharType<T>(), "Invalid character type.");
+            static_assert(IsValidBaseType<B>(), "Invalid Base Type");
 
             if constexpr (std::is_pointer_v<N>)
             {

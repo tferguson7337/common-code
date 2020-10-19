@@ -1,7 +1,7 @@
 #include <CCStringTests.h>
 
 
-/// Initialize Static Test Helper Data \\\
+// Initialize Static Test Helper Data //
 
 const std::vector<CC::SupportedStringTuple> CC::StringTests::ms_TestStrings
 {
@@ -32,7 +32,7 @@ const std::vector<CC::SupportedStringTuple> CC::StringTests::ms_LongerTestString
 };
 
 
-/// Add-String-Test Helper Macros \\\
+// Add-String-Test Helper Macros //
 
 // Add 2 Tests (2 Char types)
 #define ADD_STR_TESTS_C(_fn_)\
@@ -76,8 +76,6 @@ const std::vector<CC::SupportedStringTuple> CC::StringTests::ms_LongerTestString
 // Return list of String unit tests.
 CC::StringTests::UTList CC::StringTests::GetTests()
 {
-    using TQ = TestQuantity;
-
 #pragma warning(suppress : 6262) // Suppress Mid stack memory usage warning.
     static const UTList tests
     {

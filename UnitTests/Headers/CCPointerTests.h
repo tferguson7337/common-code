@@ -2,7 +2,7 @@
 
 // SUTL
 #include <UnitTestResult.h>
-#include <TestQuantity.h>
+#include <TestTypes.h>
 
 // STL
 #include <algorithm>
@@ -35,7 +35,7 @@ namespace CC
         using UTFunc = std::function<UTR(void)>;
         using UTList = std::list<UTFunc>;
 
-        /// Test Subclasses \\\
+        // Test Subclasses //
 
         // Tests methods related to freeing memory.
         class DeallocationTests;
@@ -65,9 +65,6 @@ namespace CC
         template <typename T, TestQuantity TQ>
         static UTR CopyPointerObj()
         {
-            constexpr size_t expectedSingleFreeCount = (TQ == TestQuantity::VeryLow) ? 1 : 0;
-            constexpr size_t expectedArrayFreeCount = (TQ == TestQuantity::High) ? 1 : 0;
-
             Pointer<T> ptr(GetTQLength<TQ>());
             Pointer<T> srcPtr(GetTQLength<TQ>());
 
@@ -93,9 +90,6 @@ namespace CC
         template <typename T, TestQuantity TQ>
         static UTR TransferPointerObj()
         {
-            constexpr size_t expectedSingleFreeCount = (TQ == TestQuantity::VeryLow) ? 1 : 0;
-            constexpr size_t expectedArrayFreeCount = (TQ == TestQuantity::High) ? 1 : 0;
-
             Pointer<T> ptr(GetTQLength<TQ>());
             Pointer<T> srcPtr(GetTQLength<TQ>());
 
@@ -125,9 +119,6 @@ namespace CC
         template <typename T, TestQuantity TQ>
         static UTR Destructor()
         {
-            constexpr size_t expectedSingleFreeCount = (TQ == TestQuantity::VeryLow) ? 1 : 0;
-            constexpr size_t expectedArrayFreeCount = (TQ == TestQuantity::High) ? 1 : 0;
-
             Pointer<T> ptr(GetTQLength<TQ>());
 
             ptr.~Pointer();
@@ -141,9 +132,6 @@ namespace CC
         template <typename T, TestQuantity TQ>
         static UTR Free()
         {
-            constexpr size_t expectedSingleFreeCount = (TQ == TestQuantity::VeryLow) ? 1 : 0;
-            constexpr size_t expectedArrayFreeCount = (TQ == TestQuantity::High) ? 1 : 0;
-
             Pointer<T> ptr(GetTQLength<TQ>());
 
             ptr.Free();
@@ -610,7 +598,11 @@ namespace CC
             bool bThrew = false;
 
             Pointer<T> p(testData.data(), len);
-            T tVal = T();
+            
+            #if defined(__GNUC__)
+                #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+            #endif
+            T tVal;
 
             try
             {
@@ -634,6 +626,9 @@ namespace CC
 
             if constexpr (std::is_same_v<T, Helper>)
             {
+            #if defined(__GNUC__)
+                #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+            #endif
                 bool bCopied = false;
                 bool bMoved = false;
 

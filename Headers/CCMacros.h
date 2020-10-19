@@ -3,7 +3,7 @@
 
 #include "CCTypes.h"
 
-/// String Macro Helpers \\\
+// String Macro Helpers //
 
 #define _CC_STRINGIFY(_S)           #_S
 #define CC_STRINGIFY(_S)            _CC_STRINGIFY(_S)
@@ -25,8 +25,12 @@
 #define _CC_STRING_LITERAL_LEN(_STR)    ((sizeof(_STR) / sizeof(_STR[0])) - 1)
 #define CC_STRING_LITERAL_LEN(_STR)     _CC_STRING_LITERAL_LEN(_STR)
 
+#if defined(_MSC_VER)
+#define __PRETTY_FUNCTION__ __PRETTY_FUNCTION__
+#endif
 
-/// noexcept is_nothrow Helper Macros \\\
+
+// noexcept is_nothrow Helper Macros //
 
 #define CC_IS_NOTHROW_CTOR(_T)          (std::is_nothrow_constructible_v<_T>)
 #define CC_IS_NOTHROW_CTOR_A(_T, _A)    (std::is_nothrow_constructible_v<_T, _A...>)
@@ -38,7 +42,7 @@
 #define CC_IS_NOTHROW_DTOR(_T)          (std::is_nothrow_destructible_v<_T>)
 
 
-/// SFINAE Enable-If Helper Macros \\\
+// SFINAE Enable-If Helper Macros //
 
 // Supported Char Type
 #define CC_ENABLE_IF_SUPPORTED_CHARACTER_TYPE(_T) \

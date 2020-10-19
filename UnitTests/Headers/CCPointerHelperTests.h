@@ -2,7 +2,7 @@
 
 // SUTL
 #include <UnitTestResult.h>
-#include <TestQuantity.h>
+#include <TestTypes.h>
 
 // STL
 #include <algorithm>
@@ -45,7 +45,7 @@ namespace CC
         using UTFunc = std::function<UTR(void)>;
         using UTList = std::list<UTFunc>;
 
-        /// Test Methods \\\
+        // Test Methods //
 
         template <typename T, TestQuantity TQ>
         [[nodiscard]] static UTR CopyToRawPointer()
@@ -62,6 +62,13 @@ namespace CC
                 SUTL_TEST_ASSERT(!!pDst);
 
                 // Prep for copy - zero-out dst.
+            #if defined(__GNUC__)
+                // Suppress Warning:
+                // ‘void* memcpy(void*, const void*, size_t)’ writing to an
+                // object of type ‘struct CC::Helper’ with no trivial copy-assignment;
+                // use copy-assignment or copy-initialization instead
+                #pragma GCC diagnostic ignored "-Wclass-memaccess"
+            #endif
                 memset(pDst, 0, sizeof(T) * len);
             }
             else
@@ -114,6 +121,13 @@ namespace CC
                 SUTL_TEST_ASSERT(!!pDst);
 
                 // Prep for copy - zero-out dst.
+            #if defined(__GNUC__)
+                // Suppress Warning:
+                // ‘void* memcpy(void*, const void*, size_t)’ writing to an
+                // object of type ‘struct CC::Helper’ with no trivial copy-assignment;
+                // use copy-assignment or copy-initialization instead
+                #pragma GCC diagnostic ignored "-Wclass-memaccess"
+            #endif
                 memset(pDst, 0, sizeof(T) * len);
             }
             else

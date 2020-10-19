@@ -2,10 +2,11 @@
 
 // SUTL
 #include <UnitTestResult.h>
-#include <TestQuantity.h>
+#include <TestTypes.h>
 
 // STL
 #include <algorithm>
+#include <cmath>
 #include <functional>
 #include <list>
 #include <memory>
@@ -35,7 +36,7 @@ namespace CC
 
     private:
 
-        /// Test Subclasses \\\
+        // Test Subclasses //
 
         // Test constructor behavior.
         class ConstructorTests;

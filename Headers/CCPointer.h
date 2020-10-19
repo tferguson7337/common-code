@@ -23,12 +23,12 @@ namespace CC
 
     protected:
 
-        /// Protected Data Members \\\
+        // Protected Data Members //
 
         T* m_pPtr;
         size_t m_Len;
 
-        /// Static Protected Helper Methods \\\
+        // Static Protected Helper Methods //
 
         // Copies all Pointer data members from source Pointer object.
         // Note: The pointer data member is shallow copied.
@@ -57,7 +57,7 @@ namespace CC
             src.Reset();
         }
 
-        /// Protected Helper Methods \\\
+        // Protected Helper Methods //
 
         // Calls the appropriate cleanup function.
         void InvokeFreeFunction() noexcept
@@ -76,7 +76,7 @@ namespace CC
 
     public:
 
-        /// Public Constructors \\\
+        // Public Constructors //
 
         // Default constructor
         constexpr Pointer() noexcept :
@@ -118,7 +118,7 @@ namespace CC
             src.Reset();
         }
 
-        /// Public Destructor \\\
+        // Public Destructor //
 
         // Destructor
         virtual ~Pointer() noexcept(CC_IS_NOTHROW_DTOR(T))
@@ -126,7 +126,7 @@ namespace CC
             InvokeFreeFunction();
         }
 
-        /// Operator Overloads \\\
+        // Operator Overloads //
 
         // Copy assignment
         Pointer<T>& operator=(_In_ const Pointer<T>& src) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T))
@@ -172,7 +172,7 @@ namespace CC
         // Note: Will throw std::logic_error if m_pPtr == nullptr.
         [[nodiscard]] virtual T& operator*()
         {
-            PH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
+            PH::ValidateDereferenceT(__PRETTY_FUNCTION__, m_pPtr);
             return *m_pPtr;
         }
 
@@ -180,7 +180,7 @@ namespace CC
         // Note: Will throw std::logic_error if m_pPtr == nullptr.
         [[nodiscard]] virtual const T& operator*() const
         {
-            PH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
+            PH::ValidateDereferenceT(__PRETTY_FUNCTION__, m_pPtr);
             return *m_pPtr;
         }
 
@@ -189,7 +189,7 @@ namespace CC
         [[nodiscard]] virtual T* operator->()
         {
             // Technically not dereferencing here, but the intention is likely to access a data member.
-            PH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
+            PH::ValidateDereferenceT(__PRETTY_FUNCTION__, m_pPtr);
             return m_pPtr;
         }
 
@@ -198,11 +198,11 @@ namespace CC
         [[nodiscard]] virtual const T* operator->() const
         {
             // Technically not dereferencing here, but the intention is likely to access a data member.
-            PH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
+            PH::ValidateDereferenceT(__PRETTY_FUNCTION__, m_pPtr);
             return m_pPtr;
         }
 
-        /// Getters \\\
+        // Getters //
 
         // Returns pointer to internal pointer (mutable).
         [[nodiscard]] virtual T* Get() noexcept
@@ -223,12 +223,12 @@ namespace CC
         }
 
         // Returns size in bytes of internal pointer.
-        [[nodiscard]] virtual const size_t Size() const noexcept
+        [[nodiscard]] virtual size_t Size() const noexcept
         {
             return sizeof(T) * m_Len;
         }
 
-        /// Public Methods \\\
+        // Public Methods //
 
         // Resets internal data members to default values.
         // Note: This will not free any internal resources - use with caution.

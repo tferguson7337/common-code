@@ -37,14 +37,14 @@ namespace CC
         using BT = CC::Base;
         using BT_T = std::underlying_type_t<BT>;
 
-        /// Test Helpers \\\
+        // Test Helpers //
 
         template <RT _RT, typename C>
         static const C* GetStringPointer(const void* obj)
         {
             if (!obj)
             {
-                throw std::invalid_argument(__FUNCTION__": Received nullptr string object argument.");
+                throw std::invalid_argument("Received nullptr string object argument.");
             }
 
             if constexpr (_RT == RT::CCBuffer)
@@ -61,13 +61,11 @@ namespace CC
             }
             else
             {
-                throw std::logic_error(
-                    __FUNCTION__": Unknown return type[" + std::to_string(static_cast<size_t>(_RT)) + "]."
-                );
+                throw std::logic_error("Unknown return type[" + std::to_string(static_cast<size_t>(_RT)) + "].");
             }
         }
 
-        /// Test Data Getters \\\
+        // Test Data Getters //
 
         template <typename C>
         using TestStr = std::basic_string<C>;
@@ -90,9 +88,7 @@ namespace CC
             }
             else
             {
-                throw std::logic_error(
-                    __FUNCTION__": Unknown character type[" + std::string(typeid(C).name()) + "]."
-                );
+                throw std::logic_error("Unknown character type[" + std::string(typeid(C).name()) + "].");
             }
         }
 
@@ -111,9 +107,7 @@ namespace CC
             }
             else
             {
-                throw std::logic_error(
-                    __FUNCTION__": Unknown character type[" + std::string(typeid(C).name()) + "]."
-                );
+                throw std::logic_error("Unknown character type[" + std::string(typeid(C).name()) + "].");
             }
         }
 
@@ -132,9 +126,7 @@ namespace CC
             }
             else
             {
-                throw std::logic_error(
-                    __FUNCTION__": Unknown character type[" + std::string(typeid(C).name()) + "]."
-                );
+                throw std::logic_error("Unknown character type[" + std::string(typeid(C).name()) + "].");
             }
         }
 
@@ -153,9 +145,7 @@ namespace CC
             }
             else
             {
-                throw std::logic_error(
-                    __FUNCTION__": Unknown character type[" + std::string(typeid(C).name()) + "]."
-                );
+                throw std::logic_error("Unknown character type[" + std::string(typeid(C).name()) + "].");
             }
         }
 
@@ -174,9 +164,7 @@ namespace CC
             }
             else
             {
-                throw std::logic_error(
-                    __FUNCTION__": Unknown character type[" + std::string(typeid(C).name()) + "]."
-                );
+                throw std::logic_error("Unknown character type[" + std::string(typeid(C).name()) + "].");
             }
         }
 
@@ -195,9 +183,7 @@ namespace CC
             }
             else
             {
-                throw std::logic_error(
-                    __FUNCTION__": Unknown character type[" + std::string(typeid(C).name()) + "]."
-                );
+                throw std::logic_error("Unknown character type[" + std::string(typeid(C).name()) + "].");
             }
         }
 
@@ -216,9 +202,7 @@ namespace CC
             }
             else
             {
-                throw std::logic_error(
-                    __FUNCTION__": Unknown character type[" + std::string(typeid(C).name()) + "]."
-                );
+                throw std::logic_error("Unknown character type[" + std::string(typeid(C).name()) + "].");
             }
         }
 
@@ -237,9 +221,7 @@ namespace CC
             }
             else
             {
-                throw std::logic_error(
-                    __FUNCTION__": Unknown character type[" + std::string(typeid(C).name()) + "]."
-                );
+                throw std::logic_error("Unknown character type[" + std::string(typeid(C).name()) + "].");
             }
         }
 
@@ -1438,12 +1420,12 @@ namespace CC
         {
             NCTestArray<uint64_t, C> arr;
 
-            arr[0].first = 0;
-            arr[1].first = 1;
-            arr[2].first = 2852707957240492308;
-            arr[3].first = 6625083791587863114;
-            arr[4].first = 9221709922292305978;
-            arr[5].first = 14524601349428068613;
+            arr[0].first = 0ULL;
+            arr[1].first = 1ULL;
+            arr[2].first = 2852707957240492308ULL;
+            arr[3].first = 6625083791587863114ULL;
+            arr[4].first = 9221709922292305978ULL;
+            arr[5].first = 14524601349428068613ULL;
             arr[6].first = std::numeric_limits<uint64_t>::max();
 
             if constexpr (_BT == BT::Binary)
@@ -1548,12 +1530,12 @@ namespace CC
             }
             else if constexpr (sizeof(void*) == 8)
             {
-                arr[0].first = reinterpret_cast<void*>(0);
-                arr[1].first = reinterpret_cast<void*>(1);
-                arr[2].first = reinterpret_cast<void*>(2852707957240492308);
-                arr[3].first = reinterpret_cast<void*>(6625083791587863114);
-                arr[4].first = reinterpret_cast<void*>(9221709922292305978);
-                arr[5].first = reinterpret_cast<void*>(14524601349428068613);
+                arr[0].first = reinterpret_cast<void*>(0ULL);
+                arr[1].first = reinterpret_cast<void*>(1ULL);
+                arr[2].first = reinterpret_cast<void*>(2852707957240492308ULL);
+                arr[3].first = reinterpret_cast<void*>(6625083791587863114ULL);
+                arr[4].first = reinterpret_cast<void*>(9221709922292305978ULL);
+                arr[5].first = reinterpret_cast<void*>(14524601349428068613ULL);
                 arr[6].first = reinterpret_cast<void*>(std::numeric_limits<uint64_t>::max());
 
                 if constexpr (_BT == BT::Binary)
@@ -1644,7 +1626,7 @@ namespace CC
             }
             else
             {
-                throw std::logic_error(__FUNCTION__": Unknown integral type[" + std::string(typeid(N).name()) + "].");
+                throw std::logic_error("Unknown integral type[" + std::string(typeid(N).name()) + "].");
             }
         }
 

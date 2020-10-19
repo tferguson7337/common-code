@@ -23,11 +23,11 @@ namespace CC
 
     protected:
 
-        /// Protected Data Members \\\
+        // Protected Data Members //
 
         size_t m_WritePos;
 
-        /// Protected Validator Methods \\\
+        // Protected Validator Methods //
 
         // Returns false if pos >= this->m_Len - returns true otherwise.
         [[nodiscard]] _Success_(return) inline bool ValidateNewWritePosition(_In_ const size_t& pos) const noexcept
@@ -49,7 +49,7 @@ namespace CC
             return !!p && !!this->m_pPtr && writeLen > 0 && ((m_WritePos + writeLen) <= Length());
         }
 
-        /// Protected Throwing Validator Methods \\\
+        // Protected Throwing Validator Methods //
 
         // Returns false if idx >= this->m_Len - returns true otherwise.
         inline void ValidateAccessorIndexT(_In_z_ const char* const f, _In_ const size_t& idx) const
@@ -67,7 +67,7 @@ namespace CC
             }
         }
 
-        /// Static Protected Helper Methods \\\
+        // Static Protected Helper Methods //
 
         // Copies all Buffer data members from source IBuffer object.
         // Note: The pointer data member is shallow copied.
@@ -110,7 +110,7 @@ namespace CC
             src.Reset();
         }
 
-        /// Protected Helper Methods \\\
+        // Protected Helper Methods //
 
         // Writes elements via copy to internal buffer, updates write position.
         [[nodiscard]] _Success_(return) bool WriteInternal(_In_reads_(len) const T* p, _In_ const size_t& len) noexcept(CC_IS_NOTHROW_COPY(T))
@@ -130,7 +130,7 @@ namespace CC
 
     public:
 
-        /// Public Constructors \\\
+        // Public Constructors //
 
         // Default constructor
         constexpr Buffer() noexcept :
@@ -184,12 +184,12 @@ namespace CC
             src.Reset();
         }
 
-        /// Public Destructor \\\
+        // Public Destructor //
 
         // Destructor
         virtual ~Buffer() noexcept(CC_IS_NOTHROW_DTOR(T)) { };
 
-        /// Operator Overloads \\\
+        // Operator Overloads //
 
         // Copy assignment
         Buffer<T>& operator=(_In_ const Buffer<T>& src) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T))
@@ -258,7 +258,7 @@ namespace CC
         // Note: Will throw std::out_of_range if i >=this->m_Len.
         [[nodiscard]] virtual T& operator[](_In_ const size_t& i)
         {
-            ValidateAccessorIndexT(__FUNCSIG__, i);
+            ValidateAccessorIndexT(__PRETTY_FUNCTION__, i);
             return this->m_pPtr[i];
         }
 
@@ -267,7 +267,7 @@ namespace CC
         // Note: Will throw std::out_of_range if i >=this->m_Len.
         [[nodiscard]] virtual const T& operator[](_In_ const size_t& i) const
         {
-            ValidateAccessorIndexT(__FUNCSIG__, i);
+            ValidateAccessorIndexT(__PRETTY_FUNCTION__, i);
             return this->m_pPtr[i];
         }
 
@@ -283,7 +283,7 @@ namespace CC
             return !Compare(rhs.Get(), rhs.Length());
         }
 
-        /// Getters \\\
+        // Getters //
 
         // Returns pointer to internal buffer (mutable).
         [[nodiscard]] inline virtual T* Get() noexcept
@@ -304,7 +304,7 @@ namespace CC
         }
 
         // Returns size in bytes of internal buffer.
-        [[nodiscard]] inline virtual const size_t Size() const noexcept
+        [[nodiscard]] inline virtual size_t Size() const noexcept
         {
             return Base::Size();
         }
@@ -315,7 +315,7 @@ namespace CC
             return m_WritePos;
         }
 
-        /// Setters \\\
+        // Setters //
 
         // Sets write position to specified value.
         // Note: Will throw std::out_of_range if pos >= this->m_Len
@@ -336,7 +336,7 @@ namespace CC
             m_WritePos = 0;
         }
 
-        /// Public Methods \\\
+        // Public Methods //
 
         // Resets internal data members to default values.
         // Note: This will not free any internal resources - use with caution.

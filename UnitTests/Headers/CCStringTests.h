@@ -2,7 +2,7 @@
 
 // SUTL
 #include <UnitTestResult.h>
-#include <TestQuantity.h>
+#include <TestTypes.h>
 
 // STL
 #include <functional>
@@ -43,7 +43,6 @@ namespace CC
 
     inline static TestStrType operator++(TestStrType& t, int)
     {
-        using UT = std::underlying_type_t<TestStrType>;
         TestStrType old = t;
         ++t;
         return old;
@@ -65,7 +64,7 @@ namespace CC
         using UTFunc = std::function<UTR(void)>;
         using UTList = std::list<UTFunc>;
 
-        /// Test Helpers \\\
+        // Test Helpers //
 
         static const std::vector<SupportedStringTuple> ms_TestStrings;
         static const std::vector<SupportedStringTuple> ms_DiffCaseTestStrings;
@@ -83,13 +82,9 @@ namespace CC
             {
                 return 1;
             }
-            else if constexpr (TQ == TestQuantity::Mid)
+            else // if constexpr (TQ == TestQuantity::Mid)
             {
                 return 2;
-            }
-            else
-            {
-                static_assert(false, __FUNCSIG__": Unknown TestQuantity value.");
             }
         }
 
@@ -125,7 +120,7 @@ namespace CC
         template <typename T, TestQuantity TQ, TestStrType Type, CC_ENABLE_IF_SUPPORTED_CHARACTER_TYPE(T)>
         [[nodiscard]] static constexpr const std::basic_string<T>& GetTestCppStringByType()
         {
-            static_assert(Type >= TestStrType::_Begin && Type < TestStrType::_End, __FUNCSIG__": Invalid TestCStrType");
+            static_assert(Type >= TestStrType::_Begin && Type < TestStrType::_End, "Invalid TestCStrType");
 
             if constexpr (Type == TestStrType::Regular)
             {
@@ -177,7 +172,7 @@ namespace CC
         template <typename T, TestQuantity TQ, TestStrType Type, CC_ENABLE_IF_SUPPORTED_CHARACTER_TYPE(T)>
         [[nodiscard]] static const T* GetTestCStrByType()
         {
-            static_assert(Type >= TestStrType::_Begin && Type < TestStrType::_End, __FUNCSIG__": Invalid TestCStrType");
+            static_assert(Type >= TestStrType::_Begin && Type < TestStrType::_End, "Invalid TestCStrType");
 
             if constexpr (Type == TestStrType::Regular)
             {
@@ -197,7 +192,7 @@ namespace CC
             }
         }
 
-        /// Test Subclasses \\\
+        // Test Subclasses //
 
         // Tests constructor behavior.
         class ConstructorTests;
@@ -261,7 +256,6 @@ namespace CC
         [[nodiscard]] static UTR LenAndDefaultCharCtor()
         {
             constexpr size_t len = GetTQLength<TQ>();
-            const T tc = String<T>::ms_NullTerminator;
             String<T> str(len);
 
             SUTL_TEST_ASSERT(str.m_Len == len);
@@ -280,6 +274,7 @@ namespace CC
 
             if constexpr (len != 0)
             {
+                const T tc = String<T>::ms_NullTerminator;
                 for (size_t i = 0; i < len; i++)
                 {
                     SUTL_TEST_ASSERT(str.m_pStr[i] == tc);
@@ -1441,7 +1436,7 @@ namespace CC
             {
                 const T* testCStr = testPair.first;
                 const bool bExpectedResult = testPair.second;
-                SUTL_TEST_ASSERT(str.Compare<bCaseInsensitive>(testCStr) == bExpectedResult);
+                SUTL_TEST_ASSERT(str.Compare(testCStr, bCaseInsensitive) == bExpectedResult);
             }
 
             SUTL_TEST_SUCCESS();
@@ -1470,7 +1465,7 @@ namespace CC
                 const T* testCStr = std::get<0>(testTuple);
                 const size_t compLen = std::get<1>(testTuple);
                 const bool bExpectedResult = std::get<2>(testTuple);
-                SUTL_TEST_ASSERT(str.Compare<bCaseInsensitive>(testCStr, compLen) == bExpectedResult);
+                SUTL_TEST_ASSERT(str.Compare(testCStr, compLen, bCaseInsensitive) == bExpectedResult);
             }
 
             SUTL_TEST_SUCCESS();
@@ -1493,7 +1488,7 @@ namespace CC
             {
                 const String<T>& testStr = testPair.first;
                 const bool bExpectedResult = testPair.second;
-                SUTL_TEST_ASSERT(str.Compare<bCaseInsensitive>(testStr) == bExpectedResult);
+                SUTL_TEST_ASSERT(str.Compare(testStr, bCaseInsensitive) == bExpectedResult);
             }
 
             SUTL_TEST_SUCCESS();
@@ -1523,7 +1518,7 @@ namespace CC
                 const String<T>& testStr = std::get<0>(testTuple);
                 const size_t compLen = std::get<1>(testTuple);
                 const bool bExpectedResult = std::get<2>(testTuple);
-                SUTL_TEST_ASSERT(str.Compare<bCaseInsensitive>(testStr, compLen) == bExpectedResult);
+                SUTL_TEST_ASSERT(str.Compare(testStr, compLen, bCaseInsensitive) == bExpectedResult);
             }
 
             SUTL_TEST_SUCCESS();

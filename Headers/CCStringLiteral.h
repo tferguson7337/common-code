@@ -19,13 +19,13 @@ namespace CC
 
     private:
 
-        /// Private Data Members \\\
+        // Private Data Members //
 
         const T* const m_pLitStr;
 
     public:
 
-        /// Ctors \\\
+        // Ctors //
 
         constexpr explicit StringLiteral(_In_z_ const T(&pLitStr)[ArrayLength]) noexcept :
             m_pLitStr(pLitStr)
@@ -42,7 +42,7 @@ namespace CC
         { }
 
 
-        /// Operator Overloads \\\
+        // Operator Overloads //
 
         [[nodiscard]] constexpr explicit operator bool() const noexcept
         {
@@ -51,11 +51,11 @@ namespace CC
 
         [[nodiscard]] constexpr T operator[](_In_ const size_t idx) const
         {
-            return (idx < Length()) ? m_pLitStr[idx] : throw std::out_of_range(__FUNCSIG__ ": Index out of range.");
+            return (idx < Length()) ? m_pLitStr[idx] : throw std::out_of_range("Index out of range.");
         }
 
 
-        /// Getters \\\
+        // Getters //
 
         [[nodiscard]] constexpr bool IsEmpty() const noexcept
         {
@@ -73,7 +73,7 @@ namespace CC
             return (ArrayLength - 1);
         }
 
-        /// TODO: Implement iterator support.
+        // TODO: Implement iterator support.
     };
 
 #define CC_MAKE_STRING_LITERAL(_STR) CC::StringLiteral(_STR)

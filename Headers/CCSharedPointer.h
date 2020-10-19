@@ -26,20 +26,20 @@ namespace CC
 
     protected:
 
-        /// Protected Data Members \\\
+        // Protected Data Members //
 
         T* m_pPtr;
         RefCounter* m_pRefCount;
         size_t m_Len;
 
-        /// Static Protected Helper Methods \\\
+        // Static Protected Helper Methods //
 
         [[nodiscard]] _Ret_maybenull_ static RefCounter* AllocateRefCounter() noexcept
         {
             return new (std::nothrow) RefCounter(1);
         }
 
-        /// Protected Helper Methods \\\
+        // Protected Helper Methods //
 
         // Calls the appropriate cleanup function.
         void InvokeFreeFunction() noexcept
@@ -84,7 +84,7 @@ namespace CC
 
     public:
 
-        /// Public Constructors \\\
+        // Public Constructors //
 
         // Default constructor
         constexpr SharedPointer() noexcept :
@@ -139,14 +139,14 @@ namespace CC
             src.Reset();
         }
 
-        /// Public Virtual Destructor \\\
+        // Public Virtual Destructor //
 
         virtual ~SharedPointer() noexcept(CC_IS_NOTHROW_DTOR(T))
         {
             Free();
         }
 
-        /// Public Assignment Overloads \\\
+        // Public Assignment Overloads //
 
         SharedPointer<T>& operator=(_In_ const SharedPointer<T>& src) noexcept
         {
@@ -176,7 +176,7 @@ namespace CC
             return *this;
         }
 
-        /// Public Operator Overloads \\\
+        // Public Operator Overloads //
 
         [[nodiscard]] virtual explicit operator bool() const noexcept
         {
@@ -195,29 +195,29 @@ namespace CC
 
         [[nodiscard]] virtual T& operator*()
         {
-            PH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
+            PH::ValidateDereferenceT(__PRETTY_FUNCTION__, m_pPtr);
             return *m_pPtr;
         }
 
         [[nodiscard]] virtual const T& operator*() const
         {
-            PH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
+            PH::ValidateDereferenceT(__PRETTY_FUNCTION__, m_pPtr);
             return *m_pPtr;
         }
 
         [[nodiscard]] virtual T* operator->()
         {
-            PH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
+            PH::ValidateDereferenceT(__PRETTY_FUNCTION__, m_pPtr);
             return m_pPtr;
         }
 
         [[nodiscard]] virtual const T* operator->() const
         {
-            PH::ValidateDereferenceT(__FUNCSIG__, m_pPtr);
+            PH::ValidateDereferenceT(__PRETTY_FUNCTION__, m_pPtr);
             return m_pPtr;
         }
 
-        /// Getters \\\
+        // Getters //
 
         // Returns pointer to mutable internal pointer.
         [[nodiscard]] virtual T* Get() noexcept
@@ -238,12 +238,12 @@ namespace CC
         }
 
         // Returns size in bytes of data element(s) pointed to by internal pointer.
-        [[nodiscard]] virtual const size_t Size() const noexcept
+        [[nodiscard]] virtual size_t Size() const noexcept
         {
             return sizeof(T) * m_Len;
         }
 
-        /// Public Methods \\\
+        // Public Methods //
 
         // Resets internal data members to default values.
         // Note: This will not free any internal resources - use with caution.

@@ -2,7 +2,7 @@
 
 // SUTL
 #include <UnitTestResult.h>
-#include <TestQuantity.h>
+#include <TestTypes.h>
 
 // STL
 #include <algorithm>
@@ -36,7 +36,7 @@ namespace CC
         using UTFunc = std::function<UTR(void)>;
         using UTList = std::list<UTFunc>;
 
-        /// Test Subclasses \\\
+        // Test Subclasses //
 
         // Tests constructor behavior.
         class ConstructorTests;
@@ -166,7 +166,7 @@ namespace CC
                 SUTL_TEST_ASSERT(pBuffer->WritePosition() == 0);
 
                 size_t srcIdx = 0;
-                for (size_t i = 0; i < pBuffer->WritePosition(); i++, srcIdx)
+                for (size_t i = 0; i < pBuffer->WritePosition(); i++, srcIdx++)
                 {
                     if (srcIdx == testData.size())
                     {
@@ -227,6 +227,13 @@ namespace CC
             T* p = (len == 0) ? nullptr : (len == 1) ? new T : new T[len];
             if (p)
             {
+            #if defined(__GNUC__)
+                // Suppress Warning:
+                // ‘void* memcpy(void*, const void*, size_t)’ writing to an
+                // object of type ‘struct CC::Helper’ with no trivial copy-assignment;
+                // use copy-assignment or copy-initialization instead
+                #pragma GCC diagnostic ignored "-Wclass-memaccess"
+            #endif
                 memcpy(p, testData.data(), sizeof(T) * len);
             }
 
@@ -275,6 +282,13 @@ namespace CC
             SUTL_SETUP_ASSERT(srcBuffer.Length() == testData.size());
             if (srcBuffer)
             {
+            #if defined(__GNUC__)
+                // Suppress Warning:
+                // ‘void* memcpy(void*, const void*, size_t)’ writing to an
+                // object of type ‘struct CC::Helper’ with no trivial copy-assignment;
+                // use copy-assignment or copy-initialization instead
+                #pragma GCC diagnostic ignored "-Wclass-memaccess"
+            #endif
                 memcpy(srcBuffer.Get(), testData.data(), srcBuffer.Size());
             }
 
@@ -301,7 +315,7 @@ namespace CC
             {
                 SUTL_TEST_ASSERT(srcBuffer);
                 size_t srcIdx = 0;
-                for (size_t i = 0; i < pBuffer->WritePosition(); i++, srcIdx)
+                for (size_t i = 0; i < pBuffer->WritePosition(); i++, srcIdx++)
                 {
                     if (srcIdx == srcBuffer.Length())
                     {
@@ -338,6 +352,13 @@ namespace CC
             SUTL_SETUP_ASSERT(srcLen == testData.size());
             if (srcBuffer)
             {
+            #if defined(__GNUC__)
+                // Suppress Warning:
+                // ‘void* memcpy(void*, const void*, size_t)’ writing to an
+                // object of type ‘struct CC::Helper’ with no trivial copy-assignment;
+                // use copy-assignment or copy-initialization instead
+                #pragma GCC diagnostic ignored "-Wclass-memaccess"
+            #endif
                 memcpy(srcBuffer.Get(), testData.data(), srcBuffer.Size());
             }
 
@@ -1025,7 +1046,7 @@ namespace CC
             constexpr bool bFirstWriteResult = (bNullBuffer || bNullSource || len2 > len1) ? false : true;
             constexpr bool bSecondWriteResult = (bNullBuffer || bNullSource || (2 * len2) > len1) ? false : true;
 
-            static_assert(((bFirstWriteResult == false) && (bSecondWriteResult == true)) != true, __FUNCSIG__": Invalid expected-write-result configuration logic.");
+            static_assert(((bFirstWriteResult == false) && (bSecondWriteResult == true)) != true, "Invalid expected-write-result configuration logic.");
 
             std::vector<T> testData(GetTestData<T, TQ2>());
             T* pData = testData.data();
@@ -1134,7 +1155,7 @@ namespace CC
             constexpr bool bFirstWriteResult = ((bSetupWriteResult == false) || bNullBuffer || writeLen > len1) ? false : true;
             constexpr bool bSecondWriteResult = ((bSetupWriteResult == false) || bNullBuffer || (2 * writeLen) > len1) ? false : true;
 
-            static_assert(((bFirstWriteResult == false) && (bSecondWriteResult == true)) != true, __FUNCSIG__": Invalid expected-write-result configuration logic.");
+            static_assert(((bFirstWriteResult == false) && (bSecondWriteResult == true)) != true, "Invalid expected-write-result configuration logic.");
 
             const std::vector<T> testData(GetTestData<T, TQ2>());
             Buffer<T> buffer(len1);

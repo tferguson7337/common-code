@@ -2,7 +2,7 @@
 
 // SUTL
 #include <UnitTestResult.h>
-#include <TestQuantity.h>
+#include <TestTypes.h>
 
 // STL
 #include <algorithm>
@@ -120,7 +120,7 @@ namespace CC
             }
         };
 
-        /// Test Subclasses \\\
+        // Test Subclasses //
 
         class ConstructorTests;
 
@@ -334,48 +334,47 @@ namespace CC
             constexpr size_t arrLen = GetTQLength<TestQuantity::High>();
 
             CleanupHelper<T>::GetDestructionCounter() = 0;
-            SharedPointer<CleanupHelper<T>> p(len);
-            std::vector<SharedPointer<CleanupHelper<T>>> arr;
+            SharedPointer<CleanupHelper<T>>* p = new SharedPointer<CleanupHelper<T>>(len);
+            std::vector<SharedPointer<CleanupHelper<T>>*> arr;
 
             SUTL_SETUP_ASSERT(CleanupHelper<T>::GetDestructionCounter() == 0);
 
             for (size_t i = 0; i < arrLen; i++)
             {
-                arr.push_back(p);
+                arr.push_back(new SharedPointer<CleanupHelper<T>>(*p));
             }
 
             for (size_t i = 0; i < arrLen; i++)
             {
-                SUTL_SETUP_ASSERT(p.m_pPtr == arr[i].m_pPtr);
-                SUTL_SETUP_ASSERT(p.m_pRefCount == arr[i].m_pRefCount);
-                SUTL_SETUP_ASSERT(p.m_Len == arr[i].m_Len);
+                SUTL_SETUP_ASSERT(p->m_pPtr == arr[i]->m_pPtr);
+                SUTL_SETUP_ASSERT(p->m_pRefCount == arr[i]->m_pRefCount);
+                SUTL_SETUP_ASSERT(p->m_Len == arr[i]->m_Len);
             }
 
             if constexpr (len == 0)
             {
-                SUTL_SETUP_ASSERT(!p.m_pPtr);
-                SUTL_SETUP_ASSERT(!p.m_pRefCount);
-                SUTL_SETUP_ASSERT(p.m_Len == 0);
+                SUTL_SETUP_ASSERT(!p->m_pPtr);
+                SUTL_SETUP_ASSERT(!p->m_pRefCount);
+                SUTL_SETUP_ASSERT(p->m_Len == 0);
             }
             else
             {
-                SUTL_SETUP_ASSERT(!!p.m_pPtr);
-                SUTL_SETUP_ASSERT(!!p.m_pRefCount);
-                SUTL_SETUP_ASSERT((*p.m_pRefCount) == arrLen + 1);
-                SUTL_SETUP_ASSERT(p.m_Len == len);
+                SUTL_SETUP_ASSERT(!!p->m_pPtr);
+                SUTL_SETUP_ASSERT(!!p->m_pRefCount);
+                SUTL_SETUP_ASSERT((*p->m_pRefCount) == arrLen + 1);
+                SUTL_SETUP_ASSERT(p->m_Len == len);
             }
 
             for (size_t i = 0; i < arrLen; i++)
             {
-                arr[i].~SharedPointer();
-                SUTL_TEST_ASSERT(!p.m_pRefCount || (static_cast<size_t>(*p.m_pRefCount) == arrLen - i));
+                delete arr[i];
+                arr[i] = nullptr;
+                SUTL_TEST_ASSERT(!p->m_pRefCount || (static_cast<size_t>(*p->m_pRefCount) == arrLen - i));
                 SUTL_TEST_ASSERT(CleanupHelper<T>::GetDestructionCounter() == 0);
             }
 
-            p.~SharedPointer();
-            SUTL_SETUP_ASSERT(!p.m_pPtr);
-            SUTL_SETUP_ASSERT(!p.m_pRefCount);
-            SUTL_SETUP_ASSERT(p.m_Len == 0);
+            delete p;
+            p = nullptr;
             SUTL_TEST_ASSERT(CleanupHelper<T>::GetDestructionCounter() == len);
 
             CleanupHelper<T>::GetDestructionCounter() = 0;
@@ -585,7 +584,7 @@ namespace CC
         {
             if (dst)
             {
-                throw std::invalid_argument(__FUNCSIG__": SharedPointer dst is not empty.");
+                throw std::invalid_argument("SharedPointer dst is not empty.");
             }
 
             dst = src;

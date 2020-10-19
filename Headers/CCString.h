@@ -7,6 +7,9 @@
 
 // STL
 #include <algorithm>
+#include <cstring>
+#include <cwctype>
+#include <memory>
 #include <stdexcept>
 
 
@@ -23,12 +26,12 @@ namespace CC
 
     private:
 
-        /// Private Static Data Members \\\
+        // Private Static Data Members //
 
         static constexpr size_t ms_SSOCap = 32;
 
 
-        /// Private Data Members \\\
+        // Private Data Members //
 
         T m_SSOArr[ms_SSOCap];
         T* m_pStr;
@@ -36,7 +39,7 @@ namespace CC
         size_t m_Cap;
 
 
-        /// Private Throwing Validators \\\
+        // Private Throwing Validators //
 
         // Throws std::out_of_range if using idx would access memory beyond the length of the string.
         inline void ValidateIndexT(_In_z_ const char* const f, _In_ const size_t& idx) const
@@ -54,7 +57,7 @@ namespace CC
         }
 
 
-        /// Private Static Validators \\\
+        // Private Static Validators //
 
         // Returns false if p is nullptr, true otherwise.
         [[nodiscard]] inline static bool ValidatePointer(_In_opt_ const T* const p) noexcept
@@ -75,7 +78,7 @@ namespace CC
         }
 
 
-        /// Static Private Helper Methods \\\
+        // Static Private Helper Methods //
 
         // Returns true if tc is ms_NullTerminator, false otherwise.
         [[nodiscard]] inline static bool IsNullTerminator(_In_ const T& tc) noexcept
@@ -103,32 +106,40 @@ namespace CC
         }
 
         // Returns true if strings are equivalent, false otherwise.
-        template <bool bCI = false>
-        [[nodiscard]] inline static bool CompareStrings(_In_ const String<T> & lhs, _In_ const String<T> & rhs) noexcept
+        [[nodiscard]] inline static bool CompareStrings(
+            _In_ const String<T> & lhs,
+            _In_ const String<T> & rhs,
+            _In_ const bool bCaseInsensitive = false) noexcept
         {
-            return CompareStrings<bCI>(lhs.m_pStr, lhs.m_Len, rhs.m_pStr, rhs.m_Len);
+            return CompareStrings(lhs.m_pStr, lhs.m_Len, rhs.m_pStr, rhs.m_Len, bCaseInsensitive);
         }
 
         // Returns true if strings are equivalent, false otherwise.
-        template <bool bCI = false>
-        [[nodiscard]] inline static bool CompareStrings(_In_ const String<T> & lhs, _In_reads_(rhsLen) const T * pRhs, _In_ const size_t & rhsLen) noexcept
+        [[nodiscard]] inline static bool CompareStrings(
+            _In_ const String<T> & lhs,
+            _In_reads_(rhsLen) const T * pRhs,
+            _In_ const size_t rhsLen,
+            _In_ const bool bCaseInsensitive = false) noexcept
         {
-            return CompareStrings<bCI>(lhs.m_pStr, lhs.m_Len, pRhs, rhsLen);
+            return CompareStrings(lhs.m_pStr, lhs.m_Len, pRhs, rhsLen, bCaseInsensitive);
         }
 
         // Returns true if strings are equivalent, false otherwise.
-        template <bool bCI = false>
-        [[nodiscard]] inline static bool CompareStrings(_In_reads_(lhsLen) const T * pLhs, _In_ const size_t & lhsLen, _In_ const String<T> & rhs) noexcept
+        [[nodiscard]] inline static bool CompareStrings(
+            _In_reads_(lhsLen) const T * pLhs,
+            _In_ const size_t lhsLen,
+            _In_ const String<T> & rhs,
+            _In_ const bool bCaseInsensitive = false) noexcept
         {
-            return CompareStrings<bCI>(pLhs, lhsLen, rhs.m_pStr, rhs.m_Len);
+            return CompareStrings(pLhs, lhsLen, rhs.m_pStr, rhs.m_Len, bCaseInsensitive);
         }
 
         // Returns true if strings are equivalent, false otherwise.
-        template <bool bCI = false>
-        [[nodiscard]] static bool CompareStrings(_In_reads_(lhsLen) const T * pLhs, _In_ const size_t & lhsLen, _In_reads_(rhsLen) const T * pRhs, _In_ const size_t & rhsLen) noexcept
+        [[nodiscard]] static bool CompareStrings(
+            _In_reads_(lhsLen) const T * pLhs, _In_ const size_t lhsLen,
+            _In_reads_(rhsLen) const T * pRhs, _In_ const size_t rhsLen,
+            _In_ const bool bCaseInsensitive = false) noexcept
         {
-            const size_t& compSize = sizeof(T) * std::min(lhsLen, rhsLen);
-
             if (pLhs == pRhs)
             {
                 // Same pointers mean same contents - match.
@@ -147,11 +158,39 @@ namespace CC
                 return false;
             }
 
-            return ((!bCI) ? memcmp(pLhs, pRhs, compSize) : _memicmp(pLhs, pRhs, compSize)) == 0;
+
+            if (bCaseInsensitive)
+            {
+                const size_t compLen = std::min(lhsLen, rhsLen);
+                for (size_t i = 0; i < compLen; ++i)
+                {
+                    if constexpr (std::is_same_v<T, char>)
+                    {
+                        if (std::tolower(static_cast<int>(pLhs[i])) != std::tolower(static_cast<int>(pRhs[i])))
+                        {
+                            return false;
+                        }
+                    }
+                    else // if constexpr (std::is_same_v<T, wchar_t>)
+                    {
+                        if (std::towlower(static_cast<std::wint_t>(pLhs[i])) != std::towlower(static_cast<std::wint_t>(pRhs[i])))
+                        {
+                            return false;
+                        }
+                    }
+                }
+
+                return true;
+            }
+            else
+            {
+                const size_t compSize = sizeof(T) * std::min(lhsLen, rhsLen);
+                return memcmp(pLhs, pRhs, compSize) == 0;
+            }
         }
 
 
-        /// Private Helper Methods \\\
+        // Private Helper Methods //
 
         // Allocates new string array, assigns it to m_pStr, and sets m_Cap.  Also copies old contents if specified.
         // Returns true if allocation succeeds, false otherwise.
@@ -194,11 +233,11 @@ namespace CC
                 }
             }
 
-            if constexpr (std::is_same_v<T, utf8>)
+            if constexpr (std::is_same_v<T, char>)
             {
                 memset(m_pStr, tc, len);
             }
-            else if constexpr (std::is_same_v<T, utf16>)
+            else if constexpr (std::is_same_v<T, wchar_t>)
             {
                 wmemset(m_pStr, tc, len);
             }
@@ -255,7 +294,7 @@ namespace CC
         }
 
 
-        /// Private Helper Methods - Copy Helpers \\\
+        // Private Helper Methods - Copy Helpers //
 
         // Copy raw pointer contents to string.
         // Returns true if copy succeeds, false otherwise.
@@ -343,7 +382,7 @@ namespace CC
         }
 
 
-        /// Private Helper Methods - Append Helpers \\\
+        // Private Helper Methods - Append Helpers //
 
         // Appends raw pointer contents to end of this string.
         // Returns true if append operation is successful, false otherwise.
@@ -391,14 +430,14 @@ namespace CC
 
     public:
 
-        /// Public Static Data Members \\\
+        // Public Static Data Members //
 
         static constexpr T ms_NullTerminator = static_cast<T>('\0');
         static constexpr size_t ms_InvalidPos = std::numeric_limits<size_t>::max();
         static constexpr size_t ms_InvalidLen = std::numeric_limits<size_t>::max();
 
 
-        /// Constructors \\\
+        // Constructors //
 
         // Default constructor - string will be empty.
         String() noexcept :
@@ -465,7 +504,7 @@ namespace CC
         }
 
 
-        /// Destructor \\\
+        // Destructor //
 
         ~String() noexcept
         {
@@ -473,7 +512,7 @@ namespace CC
         }
 
 
-        /// Assignment Overloads \\\
+        // Assignment Overloads //
 
         // Assigns C-string contents to this string.
         // Note: Clears string if assignment fails.
@@ -513,7 +552,7 @@ namespace CC
         }
 
 
-        /// Operator Overloads \\\
+        // Operator Overloads //
 
         // Returns true if this string is not empty (length != 0).
         [[nodiscard]] explicit operator bool() const noexcept
@@ -549,7 +588,7 @@ namespace CC
         // Note: Throws std::out_of_range if using idx would access memory beyond the length of the string.
         [[nodiscard]] T& operator[](_In_ const size_t& idx)
         {
-            ValidateIndexT(__FUNCSIG__, idx);
+            ValidateIndexT(__PRETTY_FUNCTION__, idx);
             return m_pStr[idx];
         }
 
@@ -557,7 +596,7 @@ namespace CC
         // Note: Throws std::out_of_range if using idx would access memory beyond the length of the string.
         [[nodiscard]] const T& operator[](_In_ const size_t& idx) const
         {
-            ValidateIndexT(__FUNCSIG__, idx);
+            ValidateIndexT(__PRETTY_FUNCTION__, idx);
             return m_pStr[idx];
         }
 
@@ -587,7 +626,7 @@ namespace CC
         }
 
 
-        /// Getters \\\
+        // Getters //
 
         // Returns C-string pointer (mutable).
         [[nodiscard]] _Ret_z_ inline T* CStr() noexcept
@@ -619,7 +658,7 @@ namespace CC
         // Note: Throws std::out_of_range if string is empty.
         [[nodiscard]] inline T& Front()
         {
-            ValidateIndexT(__FUNCSIG__, 0);
+            ValidateIndexT(__PRETTY_FUNCTION__, 0);
             return m_pStr[0];
         }
 
@@ -627,7 +666,7 @@ namespace CC
         // Note: Throws std::out_of_range if string is empty.
         [[nodiscard]] inline const T& Front() const
         {
-            ValidateIndexT(__FUNCSIG__, 0);
+            ValidateIndexT(__PRETTY_FUNCTION__, 0);
             return m_pStr[0];
         }
 
@@ -635,7 +674,7 @@ namespace CC
         // Note: Throws std::out_of_range if string is empty.
         [[nodiscard]] inline T& Back()
         {
-            ValidateIndexT(__FUNCSIG__, IsEmpty() ? ms_InvalidPos : m_Len - 1);
+            ValidateIndexT(__PRETTY_FUNCTION__, IsEmpty() ? ms_InvalidPos : m_Len - 1);
             return m_pStr[m_Len - 1];
         }
 
@@ -643,15 +682,15 @@ namespace CC
         // Note: Throws std::out_of_range if string is empty.
         [[nodiscard]] inline const T& Back() const
         {
-            ValidateIndexT(__FUNCSIG__, IsEmpty() ? ms_InvalidPos : m_Len - 1);
+            ValidateIndexT(__PRETTY_FUNCTION__, IsEmpty() ? ms_InvalidPos : m_Len - 1);
             return m_pStr[m_Len - 1];
         }
 
 
-        /// Public Methods \\\
+        // Public Methods //
 
 
-        /// Assign \\\
+        // Assign //
 
         // Assigns a single character tc to this string.
         [[nodiscard]] _Success_(return) inline bool Assign(_In_ const T& tc) noexcept
@@ -692,7 +731,7 @@ namespace CC
         }
 
 
-        /// Append \\\
+        // Append //
 
         // Appends a single character tc to this string.
         [[nodiscard]] _Success_(return) inline bool Append(_In_ const T& tc) noexcept
@@ -727,40 +766,36 @@ namespace CC
         }
 
 
-        /// Compare \\\
+        // Compare //
 
         // Compares C-string contents to this string, using specified case-sensitivity option.
-        template <bool bCaseInsensitive = false>
-        [[nodiscard]] inline bool Compare(_In_z_ const T * const pCStr) const noexcept
+        [[nodiscard]] inline bool Compare(_In_z_ const T * const pCStr, _In_ const bool bCaseInsensitive = false) const noexcept
         {
             const size_t len = GetStringLength(pCStr);
-            return (len != ms_InvalidLen) && (m_Len == len) && CompareStrings<bCaseInsensitive>(*this, pCStr, len);
+            return (len != ms_InvalidLen) && (m_Len == len) && CompareStrings(*this, pCStr, len, bCaseInsensitive);
         }
 
         // Compares contents of pStr to this string, using specified case-sensitivity option.
-        template <bool bCaseInsensitive = false>
-        [[nodiscard]] inline bool Compare(_In_reads_(len) const T * const pStr, _In_ const size_t & len) const noexcept
+        [[nodiscard]] inline bool Compare(_In_reads_(len) const T * const pStr, _In_ const size_t len, _In_ const bool bCaseInsensitive = false) const noexcept
         {
-            return (m_Len >= len) && CompareStrings<bCaseInsensitive>(*this, pStr, len);
+            return (m_Len >= len) && CompareStrings(*this, pStr, len, bCaseInsensitive);
         }
 
         // Compares contents of source string to this string, using specified case-sensitivity option.
-        template <bool bCaseInsensitive = false>
-        [[nodiscard]] inline bool Compare(_In_ const String<T> & rhs) const noexcept
+        [[nodiscard]] inline bool Compare(_In_ const String<T> & rhs, _In_ const bool bCaseInsensitive = false) const noexcept
         {
-            return (m_Len == rhs.m_Len) && CompareStrings<bCaseInsensitive>(*this, rhs);
+            return (m_Len == rhs.m_Len) && CompareStrings(*this, rhs, bCaseInsensitive);
         }
 
         // Compares contents of source string to this string, up to len characters and using specified case-sensitivity option.
-        template <bool bCaseInsensitive = false>
-        [[nodiscard]] inline bool Compare(_In_ const String<T> & rhs, _In_ const size_t & len) const noexcept
+        [[nodiscard]] inline bool Compare(_In_ const String<T> & rhs, _In_ const size_t len, _In_ const bool bCaseInsensitive = false) const noexcept
         {
-            const size_t& rhsLen = std::min(rhs.m_Len, len);
-            return (m_Len >= rhsLen) && CompareStrings<bCaseInsensitive>(*this, rhs.m_pStr, rhsLen);
+            const size_t rhsLen = std::min(rhs.m_Len, len);
+            return (m_Len >= rhsLen) && CompareStrings(*this, rhs.m_pStr, rhsLen, bCaseInsensitive);
         }
 
 
-        /// Misc \\\
+        // Misc //
 
         // Resets the string to default state (empty).
         inline void Clear() noexcept
@@ -778,6 +813,6 @@ namespace CC
     };
 
     // Aliases for supported string types.
-    using StringUTF8 = String<utf8>;
-    using StringUTF16 = String<utf16>;
+    using StringUTF8 = String<char>;
+    using StringUTF16 = String<wchar_t>;
 }

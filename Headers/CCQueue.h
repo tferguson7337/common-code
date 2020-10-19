@@ -29,13 +29,13 @@ namespace CC
 
     private:
 
-        /// Private Data Members \\\
+        // Private Data Members //
 
         ForwardList<T> m_FwdList;
 
     public:
 
-        /// Constructors \\\
+        // Constructors //
 
         // Default constructor
         Queue() noexcept = default;
@@ -63,11 +63,11 @@ namespace CC
             *this = std::forward<U>(src);
         }
 
-        /// Destructor \\\
+        // Destructor //
 
         ~Queue() noexcept(CC_IS_NOTHROW_DTOR(T)) { }
 
-        /// Assignment Overload \\\
+        // Assignment Overload //
 
         // Copy assignment
         Queue<T>& operator=(_In_ const Queue<T>& src) noexcept(CC_IS_NOTHROW_COPY(T))
@@ -91,7 +91,7 @@ namespace CC
             return *this;
         }
 
-        /// Operator Overloads \\\
+        // Operator Overloads //
 
         // Returns true if queue is not empty, false otherwise.
         [[nodiscard]] explicit operator bool() const noexcept
@@ -106,7 +106,7 @@ namespace CC
             return Compare(rhs);
         }
 
-        /// Getters \\\
+        // Getters //
 
         // Returns length of queue (number of elements).
         [[nodiscard]] inline size_t Length() const noexcept
@@ -142,7 +142,7 @@ namespace CC
             return m_FwdList.Front();
         }
 
-        /// Public Methods \\\
+        // Public Methods //
 
         // Clears previous queue contents and assigns specified element or queue object to this queue.
         // Returns true if operation succeeds, false otherwise.
@@ -160,13 +160,9 @@ namespace CC
                     return m_FwdList.Assign(obj.m_FwdList);
                 }
             }
-            else if constexpr (CC_IS_ELEMENT(T, U))
+            else // if constexpr (CC_IS_ELEMENT(T, U))
             {
                 return m_FwdList.Assign(std::forward<U>(obj));
-            }
-            else
-            {
-                static_assert(false, __FUNCSIG__ ": Unsupported assign type.");
             }
         }
 

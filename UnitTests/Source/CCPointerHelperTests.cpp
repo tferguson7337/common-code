@@ -2,8 +2,6 @@
 
 CC::PointerHelperTests::UTList CC::PointerHelperTests::GetTests()
 {
-    using TQ = TestQuantity;
-
     static const UTList tests
     {
         // Tests

@@ -8,7 +8,7 @@
 #include <UnitTestRunner.h>
 
 using TestName = const std::string;
-using TestSetFunc = std::function<bool(UnitTestRunner<char>&)>;
+using TestSetFunc = std::function<bool(UnitTestRunner&)>;
 using TestPair = std::pair<TestName, TestSetFunc>;
 using TestFuncMap = std::vector<TestPair>;
 

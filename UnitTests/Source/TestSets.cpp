@@ -14,8 +14,10 @@
 #include <CCStringLiteralTests.h>
 #include <CCStringUtilTests.h>
 
+#include <cstring>
 
-static bool RunAllTests(_Inout_ UnitTestRunner<char>& utr)
+
+static bool RunAllTests(_Inout_ UnitTestRunner& utr)
 {
     utr.ClearUnitTests();
     utr.GetTestSetData().SetTestSetName("CommonCode - All");
@@ -36,7 +38,7 @@ static bool RunAllTests(_Inout_ UnitTestRunner<char>& utr)
     return utr.RunUnitTests();
 }
 
-static bool RunPointerHelperTests(_Inout_ UnitTestRunner<char>& utr)
+static bool RunPointerHelperTests(_Inout_ UnitTestRunner& utr)
 {
     utr.ClearUnitTests();
     utr.GetTestSetData().SetTestSetName("CommonCode - PointerHelper");
@@ -46,7 +48,7 @@ static bool RunPointerHelperTests(_Inout_ UnitTestRunner<char>& utr)
     return utr.RunUnitTests();
 }
 
-static bool RunPointerTests(_Inout_ UnitTestRunner<char>& utr)
+static bool RunPointerTests(_Inout_ UnitTestRunner& utr)
 {
     utr.ClearUnitTests();
     utr.GetTestSetData().SetTestSetName("CommonCode - Pointer");
@@ -56,7 +58,7 @@ static bool RunPointerTests(_Inout_ UnitTestRunner<char>& utr)
     return utr.RunUnitTests();
 }
 
-static bool RunSharedPointerTests(_Inout_ UnitTestRunner<char>& utr)
+static bool RunSharedPointerTests(_Inout_ UnitTestRunner& utr)
 {
     utr.ClearUnitTests();
     utr.GetTestSetData().SetTestSetName("CommonCode - SharedPointer");
@@ -66,7 +68,7 @@ static bool RunSharedPointerTests(_Inout_ UnitTestRunner<char>& utr)
     return utr.RunUnitTests();
 }
 
-static bool RunBufferTests(_Inout_ UnitTestRunner<char>& utr)
+static bool RunBufferTests(_Inout_ UnitTestRunner& utr)
 {
     utr.ClearUnitTests();
     utr.GetTestSetData().SetTestSetName("CommonCode - Buffer");
@@ -76,7 +78,7 @@ static bool RunBufferTests(_Inout_ UnitTestRunner<char>& utr)
     return utr.RunUnitTests();
 }
 
-static bool RunDynamicBufferTests(_Inout_ UnitTestRunner<char>& utr)
+static bool RunDynamicBufferTests(_Inout_ UnitTestRunner& utr)
 {
     utr.ClearUnitTests();
     utr.GetTestSetData().SetTestSetName("CommonCode - Dynamic Buffer");
@@ -86,7 +88,7 @@ static bool RunDynamicBufferTests(_Inout_ UnitTestRunner<char>& utr)
     return utr.RunUnitTests();
 }
 
-static bool RunStringUtilTests(_Inout_ UnitTestRunner<char>& utr)
+static bool RunStringUtilTests(_Inout_ UnitTestRunner& utr)
 {
     utr.ClearUnitTests();
     utr.GetTestSetData().SetTestSetName("CommonCode - StringUtil");
@@ -96,7 +98,7 @@ static bool RunStringUtilTests(_Inout_ UnitTestRunner<char>& utr)
     return utr.RunUnitTests();
 }
 
-static bool RunStringTests(_Inout_ UnitTestRunner<char>& utr)
+static bool RunStringTests(_Inout_ UnitTestRunner& utr)
 {
     utr.ClearUnitTests();
     utr.GetTestSetData().SetTestSetName("CommonCode - String");
@@ -106,7 +108,7 @@ static bool RunStringTests(_Inout_ UnitTestRunner<char>& utr)
     return utr.RunUnitTests();
 }
 
-static bool RunListTests(_Inout_ UnitTestRunner<char>& utr)
+static bool RunListTests(_Inout_ UnitTestRunner& utr)
 {
     utr.ClearUnitTests();
     utr.GetTestSetData().SetTestSetName("CommonCode - List");
@@ -116,7 +118,7 @@ static bool RunListTests(_Inout_ UnitTestRunner<char>& utr)
     return utr.RunUnitTests();
 }
 
-static bool RunStackTests(_Inout_ UnitTestRunner<char>& utr)
+static bool RunStackTests(_Inout_ UnitTestRunner& utr)
 {
     utr.ClearUnitTests();
     utr.GetTestSetData().SetTestSetName("CommonCode - Stack");
@@ -126,7 +128,7 @@ static bool RunStackTests(_Inout_ UnitTestRunner<char>& utr)
     return utr.RunUnitTests();
 }
 
-static bool RunQueueTests(_Inout_ UnitTestRunner<char>& utr)
+static bool RunQueueTests(_Inout_ UnitTestRunner& utr)
 {
     utr.ClearUnitTests();
     utr.GetTestSetData().SetTestSetName("CommonCode - Queue");
@@ -136,7 +138,7 @@ static bool RunQueueTests(_Inout_ UnitTestRunner<char>& utr)
     return utr.RunUnitTests();
 }
 
-static bool RunForwardListTests(_Inout_ UnitTestRunner<char>& utr)
+static bool RunForwardListTests(_Inout_ UnitTestRunner& utr)
 {
     utr.ClearUnitTests();
     utr.GetTestSetData().SetTestSetName("CommonCode - ForwardList");
@@ -146,7 +148,7 @@ static bool RunForwardListTests(_Inout_ UnitTestRunner<char>& utr)
     return utr.RunUnitTests();
 }
 
-static bool RunStringLiteralTests(_Inout_ UnitTestRunner<char>& utr)
+static bool RunStringLiteralTests(_Inout_ UnitTestRunner& utr)
 {
     utr.ClearUnitTests();
     utr.GetTestSetData().SetTestSetName("CommonCode - StringLiteral");
@@ -190,7 +192,9 @@ const TestSetFunc GetTestSetFunction(_In_ const std::string& str)
             continue;
         }
 
-        if (_strnicmp(str.c_str(), testName.c_str(), str.length()) == 0)
+    
+        if (std::equal(testName.cbegin(), testName.cend(), str.cbegin(), str.cend(),
+            [](const char lc, const char rc) { return std::tolower(lc) == std::tolower(rc); }))
         {
             func = testFunc;
             break;
@@ -206,7 +210,7 @@ std::list<TestSetFunc> GetTestSetFunctions(_In_ const int& argc, _In_z_count_(ar
 
     if (argc <= 1)
     {
-        printf(__FUNCTION__ ": No test sets specified, running all tests.\r\n");
+        printf("No test sets specified, running all tests.\r\n");
         testFuncList.push_back(RunAllTests);
     }
     else
@@ -220,14 +224,14 @@ std::list<TestSetFunc> GetTestSetFunctions(_In_ const int& argc, _In_z_count_(ar
             }
             else
             {
-                printf(__FUNCTION__": Unknown test name[%s], skipping.\r\n", argv[i]);
+                printf("Unknown test name[%s], skipping.\r\n", argv[i]);
             }
         }
     }
 
     if (testFuncList.empty())
     {
-        printf(__FUNCTION__": No tests selected.\r\n");
+        printf("No tests selected.\r\n");
     }
 
     return testFuncList;

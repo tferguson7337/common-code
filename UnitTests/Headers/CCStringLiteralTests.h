@@ -2,7 +2,7 @@
 
 // SUTL
 #include <UnitTestResult.h>
-#include <TestQuantity.h>
+#include <TestTypes.h>
 
 // STL
 #include <functional>
@@ -390,8 +390,10 @@ namespace CC
                     constexpr StringLiteral lit(STRING_LITERAL_NARROW_TQ_NONE);
                     try
                     {
+                    #if defined(__GNUC__)
+                        #pragma GCC diagnostic ignored "-Wunused-variable"
+                    #endif
                         auto c = lit[0];
-                        c;
                     }
                     catch (const std::out_of_range&)
                     {
@@ -414,8 +416,10 @@ namespace CC
 
                     try
                     {
+                    #if defined(__GNUC__)
+                        #pragma GCC diagnostic ignored "-Wunused-variable"
+                    #endif
                         auto c = lit[ptrLenPair.second];
-                        c;
                     }
                     catch (const std::out_of_range&)
                     {
@@ -438,8 +442,10 @@ namespace CC
 
                     try
                     {
+                    #if defined(__GNUC__)
+                        #pragma GCC diagnostic ignored "-Wunused-variable"
+                    #endif
                         auto c = lit[ptrLenPair.second];
-                        c;
                     }
                     catch (const std::out_of_range&)
                     {
@@ -465,8 +471,10 @@ namespace CC
 
                     try
                     {
+                    #if defined(__GNUC__)
+                        #pragma GCC diagnostic ignored "-Wunused-variable"
+                    #endif
                         auto c = lit[ptrLenPair.second];
-                        c;
                     }
                     catch (const std::out_of_range&)
                     {
@@ -489,8 +497,10 @@ namespace CC
 
                     try
                     {
+                    #if defined(__GNUC__)
+                        #pragma GCC diagnostic ignored "-Wunused-variable"
+                    #endif
                         auto c = lit[ptrLenPair.second];
-                        c;
                     }
                     catch (const std::out_of_range&)
                     {
@@ -513,8 +523,10 @@ namespace CC
 
                     try
                     {
+                    #if defined(__GNUC__)
+                        #pragma GCC diagnostic ignored "-Wunused-variable"
+                    #endif
                         auto c = lit[ptrLenPair.second];
-                        c;
                     }
                     catch (const std::out_of_range&)
                     {

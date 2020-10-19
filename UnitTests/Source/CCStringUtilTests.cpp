@@ -1,7 +1,7 @@
 #include <CCStringUtilTests.h>
 
 
-/// Add-String-Util-Test Helper Macros \\\
+// Add-String-Util-Test Helper Macros //
 
 // Add 2 Tests (2 Char types)
 #define ADD_STR_UTIL_TESTS_C(_fn_)\

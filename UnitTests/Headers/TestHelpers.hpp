@@ -1,7 +1,7 @@
 #pragma once
 
 // SUTL
-#include <TestQuantity.h>
+#include <TestTypes.h>
 
 // STD
 #include <cstdint>
@@ -127,7 +127,7 @@ namespace CC
     {
         using TQ = TestQuantity;
 
-        static_assert(IsValidTestQuantity<_TQ>(), __FUNCSIG__": Invalid TestQuantity Template Argument.");
+        static_assert(IsValidTestQuantity<_TQ>(), "Invalid TestQuantity Template Argument.");
 
         if constexpr (_TQ == TQ::None)
         {
@@ -167,15 +167,15 @@ namespace CC
         }
         else
         {
-            static_assert(false, __FUNCSIG__": Unknown TestQuantity Template Argument.");
+            throw std::invalid_argument("Unknown TestQuantity Template Argument.");
         }
     }
 
     template <typename T, TestQuantity TQ>
     static std::vector<T> GetTestData()
     {
-        static_assert(IsValidTestType<T>(), __FUNCSIG__": Invalid Template Type Argument");
-        static_assert(IsValidTestQuantity<TQ>(), __FUNCSIG__": Invalid TestQuantity Template Argument.");
+        static_assert(IsValidTestType<T>(), "Invalid Template Type Argument");
+        static_assert(IsValidTestQuantity<TQ>(), "Invalid TestQuantity Template Argument.");
 
         std::vector<T> testData;
 
@@ -210,11 +210,11 @@ namespace CC
 }
 
 
-/// Add-Test Helper Macros \\\
+// Add-Test Helper Macros //
 
 // Add 5 tests, (5 types)
 #define ADD_TESTS_T(_fn_)\
-    _fn_<uint8_t>, _fn_<uint16_t>, _fn_<uint32_t>, _fn_<uint64_t>, _fn_<Helper>
+    _fn_<uint8_t>, _fn_<uint16_t>, _fn_<uint32_t>, _fn_<uint64_t>, _fn_<CC::Helper>
 
 // Add 25 tests, (5 types x 5 TQs)
 #define ADD_TESTS_T_TQ1(_fn_)\
@@ -222,7 +222,7 @@ namespace CC
     _fn_<uint16_t, TestQuantity::None>, _fn_<uint16_t, TestQuantity::VeryLow>, _fn_<uint16_t, TestQuantity::Low>, _fn_<uint16_t, TestQuantity::Mid>, _fn_<uint16_t, TestQuantity::High>,\
     _fn_<uint32_t, TestQuantity::None>, _fn_<uint32_t, TestQuantity::VeryLow>, _fn_<uint32_t, TestQuantity::Low>, _fn_<uint32_t, TestQuantity::Mid>, _fn_<uint32_t, TestQuantity::High>,\
     _fn_<uint64_t, TestQuantity::None>, _fn_<uint64_t, TestQuantity::VeryLow>, _fn_<uint64_t, TestQuantity::Low>, _fn_<uint64_t, TestQuantity::Mid>, _fn_<uint64_t, TestQuantity::High>,\
-    _fn_<Helper,   TestQuantity::None>, _fn_<Helper,   TestQuantity::VeryLow>, _fn_<Helper,   TestQuantity::Low>, _fn_<Helper,   TestQuantity::Mid>, _fn_<Helper,   TestQuantity::High>
+    _fn_<CC::Helper,   TestQuantity::None>, _fn_<CC::Helper,   TestQuantity::VeryLow>, _fn_<CC::Helper,   TestQuantity::Low>, _fn_<CC::Helper,   TestQuantity::Mid>, _fn_<CC::Helper,   TestQuantity::High>
 
 // Add 50 tests, (5 types x 5 TQs x T/F)
 #define ADD_TESTS_T_TQ1_B(_fn_)\
@@ -230,7 +230,7 @@ namespace CC
     _fn_<uint16_t, TestQuantity::None, false>, _fn_<uint16_t, TestQuantity::None, true>, _fn_<uint16_t, TestQuantity::VeryLow, false>, _fn_<uint16_t, TestQuantity::VeryLow, true>, _fn_<uint16_t, TestQuantity::Low, false>, _fn_<uint16_t, TestQuantity::Low, true>, _fn_<uint16_t, TestQuantity::Mid, false>, _fn_<uint16_t, TestQuantity::Mid, true>, _fn_<uint16_t, TestQuantity::High, false>, _fn_<uint16_t, TestQuantity::High, true>,\
     _fn_<uint32_t, TestQuantity::None, false>, _fn_<uint32_t, TestQuantity::None, true>, _fn_<uint32_t, TestQuantity::VeryLow, false>, _fn_<uint32_t, TestQuantity::VeryLow, true>, _fn_<uint32_t, TestQuantity::Low, false>, _fn_<uint32_t, TestQuantity::Low, true>, _fn_<uint32_t, TestQuantity::Mid, false>, _fn_<uint32_t, TestQuantity::Mid, true>, _fn_<uint32_t, TestQuantity::High, false>, _fn_<uint32_t, TestQuantity::High, true>,\
     _fn_<uint64_t, TestQuantity::None, false>, _fn_<uint64_t, TestQuantity::None, true>, _fn_<uint64_t, TestQuantity::VeryLow, false>, _fn_<uint64_t, TestQuantity::VeryLow, true>, _fn_<uint64_t, TestQuantity::Low, false>, _fn_<uint64_t, TestQuantity::Low, true>, _fn_<uint64_t, TestQuantity::Mid, false>, _fn_<uint64_t, TestQuantity::Mid, true>, _fn_<uint64_t, TestQuantity::High, false>, _fn_<uint64_t, TestQuantity::High, true>,\
-    _fn_<Helper,   TestQuantity::None, false>, _fn_<Helper,   TestQuantity::None, true>, _fn_<Helper,   TestQuantity::VeryLow, false>, _fn_<Helper,   TestQuantity::VeryLow, true>, _fn_<Helper,   TestQuantity::Low, false>, _fn_<Helper,   TestQuantity::Low, true>, _fn_<Helper,   TestQuantity::Mid, false>, _fn_<Helper,   TestQuantity::Mid, true>, _fn_<Helper,   TestQuantity::High, false>, _fn_<Helper,   TestQuantity::High, true>
+    _fn_<CC::Helper,   TestQuantity::None, false>, _fn_<CC::Helper,   TestQuantity::None, true>, _fn_<CC::Helper,   TestQuantity::VeryLow, false>, _fn_<CC::Helper,   TestQuantity::VeryLow, true>, _fn_<CC::Helper,   TestQuantity::Low, false>, _fn_<CC::Helper,   TestQuantity::Low, true>, _fn_<CC::Helper,   TestQuantity::Mid, false>, _fn_<CC::Helper,   TestQuantity::Mid, true>, _fn_<CC::Helper,   TestQuantity::High, false>, _fn_<CC::Helper,   TestQuantity::High, true>
 
 // Add 125 tests, (5 types X 5 TQs X 5 TQs)
 #define ADD_TESTS_T_TQ2(_fn_)\
@@ -254,11 +254,11 @@ namespace CC
     _fn_<uint64_t, TestQuantity::Low,     TestQuantity::None>, _fn_<uint64_t, TestQuantity::Low,     TestQuantity::VeryLow>, _fn_<uint64_t, TestQuantity::Low,     TestQuantity::Low>, _fn_<uint64_t, TestQuantity::Low,     TestQuantity::Mid>, _fn_<uint64_t, TestQuantity::Low,     TestQuantity::High>,\
     _fn_<uint64_t, TestQuantity::Mid,     TestQuantity::None>, _fn_<uint64_t, TestQuantity::Mid,     TestQuantity::VeryLow>, _fn_<uint64_t, TestQuantity::Mid,     TestQuantity::Low>, _fn_<uint64_t, TestQuantity::Mid,     TestQuantity::Mid>, _fn_<uint64_t, TestQuantity::Mid,     TestQuantity::High>,\
     _fn_<uint64_t, TestQuantity::High,    TestQuantity::None>, _fn_<uint64_t, TestQuantity::High,    TestQuantity::VeryLow>, _fn_<uint64_t, TestQuantity::High,    TestQuantity::Low>, _fn_<uint64_t, TestQuantity::High,    TestQuantity::Mid>, _fn_<uint64_t, TestQuantity::High,    TestQuantity::High>,\
-    _fn_<Helper,   TestQuantity::None,    TestQuantity::None>, _fn_<Helper,   TestQuantity::None,    TestQuantity::VeryLow>, _fn_<Helper,   TestQuantity::None,    TestQuantity::Low>, _fn_<Helper,   TestQuantity::None,    TestQuantity::Mid>, _fn_<Helper,   TestQuantity::None,    TestQuantity::High>,\
-    _fn_<Helper,   TestQuantity::VeryLow, TestQuantity::None>, _fn_<Helper,   TestQuantity::VeryLow, TestQuantity::VeryLow>, _fn_<Helper,   TestQuantity::VeryLow, TestQuantity::Low>, _fn_<Helper,   TestQuantity::VeryLow, TestQuantity::Mid>, _fn_<Helper,   TestQuantity::VeryLow, TestQuantity::High>,\
-    _fn_<Helper,   TestQuantity::Low,     TestQuantity::None>, _fn_<Helper,   TestQuantity::Low,     TestQuantity::VeryLow>, _fn_<Helper,   TestQuantity::Low,     TestQuantity::Low>, _fn_<Helper,   TestQuantity::Low,     TestQuantity::Mid>, _fn_<Helper,   TestQuantity::Low,     TestQuantity::High>,\
-    _fn_<Helper,   TestQuantity::Mid,     TestQuantity::None>, _fn_<Helper,   TestQuantity::Mid,     TestQuantity::VeryLow>, _fn_<Helper,   TestQuantity::Mid,     TestQuantity::Low>, _fn_<Helper,   TestQuantity::Mid,     TestQuantity::Mid>, _fn_<Helper,   TestQuantity::Mid,     TestQuantity::High>,\
-    _fn_<Helper,   TestQuantity::High,    TestQuantity::None>, _fn_<Helper,   TestQuantity::High,    TestQuantity::VeryLow>, _fn_<Helper,   TestQuantity::High,    TestQuantity::Low>, _fn_<Helper,   TestQuantity::High,    TestQuantity::Mid>, _fn_<Helper,   TestQuantity::High,    TestQuantity::High>
+    _fn_<CC::Helper,   TestQuantity::None,    TestQuantity::None>, _fn_<CC::Helper,   TestQuantity::None,    TestQuantity::VeryLow>, _fn_<CC::Helper,   TestQuantity::None,    TestQuantity::Low>, _fn_<CC::Helper,   TestQuantity::None,    TestQuantity::Mid>, _fn_<CC::Helper,   TestQuantity::None,    TestQuantity::High>,\
+    _fn_<CC::Helper,   TestQuantity::VeryLow, TestQuantity::None>, _fn_<CC::Helper,   TestQuantity::VeryLow, TestQuantity::VeryLow>, _fn_<CC::Helper,   TestQuantity::VeryLow, TestQuantity::Low>, _fn_<CC::Helper,   TestQuantity::VeryLow, TestQuantity::Mid>, _fn_<CC::Helper,   TestQuantity::VeryLow, TestQuantity::High>,\
+    _fn_<CC::Helper,   TestQuantity::Low,     TestQuantity::None>, _fn_<CC::Helper,   TestQuantity::Low,     TestQuantity::VeryLow>, _fn_<CC::Helper,   TestQuantity::Low,     TestQuantity::Low>, _fn_<CC::Helper,   TestQuantity::Low,     TestQuantity::Mid>, _fn_<CC::Helper,   TestQuantity::Low,     TestQuantity::High>,\
+    _fn_<CC::Helper,   TestQuantity::Mid,     TestQuantity::None>, _fn_<CC::Helper,   TestQuantity::Mid,     TestQuantity::VeryLow>, _fn_<CC::Helper,   TestQuantity::Mid,     TestQuantity::Low>, _fn_<CC::Helper,   TestQuantity::Mid,     TestQuantity::Mid>, _fn_<CC::Helper,   TestQuantity::Mid,     TestQuantity::High>,\
+    _fn_<CC::Helper,   TestQuantity::High,    TestQuantity::None>, _fn_<CC::Helper,   TestQuantity::High,    TestQuantity::VeryLow>, _fn_<CC::Helper,   TestQuantity::High,    TestQuantity::Low>, _fn_<CC::Helper,   TestQuantity::High,    TestQuantity::Mid>, _fn_<CC::Helper,   TestQuantity::High,    TestQuantity::High>
 
 // Add 250 tests, (5 types X 5 TQs X 5 TQs X T/F)
 #define ADD_TESTS_T_TQ2_B(_fn_)\
@@ -282,8 +282,8 @@ namespace CC
     _fn_<uint64_t, TestQuantity::Low,     TestQuantity::None, false>, _fn_<uint64_t, TestQuantity::Low,     TestQuantity::None, true>, _fn_<uint64_t, TestQuantity::Low,     TestQuantity::VeryLow, false>, _fn_<uint64_t, TestQuantity::Low,     TestQuantity::VeryLow, true>, _fn_<uint64_t, TestQuantity::Low,     TestQuantity::Low, false>, _fn_<uint64_t, TestQuantity::Low,     TestQuantity::Low, true>, _fn_<uint64_t, TestQuantity::Low,     TestQuantity::Mid, false>, _fn_<uint64_t, TestQuantity::Low,     TestQuantity::Mid, true>, _fn_<uint64_t, TestQuantity::Low,     TestQuantity::High, false>, _fn_<uint64_t, TestQuantity::Low,     TestQuantity::High, true>,\
     _fn_<uint64_t, TestQuantity::Mid,     TestQuantity::None, false>, _fn_<uint64_t, TestQuantity::Mid,     TestQuantity::None, true>, _fn_<uint64_t, TestQuantity::Mid,     TestQuantity::VeryLow, false>, _fn_<uint64_t, TestQuantity::Mid,     TestQuantity::VeryLow, true>, _fn_<uint64_t, TestQuantity::Mid,     TestQuantity::Low, false>, _fn_<uint64_t, TestQuantity::Mid,     TestQuantity::Low, true>, _fn_<uint64_t, TestQuantity::Mid,     TestQuantity::Mid, false>, _fn_<uint64_t, TestQuantity::Mid,     TestQuantity::Mid, true>, _fn_<uint64_t, TestQuantity::Mid,     TestQuantity::High, false>, _fn_<uint64_t, TestQuantity::Mid,     TestQuantity::High, true>,\
     _fn_<uint64_t, TestQuantity::High,    TestQuantity::None, false>, _fn_<uint64_t, TestQuantity::High,    TestQuantity::None, true>, _fn_<uint64_t, TestQuantity::High,    TestQuantity::VeryLow, false>, _fn_<uint64_t, TestQuantity::High,    TestQuantity::VeryLow, true>, _fn_<uint64_t, TestQuantity::High,    TestQuantity::Low, false>, _fn_<uint64_t, TestQuantity::High,    TestQuantity::Low, true>, _fn_<uint64_t, TestQuantity::High,    TestQuantity::Mid, false>, _fn_<uint64_t, TestQuantity::High,    TestQuantity::Mid, true>, _fn_<uint64_t, TestQuantity::High,    TestQuantity::High, false>, _fn_<uint64_t, TestQuantity::High,    TestQuantity::High, true>,\
-    _fn_<Helper,   TestQuantity::None,    TestQuantity::None, false>, _fn_<Helper,   TestQuantity::None,    TestQuantity::None, true>, _fn_<Helper,   TestQuantity::None,    TestQuantity::VeryLow, false>, _fn_<Helper,   TestQuantity::None,    TestQuantity::VeryLow, true>, _fn_<Helper,   TestQuantity::None,    TestQuantity::Low, false>, _fn_<Helper,   TestQuantity::None,    TestQuantity::Low, true>, _fn_<Helper,   TestQuantity::None,    TestQuantity::Mid, false>, _fn_<Helper,   TestQuantity::None,    TestQuantity::Mid, true>, _fn_<Helper,   TestQuantity::None,    TestQuantity::High, false>, _fn_<Helper,   TestQuantity::None,    TestQuantity::High, true>,\
-    _fn_<Helper,   TestQuantity::VeryLow, TestQuantity::None, false>, _fn_<Helper,   TestQuantity::VeryLow, TestQuantity::None, true>, _fn_<Helper,   TestQuantity::VeryLow, TestQuantity::VeryLow, false>, _fn_<Helper,   TestQuantity::VeryLow, TestQuantity::VeryLow, true>, _fn_<Helper,   TestQuantity::VeryLow, TestQuantity::Low, false>, _fn_<Helper,   TestQuantity::VeryLow, TestQuantity::Low, true>, _fn_<Helper,   TestQuantity::VeryLow, TestQuantity::Mid, false>, _fn_<Helper,   TestQuantity::VeryLow, TestQuantity::Mid, true>, _fn_<Helper,   TestQuantity::VeryLow, TestQuantity::High, false>, _fn_<Helper,   TestQuantity::VeryLow, TestQuantity::High, true>,\
-    _fn_<Helper,   TestQuantity::Low,     TestQuantity::None, false>, _fn_<Helper,   TestQuantity::Low,     TestQuantity::None, true>, _fn_<Helper,   TestQuantity::Low,     TestQuantity::VeryLow, false>, _fn_<Helper,   TestQuantity::Low,     TestQuantity::VeryLow, true>, _fn_<Helper,   TestQuantity::Low,     TestQuantity::Low, false>, _fn_<Helper,   TestQuantity::Low,     TestQuantity::Low, true>, _fn_<Helper,   TestQuantity::Low,     TestQuantity::Mid, false>, _fn_<Helper,   TestQuantity::Low,     TestQuantity::Mid, true>, _fn_<Helper,   TestQuantity::Low,     TestQuantity::High, false>, _fn_<Helper,   TestQuantity::Low,     TestQuantity::High, true>,\
-    _fn_<Helper,   TestQuantity::Mid,     TestQuantity::None, false>, _fn_<Helper,   TestQuantity::Mid,     TestQuantity::None, true>, _fn_<Helper,   TestQuantity::Mid,     TestQuantity::VeryLow, false>, _fn_<Helper,   TestQuantity::Mid,     TestQuantity::VeryLow, true>, _fn_<Helper,   TestQuantity::Mid,     TestQuantity::Low, false>, _fn_<Helper,   TestQuantity::Mid,     TestQuantity::Low, true>, _fn_<Helper,   TestQuantity::Mid,     TestQuantity::Mid, false>, _fn_<Helper,   TestQuantity::Mid,     TestQuantity::Mid, true>, _fn_<Helper,   TestQuantity::Mid,     TestQuantity::High, false>, _fn_<Helper,   TestQuantity::Mid,     TestQuantity::High, true>,\
-    _fn_<Helper,   TestQuantity::High,    TestQuantity::None, false>, _fn_<Helper,   TestQuantity::High,    TestQuantity::None, true>, _fn_<Helper,   TestQuantity::High,    TestQuantity::VeryLow, false>, _fn_<Helper,   TestQuantity::High,    TestQuantity::VeryLow, true>, _fn_<Helper,   TestQuantity::High,    TestQuantity::Low, false>, _fn_<Helper,   TestQuantity::High,    TestQuantity::Low, true>, _fn_<Helper,   TestQuantity::High,    TestQuantity::Mid, false>, _fn_<Helper,   TestQuantity::High,    TestQuantity::Mid, true>, _fn_<Helper,   TestQuantity::High,    TestQuantity::High, false>, _fn_<Helper,   TestQuantity::High,    TestQuantity::High, true>
+    _fn_<CC::Helper,   TestQuantity::None,    TestQuantity::None, false>, _fn_<CC::Helper,   TestQuantity::None,    TestQuantity::None, true>, _fn_<CC::Helper,   TestQuantity::None,    TestQuantity::VeryLow, false>, _fn_<CC::Helper,   TestQuantity::None,    TestQuantity::VeryLow, true>, _fn_<CC::Helper,   TestQuantity::None,    TestQuantity::Low, false>, _fn_<CC::Helper,   TestQuantity::None,    TestQuantity::Low, true>, _fn_<CC::Helper,   TestQuantity::None,    TestQuantity::Mid, false>, _fn_<CC::Helper,   TestQuantity::None,    TestQuantity::Mid, true>, _fn_<CC::Helper,   TestQuantity::None,    TestQuantity::High, false>, _fn_<CC::Helper,   TestQuantity::None,    TestQuantity::High, true>,\
+    _fn_<CC::Helper,   TestQuantity::VeryLow, TestQuantity::None, false>, _fn_<CC::Helper,   TestQuantity::VeryLow, TestQuantity::None, true>, _fn_<CC::Helper,   TestQuantity::VeryLow, TestQuantity::VeryLow, false>, _fn_<CC::Helper,   TestQuantity::VeryLow, TestQuantity::VeryLow, true>, _fn_<CC::Helper,   TestQuantity::VeryLow, TestQuantity::Low, false>, _fn_<CC::Helper,   TestQuantity::VeryLow, TestQuantity::Low, true>, _fn_<CC::Helper,   TestQuantity::VeryLow, TestQuantity::Mid, false>, _fn_<CC::Helper,   TestQuantity::VeryLow, TestQuantity::Mid, true>, _fn_<CC::Helper,   TestQuantity::VeryLow, TestQuantity::High, false>, _fn_<CC::Helper,   TestQuantity::VeryLow, TestQuantity::High, true>,\
+    _fn_<CC::Helper,   TestQuantity::Low,     TestQuantity::None, false>, _fn_<CC::Helper,   TestQuantity::Low,     TestQuantity::None, true>, _fn_<CC::Helper,   TestQuantity::Low,     TestQuantity::VeryLow, false>, _fn_<CC::Helper,   TestQuantity::Low,     TestQuantity::VeryLow, true>, _fn_<CC::Helper,   TestQuantity::Low,     TestQuantity::Low, false>, _fn_<CC::Helper,   TestQuantity::Low,     TestQuantity::Low, true>, _fn_<CC::Helper,   TestQuantity::Low,     TestQuantity::Mid, false>, _fn_<CC::Helper,   TestQuantity::Low,     TestQuantity::Mid, true>, _fn_<CC::Helper,   TestQuantity::Low,     TestQuantity::High, false>, _fn_<CC::Helper,   TestQuantity::Low,     TestQuantity::High, true>,\
+    _fn_<CC::Helper,   TestQuantity::Mid,     TestQuantity::None, false>, _fn_<CC::Helper,   TestQuantity::Mid,     TestQuantity::None, true>, _fn_<CC::Helper,   TestQuantity::Mid,     TestQuantity::VeryLow, false>, _fn_<CC::Helper,   TestQuantity::Mid,     TestQuantity::VeryLow, true>, _fn_<CC::Helper,   TestQuantity::Mid,     TestQuantity::Low, false>, _fn_<CC::Helper,   TestQuantity::Mid,     TestQuantity::Low, true>, _fn_<CC::Helper,   TestQuantity::Mid,     TestQuantity::Mid, false>, _fn_<CC::Helper,   TestQuantity::Mid,     TestQuantity::Mid, true>, _fn_<CC::Helper,   TestQuantity::Mid,     TestQuantity::High, false>, _fn_<CC::Helper,   TestQuantity::Mid,     TestQuantity::High, true>,\
+    _fn_<CC::Helper,   TestQuantity::High,    TestQuantity::None, false>, _fn_<CC::Helper,   TestQuantity::High,    TestQuantity::None, true>, _fn_<CC::Helper,   TestQuantity::High,    TestQuantity::VeryLow, false>, _fn_<CC::Helper,   TestQuantity::High,    TestQuantity::VeryLow, true>, _fn_<CC::Helper,   TestQuantity::High,    TestQuantity::Low, false>, _fn_<CC::Helper,   TestQuantity::High,    TestQuantity::Low, true>, _fn_<CC::Helper,   TestQuantity::High,    TestQuantity::Mid, false>, _fn_<CC::Helper,   TestQuantity::High,    TestQuantity::Mid, true>, _fn_<CC::Helper,   TestQuantity::High,    TestQuantity::High, false>, _fn_<CC::Helper,   TestQuantity::High,    TestQuantity::High, true>

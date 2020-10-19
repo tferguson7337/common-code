@@ -19,7 +19,7 @@ namespace CC
 
     protected:
 
-        /// Protected Validator Methods \\\
+        // Protected Validator Methods //
 
         // Returns false if !p || writeLen == 0
         // Returns true otherwise.
@@ -28,7 +28,7 @@ namespace CC
             return !!p && writeLen > 0;
         }
 
-        /// Protected Helper Methods \\\
+        // Protected Helper Methods //
 
         // Calculates new length for growing buffer.
         // If geometric increase is sufficent, then new length will be (m_Len + (m_Len >> 1)) (i.e., +50%)
@@ -122,7 +122,7 @@ namespace CC
 
     public:
 
-        /// Public Constructors \\\
+        // Public Constructors //
 
         // Default constructor
         constexpr DynamicBuffer() noexcept :
@@ -164,12 +164,12 @@ namespace CC
             Base(std::move(src))
         { }
 
-        /// Public Destructor \\\
+        // Public Destructor //
 
         // Destructor
         virtual ~DynamicBuffer() noexcept(CC_IS_NOTHROW_DTOR(T)) { };
 
-        /// Operator Overloads \\\
+        // Operator Overloads //
 
         // Copy Assignment
         DynamicBuffer<T>& operator=(_In_ const DynamicBuffer<T>& src) noexcept(CC_IS_NOTHROW_CTOR_DEFAULT(T) && CC_IS_NOTHROW_COPY(T))
@@ -195,7 +195,7 @@ namespace CC
             return MoveAssignmentCommon(std::move(src));
         }
 
-        /// Public Methods \\\
+        // Public Methods //
 
         // Writes specified T object to internal buffer at m_WritePos.
         // Note: Will allocate/grow the internal buffer to hold the new element if the buffer is null/full.

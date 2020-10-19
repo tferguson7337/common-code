@@ -29,7 +29,7 @@ namespace CC
 
     private:
 
-        /// Helper Struct - Doubly-Linked List Node \\\
+        // Helper Struct - Doubly-Linked List Node //
 
         struct DNode
         {
@@ -82,13 +82,13 @@ namespace CC
         };
 
 
-        /// Private Data Members \\\
+        // Private Data Members //
 
         DNode* m_pHead;
         DNode* m_pTail;
         size_t m_Len;
 
-        /// Private Throwing Validators \\\
+        // Private Throwing Validators //
 
         // Throws std::logic_error if this list is empty.
         inline void ValidateDereferenceT(_In_z_ const char* const f)
@@ -116,7 +116,7 @@ namespace CC
             }
         }
 
-        /// Private Helper Methods \\\
+        // Private Helper Methods //
 
         // Frees all list nodes.
         // Note: Does not reset all data members to default values.
@@ -128,20 +128,6 @@ namespace CC
                 m_pHead = m_pHead->pNext;
                 delete p;
             }
-        }
-
-        // If specified, frees all list nodes. Always resets all data members to default values.
-        template <bool bDestroy>
-        inline void ResetList() noexcept
-        {
-            if constexpr (bDestroy)
-            {
-                DestroyList();
-            }
-
-            m_pHead = nullptr;
-            m_pTail = nullptr;
-            m_Len = 0;
         }
 
         // Returns node located at the specified position.
@@ -203,7 +189,9 @@ namespace CC
             m_Len += src.m_Len;
 
             // this list now owns the resources, revoke src's ownership.
-            src.ResetList<false>();
+            src.m_pHead = nullptr;
+            src.m_pTail = nullptr;
+            src.m_Len = 0;
 
             return true;
         }
@@ -243,7 +231,7 @@ namespace CC
             if (src.IsEmpty())
             {
                 // Assigning empty list - clear out this list.
-                ResetList<true>();
+                Clear();
                 return true;
             }
 
@@ -287,7 +275,9 @@ namespace CC
             m_Len = src.m_Len;
 
             // src doesn't own this list anymore - reset it.
-            src.ResetList<false>();
+            src.m_pHead = nullptr;
+            src.m_pTail = nullptr;
+            src.m_Len = 0;
 
             return true;
         }
@@ -366,7 +356,9 @@ namespace CC
             m_Len += src.m_Len;
 
             // Pointers transfered, reset src.
-            src.ResetList<false>();
+            src.m_pHead = nullptr;
+            src.m_pTail = nullptr;
+            src.m_Len = 0;
 
             return true;
         }
@@ -435,7 +427,9 @@ namespace CC
             m_pHead = src.m_pHead;
             m_Len += src.m_Len;
 
-            src.ResetList<false>();
+            src.m_pHead = nullptr;
+            src.m_pTail = nullptr;
+            src.m_Len = 0;
 
             return true;
         }
@@ -465,7 +459,7 @@ namespace CC
 
     public:
 
-        /// Constructors \\\
+        // Constructors //
 
         // Default constructor
         List() noexcept :
@@ -498,7 +492,7 @@ namespace CC
         }
 
 
-        /// Destructor \\\
+        // Destructor //
 
         ~List() noexcept(CC_IS_NOTHROW_DTOR(T))
         {
@@ -506,14 +500,14 @@ namespace CC
         }
 
 
-        /// Assignment Overloads \\\
+        // Assignment Overloads //
 
         // Copy assignment
         List<T>& operator=(_In_ const List<T>& src) noexcept(CC_IS_NOTHROW_COPY(T))
         {
             if (!Assign(src))
             {
-                ResetList<true>();
+                Clear();
             }
 
             return *this;
@@ -524,7 +518,7 @@ namespace CC
         {
             if (!Assign(std::move(src)))
             {
-                ResetList<true>();
+                Clear();
             }
 
             return *this;
@@ -536,14 +530,14 @@ namespace CC
         {
             if (!Assign(std::forward<U>(obj)))
             {
-                ResetList<true>();
+                Clear();
             }
 
             return *this;
         }
 
 
-        /// Operator Overloads \\\
+        // Operator Overloads //
 
         // Returns true if list is not empty, false otherwise.
         [[nodiscard]] explicit operator bool() const noexcept
@@ -564,13 +558,13 @@ namespace CC
         {
             if (!Append(std::forward<U>(obj)))
             {
-                ResetList<true>();
+                Clear();
             }
 
             return *this;
         }
 
-        /// Getters \\\
+        // Getters //
 
         // Returns length of list (number of elements).
         [[nodiscard]] inline size_t Length() const noexcept
@@ -582,7 +576,7 @@ namespace CC
         // Note: If list is empty, this throws std::logic_error
         [[nodiscard]] inline T& Front()
         {
-            ValidateDereferenceT(__FUNCSIG__);
+            ValidateDereferenceT(__PRETTY_FUNCTION__);
             return m_pHead->data;
         }
 
@@ -590,7 +584,7 @@ namespace CC
         // Note: If list is empty, this throws std::logic_error
         [[nodiscard]] inline const T& Front() const
         {
-            ValidateDereferenceT(__FUNCSIG__);
+            ValidateDereferenceT(__PRETTY_FUNCTION__);
             return m_pHead->data;
         }
 
@@ -598,7 +592,7 @@ namespace CC
         // Note: If list is empty, this throws std::logic_error
         [[nodiscard]] inline T& Back()
         {
-            ValidateDereferenceT(__FUNCSIG__);
+            ValidateDereferenceT(__PRETTY_FUNCTION__);
             return m_pTail->data;
         }
 
@@ -606,7 +600,7 @@ namespace CC
         // Note: If list is empty, this throws std::logic_error
         [[nodiscard]] inline const T& Back() const
         {
-            ValidateDereferenceT(__FUNCSIG__);
+            ValidateDereferenceT(__PRETTY_FUNCTION__);
             return m_pTail->data;
         }
 
@@ -615,7 +609,7 @@ namespace CC
         // Note: Throws std::out_of_range if pos refers to a non-existant element.
         [[nodiscard]] inline T& At(_In_ const size_t pos)
         {
-            ValidateAccessAtPositionT(__FUNCSIG__, pos);
+            ValidateAccessAtPositionT(__PRETTY_FUNCTION__, pos);
             return GetNodeAtPosition(pos)->data;
         }
 
@@ -624,12 +618,12 @@ namespace CC
         // Note: Throws std::out_of_range if pos refers to a non-existant element.
         [[nodiscard]] inline const T& At(_In_ const size_t pos) const
         {
-            ValidateAccessAtPositionT(__FUNCSIG__, pos);
+            ValidateAccessAtPositionT(__PRETTY_FUNCTION__, pos);
             return GetNodeAtPosition(pos)->data;
         }
 
 
-        /// Public Methods \\\
+        // Public Methods //
 
         // Adds specified element or list to the end of this list via copy/move.
         // Returns true if operation succeeds, false otherwise.
@@ -646,13 +640,9 @@ namespace CC
             {
                 return (this == &obj) ? AppendListObj(obj) : AppendListObj(std::forward<U>(obj));
             }
-            else if constexpr (CC_IS_ELEMENT(T, U))
+            else // if constexpr (CC_IS_ELEMENT(T, U))
             {
                 return AppendElementObj(std::forward<U>(obj));
-            }
-            else
-            {
-                static_assert(false, __FUNCSIG__ ": Unsupported append type.");
             }
         }
 
@@ -665,20 +655,19 @@ namespace CC
             {
                 return (this == &obj) || AssignListObj(std::forward<U>(obj));
             }
-            else if constexpr (CC_IS_ELEMENT(T, U))
+            else // if constexpr (CC_IS_ELEMENT(T, U))
             {
                 return AssignElementObj(std::forward<U>(obj));
-            }
-            else
-            {
-                static_assert(false, __FUNCSIG__ ": Unsupported assignment type.");
             }
         }
 
         // Destroys all list elements, setting this list back to default state.
         inline void Clear() noexcept
         {
-            ResetList<true>();
+            DestroyList();
+            m_pHead = nullptr;
+            m_pTail = nullptr;
+            m_Len = 0;
         }
 
         // Compares this list's elements against src's list elements.
@@ -745,13 +734,9 @@ namespace CC
             {
                 return (this == &obj) ? InsertListObj(obj, pos) : InsertListObj(std::forward<U>(obj), pos);
             }
-            else if constexpr (CC_IS_ELEMENT(T, U))
+            else // if constexpr (CC_IS_ELEMENT(T, U))
             {
                 return InsertElementObj(std::forward<U>(obj), pos);
-            }
-            else
-            {
-                static_assert(false, __FUNCSIG__ ": Unsupported insert type.");
             }
         }
 
@@ -776,13 +761,9 @@ namespace CC
             {
                 return (this == &obj) ? PrependListObj(obj) : PrependListObj(std::forward<U>(obj));
             }
-            else if constexpr (CC_IS_ELEMENT(T, U))
+            else // if constexpr (CC_IS_ELEMENT(T, U))
             {
                 return PrependElementObj(std::forward<U>(obj));
-            }
-            else
-            {
-                static_assert(false, __FUNCSIG__ ": Unsupported prepend type.");
             }
         }
 

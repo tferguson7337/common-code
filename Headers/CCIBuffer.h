@@ -4,7 +4,7 @@
 #include "CCMacros.h"
 
 // SAL Macros
-#include <sal.h>
+#include <APIAnnotations.h>
 
 
 namespace CC
@@ -21,7 +21,7 @@ namespace CC
         IBuffer<T>& operator=(IBuffer<T>&&) noexcept = default;
 
     public:
-        /// Operator Overloads \\\
+        // Operator Overloads //
 
         // Return true for non-null buffers - false otherwise.
         [[nodiscard]] virtual explicit operator bool() const noexcept = 0;
@@ -48,7 +48,7 @@ namespace CC
         // Compares this buffer to RHS buffer, returning true if buffer contents do not match, false otherwise.
         [[nodiscard]] virtual bool operator!=(_In_ const IBuffer<T>&) const noexcept = 0;
 
-        /// Getters \\\
+        // Getters //
 
         // Return a pointer to the internal buffer (mutable).
         [[nodiscard]] virtual T* Get() noexcept = 0;
@@ -60,12 +60,12 @@ namespace CC
         [[nodiscard]] virtual const size_t& Length() const noexcept = 0;
 
         // Return size in bytes of internal buffer.
-        [[nodiscard]] virtual const size_t Size() const noexcept = 0;
+        [[nodiscard]] virtual size_t Size() const noexcept = 0;
 
         // Return where a subsequent write operation would take place on the internal buffer.
         [[nodiscard]] virtual const size_t& WritePosition() const noexcept = 0;
 
-        /// Setters \\\
+        // Setters //
 
         // Explicitly set the write position to a specified value.
         // Note: Returns false if desired write position exceeds buffer length.  Returns true otherwise.
@@ -74,7 +74,7 @@ namespace CC
         // Explicitly resets the write position to the beginning of the buffer (0).
         virtual void ResetWritePosition() noexcept = 0;
 
-        /// Public Methods \\\
+        // Public Methods //
 
         // Resets internal data members to default values.
         // Note: This will not free any internal resources - use with caution.

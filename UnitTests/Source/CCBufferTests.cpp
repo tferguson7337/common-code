@@ -6,7 +6,7 @@ CC::BufferTests::UTList CC::BufferTests::GetTests()
 #pragma warning(suppress : 6262) // Suppress high stack memory usage warning.
     static const UTList tests
     {
-        /// Constructor Tests \\\
+        // Constructor Tests //
 
         ADD_TESTS_T_TQ1(ConstructorTests::DefaultConstructor),
         ADD_TESTS_T_TQ1(ConstructorTests::LengthConstructor),
@@ -17,38 +17,38 @@ CC::BufferTests::UTList CC::BufferTests::GetTests()
         ADD_TESTS_T_TQ1(ConstructorTests::CopyConstructor),
         ADD_TESTS_T_TQ1(ConstructorTests::MoveConstructor),
 
-        /// Copy Tests \\\
+        // Copy Tests //
 
         ADD_TESTS_T_TQ1(CopyTests::CopyAllBufferDataMembers),
         ADD_TESTS_T_TQ1(CopyTests::CopyNonPointerBufferDataMembers),
         ADD_TESTS_T_TQ1(CopyTests::CopyBuffer),
         ADD_TESTS_T_TQ1(CopyTests::CopyAssignment),
 
-        /// Move Tests \\\
+        // Move Tests //
 
         ADD_TESTS_T_TQ1(MoveTests::TransferBuffer),
         ADD_TESTS_T_TQ1(MoveTests::MoveAssignment),
 
-        /// Subscript Operator Tests \\\
+        // Subscript Operator Tests //
 
         ADD_TESTS_T_TQ1(SubscriptOperatorTests::SubscriptOperator),
 
-        /// Dereference Operator Tests \\\
+        // Dereference Operator Tests //
 
         ADD_TESTS_T_TQ1(DereferenceOperatorTests::DereferenceOperator),
 
-        /// Comparison Tests \\\
+        // Comparison Tests //
 
         ADD_TESTS_T_TQ2(ComparisonTests::ComparisonPtrNull),
         ADD_TESTS_T_TQ2(ComparisonTests::ComparisonPtr),
         ADD_TESTS_T_TQ2(ComparisonTests::Comparison),
         ADD_TESTS_T_TQ2(ComparisonTests::ComparisonOperator),
 
-        /// Set Write Position Tests \\\
+        // Set Write Position Tests //
 
         ADD_TESTS_T_TQ1(SetWritePositionTests::SetWritePosition),
 
-        /// Write Tests \\\
+        // Write Tests //
 
         ADD_TESTS_T_TQ1_B(WriteTests::WriteElement),
         ADD_TESTS_T_TQ2(WriteTests::WritePtrNull),

@@ -2,7 +2,7 @@
 
 // SUTL
 #include <UnitTestResult.h>
-#include <TestQuantity.h>
+#include <TestTypes.h>
 
 // STL
 #include <algorithm>
@@ -37,7 +37,7 @@ namespace CC
 
     private:
 
-        /// Test Subclasses \\\
+        // Test Subclasses //
 
         // Tests methods related to write operations.
         class WriteTests;
