@@ -1,6 +1,7 @@
 #pragma once
 
 // CC
+#include "CCAPIAnnotations.h"
 #include "CCMacros.h"
 #include "CCPointer.h"
 #include "CCPointerHelper.h"
