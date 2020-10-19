@@ -391,7 +391,9 @@ namespace CC
                     try
                     {
                     #if defined(__GNUC__)
-                        #pragma GCC diagnostic ignored "-Wunused-variable"
+                    #pragma GCC diagnostic ignored "-Wunused-variable"
+                    #elif defined(_MSC_VER)
+                    #pragma warning(suppress : 4189)
                     #endif
                         auto c = lit[0];
                     }
@@ -417,7 +419,9 @@ namespace CC
                     try
                     {
                     #if defined(__GNUC__)
-                        #pragma GCC diagnostic ignored "-Wunused-variable"
+                    #pragma GCC diagnostic ignored "-Wunused-variable"
+                    #elif defined(_MSC_VER)
+                    #pragma warning(suppress : 4189)
                     #endif
                         auto c = lit[ptrLenPair.second];
                     }
@@ -443,7 +447,9 @@ namespace CC
                     try
                     {
                     #if defined(__GNUC__)
-                        #pragma GCC diagnostic ignored "-Wunused-variable"
+                    #pragma GCC diagnostic ignored "-Wunused-variable"
+                    #elif defined(_MSC_VER)
+                    #pragma warning(suppress : 4189)
                     #endif
                         auto c = lit[ptrLenPair.second];
                     }
@@ -472,7 +478,9 @@ namespace CC
                     try
                     {
                     #if defined(__GNUC__)
-                        #pragma GCC diagnostic ignored "-Wunused-variable"
+                    #pragma GCC diagnostic ignored "-Wunused-variable"
+                    #elif defined(_MSC_VER)
+                    #pragma warning(suppress : 4189)
                     #endif
                         auto c = lit[ptrLenPair.second];
                     }
@@ -498,7 +506,9 @@ namespace CC
                     try
                     {
                     #if defined(__GNUC__)
-                        #pragma GCC diagnostic ignored "-Wunused-variable"
+                    #pragma GCC diagnostic ignored "-Wunused-variable"
+                    #elif defined(_MSC_VER)
+                    #pragma warning(suppress : 4189)
                     #endif
                         auto c = lit[ptrLenPair.second];
                     }
@@ -524,7 +534,9 @@ namespace CC
                     try
                     {
                     #if defined(__GNUC__)
-                        #pragma GCC diagnostic ignored "-Wunused-variable"
+                    #pragma GCC diagnostic ignored "-Wunused-variable"
+                    #elif defined(_MSC_VER)
+                    #pragma warning(suppress : 4189)
                     #endif
                         auto c = lit[ptrLenPair.second];
                     }

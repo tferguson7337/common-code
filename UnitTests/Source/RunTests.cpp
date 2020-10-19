@@ -4,6 +4,10 @@
 // Tests
 #include <TestSets.h>
 
+// STL
+#include <algorithm>
+#include <list>
+
 
 int main(const int argc, const char* argv[])
 {

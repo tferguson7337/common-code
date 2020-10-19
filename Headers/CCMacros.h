@@ -25,8 +25,8 @@
 #define _CC_STRING_LITERAL_LEN(_STR)    ((sizeof(_STR) / sizeof(_STR[0])) - 1)
 #define CC_STRING_LITERAL_LEN(_STR)     _CC_STRING_LITERAL_LEN(_STR)
 
-#if defined(_MSC_VER)
-#define __PRETTY_FUNCTION__ __PRETTY_FUNCTION__
+#if defined(_MSC_VER) && !defined(__PRETTY_FUNCTION__)
+#define __PRETTY_FUNCTION__ __FUNCSIG__
 #endif
 
 

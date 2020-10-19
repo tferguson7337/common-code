@@ -600,9 +600,11 @@ namespace CC
             Pointer<T> p(testData.data(), len);
             
             #if defined(__GNUC__)
-                #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+            #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+            #elif defined(_MSC_VER)
+            #pragma warning(suppress : 4701)
             #endif
-            T tVal;
+            T tVal{};
 
             try
             {
@@ -627,7 +629,9 @@ namespace CC
             if constexpr (std::is_same_v<T, Helper>)
             {
             #if defined(__GNUC__)
-                #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+            #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+            #elif defined(_MSC_VER)
+            #pragma warning(suppress : 4701)
             #endif
                 bool bCopied = false;
                 bool bMoved = false;
