@@ -35,6 +35,7 @@
     <ClCompile Include="Source\TestSets.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Headers\CCAPIAnnotations.h" />
     <ClInclude Include="..\Headers\CCBuffer.h" />
     <ClInclude Include="..\Headers\CCDynamicBuffer.h" />
     <ClInclude Include="..\Headers\CCForwardList.h" />
