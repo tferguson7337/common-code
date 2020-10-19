@@ -60,6 +60,12 @@ namespace CC
 
         // Protected Helper Methods //
 
+        void ResetMembers() noexcept
+        {
+            m_pPtr = nullptr;
+            m_Len = 0;
+        }
+
         // Calls the appropriate cleanup function.
         void InvokeFreeFunction() noexcept
         {
@@ -72,7 +78,7 @@ namespace CC
                 delete[] m_pPtr;
             }
 
-            Reset();
+            ResetMembers();
         }
 
     public:
@@ -235,8 +241,7 @@ namespace CC
         // Note: This will not free any internal resources - use with caution.
         virtual void Reset() noexcept
         {
-            m_pPtr = nullptr;
-            m_Len = 0;
+            ResetMembers();
         }
 
         // Causes the pointer to free any resources, resetting data members to their default values.
