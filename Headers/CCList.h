@@ -1,6 +1,9 @@
 #pragma once
 
+// CC
+#include "CCAPIAnnotations.h"
 #include "CCPointerHelper.h"
+
 
 namespace CC
 {

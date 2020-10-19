@@ -1,7 +1,10 @@
 #pragma once
 
-#include <CCMacros.h>
-#include <CCForwardList.h>
+// CC
+#include "CCAPIAnnotations.h"
+#include "CCMacros.h"
+#include "CCForwardList.h"
+
 
 namespace CC
 {

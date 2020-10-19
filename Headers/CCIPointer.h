@@ -1,6 +1,8 @@
 #pragma once
 
-#include <CCMacros.h>
+// CC
+#include "CCAPIAnnotations.h"
+#include "CCMacros.h"
 
 
 namespace CC

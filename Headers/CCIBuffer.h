@@ -1,10 +1,8 @@
 #pragma once
 
 // CC
+#include "CCAPIAnnotations.h"
 #include "CCMacros.h"
-
-// SAL Macros
-#include <APIAnnotations.h>
 
 
 namespace CC

@@ -1,5 +1,4 @@
-#ifndef _CC_TYPES_H_
-#define _CC_TYPES_H_
+#pragma once
 
 // STL
 #include <cstdint>
@@ -8,7 +7,7 @@
 #include <type_traits>
 
 // SAL
-#include <APIAnnotations.h>
+#include "CCAPIAnnotations.h"
 
 
 namespace CC
@@ -70,5 +69,3 @@ namespace CC
         return IsIntegerType<T>() || IsPointerType<T>();
     }
 }
-
-#endif // _CC_TYPES_H_

@@ -1,7 +1,9 @@
-#ifndef _CC_MACROS_H_
-#define _CC_MACROS_H_
+#pragma once
 
+// CC
+#include "CCAPIAnnotations.h"
 #include "CCTypes.h"
+
 
 // String Macro Helpers //
 
@@ -77,6 +79,3 @@
 // Integer Representable Type
 #define CC_ENABLE_IF_INTEGER_REPRESENTABLE_TYPE(_T) \
     typename = typename std::enable_if_t<IsIntegerRepresentableType<_T>()>
-
-
-#endif // _CC_MACROS_H_

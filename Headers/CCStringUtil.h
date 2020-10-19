@@ -1,11 +1,12 @@
-#ifndef _CC_STRING_UTIL_H_
-#define _CC_STRING_UTIL_H_
+#pragma once
 
+// CC
+#include "CCAPIAnnotations.h"
 #include "CCMacros.h"
-
 #include "CCBuffer.h"
 #include "CCString.h"
 
+// STL
 #include <cmath>
 #include <vector>
 
@@ -785,5 +786,3 @@ namespace CC
     #undef _ENABLE_IF_NUMBER_CONVERT_SUPPORTED
     };
 }
-
-#endif // _CC_STRING_UTIL_H_

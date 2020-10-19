@@ -1,7 +1,9 @@
 #pragma once
 
-#include <CCMacros.h>
-#include <CCPointerHelper.h>
+// CC
+#include "CCAPIAnnotations.h"
+#include "CCMacros.h"
+#include "CCPointerHelper.h"
 
 
 namespace CC
