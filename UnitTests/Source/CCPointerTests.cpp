@@ -26,7 +26,10 @@ CC::PointerTests::UTList CC::PointerTests::GetTests()
         ADD_TESTS_T_TQ2(MoveTests::MoveAssignment),
 
         // Dereference Tests
-        ADD_TESTS_T_TQ1(DereferenceOperatorTests::Dereference)
+        ADD_TESTS_T_TQ1(DereferenceOperatorTests::Dereference),
+
+        // Utility Function Tests
+        ADD_TESTS_T(UtilityFunctionTests::MakePointer)
     };
 
     return tests;

@@ -250,4 +250,11 @@ namespace CC
             InvokeFreeFunction();
         }
     };
+
+    template <typename T, typename... Args, typename = typename std::enable_if_t<!std::is_array_v<T>>>
+    [[nodiscard]] Pointer<T> MakePointer(_In_ Args&& ... args) noexcept(CC_IS_NOTHROW_CTOR_A(T, Args))
+    {
+        T* pTmp = new (std::nothrow) T(std::forward<Args>(args)...);
+        return Pointer<T>(pTmp, 1);
+    }
 }

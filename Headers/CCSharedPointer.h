@@ -268,4 +268,11 @@ namespace CC
             }
         }
     };
+
+    template <typename T, typename... Args, typename = typename std::enable_if_t<!std::is_array_v<T>>>
+    [[nodiscard]] SharedPointer<T> MakeSharedPointer(_In_ Args&& ... args) noexcept(CC_IS_NOTHROW_CTOR_A(T, Args))
+    {
+        T* pTmp = new (std::nothrow) T(std::forward<Args>(args)...);
+        return SharedPointer<T>(pTmp, 1);
+    }
 }

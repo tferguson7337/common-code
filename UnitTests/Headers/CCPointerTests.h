@@ -52,6 +52,9 @@ namespace CC
         // Tests behavior of the overloaded dereference operator methods.
         class DereferenceOperatorTests;
 
+        // Tests behavior of MakePointer function.
+        class UtilityFunctionTests;
+
     public:
 
         // Return list of Pointer unit tests.
@@ -658,6 +661,54 @@ namespace CC
                     SUTL_TEST_ASSERT(bCopied);
                     SUTL_TEST_ASSERT(!bMoved);
                 }
+            }
+
+            SUTL_TEST_SUCCESS();
+        }
+    };
+
+    class PointerTests::UtilityFunctionTests
+    {
+    public:
+
+        template <typename T>
+        static UTR MakePointer()
+        {
+            Pointer<T> p;
+
+            if constexpr (std::is_same_v<T, Helper>)
+            {
+                std::vector<T> testData(GetTestData<T, TestQuantity::Low>());
+                SUTL_SETUP_ASSERT(testData.size() >= 3);
+
+                testData[0] = Helper(0, 1, 2, 3, 4);
+                p = CC::MakePointer<T>(
+                    static_cast<uint8_t>(0),
+                    static_cast<uint16_t>(1),
+                    static_cast<uint32_t>(2),
+                    static_cast<uint64_t>(3),
+                    static_cast<uint8_t>(4)
+                );
+                SUTL_SETUP_ASSERT(!!p);
+                SUTL_TEST_ASSERT(*p == testData[0]);
+
+                p = CC::MakePointer<T>(testData[1]);
+                SUTL_TEST_ASSERT(*p == testData[1]);
+                SUTL_TEST_ASSERT(p->m_bCopied);
+                SUTL_TEST_ASSERT(!p->m_bMoved);
+
+                p = CC::MakePointer<T>(std::move(testData[2]));
+                SUTL_TEST_ASSERT(*p == testData[2]);
+                SUTL_TEST_ASSERT(!p->m_bCopied);
+                SUTL_TEST_ASSERT(p->m_bMoved);
+            }
+            else
+            {
+                const std::vector<T> testData(GetTestData<T, TestQuantity::VeryLow>());
+                SUTL_SETUP_ASSERT(testData.size() > 0);
+                p = CC::MakePointer<T>(testData[0]);
+                SUTL_SETUP_ASSERT(!!p);
+                SUTL_TEST_ASSERT(*p == testData[0]);
             }
 
             SUTL_TEST_SUCCESS();

@@ -130,6 +130,8 @@ namespace CC
 
         class RefCountTests;
 
+        class UtilityFunctionTests;
+
     public:
 
         // Returns list of SharedPointer unit tests.
@@ -890,6 +892,54 @@ namespace CC
             SUTL_TEST_ASSERT(CleanupHelper<T>::GetDestructionCounter() == ptrLen);
 
             CleanupHelper<T>::GetDestructionCounter() = 0;
+
+            SUTL_TEST_SUCCESS();
+        }
+    };
+
+    class SharedPointerTests::UtilityFunctionTests
+    {
+    public:
+
+        template <typename T>
+        static UTR MakeSharedPointer()
+        {
+            SharedPointer<T> p;
+
+            if constexpr (std::is_same_v<T, Helper>)
+            {
+                std::vector<T> testData(GetTestData<T, TestQuantity::Low>());
+                SUTL_SETUP_ASSERT(testData.size() >= 3);
+
+                testData[0] = Helper(0, 1, 2, 3, 4);
+                p = CC::MakeSharedPointer<T>(
+                    static_cast<uint8_t>(0),
+                    static_cast<uint16_t>(1),
+                    static_cast<uint32_t>(2),
+                    static_cast<uint64_t>(3),
+                    static_cast<uint8_t>(4)
+                    );
+                SUTL_SETUP_ASSERT(!!p);
+                SUTL_TEST_ASSERT(*p == testData[0]);
+
+                p = CC::MakeSharedPointer<T>(testData[1]);
+                SUTL_TEST_ASSERT(*p == testData[1]);
+                SUTL_TEST_ASSERT(p->m_bCopied);
+                SUTL_TEST_ASSERT(!p->m_bMoved);
+
+                p = CC::MakeSharedPointer<T>(std::move(testData[2]));
+                SUTL_TEST_ASSERT(*p == testData[2]);
+                SUTL_TEST_ASSERT(!p->m_bCopied);
+                SUTL_TEST_ASSERT(p->m_bMoved);
+            }
+            else
+            {
+                const std::vector<T> testData(GetTestData<T, TestQuantity::VeryLow>());
+                SUTL_SETUP_ASSERT(testData.size() > 0);
+                p = CC::MakeSharedPointer<T>(testData[0]);
+                SUTL_SETUP_ASSERT(!!p);
+                SUTL_TEST_ASSERT(*p == testData[0]);
+            }
 
             SUTL_TEST_SUCCESS();
         }

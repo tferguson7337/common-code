@@ -23,7 +23,10 @@ CC::SharedPointerTests::UTList CC::SharedPointerTests::GetTests()
         // RefCount Tests
         ADD_TESTS_T_TQ1(RefCountTests::MTIncrement),
         ADD_TESTS_T_TQ1(RefCountTests::MTDecrement),
-        ADD_TESTS_T_TQ1(RefCountTests::MTIncrementAndDecrement)
+        ADD_TESTS_T_TQ1(RefCountTests::MTIncrementAndDecrement),
+
+        // Utility Function Tests
+        ADD_TESTS_T(UtilityFunctionTests::MakeSharedPointer)
     };
 
     return tests;
