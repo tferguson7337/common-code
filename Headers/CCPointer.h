@@ -255,6 +255,6 @@ namespace CC
     [[nodiscard]] Pointer<T> MakePointer(_In_ Args&& ... args) noexcept(CC_IS_NOTHROW_CTOR_A(T, Args))
     {
         T* pTmp = new (std::nothrow) T(std::forward<Args>(args)...);
-        return Pointer<T>(pTmp, 1);
+        return (!pTmp) ? Pointer<T>{} : Pointer<T>(pTmp, 1);
     }
 }

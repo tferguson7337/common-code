@@ -273,6 +273,6 @@ namespace CC
     [[nodiscard]] SharedPointer<T> MakeSharedPointer(_In_ Args&& ... args) noexcept(CC_IS_NOTHROW_CTOR_A(T, Args))
     {
         T* pTmp = new (std::nothrow) T(std::forward<Args>(args)...);
-        return SharedPointer<T>(pTmp, 1);
+        return (!pTmp) ? SharedPointer<T>{} : SharedPointer<T>(pTmp, 1);
     }
 }
