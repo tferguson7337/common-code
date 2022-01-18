@@ -119,7 +119,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             if (pBuffer)
@@ -147,7 +147,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_ASSERT(pBuffer);
@@ -200,7 +200,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             if (pBuffer)
@@ -243,7 +243,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_ASSERT(pBuffer);
@@ -298,7 +298,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_ASSERT(pBuffer);
@@ -368,7 +368,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_ASSERT(srcBuffer.Get() == nullptr);
@@ -451,7 +451,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_ASSERT(buffer.Length() == dst.Length());
@@ -491,7 +491,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_ASSERT(dst.Length() == len);
@@ -541,7 +541,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_ASSERT(dst.Get() == ptr);
@@ -569,7 +569,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_ASSERT(dst.Get() == ptr);
@@ -606,7 +606,7 @@ namespace CC
                 }
                 catch (const std::exception& e)
                 {
-                    SUTL_TEST_EXCEPTION(e.what());
+                    SUTL_TEST_EXCEPTION(e);
                 }
             }
 
@@ -626,12 +626,12 @@ namespace CC
                 }
                 else
                 {
-                    SUTL_TEST_EXCEPTION(e.what());
+                    SUTL_TEST_EXCEPTION(e);
                 }
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_ASSERT(bThrew);
@@ -667,12 +667,12 @@ namespace CC
                 }
                 else
                 {
-                    SUTL_TEST_EXCEPTION(e.what());
+                    SUTL_TEST_EXCEPTION(e);
                 }
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_ASSERT(bThrew == (len == 0));
@@ -700,7 +700,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_SUCCESS();
@@ -724,7 +724,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             if constexpr (bMatchExpected && bNeitherNull)
@@ -754,7 +754,7 @@ namespace CC
                 }
                 catch (const std::exception& e)
                 {
-                    SUTL_TEST_EXCEPTION(e.what());
+                    SUTL_TEST_EXCEPTION(e);
                 }
             }
 
@@ -779,7 +779,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             if constexpr (bMatchExpected && bNeitherNull)
@@ -809,7 +809,7 @@ namespace CC
                 }
                 catch (const std::exception& e)
                 {
-                    SUTL_TEST_EXCEPTION(e.what());
+                    SUTL_TEST_EXCEPTION(e);
                 }
             }
 
@@ -834,7 +834,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             if constexpr (bMatchExpected && bNeitherNull)
@@ -864,7 +864,7 @@ namespace CC
                 }
                 catch (const std::exception& e)
                 {
-                    SUTL_TEST_EXCEPTION(e.what());
+                    SUTL_TEST_EXCEPTION(e);
                 }
             }
 
@@ -889,7 +889,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             try
@@ -898,7 +898,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             try
@@ -907,7 +907,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             try
@@ -916,7 +916,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             try
@@ -925,7 +925,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_SUCCESS();
@@ -959,7 +959,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             try
@@ -975,7 +975,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             if constexpr (len == 0)
@@ -1012,7 +1012,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_SUCCESS();
@@ -1030,7 +1030,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_SUCCESS();
@@ -1067,7 +1067,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_ASSERT(bNullBuffer == !buffer.Get());
@@ -1096,7 +1096,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_ASSERT(bNullBuffer == !buffer.Get());
@@ -1136,7 +1136,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_SUCCESS();
@@ -1167,7 +1167,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_SETUP_EXCEPTION(e.what());
+                SUTL_SETUP_EXCEPTION(e);
             }
 
             SUTL_TEST_ASSERT(bNullSource == !src.Get());
@@ -1188,7 +1188,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_ASSERT(bNullSource == !src.Get());
@@ -1222,7 +1222,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_ASSERT(bNullSource == !src.Get());
@@ -1267,7 +1267,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_SUCCESS();
@@ -1295,7 +1295,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_SETUP_EXCEPTION(e.what());
+                SUTL_SETUP_EXCEPTION(e);
             }
 
             SUTL_TEST_ASSERT(bNullSource == !src.Get());
@@ -1316,7 +1316,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_ASSERT(bNullSource == !src.Get());
@@ -1350,7 +1350,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_ASSERT(bNullSource == !src.Get());
@@ -1395,7 +1395,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_SUCCESS();

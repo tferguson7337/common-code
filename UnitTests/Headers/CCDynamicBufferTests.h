@@ -105,7 +105,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_ASSERT(bExpectFirstWriteGrow == (pBufPtr != dynBuf.Get()));
@@ -128,7 +128,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_ASSERT(bExpectSecondWriteGrow == (pBufPtr != dynBuf.Get()));
@@ -163,7 +163,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_SUCCESS();
@@ -183,7 +183,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_SUCCESS();
@@ -222,7 +222,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_ASSERT(bExpectFirstWriteGrow == (pFirstBufPtr != dynBuf.Get()));
@@ -250,7 +250,7 @@ namespace CC
                 }
                 catch (const std::exception& e)
                 {
-                    SUTL_TEST_EXCEPTION(e.what());
+                    SUTL_TEST_EXCEPTION(e);
                 }
             }
 
@@ -268,7 +268,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_ASSERT((firstWriteLen == secondWriteLen) == (pSecondBufPtr == dynBuf.Get()));
@@ -304,7 +304,7 @@ namespace CC
                 }
                 catch (const std::exception& e)
                 {
-                    SUTL_TEST_EXCEPTION(e.what());
+                    SUTL_TEST_EXCEPTION(e);
                 }
             }
 
@@ -336,7 +336,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_SETUP_EXCEPTION(e.what());
+                SUTL_SETUP_EXCEPTION(e);
             }
 
             SUTL_SETUP_ASSERT(srcBuf.WritePosition() == srcWritePos);
@@ -362,7 +362,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_ASSERT((dstLen != firstWriteLen) == (pFirstBufPtr != dstBuf.Get()));
@@ -383,7 +383,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_ASSERT((firstWriteLen == secondWriteLen) == (pSecondBufPtr == dstBuf.Get()));
@@ -417,7 +417,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_SUCCESS();
@@ -447,7 +447,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_SETUP_EXCEPTION(e.what());
+                SUTL_SETUP_EXCEPTION(e);
             }
 
             SUTL_SETUP_ASSERT(srcBuf.WritePosition() == srcWritePos);
@@ -473,7 +473,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_ASSERT((dstLen != firstWriteLen) == (pFirstBufPtr != dstBuf.Get()));
@@ -494,7 +494,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_ASSERT((firstWriteLen == secondWriteLen) == (pSecondBufPtr == dstBuf.Get()));
@@ -528,7 +528,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_SUCCESS();

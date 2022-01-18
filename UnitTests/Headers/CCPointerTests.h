@@ -77,7 +77,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_ASSERT((ptr.Get() != srcPtr.Get()) == (TQ != TestQuantity::None));
@@ -102,7 +102,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_ASSERT((ptr.Get() != srcPtr.Get()) == (TQ != TestQuantity::None));
@@ -190,7 +190,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_ASSERT(!pPointer->Get() == bExpectNull);
@@ -236,7 +236,7 @@ namespace CC
                 }
                 catch (const std::exception& e)
                 {
-                    SUTL_SETUP_EXCEPTION(e.what());
+                    SUTL_SETUP_EXCEPTION(e);
                 }
             }
 
@@ -246,7 +246,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_ASSERT(!pPointer->Get() == bExpectNull);
@@ -287,7 +287,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_SETUP_EXCEPTION(e.what());
+                SUTL_SETUP_EXCEPTION(e);
             }
 
             SUTL_TEST_ASSERT(!pSrc->Get() == bExpectNull);
@@ -300,7 +300,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_ASSERT(!pSrc->Get() == bExpectNull);
@@ -344,7 +344,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_SETUP_EXCEPTION(e.what());
+                SUTL_SETUP_EXCEPTION(e);
             }
 
             SUTL_TEST_ASSERT(!pSrc->Get() == bExpectNull);
@@ -357,7 +357,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_ASSERT(!pSrc->Get());
@@ -451,7 +451,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             // Ensure src state is as expected after copy.
@@ -558,7 +558,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             // Ensure src state is as expected after move.
@@ -619,7 +619,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_ASSERT(bThrew == bExpectNull);
@@ -652,7 +652,7 @@ namespace CC
                 }
                 catch (const std::exception& e)
                 {
-                    SUTL_TEST_EXCEPTION(e.what());
+                    SUTL_TEST_EXCEPTION(e);
                 }
 
                 SUTL_TEST_ASSERT(bThrew == bExpectNull);

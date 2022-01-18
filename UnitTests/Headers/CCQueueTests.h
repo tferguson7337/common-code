@@ -634,7 +634,7 @@ namespace CC
                     }
                     catch (const std::exception& e)
                     {
-                        SUTL_TEST_EXCEPTION(e.what());
+                        SUTL_TEST_EXCEPTION(e);
                     }
                 }
             }
@@ -652,7 +652,7 @@ namespace CC
                 }
                 catch (const std::exception& e)
                 {
-                    SUTL_TEST_EXCEPTION(e.what());
+                    SUTL_TEST_EXCEPTION(e);
                 }
 
                 SUTL_TEST_ASSERT(bThrew);
@@ -679,7 +679,7 @@ namespace CC
                     }
                     catch (const std::exception& e)
                     {
-                        SUTL_TEST_EXCEPTION(e.what());
+                        SUTL_TEST_EXCEPTION(e);
                     }
                 }
             }
@@ -697,7 +697,7 @@ namespace CC
                 }
                 catch (const std::exception& e)
                 {
-                    SUTL_TEST_EXCEPTION(e.what());
+                    SUTL_TEST_EXCEPTION(e);
                 }
 
                 SUTL_TEST_ASSERT(bThrew);
@@ -782,7 +782,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_ASSERT(!dst);
@@ -839,7 +839,7 @@ namespace CC
             }
             catch (const std::exception& e)
             {
-                SUTL_TEST_EXCEPTION(e.what());
+                SUTL_TEST_EXCEPTION(e);
             }
 
             SUTL_TEST_ASSERT(!dst);
